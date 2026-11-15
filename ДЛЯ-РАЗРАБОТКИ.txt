@@ -1,0 +1,24 @@
+ФУНДАМЕНТ ДЛЯ УЧЕБНОЙ ЧАСТИ (по ТЗ MVP)
+=======================================
+Всё хранится в одной базе Supabase. Вызов любой функции:
+  POST {supabaseUrl}/rest/v1/rpc/<функция>, заголовок apikey: {supabaseKey}, тело — JSON с параметрами.
+
+Группы и ученики
+  • Группа открывается по коду (6 знаков) — это её адрес: #/g/<код>. Список групп наружу не отдаётся.
+  • group_get(p_slug = код) → {slug, name, version, data}. В data.students у каждого ученика
+    постоянный id, имя (имя + первая буква фамилии), пол g, аватарка av.
+  • Вход ребёнка (ТЗ У1): ввести код группы → выбрать своё имя из data.students. Пароля нет.
+
+Прогресс уроков (таблица lesson_progress)
+  • progress_save(p_code, p_student, p_course, p_lesson, p_stars 0–3, p_correct, p_total)
+      сохраняет результат урока; best_stars и attempts считаются сами.
+      Курс и урок — латиница/цифры: например course "alifba", lesson "1".
+  • progress_get(p_code, p_student) → список уроков ребёнка (для карты уроков, ТЗ У2, У7).
+  • progress_group(p_token, p_slug) → прогресс всей группы, только для учителя этой группы (ТЗ Т2, Т3).
+
+Учителя и роли
+  • login / me / logout / change_password; администратор: admin_list, admin_group_save,
+    admin_group_newcode, admin_group_delete, admin_teacher_save, admin_teacher_delete.
+  • Учитель видит и меняет только свои группы. Таблицы напрямую закрыты, доступ только через функции.
+
+Настройки в одном месте — config.js: name (название), character (имя персонажа), avatarStyle.

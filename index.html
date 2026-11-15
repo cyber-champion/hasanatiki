@@ -1,0 +1,951 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Хасанатики</title>
+
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="theme-color" content="#0b1330">
+<meta name="robots" content="noindex">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+/* Ночное небо над мечетью: тёмно-синий фон, золото для главного, у каждой категории свой цвет */
+:root{
+  color-scheme:dark;
+  --night:#0b1330;--sky:#1a2a66;--card:#151d3b;--card2:#1e2850;--line:rgba(255,255,255,.08);
+  --tx:#eef1ff;--mut:#97a3cf;--dim:#6b77a6;
+  --gold:#fbbf24;--gold-d:#7a4a06;
+  --n:#5eead4;--nbg:#163d3c;--q:#93b4ff;--qbg:#1d3262;--x:#fcd34d;--xbg:#3d3222;--s:#c4b5fd;--sbg:#2d2a5a;--f:#fda4af;--fbg:#43223a;
+  --ok:#4ade80;--warn:#fb923c;--err:#f87171;
+  --font:ui-rounded,'SF Pro Rounded','Nunito',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--night);color:var(--tx);font:600 15px/1.45 var(--font);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:8px 112px;
+  background-image:radial-gradient(1.2px 1.2px at 12% 6%,rgba(255,255,255,.55),transparent),radial-gradient(1px 1px at 83% 3%,rgba(255,255,255,.5),transparent),radial-gradient(1.4px 1.4px at 67% 11%,rgba(255,255,255,.35),transparent),radial-gradient(1px 1px at 33% 14%,rgba(255,255,255,.4),transparent),radial-gradient(120% 340px at 50% 0,var(--sky),transparent);
+  background-repeat:no-repeat}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--gold)}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+#app{max-width:600px;margin:0 auto}
+h1,h2,h3{margin:0;text-wrap:balance}
+p{margin:0}
+.top{text-align:center;padding:10px 0 6px;position:relative}
+.brand{font:900 40px/1.05 var(--font);color:var(--gold);text-shadow:0 3px 0 var(--gold-d),0 8px 24px rgba(251,191,36,.25);letter-spacing:.3px;overflow-wrap:anywhere}
+.brand i{font-style:normal;font-size:24px;vertical-align:middle;margin:0 6px}
+.gname{color:var(--tx);font-size:17px;font-weight:800;margin-top:8px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:34px}
+.lnk{background:none;border:0;color:var(--mut);font-weight:800;font-size:14px;cursor:pointer;padding:6px 4px;text-decoration:none;display:inline-flex;align-items:center;gap:4px}
+.lnk:hover{color:var(--tx)}
+.chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:12px 0 16px}
+.chip{background:rgba(255,255,255,.07);border-radius:999px;padding:7px 14px;font-weight:700}
+.chip.g{color:var(--gold)}
+.box{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:18px;margin-bottom:16px}
+.box h2{font-size:21px;font-weight:800;margin-bottom:12px}
+.box h2 small{font-size:14px;color:var(--mut);font-weight:700;margin-left:6px}
+.mut{color:var(--mut)}
+.sm{font-size:13px}
+.row{display:flex;gap:12px;align-items:center;background:var(--card2);border-radius:20px;padding:12px 14px;margin-bottom:10px;cursor:pointer;transition:transform .15s;color:inherit;text-decoration:none}
+.row:hover{transform:translateY(-1px)}
+.row.me{box-shadow:0 0 0 2px var(--gold) inset}
+.rk{width:30px;text-align:center;font:800 20px var(--font);color:var(--mut);flex-shrink:0}
+.mid{flex:1;min-width:0}
+.nm{font-weight:800;font-size:18px;overflow-wrap:anywhere}
+.lvl{font-weight:800;font-size:14px;margin:1px 0 5px}
+.tags{display:flex;flex-wrap:wrap;gap:5px}
+.tg{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:2px 10px;font-size:13px;font-weight:700;white-space:nowrap}
+.tn{background:var(--nbg);color:var(--n)}.tq{background:var(--qbg);color:var(--q)}.tx{background:var(--xbg);color:var(--x)}.ts{background:var(--sbg);color:var(--s)}.tf{background:var(--fbg);color:var(--f)}
+.ex{display:inline-block;white-space:nowrap;background:rgba(255,255,255,.1);color:var(--mut);font-size:11px;padding:1px 7px;border-radius:999px;vertical-align:middle;margin-left:6px;font-weight:700}
+.sc{text-align:right;flex-shrink:0}
+.sc b{display:block;font:900 30px/1 var(--font);color:var(--gold);font-variant-numeric:tabular-nums}
+.sc small{color:var(--mut);font-size:12px}
+.bdg{margin-top:5px;font-size:17px;letter-spacing:1px}
+.av{--c:#94a3b8;position:relative;width:64px;height:64px;border-radius:50%;background:#16205a;border:3px solid var(--c);display:flex;align-items:center;justify-content:center;font-size:31px;flex-shrink:0;box-shadow:0 0 16px color-mix(in srgb,var(--c) 40%,transparent)}
+.av svg{width:100%;height:100%;border-radius:50%;display:block}
+.av.l{width:84px;height:84px;font-size:42px}
+.av.xl{width:120px;height:120px;font-size:62px;border-width:4px}
+.av em{position:absolute;right:-5px;bottom:-5px;width:26px;height:26px;border-radius:50%;background:var(--c);color:#0b1330;border:3px solid var(--night);font:900 12px/20px var(--font);text-align:center;font-style:normal}
+.av.xl em{width:36px;height:36px;font-size:16px;line-height:30px}
+.av.s{width:40px;height:40px;border-width:2px;box-shadow:none}
+.pod{display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:8px;align-items:end;text-align:center;margin:4px 0 18px}
+.pod>div{min-width:0;cursor:pointer}
+.pod .av{margin:0 auto}
+.pod .pn{font-weight:800;font-size:15px;margin-top:8px;overflow-wrap:anywhere}
+.pod .pp{font:900 26px/1.1 var(--font);color:var(--gold);margin-bottom:6px;font-variant-numeric:tabular-nums}
+.crown{font-size:30px;line-height:1;height:32px}
+.blk{border-radius:16px 16px 6px 6px;background:linear-gradient(#232c52,#181f3f);border:1px solid var(--line);display:flex;align-items:flex-start;justify-content:center;padding-top:12px;font-size:30px}
+.blk.g1{background:linear-gradient(#5a4718,#251f15);border-color:rgba(251,191,36,.45)}
+.bar{height:12px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--n),var(--gold));min-width:6px}
+.goal .gh{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.goal .gh b{font-size:17px;font-weight:800}
+.goal .gh span{font:900 18px var(--font);color:var(--gold);font-variant-numeric:tabular-nums}
+.goal .gs{margin-top:8px}
+.mecard{display:flex;gap:14px;align-items:center}
+.lg{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)}
+.lg:last-child{border-bottom:0}
+.lg .ic{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0}
+.lg .lt{flex:1;min-width:0;font-weight:700;overflow-wrap:anywhere}
+.lg .lt small{display:block;color:var(--mut);font-weight:600;font-size:13px}
+.lg .dt{color:var(--mut);font-size:13px;flex-shrink:0;text-align:right}
+.lg .x{background:none;border:0;color:var(--dim);font-size:18px;cursor:pointer;padding:4px 8px}
+.cen{text-align:center}
+.big{font-size:54px;line-height:1.1;margin-bottom:6px}
+.rule{border-radius:18px;padding:14px;margin-bottom:10px;display:flex;gap:14px;align-items:flex-start}
+.rule .e{font-size:36px;line-height:1}
+.rule h3{font-size:18px;font-weight:800;margin-bottom:3px}
+.lrow{display:flex;align-items:center;gap:12px;padding:7px 0;font-size:17px;font-weight:700}
+.lrow u{width:34px;height:34px;border-radius:50%;text-decoration:none;display:flex;align-items:center;justify-content:center;font-weight:900;color:#0b1330;font-size:15px;flex-shrink:0}
+.lrow s{margin-left:auto;text-decoration:none;color:var(--mut);font-size:15px;text-align:right}
+.btn{border:0;border-radius:14px;padding:10px 14px;background:#2a3566;color:var(--tx);cursor:pointer;font-weight:800;display:inline-flex;align-items:center;gap:6px;justify-content:center;text-decoration:none}
+.btn:hover{background:#334079}
+.btn.pri{background:var(--gold);color:#241a02}
+.btn.pri:hover{background:#ffd04d}
+.btn.dng{background:#5b2238;color:#ffd5dc}
+.btn.sm{padding:6px 10px;border-radius:11px;font-size:14px}
+.btn.wide{width:100%}
+.btn[disabled]{opacity:.45;cursor:default}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
+.field label{font-size:13px;color:var(--mut);font-weight:700}
+input[type=text],input[type=number],input[type=date],input[type=search],input[type=password],select,textarea{width:100%;min-width:0;padding:11px 13px;border-radius:13px;border:1px solid var(--line);background:var(--card2);color:var(--tx)}
+textarea{min-height:170px;resize:vertical;font-size:14px;line-height:1.5}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pick{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 12px}
+.pk{border:2px solid transparent;border-radius:999px;padding:6px 12px;background:var(--card2);cursor:pointer;font-weight:800;display:inline-flex;gap:6px;align-items:center}
+.pk.on{border-color:var(--gold);background:#3a3216}
+.avgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px;margin:6px 0 12px}
+.avp{border:3px solid transparent;border-radius:16px;background:var(--card2);padding:5px 4px 4px;cursor:pointer;text-align:center;font-size:11px;font-weight:800;color:var(--mut)}
+.avp svg{width:100%;aspect-ratio:1;display:block;border-radius:50%;max-width:100%}
+.avp.on{border-color:var(--gold);color:var(--tx)}
+.seg{display:inline-flex;background:var(--card2);border-radius:13px;padding:3px;gap:3px;flex-wrap:wrap}
+.seg button{border:0;background:none;padding:7px 12px;border-radius:10px;font-weight:800;cursor:pointer;color:var(--mut)}
+.seg button.on{background:#334079;color:var(--tx)}
+.savebar{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--card2);border:1px solid var(--line);border-radius:16px;padding:9px 12px;margin:6px 0 14px;font-weight:700;font-size:14px}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:7px;background:var(--ok)}
+.dot.w{background:var(--warn)}.dot.e{background:var(--err)}
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(9,15,38,.96);backdrop-filter:blur(8px);border-top:1px solid var(--line);padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
+.nav div{display:flex;max-width:600px;margin:0 auto;gap:2px}
+.nav button{flex:1;background:none;border:0;color:var(--mut);font-weight:800;font-size:13px;padding:6px 2px;border-radius:16px;cursor:pointer;min-width:0}
+.nav button span{display:block;font-size:26px;line-height:1.15}
+.nav button.on{background:rgba(255,255,255,.08);color:var(--gold)}
+.ov{position:fixed;inset:0;z-index:40;background:rgba(3,6,18,.7);display:flex;align-items:flex-end;justify-content:center}
+.ov.anim{animation:fd .2s}.ov.anim .sheet{animation:up .25s ease-out}
+.sheet{width:100%;max-width:600px;max-height:90%;overflow:auto;background:var(--card);border:1px solid var(--line);border-radius:26px 26px 0 0;padding:18px max(18px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(18px,env(safe-area-inset-left,0px))}
+.sheet .grab{width:44px;height:5px;border-radius:9px;background:rgba(255,255,255,.2);margin:-6px auto 12px}
+.shd{display:flex;align-items:center;gap:16px;margin-bottom:14px}
+.close{margin-left:auto;align-self:flex-start;background:rgba(255,255,255,.08);border:0;border-radius:50%;width:38px;height:38px;font-size:20px;cursor:pointer;color:var(--tx);flex-shrink:0}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}
+.st{background:var(--card2);border-radius:14px;padding:10px 4px;text-align:center}
+.st b{display:block;font:900 22px var(--font);font-variant-numeric:tabular-nums}
+.st span{font-size:12px;color:var(--mut);font-weight:700}
+.bgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
+.bd{background:var(--card2);border-radius:14px;padding:10px 6px;text-align:center}
+.bd i{display:block;font-style:normal;font-size:28px;line-height:1.2}
+.bd b{display:block;font-size:12px;font-weight:800;margin-top:3px}
+.bd span{display:block;font-size:11px;color:var(--mut)}
+.bd.off{opacity:.38;filter:grayscale(1)}
+.sec{font-size:13px;font-weight:800;color:var(--mut);letter-spacing:.06em;text-transform:uppercase;margin:16px 0 8px}
+.qa{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.qa>div{background:var(--card2);border-radius:14px;padding:8px 4px;text-align:center;font-size:12px;font-weight:800;color:var(--mut)}
+.qa b{display:block;color:var(--tx);font-size:18px;font-variant-numeric:tabular-nums}
+.qa .btns{justify-content:center;gap:4px;margin-top:4px}
+.mark{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:10px 0}
+.mk{display:flex;align-items:center;gap:8px;padding:6px 10px 6px 6px;border-radius:14px;background:var(--card2);border:2px solid transparent;cursor:pointer;font-weight:800;min-width:0;text-align:left}
+.mk>span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mk.on{border-color:var(--gold);background:#352e14}
+.mk .av{width:34px;height:34px;border-width:2px;box-shadow:none}
+.sticky{position:sticky;bottom:calc(78px + env(safe-area-inset-bottom,0px));background:var(--card);padding:10px 0;z-index:2}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(96px + env(safe-area-inset-bottom,0px));z-index:60;background:#f8fafc;color:#0b1330;font-weight:800;padding:11px 18px;border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.4);max-width:calc(100% - 32px);text-align:center}
+.cel{text-align:center;padding:10px 0 4px}
+.cel h2{font:900 28px var(--font);color:var(--gold);margin:14px 0 6px}
+#fx{position:fixed;inset:0;pointer-events:none;z-index:70}
+.certimg{width:100%;border-radius:12px;margin:10px 0;border:1px solid var(--line)}
+.hall-w{display:flex;gap:10px;align-items:center;padding:6px 0}
+.hall-w .m{font-size:26px}
+.splash{position:fixed;inset:0;z-index:90;background:var(--night);display:flex;align-items:center;justify-content:center;transition:opacity .5s}
+.splash img{width:160px;height:160px;border-radius:32px;box-shadow:0 20px 60px rgba(0,0,0,.5);animation:pop .6s ease-out}
+.splash.out{opacity:0;pointer-events:none}
+.logo{width:72px;height:72px;border-radius:18px;display:block;margin:0 auto 10px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.note{background:var(--card2);border-radius:14px;padding:10px 12px;font-size:14px}
+.note.err{background:var(--fbg);color:#ffd5dc}
+.badge{display:inline-block;font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px;background:#3a3216;color:var(--gold);margin-left:6px;vertical-align:middle}
+.adm{border-top:1px solid var(--line);padding:12px 0}
+.adm:first-of-type{border-top:0}
+.adm .hd{display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap}
+.adm .hd b{font-size:16px}
+.chk{display:flex;align-items:center;gap:8px;padding:6px 0;font-weight:700;cursor:pointer}
+.chk input{width:20px;height:20px;accent-color:var(--gold)}
+.form{background:var(--card2);border-radius:16px;padding:14px;margin-top:10px}
+.form input[type=text],.form input[type=password],.form select{background:var(--card)}
+.code{font-family:ui-monospace,Menlo,monospace;font-size:13px;color:var(--mut);overflow-wrap:anywhere}
+.loading{padding:60px 0;text-align:center;color:var(--mut)}
+@keyframes up{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+@keyframes fd{from{opacity:0}}
+@keyframes pop{from{transform:scale(.7);opacity:0}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (max-width:420px){
+  .brand{font-size:34px}
+  .av{width:54px;height:54px;font-size:26px}
+  .sc b{font-size:25px}
+  .nm{font-size:16px}
+  .stats,.qa{grid-template-columns:repeat(2,1fr)}
+  .grid2{grid-template-columns:1fr}
+  .nav button{font-size:11px}
+  .nav button span{font-size:23px}
+}
+</style>
+</head>
+<body>
+<div id="app"><div class="loading">Загрузка…</div></div>
+<script src="config.js"></script>
+<script>
+(function(){
+"use strict";
+/* ================= настройки ================= */
+var CFG=window.APP_CONFIG||{};
+var APP=String(CFG.name||"Хасанатики");
+var CHAR=String(CFG.character||"");            // имя персонажа платформы (пока не используется в рейтинге)
+var SYMBOLS_ONLY=CFG.avatarStyle==="symbols";     // "symbols" — только аватарки без лиц
+var CLOUD=!!(CFG.supabaseUrl&&CFG.supabaseKey);
+document.title=APP;
+var ICON=(document.querySelector('link[rel="apple-touch-icon"]')||{}).href||"";
+
+/* ================= справочники ================= */
+var LV=[[1,"🌱","Новичок",0,"#94a3b8"],[2,"📗","Ученик",15,"#4ade80"],[3,"💪","Старательный",40,"#2dd4bf"],[4,"🧭","Знаток",80,"#3b82f6"],[5,"🎯","Мастер",130,"#8b5cf6"],[6,"🛡️","Наставник",200,"#e879f9"],[7,"🦉","Мудрец",300,"#fb923c"],[8,"⚔️","Герой",450,"#f43f5e"],[9,"👑","Легенда",650,"#facc15"]];
+var NAMES=["","Аль-Фатиха","Аль-Бакара","Али Имран","Ан-Ниса","Аль-Маида","Аль-Анам","Аль-Араф","Аль-Анфаль","Ат-Тауба","Юнус","Худ","Юсуф","Ар-Раад","Ибрахим","Аль-Хиджр","Ан-Нахль","Аль-Исра","Аль-Кахф","Марьям","Та Ха","Аль-Анбия","Аль-Хаджж","Аль-Муминун","Ан-Нур","Аль-Фуркан","Аш-Шуара","Ан-Намль","Аль-Касас","Аль-Анкабут","Ар-Рум","Лукман","Ас-Саджда","Аль-Ахзаб","Саба","Фатыр","Йа Син","Ас-Саффат","Сад","Аз-Зумар","Гафир","Фуссылат","Аш-Шура","Аз-Зухруф","Ад-Духан","Аль-Джасия","Аль-Ахкаф","Мухаммад","Аль-Фатх","Аль-Худжурат","Каф","Аз-Зарият","Ат-Тур","Ан-Наджм","Аль-Камар","Ар-Рахман","Аль-Вакиа","Аль-Хадид","Аль-Муджадаля","Аль-Хашр","Аль-Мумтахана","Ас-Сафф","Аль-Джумуа","Аль-Мунафикун","Ат-Тагабун","Ат-Таляк","Ат-Тахрим","Аль-Мульк","Аль-Калам","Аль-Хакка","Аль-Мааридж","Нух","Аль-Джинн","Аль-Музаммиль","Аль-Муддассир","Аль-Кыяма","Аль-Инсан","Аль-Мурсалят","Ан-Наба","Ан-Назиат","Абаса","Ат-Таквир","Аль-Инфитар","Аль-Мутаффифин","Аль-Иншикак","Аль-Бурудж","Ат-Тарик","Аль-Аля","Аль-Гашия","Аль-Фаджр","Аль-Балад","Аш-Шамс","Аль-Лейль","Ад-Духа","Аш-Шарх","Ат-Тин","Аль-Алак","Аль-Кадр","Аль-Баййина","Аз-Зальзаля","Аль-Адият","Аль-Кариа","Ат-Такасур","Аль-Аср","Аль-Хумаза","Аль-Филь","Курайш","Аль-Маун","Аль-Кяусар","Аль-Кафирун","Ан-Наср","Аль-Масад","Аль-Ихлас","Аль-Фалак","Ан-Нас"];
+var AYAT="Аят аль-Курси";
+var SUR=[NAMES[1]];for(var i=114;i>=78;i--)SUR.push(NAMES[i]);SUR.push(AYAT);for(i=2;i<=77;i++)SUR.push(NAMES[i]);
+var JUZ=NAMES.slice(78);
+var NUM={};NAMES.forEach(function(n,i){if(i)NUM[n]=i});
+var CAT={n:["🕌","Намаз","tn","--nbg"],q:["📖","Коран","tq","--qbg"],x:["⭐","Дополнительно","tx","--xbg"],f:["⚠️","Штраф","tf","--fbg"],s:["📜","Сура","ts","--sbg"]};
+var SB=[[1,"🌟","Первая сура"],[3,"📿","3 суры"],[5,"🔖","5 сур"],[10,"🏅","10 сур"],[20,"🎖️","20 сур"],[30,"💎","30 сур"],[50,"🏆","50 сур"],[114,"🕋","Хафиз"]];
+var STK=[[3,"🔥","3 недели подряд"],[6,"⚡","6 недель подряд"],[10,"🏔️","10 недель подряд"]];
+/* Аватарки: [id, имя, набор (b — мальчики, g — девочки, n — символы), svg] */
+var AVS=[["b-lion", "Лев", "b", "<defs><radialGradient id=\"b-liong\" cx=\"50%\" cy=\"32%\" r=\"75%\"><stop offset=\"0\" stop-color=\"#2b4fb5\"/><stop offset=\"1\" stop-color=\"#0f1d4a\"/><\/radialGradient><clipPath id=\"b-lionc\"><circle cx=\"50\" cy=\"50\" r=\"50\"/><\/clipPath><\/defs><circle cx=\"50\" cy=\"50\" r=\"50\" fill=\"url(#b-liong)\"/><g clip-path=\"url(#b-lionc)\"><circle cx=\"78\" cy=\"53\" r=\"10.5\" fill=\"#a8461a\"/><circle cx=\"75.17\" cy=\"64.84\" r=\"10.5\" fill=\"#a8461a\"/><circle cx=\"67.24\" cy=\"74.28\" r=\"10.5\" fill=\"#a8461a\"/><circle cx=\"55.82\" cy=\"79.41\" r=\"10.5\" fill=\"#a8461a\"/><circle cx=\"43.23\" cy=\"79.2\" r=\"10.5\" fill=\"#a8461a\"/><circle cx=\"32\" cy=\"73.68\" r=\"10.5\" fill=\"#a8461a\"/><circle cx=\"24.42\" cy=\"63.98\" r=\"10.5\" fill=\"#a8461a\"/><circle cx=\"22.02\" cy=\"52.06\" r=\"10.5\" fill=\"#a8461a\"/><circle cx=\"25.28\" cy=\"40.32\" r=\"10.5\" fill=\"#a8461a\"/><circle cx=\"33.54\" cy=\"31.16\" r=\"10.5\" fill=\"#a8461a\"/><circle cx=\"45.14\" cy=\"26.41\" r=\"10.5\" fill=\"#a8461a\"/><circle cx=\"57.72\" cy=\"27.05\" r=\"10.5\" fill=\"#a8461a\"/><circle cx=\"68.74\" cy=\"32.94\" r=\"10.5\" fill=\"#a8461a\"/><circle cx=\"75.96\" cy=\"42.89\" r=\"10.5\" fill=\"#a8461a\"/><circle cx=\"50\" cy=\"53\" r=\"29\" fill=\"#c2621f\"/><circle cx=\"35\" cy=\"36\" r=\"6.5\" fill=\"#f2b24a\"/><circle cx=\"35\" cy=\"36\" r=\"3.4\" fill=\"#d98a2b\"/><circle cx=\"65\" cy=\"36\" r=\"6.5\" fill=\"#f2b24a\"/><circle cx=\"65\" cy=\"36\" r=\"3.4\" fill=\"#d98a2b\"/><ellipse cx=\"50\" cy=\"55\" rx=\"21\" ry=\"20\" fill=\"#f6b84b\"/><path d=\"M50 35C46 41 46 50 50 54C54 50 54 41 50 35Z\" fill=\"#eaa23c\"/><ellipse cx=\"44.5\" cy=\"63\" rx=\"7\" ry=\"5.6\" fill=\"#ffe7b3\"/><ellipse cx=\"55.5\" cy=\"63\" rx=\"7\" ry=\"5.6\" fill=\"#ffe7b3\"/><ellipse cx=\"50\" cy=\"69.5\" rx=\"5\" ry=\"3.2\" fill=\"#ffe7b3\"/><path d=\"M45 57Q50 54.5 55 57Q53.5 61.5 50 62.5Q46.5 61.5 45 57Z\" fill=\"#6b3410\"/><path d=\"M50 62.5v2.6M50 65.1q-2 2.2 -4 .6M50 65.1q2 2.2 4 .6\" stroke=\"#6b3410\" stroke-width=\"1.5\" fill=\"none\" stroke-linecap=\"round\"/><circle cx=\"42\" cy=\"49\" r=\"3\" fill=\"#1c1208\"/><circle cx=\"43.05\" cy=\"47.86\" r=\"1.02\" fill=\"#fff\"/><circle cx=\"58\" cy=\"49\" r=\"3\" fill=\"#1c1208\"/><circle cx=\"59.05\" cy=\"47.86\" r=\"1.02\" fill=\"#fff\"/><path d=\"M37.5 42.9L45.5 45.1\" stroke=\"#7a3a10\" stroke-width=\"2.4\" stroke-linecap=\"round\"/><path d=\"M62.5 42.9L54.5 45.1\" stroke=\"#7a3a10\" stroke-width=\"2.4\" stroke-linecap=\"round\"/><\/g>"], ["b-tiger", "Тигр", "b", "<defs><radialGradient id=\"b-tigerg\" cx=\"50%\" cy=\"32%\" r=\"75%\"><stop offset=\"0\" stop-color=\"#0f8a7e\"/><stop offset=\"1\" stop-color=\"#053d35\"/><\/radialGradient><clipPath id=\"b-tigerc\"><circle cx=\"50\" cy=\"50\" r=\"50\"/><\/clipPath><\/defs><circle cx=\"50\" cy=\"50\" r=\"50\" fill=\"url(#b-tigerg)\"/><g clip-path=\"url(#b-tigerc)\"><circle cx=\"32\" cy=\"34\" r=\"8.5\" fill=\"#e07a1c\"/><circle cx=\"32\" cy=\"34\" r=\"4.6\" fill=\"#fff1e0\"/><circle cx=\"68\" cy=\"34\" r=\"8.5\" fill=\"#e07a1c\"/><circle cx=\"68\" cy=\"34\" r=\"4.6\" fill=\"#fff1e0\"/><ellipse cx=\"50\" cy=\"54\" rx=\"28\" ry=\"25\" fill=\"#f08a24\"/><ellipse cx=\"39\" cy=\"65\" rx=\"13\" ry=\"9.5\" fill=\"#fff4e6\"/><ellipse cx=\"61\" cy=\"65\" rx=\"13\" ry=\"9.5\" fill=\"#fff4e6\"/><g fill=\"#2b1a10\"><path d=\"M48 31L52 31L50 41Z\"/><path d=\"M40 34L46 36L42 41Z\"/><path d=\"M60 34L54 36L58 41Z\"/><path d=\"M23 51L33 53.5L24 56.5Z\"/><path d=\"M24 59L33 58.5L26 63.5Z\"/><path d=\"M77 51L67 53.5L76 56.5Z\"/><path d=\"M76 59L67 58.5L74 63.5Z\"/><\/g><path d=\"M46 59Q50 57 54 59Q52.5 63 50 63.5Q47.5 63 46 59Z\" fill=\"#7c2d12\"/><path d=\"M50 63.5v2.6M50 66.1q-2 2.2 -4 .6M50 66.1q2 2.2 4 .6\" stroke=\"#7c2d12\" stroke-width=\"1.5\" fill=\"none\" stroke-linecap=\"round\"/><circle cx=\"41\" cy=\"50\" r=\"3.3\" fill=\"#c7d72a\"/><circle cx=\"41\" cy=\"50\" r=\"1.65\" fill=\"#1a1208\"/><circle cx=\"42.16\" cy=\"48.75\" r=\"1.12\" fill=\"#fff\"/><circle cx=\"59\" cy=\"50\" r=\"3.3\" fill=\"#c7d72a\"/><circle cx=\"59\" cy=\"50\" r=\"1.65\" fill=\"#1a1208\"/><circle cx=\"60.16\" cy=\"48.75\" r=\"1.12\" fill=\"#fff\"/><path d=\"M36.5 43.4L44.5 45.6\" stroke=\"#2b1a10\" stroke-width=\"2.4\" stroke-linecap=\"round\"/><path d=\"M63.5 43.4L55.5 45.6\" stroke=\"#2b1a10\" stroke-width=\"2.4\" stroke-linecap=\"round\"/><\/g>"], ["b-bars", "Барс", "b", "<defs><radialGradient id=\"b-barsg\" cx=\"50%\" cy=\"32%\" r=\"75%\"><stop offset=\"0\" stop-color=\"#3b4b63\"/><stop offset=\"1\" stop-color=\"#0f172a\"/><\/radialGradient><clipPath id=\"b-barsc\"><circle cx=\"50\" cy=\"50\" r=\"50\"/><\/clipPath><\/defs><circle cx=\"50\" cy=\"50\" r=\"50\" fill=\"url(#b-barsg)\"/><g clip-path=\"url(#b-barsc)\"><circle cx=\"32\" cy=\"35\" r=\"7.5\" fill=\"#dfe5ec\"/><circle cx=\"32\" cy=\"35\" r=\"3.8\" fill=\"#9aa6b5\"/><circle cx=\"68\" cy=\"35\" r=\"7.5\" fill=\"#dfe5ec\"/><circle cx=\"68\" cy=\"35\" r=\"3.8\" fill=\"#9aa6b5\"/><ellipse cx=\"50\" cy=\"54\" rx=\"27\" ry=\"24.5\" fill=\"#eef2f7\"/><circle cx=\"44\" cy=\"37\" r=\"2.5\" fill=\"none\" stroke=\"#4b5b6d\" stroke-width=\"1.5\"/><circle cx=\"56\" cy=\"37\" r=\"2.5\" fill=\"none\" stroke=\"#4b5b6d\" stroke-width=\"1.5\"/><circle cx=\"50\" cy=\"32\" r=\"2.5\" fill=\"none\" stroke=\"#4b5b6d\" stroke-width=\"1.5\"/><circle cx=\"35\" cy=\"45\" r=\"2.5\" fill=\"none\" stroke=\"#4b5b6d\" stroke-width=\"1.5\"/><circle cx=\"65\" cy=\"45\" r=\"2.5\" fill=\"none\" stroke=\"#4b5b6d\" stroke-width=\"1.5\"/><circle cx=\"29\" cy=\"55\" r=\"2.5\" fill=\"none\" stroke=\"#4b5b6d\" stroke-width=\"1.5\"/><circle cx=\"71\" cy=\"55\" r=\"2.5\" fill=\"none\" stroke=\"#4b5b6d\" stroke-width=\"1.5\"/><circle cx=\"33\" cy=\"63\" r=\"2.5\" fill=\"none\" stroke=\"#4b5b6d\" stroke-width=\"1.5\"/><circle cx=\"67\" cy=\"63\" r=\"2.5\" fill=\"none\" stroke=\"#4b5b6d\" stroke-width=\"1.5\"/><circle cx=\"39\" cy=\"41\" r=\"1.2\" fill=\"#4b5b6d\"/><circle cx=\"61\" cy=\"41\" r=\"1.2\" fill=\"#4b5b6d\"/><circle cx=\"50\" cy=\"40.5\" r=\"1.2\" fill=\"#4b5b6d\"/><circle cx=\"27\" cy=\"48\" r=\"1.2\" fill=\"#4b5b6d\"/><circle cx=\"73\" cy=\"48\" r=\"1.2\" fill=\"#4b5b6d\"/><ellipse cx=\"44.5\" cy=\"64\" rx=\"7.5\" ry=\"5.8\" fill=\"#fff\"/><ellipse cx=\"55.5\" cy=\"64\" rx=\"7.5\" ry=\"5.8\" fill=\"#fff\"/><path d=\"M46 58.5Q50 56.5 54 58.5Q52.5 62.5 50 63Q47.5 62.5 46 58.5Z\" fill=\"#b07a8a\"/><path d=\"M50 63v2.6M50 65.6q-2 2.2 -4 .6M50 65.6q2 2.2 4 .6\" stroke=\"#6b7280\" stroke-width=\"1.5\" fill=\"none\" stroke-linecap=\"round\"/><circle cx=\"41\" cy=\"50\" r=\"3.4\" fill=\"#7dd3a8\"/><circle cx=\"41\" cy=\"50\" r=\"1.7\" fill=\"#0f172a\"/><circle cx=\"42.19\" cy=\"48.71\" r=\"1.16\" fill=\"#fff\"/><circle cx=\"59\" cy=\"50\" r=\"3.4\" fill=\"#7dd3a8\"/><circle cx=\"59\" cy=\"50\" r=\"1.7\" fill=\"#0f172a\"/><circle cx=\"60.19\" cy=\"48.71\" r=\"1.16\" fill=\"#fff\"/><path d=\"M36.5 43.4L44.5 45.6\" stroke=\"#64748b\" stroke-width=\"2.4\" stroke-linecap=\"round\"/><path d=\"M63.5 43.4L55.5 45.6\" stroke=\"#64748b\" stroke-width=\"2.4\" stroke-linecap=\"round\"/><\/g>"], ["b-wolf", "Волк", "b", "<defs><radialGradient id=\"b-wolfg\" cx=\"50%\" cy=\"32%\" r=\"75%\"><stop offset=\"0\" stop-color=\"#26385e\"/><stop offset=\"1\" stop-color=\"#0b1120\"/><\/radialGradient><clipPath id=\"b-wolfc\"><circle cx=\"50\" cy=\"50\" r=\"50\"/><\/clipPath><\/defs><circle cx=\"50\" cy=\"50\" r=\"50\" fill=\"url(#b-wolfg)\"/><g clip-path=\"url(#b-wolfc)\"><path d=\"M28 44L33 15L48 33Z\" fill=\"#647386\"/><path d=\"M32 38L34.5 23L42.5 33Z\" fill=\"#cbd5e1\"/><path d=\"M72 44L67 15L52 33Z\" fill=\"#647386\"/><path d=\"M68 38L65.5 23L57.5 33Z\" fill=\"#cbd5e1\"/><path d=\"M50 29C67 29 77 41 77 54C77 64 64 73 50 82C36 73 23 64 23 54C23 41 33 29 50 29Z\" fill=\"#7b8798\"/><path d=\"M50 47C59 47 67 55 68 62C65 71 57 77 50 82C43 77 35 71 32 62C33 55 41 47 50 47Z\" fill=\"#e5eaf0\"/><path d=\"M50 29L55 46L50 51L45 46Z\" fill=\"#5b6677\"/><ellipse cx=\"50\" cy=\"66\" rx=\"4.8\" ry=\"3.4\" fill=\"#111827\"/><ellipse cx=\"51.4\" cy=\"65\" rx=\"1.3\" ry=\".8\" fill=\"#fff\" opacity=\".7\"/><path d=\"M50 69.4v2.6M50 72q-2 2.2 -4 .6M50 72q2 2.2 4 .6\" stroke=\"#334155\" stroke-width=\"1.5\" fill=\"none\" stroke-linecap=\"round\"/><circle cx=\"41\" cy=\"51\" r=\"3.3\" fill=\"#f59e0b\"/><circle cx=\"41\" cy=\"51\" r=\"1.65\" fill=\"#111\"/><circle cx=\"42.16\" cy=\"49.75\" r=\"1.12\" fill=\"#fff\"/><circle cx=\"59\" cy=\"51\" r=\"3.3\" fill=\"#f59e0b\"/><circle cx=\"59\" cy=\"51\" r=\"1.65\" fill=\"#111\"/><circle cx=\"60.16\" cy=\"49.75\" r=\"1.12\" fill=\"#fff\"/><path d=\"M36.5 44L44.5 47\" stroke=\"#2d3748\" stroke-width=\"2.6\" stroke-linecap=\"round\"/><path d=\"M63.5 44L55.5 47\" stroke=\"#2d3748\" stroke-width=\"2.6\" stroke-linecap=\"round\"/><\/g>"], ["b-bear", "Медведь", "b", "<defs><radialGradient id=\"b-bearg\" cx=\"50%\" cy=\"32%\" r=\"75%\"><stop offset=\"0\" stop-color=\"#1d7a3e\"/><stop offset=\"1\" stop-color=\"#052e16\"/><\/radialGradient><clipPath id=\"b-bearc\"><circle cx=\"50\" cy=\"50\" r=\"50\"/><\/clipPath><\/defs><circle cx=\"50\" cy=\"50\" r=\"50\" fill=\"url(#b-bearg)\"/><g clip-path=\"url(#b-bearc)\"><circle cx=\"30\" cy=\"33\" r=\"9.5\" fill=\"#6f4224\"/><circle cx=\"30\" cy=\"33\" r=\"5.2\" fill=\"#b07a50\"/><circle cx=\"70\" cy=\"33\" r=\"9.5\" fill=\"#6f4224\"/><circle cx=\"70\" cy=\"33\" r=\"5.2\" fill=\"#b07a50\"/><circle cx=\"50\" cy=\"55\" r=\"28\" fill=\"#8b5a33\"/><ellipse cx=\"50\" cy=\"65\" rx=\"13.5\" ry=\"10.5\" fill=\"#d6a878\"/><ellipse cx=\"50\" cy=\"59.5\" rx=\"5.6\" ry=\"3.9\" fill=\"#2b1608\"/><ellipse cx=\"51.6\" cy=\"58.4\" rx=\"1.5\" ry=\".8\" fill=\"#fff\" opacity=\".6\"/><path d=\"M50 63.2v2.6M50 65.8q-2 2.2 -4 .6M50 65.8q2 2.2 4 .6\" stroke=\"#4a2a14\" stroke-width=\"1.5\" fill=\"none\" stroke-linecap=\"round\"/><circle cx=\"40\" cy=\"50\" r=\"2.9\" fill=\"#1c1208\"/><circle cx=\"41.02\" cy=\"48.9\" r=\"0.99\" fill=\"#fff\"/><circle cx=\"60\" cy=\"50\" r=\"2.9\" fill=\"#1c1208\"/><circle cx=\"61.02\" cy=\"48.9\" r=\"0.99\" fill=\"#fff\"/><path d=\"M36 43.7L44 45.9\" stroke=\"#4a2a14\" stroke-width=\"2.4\" stroke-linecap=\"round\"/><path d=\"M64 43.7L56 45.9\" stroke=\"#4a2a14\" stroke-width=\"2.4\" stroke-linecap=\"round\"/><\/g>"], ["b-eagle", "Орёл", "b", "<defs><radialGradient id=\"b-eagleg\" cx=\"50%\" cy=\"32%\" r=\"75%\"><stop offset=\"0\" stop-color=\"#1279b8\"/><stop offset=\"1\" stop-color=\"#0c3f66\"/><\/radialGradient><clipPath id=\"b-eaglec\"><circle cx=\"50\" cy=\"50\" r=\"50\"/><\/clipPath><\/defs><circle cx=\"50\" cy=\"50\" r=\"50\" fill=\"url(#b-eagleg)\"/><g clip-path=\"url(#b-eaglec)\"><ellipse cx=\"50\" cy=\"100\" rx=\"44\" ry=\"30\" fill=\"#4a2c17\"/><path d=\"M50 21C67 21 75 35 73 51C71 65 63 74 50 77C37 74 29 65 27 51C25 35 33 21 50 21Z\" fill=\"#f8fafc\"/><path d=\"M27 64L33 78L38 71L44 80L50 73L56 80L62 71L67 78L73 64Z\" fill=\"#f1f5f9\"/><path d=\"M30 46C30 38 33 30 38 27C34 34 33 42 34 50Z\" fill=\"#e2e8f0\"/><path d=\"M70 46C70 38 67 30 62 27C66 34 67 42 66 50Z\" fill=\"#e2e8f0\"/><path d=\"M42.5 50C43.5 45 56.5 45 57.5 50L56.5 58C55.5 64 51.5 69 50 71C48.5 69 45.5 65 43.5 59Z\" fill=\"#f5b301\"/><path d=\"M50 71C48.6 68 46.8 65.2 46.5 62.5L53.5 62.5C53.2 65.2 51.4 68 50 71Z\" fill=\"#c26a05\"/><ellipse cx=\"47\" cy=\"52\" rx=\"1\" ry=\"1.6\" fill=\"#a15c00\"/><circle cx=\"38.5\" cy=\"46\" r=\"3.4\" fill=\"#fbbf24\"/><circle cx=\"38.5\" cy=\"46\" r=\"1.7\" fill=\"#111\"/><circle cx=\"39.69\" cy=\"44.71\" r=\"1.16\" fill=\"#fff\"/><circle cx=\"61.5\" cy=\"46\" r=\"3.4\" fill=\"#fbbf24\"/><circle cx=\"61.5\" cy=\"46\" r=\"1.7\" fill=\"#111\"/><circle cx=\"62.69\" cy=\"44.71\" r=\"1.16\" fill=\"#fff\"/><path d=\"M33.5 38.8L43.5 42.8\" stroke=\"#475569\" stroke-width=\"2.8\" stroke-linecap=\"round\"/><path d=\"M66.5 38.8L56.5 42.8\" stroke=\"#475569\" stroke-width=\"2.8\" stroke-linecap=\"round\"/><\/g>"], ["b-horse", "Конь", "b", "<defs><radialGradient id=\"b-horseg\" cx=\"50%\" cy=\"32%\" r=\"75%\"><stop offset=\"0\" stop-color=\"#b3173f\"/><stop offset=\"1\" stop-color=\"#4c0519\"/><\/radialGradient><clipPath id=\"b-horsec\"><circle cx=\"50\" cy=\"50\" r=\"50\"/><\/clipPath><\/defs><circle cx=\"50\" cy=\"50\" r=\"50\" fill=\"url(#b-horseg)\"/><g clip-path=\"url(#b-horsec)\"><path d=\"M35 31L37 13L45.5 27Z\" fill=\"#7c3f1d\"/><path d=\"M37.5 27L38.5 18L43 26Z\" fill=\"#b06a40\"/><path d=\"M65 31L63 13L54.5 27Z\" fill=\"#7c3f1d\"/><path d=\"M62.5 27L61.5 18L57 26Z\" fill=\"#b06a40\"/><path d=\"M50 21C64 21 68 35 66 50C65 62 62 74 61 82C59 91 41 91 39 82C38 74 35 62 34 50C32 35 36 21 50 21Z\" fill=\"#9a5b2e\"/><path d=\"M50 31C53.5 41 53.5 60 52.5 73L47.5 73C46.5 60 46.5 41 50 31Z\" fill=\"#fff7ed\"/><ellipse cx=\"50\" cy=\"80\" rx=\"12\" ry=\"8.5\" fill=\"#6e3f20\"/><ellipse cx=\"45\" cy=\"80\" rx=\"2.2\" ry=\"3\" fill=\"#2b1608\"/><ellipse cx=\"55\" cy=\"80\" rx=\"2.2\" ry=\"3\" fill=\"#2b1608\"/><path d=\"M38 26C42 16 58 16 62 26C58 23.5 54 28 50 35C46 28 42 23.5 38 26Z\" fill=\"#2b1608\"/><circle cx=\"37\" cy=\"47\" r=\"3\" fill=\"#1c1208\"/><circle cx=\"38.05\" cy=\"45.86\" r=\"1.02\" fill=\"#fff\"/><circle cx=\"63\" cy=\"47\" r=\"3\" fill=\"#1c1208\"/><circle cx=\"64.05\" cy=\"45.86\" r=\"1.02\" fill=\"#fff\"/><path d=\"M34 40.6L41 43\" stroke=\"#4a2410\" stroke-width=\"2.4\" stroke-linecap=\"round\"/><path d=\"M66 40.6L59 43\" stroke=\"#4a2410\" stroke-width=\"2.4\" stroke-linecap=\"round\"/><\/g>"], ["b-panther", "Пантера", "b", "<defs><radialGradient id=\"b-pantherg\" cx=\"50%\" cy=\"32%\" r=\"75%\"><stop offset=\"0\" stop-color=\"#c2410c\"/><stop offset=\"1\" stop-color=\"#451a03\"/><\/radialGradient><clipPath id=\"b-pantherc\"><circle cx=\"50\" cy=\"50\" r=\"50\"/><\/clipPath><\/defs><circle cx=\"50\" cy=\"50\" r=\"50\" fill=\"url(#b-pantherg)\"/><g clip-path=\"url(#b-pantherc)\"><circle cx=\"32\" cy=\"34\" r=\"8.5\" fill=\"#1f2430\"/><circle cx=\"32\" cy=\"34\" r=\"4.4\" fill=\"#3b4150\"/><circle cx=\"68\" cy=\"34\" r=\"8.5\" fill=\"#1f2430\"/><circle cx=\"68\" cy=\"34\" r=\"4.4\" fill=\"#3b4150\"/><ellipse cx=\"50\" cy=\"54\" rx=\"28\" ry=\"25\" fill=\"#20242e\"/><ellipse cx=\"44.5\" cy=\"64\" rx=\"7.5\" ry=\"5.8\" fill=\"#333947\"/><ellipse cx=\"55.5\" cy=\"64\" rx=\"7.5\" ry=\"5.8\" fill=\"#333947\"/><path d=\"M34 50Q41 43.5 47.5 50Q41 54.5 34 50Z\" fill=\"#b5e33b\"/><path d=\"M66 50Q59 43.5 52.5 50Q59 54.5 66 50Z\" fill=\"#b5e33b\"/><ellipse cx=\"41\" cy=\"50\" rx=\"1.1\" ry=\"3\" fill=\"#0b0d12\"/><ellipse cx=\"59\" cy=\"50\" rx=\"1.1\" ry=\"3\" fill=\"#0b0d12\"/><circle cx=\"42.6\" cy=\"48.6\" r=\".9\" fill=\"#fff\"/><circle cx=\"60.6\" cy=\"48.6\" r=\".9\" fill=\"#fff\"/><path d=\"M46 58.5Q50 56.5 54 58.5Q52.5 62.5 50 63Q47.5 62.5 46 58.5Z\" fill=\"#0b0d12\"/><path d=\"M50 63v2.6M50 65.6q-2 2.2 -4 .6M50 65.6q2 2.2 4 .6\" stroke=\"#6b7180\" stroke-width=\"1.5\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M36.5 42.1L44.5 45.1\" stroke=\"#4b5263\" stroke-width=\"2.4\" stroke-linecap=\"round\"/><path d=\"M63.5 42.1L55.5 45.1\" stroke=\"#4b5263\" stroke-width=\"2.4\" stroke-linecap=\"round\"/><\/g>"], ["b-bison", "Бизон", "b", "<defs><radialGradient id=\"b-bisong\" cx=\"50%\" cy=\"32%\" r=\"75%\"><stop offset=\"0\" stop-color=\"#5b3fa8\"/><stop offset=\"1\" stop-color=\"#1e1b4b\"/><\/radialGradient><clipPath id=\"b-bisonc\"><circle cx=\"50\" cy=\"50\" r=\"50\"/><\/clipPath><\/defs><circle cx=\"50\" cy=\"50\" r=\"50\" fill=\"url(#b-bisong)\"/><g clip-path=\"url(#b-bisonc)\"><path d=\"M31 46C19 44 14 31 21 22C21 31 27 37 36 38Z\" fill=\"#f2ead8\"/><path d=\"M69 46C81 44 86 31 79 22C79 31 73 37 64 38Z\" fill=\"#f2ead8\"/><ellipse cx=\"50\" cy=\"57\" rx=\"26\" ry=\"23\" fill=\"#5a3b24\"/><circle cx=\"39\" cy=\"37\" r=\"9.5\" fill=\"#3d2615\"/><circle cx=\"50\" cy=\"33.5\" r=\"10.5\" fill=\"#3d2615\"/><circle cx=\"61\" cy=\"37\" r=\"9.5\" fill=\"#3d2615\"/><path d=\"M41 75Q50 92 59 75Z\" fill=\"#3d2615\"/><ellipse cx=\"50\" cy=\"67\" rx=\"12.5\" ry=\"8.5\" fill=\"#3a2516\"/><ellipse cx=\"45.5\" cy=\"67\" rx=\"1.8\" ry=\"2.4\" fill=\"#120a05\"/><ellipse cx=\"54.5\" cy=\"67\" rx=\"1.8\" ry=\"2.4\" fill=\"#120a05\"/><circle cx=\"39.5\" cy=\"53\" r=\"2.8\" fill=\"#1c1208\"/><circle cx=\"40.48\" cy=\"51.94\" r=\"0.95\" fill=\"#fff\"/><circle cx=\"60.5\" cy=\"53\" r=\"2.8\" fill=\"#1c1208\"/><circle cx=\"61.48\" cy=\"51.94\" r=\"0.95\" fill=\"#fff\"/><path d=\"M35.5 46.7L43.5 48.9\" stroke=\"#1f130a\" stroke-width=\"2.4\" stroke-linecap=\"round\"/><path d=\"M64.5 46.7L56.5 48.9\" stroke=\"#1f130a\" stroke-width=\"2.4\" stroke-linecap=\"round\"/><\/g>"], ["b-elephant", "Слон", "b", "<defs><radialGradient id=\"b-elephantg\" cx=\"50%\" cy=\"32%\" r=\"75%\"><stop offset=\"0\" stop-color=\"#0e8fb0\"/><stop offset=\"1\" stop-color=\"#0c4a6e\"/><\/radialGradient><clipPath id=\"b-elephantc\"><circle cx=\"50\" cy=\"50\" r=\"50\"/><\/clipPath><\/defs><circle cx=\"50\" cy=\"50\" r=\"50\" fill=\"url(#b-elephantg)\"/><g clip-path=\"url(#b-elephantc)\"><ellipse cx=\"22\" cy=\"52\" rx=\"17\" ry=\"22\" fill=\"#7d8a9c\"/><ellipse cx=\"78\" cy=\"52\" rx=\"17\" ry=\"22\" fill=\"#7d8a9c\"/><ellipse cx=\"24\" cy=\"53\" rx=\"11\" ry=\"15\" fill=\"#c3a3a8\"/><ellipse cx=\"76\" cy=\"53\" rx=\"11\" ry=\"15\" fill=\"#c3a3a8\"/><ellipse cx=\"50\" cy=\"47\" rx=\"23\" ry=\"22\" fill=\"#94a3b8\"/><path d=\"M42 55C42 66 43 76 45 84C46 89 52 92 55 88C53 84 52 78 53 70C54 64 57 60 58 55Z\" fill=\"#94a3b8\"/><path d=\"M45.5 70h6M45 76h6.5M46 81.5h6\" stroke=\"#7d8a9c\" stroke-width=\"1.3\" stroke-linecap=\"round\"/><path d=\"M39 60C36 66 35 70 36 74C39 71 41 66 42 62Z\" fill=\"#fffbeb\"/><path d=\"M61 60C64 66 65 70 64 74C61 71 59 66 58 62Z\" fill=\"#fffbeb\"/><circle cx=\"40\" cy=\"47\" r=\"3\" fill=\"#1c1208\"/><circle cx=\"41.05\" cy=\"45.86\" r=\"1.02\" fill=\"#fff\"/><circle cx=\"60\" cy=\"47\" r=\"3\" fill=\"#1c1208\"/><circle cx=\"61.05\" cy=\"45.86\" r=\"1.02\" fill=\"#fff\"/><path d=\"M36 40.3L44 43.3\" stroke=\"#475569\" stroke-width=\"2.6\" stroke-linecap=\"round\"/><path d=\"M64 40.3L56 43.3\" stroke=\"#475569\" stroke-width=\"2.6\" stroke-linecap=\"round\"/><\/g>"], ["g-cat", "Кошечка", "g", "<defs><radialGradient id=\"g-catg\" cx=\"50%\" cy=\"32%\" r=\"75%\"><stop offset=\"0\" stop-color=\"#fde2ef\"/><stop offset=\"1\" stop-color=\"#f5a3c7\"/><\/radialGradient><clipPath id=\"g-catc\"><circle cx=\"50\" cy=\"50\" r=\"50\"/><\/clipPath><\/defs><circle cx=\"50\" cy=\"50\" r=\"50\" fill=\"url(#g-catg)\"/><g clip-path=\"url(#g-catc)\"><path d=\"M27 43L31 17L48 32Z\" fill=\"#fff7ed\"/><path d=\"M31.5 37L33.5 24L43 32Z\" fill=\"#fda4af\"/><path d=\"M73 43L69 17L52 32Z\" fill=\"#f6b26b\"/><path d=\"M68.5 37L66.5 24L57 32Z\" fill=\"#fda4af\"/><ellipse cx=\"50\" cy=\"55\" rx=\"27.5\" ry=\"23.5\" fill=\"#fff7ed\"/><ellipse cx=\"64\" cy=\"44\" rx=\"11\" ry=\"8\" transform=\"rotate(25 64 44)\" fill=\"#f6b26b\"/><circle cx=\"40\" cy=\"53\" r=\"4.8\" fill=\"#3b2a1a\"/><circle cx=\"41.54\" cy=\"51.27\" r=\"1.73\" fill=\"#fff\"/><circle cx=\"38.32\" cy=\"54.68\" r=\"0.77\" fill=\"#fff\" opacity=\".8\"/><path d=\"M35.61 51.05L33.64 50.17\" stroke=\"#2a1a12\" stroke-width=\"1.15\" stroke-linecap=\"round\"/><path d=\"M36.91 49.32L35.53 47.67\" stroke=\"#2a1a12\" stroke-width=\"1.15\" stroke-linecap=\"round\"/><circle cx=\"60\" cy=\"53\" r=\"4.8\" fill=\"#3b2a1a\"/><circle cx=\"61.54\" cy=\"51.27\" r=\"1.73\" fill=\"#fff\"/><circle cx=\"58.32\" cy=\"54.68\" r=\"0.77\" fill=\"#fff\" opacity=\".8\"/><path d=\"M64.39 51.05L66.36 50.17\" stroke=\"#2a1a12\" stroke-width=\"1.15\" stroke-linecap=\"round\"/><path d=\"M63.09 49.32L64.47 47.67\" stroke=\"#2a1a12\" stroke-width=\"1.15\" stroke-linecap=\"round\"/><ellipse cx=\"32\" cy=\"61\" rx=\"5\" ry=\"3\" fill=\"#f472b6\" opacity=\".45\"/><ellipse cx=\"68\" cy=\"61\" rx=\"5\" ry=\"3\" fill=\"#f472b6\" opacity=\".45\"/><path d=\"M47.5 59.5Q50 58.3 52.5 59.5L50 62.3Z\" fill=\"#f472b6\"/><path d=\"M46 64q2 2.2 4 0q2 2.2 4 0\" stroke=\"#7c4a3a\" stroke-width=\"1.3\" fill=\"none\" stroke-linecap=\"round\"/><g stroke=\"#e3cfbd\" stroke-width=\"1\" stroke-linecap=\"round\"><path d=\"M27 60L18 58\"/><path d=\"M27 63.5L18 65\"/><path d=\"M73 60L82 58\"/><path d=\"M73 63.5L82 65\"/><\/g><path d=\"M66 27L59 22L60 32Z\" fill=\"#ec4899\"/><path d=\"M66 27L73 22L72 32Z\" fill=\"#ec4899\"/><circle cx=\"66\" cy=\"27\" r=\"2.2\" fill=\"#ec4899\"/><\/g>"], ["g-bunny", "Зайка", "g", "<defs><radialGradient id=\"g-bunnyg\" cx=\"50%\" cy=\"32%\" r=\"75%\"><stop offset=\"0\" stop-color=\"#efe4ff\"/><stop offset=\"1\" stop-color=\"#c4b5fd\"/><\/radialGradient><clipPath id=\"g-bunnyc\"><circle cx=\"50\" cy=\"50\" r=\"50\"/><\/clipPath><\/defs><circle cx=\"50\" cy=\"50\" r=\"50\" fill=\"url(#g-bunnyg)\"/><g clip-path=\"url(#g-bunnyc)\"><ellipse cx=\"39\" cy=\"24\" rx=\"7.5\" ry=\"19\" transform=\"rotate(-12 39 24)\" fill=\"#fff\"/><ellipse cx=\"39\" cy=\"25\" rx=\"3.6\" ry=\"13.5\" transform=\"rotate(-12 39 25)\" fill=\"#fbcfe8\"/><ellipse cx=\"61\" cy=\"24\" rx=\"7.5\" ry=\"19\" transform=\"rotate(12 61 24)\" fill=\"#fff\"/><ellipse cx=\"61\" cy=\"25\" rx=\"3.6\" ry=\"13.5\" transform=\"rotate(12 61 25)\" fill=\"#fbcfe8\"/><circle cx=\"50\" cy=\"59\" r=\"25\" fill=\"#fff\"/><circle cx=\"41\" cy=\"56.5\" r=\"4.5\" fill=\"#3f2a56\"/><circle cx=\"42.44\" cy=\"54.88\" r=\"1.62\" fill=\"#fff\"/><circle cx=\"39.42\" cy=\"58.08\" r=\"0.72\" fill=\"#fff\" opacity=\".8\"/><path d=\"M36.89 54.67L35.04 53.85\" stroke=\"#2a1a12\" stroke-width=\"1.15\" stroke-linecap=\"round\"/><path d=\"M38.11 53.05L36.81 51.5\" stroke=\"#2a1a12\" stroke-width=\"1.15\" stroke-linecap=\"round\"/><circle cx=\"59\" cy=\"56.5\" r=\"4.5\" fill=\"#3f2a56\"/><circle cx=\"60.44\" cy=\"54.88\" r=\"1.62\" fill=\"#fff\"/><circle cx=\"57.42\" cy=\"58.08\" r=\"0.72\" fill=\"#fff\" opacity=\".8\"/><path d=\"M63.11 54.67L64.96 53.85\" stroke=\"#2a1a12\" stroke-width=\"1.15\" stroke-linecap=\"round\"/><path d=\"M61.89 53.05L63.19 51.5\" stroke=\"#2a1a12\" stroke-width=\"1.15\" stroke-linecap=\"round\"/><ellipse cx=\"33.5\" cy=\"64.5\" rx=\"5\" ry=\"3\" fill=\"#f472b6\" opacity=\".4\"/><ellipse cx=\"66.5\" cy=\"64.5\" rx=\"5\" ry=\"3\" fill=\"#f472b6\" opacity=\".4\"/><ellipse cx=\"50\" cy=\"63.4\" rx=\"2.8\" ry=\"1.9\" fill=\"#f472b6\"/><path d=\"M46 66.5q2 2.2 4 0q2 2.2 4 0\" stroke=\"#6b4f7a\" stroke-width=\"1.3\" fill=\"none\" stroke-linecap=\"round\"/><circle cx=\"66\" cy=\"37.2\" r=\"2.66\" fill=\"#f9a8d4\"/><circle cx=\"68.66\" cy=\"39.13\" r=\"2.66\" fill=\"#f9a8d4\"/><circle cx=\"67.65\" cy=\"42.27\" r=\"2.66\" fill=\"#f9a8d4\"/><circle cx=\"64.35\" cy=\"42.27\" r=\"2.66\" fill=\"#f9a8d4\"/><circle cx=\"63.34\" cy=\"39.13\" r=\"2.66\" fill=\"#f9a8d4\"/><circle cx=\"66\" cy=\"40\" r=\"1.96\" fill=\"#fde047\"/><\/g>"], ["g-fawn", "Оленёнок", "g", "<defs><radialGradient id=\"g-fawng\" cx=\"50%\" cy=\"32%\" r=\"75%\"><stop offset=\"0\" stop-color=\"#d9fbe5\"/><stop offset=\"1\" stop-color=\"#86e3a8\"/><\/radialGradient><clipPath id=\"g-fawnc\"><circle cx=\"50\" cy=\"50\" r=\"50\"/><\/clipPath><\/defs><circle cx=\"50\" cy=\"50\" r=\"50\" fill=\"url(#g-fawng)\"/><g clip-path=\"url(#g-fawnc)\"><ellipse cx=\"26\" cy=\"45\" rx=\"13\" ry=\"6.8\" transform=\"rotate(-25 26 45)\" fill=\"#c97a3e\"/><ellipse cx=\"27\" cy=\"45\" rx=\"8.5\" ry=\"3.6\" transform=\"rotate(-25 27 45)\" fill=\"#f5c6a0\"/><ellipse cx=\"74\" cy=\"45\" rx=\"13\" ry=\"6.8\" transform=\"rotate(25 74 45)\" fill=\"#c97a3e\"/><ellipse cx=\"73\" cy=\"45\" rx=\"8.5\" ry=\"3.6\" transform=\"rotate(25 73 45)\" fill=\"#f5c6a0\"/><ellipse cx=\"50\" cy=\"56\" rx=\"22\" ry=\"25\" fill=\"#d4894b\"/><ellipse cx=\"50\" cy=\"69\" rx=\"11\" ry=\"8.5\" fill=\"#f8e1c4\"/><circle cx=\"44\" cy=\"39\" r=\"1.9\" fill=\"#fff7ed\"/><circle cx=\"56\" cy=\"39\" r=\"1.9\" fill=\"#fff7ed\"/><circle cx=\"50\" cy=\"35\" r=\"1.9\" fill=\"#fff7ed\"/><circle cx=\"41\" cy=\"45.5\" r=\"1.9\" fill=\"#fff7ed\"/><circle cx=\"59\" cy=\"45.5\" r=\"1.9\" fill=\"#fff7ed\"/><circle cx=\"41\" cy=\"54\" r=\"4.6\" fill=\"#2a1a10\"/><circle cx=\"42.47\" cy=\"52.34\" r=\"1.66\" fill=\"#fff\"/><circle cx=\"39.39\" cy=\"55.61\" r=\"0.74\" fill=\"#fff\" opacity=\".8\"/><path d=\"M36.8 52.13L34.91 51.29\" stroke=\"#2a1a12\" stroke-width=\"1.15\" stroke-linecap=\"round\"/><path d=\"M38.04 50.48L36.71 48.89\" stroke=\"#2a1a12\" stroke-width=\"1.15\" stroke-linecap=\"round\"/><circle cx=\"59\" cy=\"54\" r=\"4.6\" fill=\"#2a1a10\"/><circle cx=\"60.47\" cy=\"52.34\" r=\"1.66\" fill=\"#fff\"/><circle cx=\"57.39\" cy=\"55.61\" r=\"0.74\" fill=\"#fff\" opacity=\".8\"/><path d=\"M63.2 52.13L65.09 51.29\" stroke=\"#2a1a12\" stroke-width=\"1.15\" stroke-linecap=\"round\"/><path d=\"M61.96 50.48L63.29 48.89\" stroke=\"#2a1a12\" stroke-width=\"1.15\" stroke-linecap=\"round\"/><ellipse cx=\"34\" cy=\"62\" rx=\"5\" ry=\"3\" fill=\"#f472b6\" opacity=\".4\"/><ellipse cx=\"66\" cy=\"62\" rx=\"5\" ry=\"3\" fill=\"#f472b6\" opacity=\".4\"/><ellipse cx=\"50\" cy=\"66\" rx=\"3.6\" ry=\"2.5\" fill=\"#3b2416\"/><path d=\"M46 70q2 2.2 4 0q2 2.2 4 0\" stroke=\"#7a4a2a\" stroke-width=\"1.3\" fill=\"none\" stroke-linecap=\"round\"/><circle cx=\"62\" cy=\"29.4\" r=\"2.47\" fill=\"#fff\"/><circle cx=\"64.47\" cy=\"31.2\" r=\"2.47\" fill=\"#fff\"/><circle cx=\"63.53\" cy=\"34.1\" r=\"2.47\" fill=\"#fff\"/><circle cx=\"60.47\" cy=\"34.1\" r=\"2.47\" fill=\"#fff\"/><circle cx=\"59.53\" cy=\"31.2\" r=\"2.47\" fill=\"#fff\"/><circle cx=\"62\" cy=\"32\" r=\"1.82\" fill=\"#facc15\"/><\/g>"], ["g-fox", "Лисичка", "g", "<defs><radialGradient id=\"g-foxg\" cx=\"50%\" cy=\"32%\" r=\"75%\"><stop offset=\"0\" stop-color=\"#ffe9d2\"/><stop offset=\"1\" stop-color=\"#fdba74\"/><\/radialGradient><clipPath id=\"g-foxc\"><circle cx=\"50\" cy=\"50\" r=\"50\"/><\/clipPath><\/defs><circle cx=\"50\" cy=\"50\" r=\"50\" fill=\"url(#g-foxg)\"/><g clip-path=\"url(#g-foxc)\"><path d=\"M26 41L32 15L47 30Z\" fill=\"#f97316\"/><path d=\"M30 24L32 15L36.5 21Z\" fill=\"#7c2d12\"/><path d=\"M31 35L33.5 24L41 31Z\" fill=\"#fff1e6\"/><path d=\"M74 41L68 15L53 30Z\" fill=\"#f97316\"/><path d=\"M70 24L68 15L63.5 21Z\" fill=\"#7c2d12\"/><path d=\"M69 35L66.5 24L59 31Z\" fill=\"#fff1e6\"/><path d=\"M50 29C67 29 77 41 77 52C77 63 63 73 50 79C37 73 23 63 23 52C23 41 33 29 50 29Z\" fill=\"#f97316\"/><path d=\"M25 56C35 59 44 61 50 66C56 61 65 59 75 56C71 67 61 74 50 79C39 74 29 67 25 56Z\" fill=\"#fff7ed\"/><circle cx=\"40.5\" cy=\"50.5\" r=\"4.4\" fill=\"#2a1608\"/><circle cx=\"41.91\" cy=\"48.92\" r=\"1.58\" fill=\"#fff\"/><circle cx=\"38.96\" cy=\"52.04\" r=\"0.7\" fill=\"#fff\" opacity=\".8\"/><path d=\"M36.48 48.71L34.67 47.91\" stroke=\"#2a1a12\" stroke-width=\"1.15\" stroke-linecap=\"round\"/><path d=\"M37.67 47.13L36.4 45.61\" stroke=\"#2a1a12\" stroke-width=\"1.15\" stroke-linecap=\"round\"/><circle cx=\"59.5\" cy=\"50.5\" r=\"4.4\" fill=\"#2a1608\"/><circle cx=\"60.91\" cy=\"48.92\" r=\"1.58\" fill=\"#fff\"/><circle cx=\"57.96\" cy=\"52.04\" r=\"0.7\" fill=\"#fff\" opacity=\".8\"/><path d=\"M63.52 48.71L65.33 47.91\" stroke=\"#2a1a12\" stroke-width=\"1.15\" stroke-linecap=\"round\"/><path d=\"M62.33 47.13L63.6 45.61\" stroke=\"#2a1a12\" stroke-width=\"1.15\" stroke-linecap=\"round\"/><ellipse cx=\"33\" cy=\"59.5\" rx=\"5\" ry=\"3\" fill=\"#fb7185\" opacity=\".45\"/><ellipse cx=\"67\" cy=\"59.5\" rx=\"5\" ry=\"3\" fill=\"#fb7185\" opacity=\".45\"/><ellipse cx=\"50\" cy=\"66\" rx=\"3\" ry=\"2.2\" fill=\"#2a1608\"/><path d=\"M46 69.4q2 2.2 4 0q2 2.2 4 0\" stroke=\"#7c2d12\" stroke-width=\"1.3\" fill=\"none\" stroke-linecap=\"round\"/><\/g>"], ["g-squirrel", "Белочка", "g", "<defs><radialGradient id=\"g-squirrelg\" cx=\"50%\" cy=\"32%\" r=\"75%\"><stop offset=\"0\" stop-color=\"#fff4c2\"/><stop offset=\"1\" stop-color=\"#fcd34d\"/><\/radialGradient><clipPath id=\"g-squirrelc\"><circle cx=\"50\" cy=\"50\" r=\"50\"/><\/clipPath><\/defs><circle cx=\"50\" cy=\"50\" r=\"50\" fill=\"url(#g-squirrelg)\"/><g clip-path=\"url(#g-squirrelc)\"><path d=\"M63 86C89 82 95 52 83 33C75 21 57 23 59 36C70 33 79 44 75 58C71 70 61 74 63 86Z\" fill=\"#b45309\"/><path d=\"M67 76C83 71 87 52 79 39C75 33 67 32 65 36C73 38 78 47 75 58C72 67 66 70 67 76Z\" fill=\"#d97706\"/><path d=\"M31 38L34 20L44 32Z\" fill=\"#c2651a\"/><path d=\"M34 20L31 13L38 18Z\" fill=\"#92400e\"/><path d=\"M65 38L62 20L52 32Z\" fill=\"#c2651a\"/><path d=\"M62 20L65 13L58 18Z\" fill=\"#92400e\"/><circle cx=\"48\" cy=\"56\" r=\"23\" fill=\"#d97706\"/><ellipse cx=\"48\" cy=\"65\" rx=\"14\" ry=\"10\" fill=\"#fde7c7\"/><circle cx=\"40\" cy=\"52.5\" r=\"4.3\" fill=\"#2a1608\"/><circle cx=\"41.38\" cy=\"50.95\" r=\"1.55\" fill=\"#fff\"/><circle cx=\"38.49\" cy=\"54.01\" r=\"0.69\" fill=\"#fff\" opacity=\".8\"/><path d=\"M36.07 50.75L34.3 49.96\" stroke=\"#2a1a12\" stroke-width=\"1.15\" stroke-linecap=\"round\"/><path d=\"M37.24 49.21L35.99 47.72\" stroke=\"#2a1a12\" stroke-width=\"1.15\" stroke-linecap=\"round\"/><circle cx=\"56\" cy=\"52.5\" r=\"4.3\" fill=\"#2a1608\"/><circle cx=\"57.38\" cy=\"50.95\" r=\"1.55\" fill=\"#fff\"/><circle cx=\"54.49\" cy=\"54.01\" r=\"0.69\" fill=\"#fff\" opacity=\".8\"/><path d=\"M59.93 50.75L61.7 49.96\" stroke=\"#2a1a12\" stroke-width=\"1.15\" stroke-linecap=\"round\"/><path d=\"M58.76 49.21L60.01 47.72\" stroke=\"#2a1a12\" stroke-width=\"1.15\" stroke-linecap=\"round\"/><ellipse cx=\"32\" cy=\"60\" rx=\"4.5\" ry=\"2.8\" fill=\"#fb7185\" opacity=\".4\"/><ellipse cx=\"64\" cy=\"60\" rx=\"4.5\" ry=\"2.8\" fill=\"#fb7185\" opacity=\".4\"/><ellipse cx=\"48\" cy=\"61\" rx=\"2.6\" ry=\"1.9\" fill=\"#2a1608\"/><path d=\"M44 64.6q2 2.2 4 0q2 2.2 4 0\" stroke=\"#7c2d12\" stroke-width=\"1.3\" fill=\"none\" stroke-linecap=\"round\"/><ellipse cx=\"27\" cy=\"77\" rx=\"5\" ry=\"6\" fill=\"#b45309\"/><path d=\"M21.5 74Q27 67 32.5 74Z\" fill=\"#78350f\"/><path d=\"M27 68.5V66\" stroke=\"#78350f\" stroke-width=\"1.5\" stroke-linecap=\"round\"/><\/g>"], ["g-owl", "Совушка", "g", "<defs><radialGradient id=\"g-owlg\" cx=\"50%\" cy=\"32%\" r=\"75%\"><stop offset=\"0\" stop-color=\"#ede9fe\"/><stop offset=\"1\" stop-color=\"#a78bfa\"/><\/radialGradient><clipPath id=\"g-owlc\"><circle cx=\"50\" cy=\"50\" r=\"50\"/><\/clipPath><\/defs><circle cx=\"50\" cy=\"50\" r=\"50\" fill=\"url(#g-owlg)\"/><g clip-path=\"url(#g-owlc)\"><path d=\"M30 33L27 17L41 28Z\" fill=\"#8b7bd8\"/><path d=\"M70 33L73 17L59 28Z\" fill=\"#8b7bd8\"/><path d=\"M50 24C68 24 77 38 77 56C77 75 64 86 50 86C36 86 23 75 23 56C23 38 32 24 50 24Z\" fill=\"#8b7bd8\"/><ellipse cx=\"25\" cy=\"64\" rx=\"7\" ry=\"14\" transform=\"rotate(12 25 64)\" fill=\"#7362c4\"/><ellipse cx=\"75\" cy=\"64\" rx=\"7\" ry=\"14\" transform=\"rotate(-12 75 64)\" fill=\"#7362c4\"/><ellipse cx=\"50\" cy=\"71\" rx=\"16\" ry=\"14\" fill=\"#efeaff\"/><g fill=\"none\" stroke=\"#c4b5fd\" stroke-width=\"1.4\" stroke-linecap=\"round\"><path d=\"M44 66l2 2 2-2\"/><path d=\"M52 66l2 2 2-2\"/><path d=\"M48 72l2 2 2-2\"/><path d=\"M42 74l2 2 2-2\"/><path d=\"M54 74l2 2 2-2\"/><\/g><circle cx=\"40\" cy=\"48\" r=\"10.5\" fill=\"#fff\"/><circle cx=\"60\" cy=\"48\" r=\"10.5\" fill=\"#fff\"/><circle cx=\"40.5\" cy=\"49\" r=\"5.2\" fill=\"#3b2a5a\"/><circle cx=\"42.16\" cy=\"47.13\" r=\"1.87\" fill=\"#fff\"/><circle cx=\"38.68\" cy=\"50.82\" r=\"0.83\" fill=\"#fff\" opacity=\".8\"/><path d=\"M35.75 46.88L33.61 45.93\" stroke=\"#3b2a5a\" stroke-width=\"1.15\" stroke-linecap=\"round\"/><path d=\"M37.16 45.02L35.65 43.22\" stroke=\"#3b2a5a\" stroke-width=\"1.15\" stroke-linecap=\"round\"/><circle cx=\"59.5\" cy=\"49\" r=\"5.2\" fill=\"#3b2a5a\"/><circle cx=\"61.16\" cy=\"47.13\" r=\"1.87\" fill=\"#fff\"/><circle cx=\"57.68\" cy=\"50.82\" r=\"0.83\" fill=\"#fff\" opacity=\".8\"/><path d=\"M64.25 46.88L66.39 45.93\" stroke=\"#3b2a5a\" stroke-width=\"1.15\" stroke-linecap=\"round\"/><path d=\"M62.84 45.02L64.35 43.22\" stroke=\"#3b2a5a\" stroke-width=\"1.15\" stroke-linecap=\"round\"/><path d=\"M46.5 55L53.5 55L50 61Z\" fill=\"#f59e0b\"/><ellipse cx=\"30.5\" cy=\"56\" rx=\"3.6\" ry=\"2.2\" fill=\"#f472b6\" opacity=\".45\"/><ellipse cx=\"69.5\" cy=\"56\" rx=\"3.6\" ry=\"2.2\" fill=\"#f472b6\" opacity=\".45\"/><\/g>"], ["g-panda", "Панда", "g", "<defs><radialGradient id=\"g-pandag\" cx=\"50%\" cy=\"32%\" r=\"75%\"><stop offset=\"0\" stop-color=\"#dff3ff\"/><stop offset=\"1\" stop-color=\"#8fd3f7\"/><\/radialGradient><clipPath id=\"g-pandac\"><circle cx=\"50\" cy=\"50\" r=\"50\"/><\/clipPath><\/defs><circle cx=\"50\" cy=\"50\" r=\"50\" fill=\"url(#g-pandag)\"/><g clip-path=\"url(#g-pandac)\"><circle cx=\"30\" cy=\"34\" r=\"9.5\" fill=\"#1f2937\"/><circle cx=\"70\" cy=\"34\" r=\"9.5\" fill=\"#1f2937\"/><circle cx=\"50\" cy=\"57\" r=\"27\" fill=\"#fff\"/><ellipse cx=\"40\" cy=\"53.5\" rx=\"7.5\" ry=\"9.5\" transform=\"rotate(28 40 53.5)\" fill=\"#1f2937\"/><ellipse cx=\"60\" cy=\"53.5\" rx=\"7.5\" ry=\"9.5\" transform=\"rotate(-28 60 53.5)\" fill=\"#1f2937\"/><circle cx=\"40.5\" cy=\"53\" r=\"3.6\" fill=\"#fff\"/><circle cx=\"40.8\" cy=\"53.4\" r=\"2.3\" fill=\"#1f2937\"/><circle cx=\"41.6\" cy=\"52.4\" r=\".9\" fill=\"#fff\"/><circle cx=\"59.5\" cy=\"53\" r=\"3.6\" fill=\"#fff\"/><circle cx=\"59.2\" cy=\"53.4\" r=\"2.3\" fill=\"#1f2937\"/><circle cx=\"60\" cy=\"52.4\" r=\".9\" fill=\"#fff\"/><ellipse cx=\"31\" cy=\"64\" rx=\"4.6\" ry=\"2.8\" fill=\"#f472b6\" opacity=\".4\"/><ellipse cx=\"69\" cy=\"64\" rx=\"4.6\" ry=\"2.8\" fill=\"#f472b6\" opacity=\".4\"/><ellipse cx=\"50\" cy=\"63\" rx=\"3.4\" ry=\"2.3\" fill=\"#1f2937\"/><path d=\"M46 66.4q2 2.2 4 0q2 2.2 4 0\" stroke=\"#374151\" stroke-width=\"1.3\" fill=\"none\" stroke-linecap=\"round\"/><circle cx=\"70\" cy=\"34\" r=\"2.85\" fill=\"#f9a8d4\"/><circle cx=\"72.85\" cy=\"36.07\" r=\"2.85\" fill=\"#f9a8d4\"/><circle cx=\"71.76\" cy=\"39.43\" r=\"2.85\" fill=\"#f9a8d4\"/><circle cx=\"68.24\" cy=\"39.43\" r=\"2.85\" fill=\"#f9a8d4\"/><circle cx=\"67.15\" cy=\"36.07\" r=\"2.85\" fill=\"#f9a8d4\"/><circle cx=\"70\" cy=\"37\" r=\"2.1\" fill=\"#fde047\"/><\/g>"], ["g-hedgehog", "Ёжик", "g", "<defs><radialGradient id=\"g-hedgehogg\" cx=\"50%\" cy=\"32%\" r=\"75%\"><stop offset=\"0\" stop-color=\"#ffe1e6\"/><stop offset=\"1\" stop-color=\"#fda4af\"/><\/radialGradient><clipPath id=\"g-hedgehogc\"><circle cx=\"50\" cy=\"50\" r=\"50\"/><\/clipPath><\/defs><circle cx=\"50\" cy=\"50\" r=\"50\" fill=\"url(#g-hedgehogg)\"/><g clip-path=\"url(#g-hedgehogc)\"><path d=\"M18.99 69.29L25.38 62.34L17 58L25.38 53.66L18.99 46.71L28.35 45.5L24.72 36.79L33.93 38.85L33.5 29.42L41.45 34.51L44.27 25.5L50 33L55.73 25.5L58.55 34.51L66.5 29.42L66.07 38.85L75.28 36.79L71.65 45.5L81.01 46.71L74.62 53.66L83 58L74.62 62.34L81.01 69.29Z\" fill=\"#8b5e3c\"/><circle cx=\"50\" cy=\"58\" r=\"25\" fill=\"#8b5e3c\"/><circle cx=\"66\" cy=\"30\" r=\"5.5\" fill=\"#ef4444\"/><path d=\"M66 24.5q1-3 3.5-3.5\" stroke=\"#166534\" stroke-width=\"1.5\" fill=\"none\" stroke-linecap=\"round\"/><circle cx=\"34\" cy=\"45\" r=\"4.2\" fill=\"#e8c99a\"/><circle cx=\"66\" cy=\"45\" r=\"4.2\" fill=\"#e8c99a\"/><ellipse cx=\"50\" cy=\"61\" rx=\"20\" ry=\"18\" fill=\"#f5deb3\"/><circle cx=\"42\" cy=\"57\" r=\"3.8\" fill=\"#2a1a10\"/><circle cx=\"43.22\" cy=\"55.63\" r=\"1.37\" fill=\"#fff\"/><circle cx=\"40.67\" cy=\"58.33\" r=\"0.61\" fill=\"#fff\" opacity=\".8\"/><path d=\"M38.53 55.45L36.97 54.76\" stroke=\"#2a1a12\" stroke-width=\"1.15\" stroke-linecap=\"round\"/><path d=\"M39.56 54.09L38.46 52.78\" stroke=\"#2a1a12\" stroke-width=\"1.15\" stroke-linecap=\"round\"/><circle cx=\"58\" cy=\"57\" r=\"3.8\" fill=\"#2a1a10\"/><circle cx=\"59.22\" cy=\"55.63\" r=\"1.37\" fill=\"#fff\"/><circle cx=\"56.67\" cy=\"58.33\" r=\"0.61\" fill=\"#fff\" opacity=\".8\"/><path d=\"M61.47 55.45L63.03 54.76\" stroke=\"#2a1a12\" stroke-width=\"1.15\" stroke-linecap=\"round\"/><path d=\"M60.44 54.09L61.54 52.78\" stroke=\"#2a1a12\" stroke-width=\"1.15\" stroke-linecap=\"round\"/><ellipse cx=\"36\" cy=\"65\" rx=\"4\" ry=\"2.5\" fill=\"#fb7185\" opacity=\".45\"/><ellipse cx=\"64\" cy=\"65\" rx=\"4\" ry=\"2.5\" fill=\"#fb7185\" opacity=\".45\"/><circle cx=\"50\" cy=\"64\" r=\"2.8\" fill=\"#3b2416\"/><path d=\"M46 68.4q2 2.2 4 0q2 2.2 4 0\" stroke=\"#7a4a2a\" stroke-width=\"1.3\" fill=\"none\" stroke-linecap=\"round\"/><\/g>"], ["g-bird", "Пташка", "g", "<defs><radialGradient id=\"g-birdg\" cx=\"50%\" cy=\"32%\" r=\"75%\"><stop offset=\"0\" stop-color=\"#d6fbff\"/><stop offset=\"1\" stop-color=\"#67e2f3\"/><\/radialGradient><clipPath id=\"g-birdc\"><circle cx=\"50\" cy=\"50\" r=\"50\"/><\/clipPath><\/defs><circle cx=\"50\" cy=\"50\" r=\"50\" fill=\"url(#g-birdg)\"/><g clip-path=\"url(#g-birdc)\"><ellipse cx=\"45\" cy=\"30\" rx=\"3\" ry=\"6\" transform=\"rotate(-20 45 30)\" fill=\"#f59e0b\"/><ellipse cx=\"50\" cy=\"28\" rx=\"3\" ry=\"7\" fill=\"#f59e0b\"/><ellipse cx=\"55\" cy=\"30\" rx=\"3\" ry=\"6\" transform=\"rotate(20 55 30)\" fill=\"#f59e0b\"/><ellipse cx=\"25\" cy=\"62\" rx=\"8\" ry=\"13\" transform=\"rotate(25 25 62)\" fill=\"#f59e0b\"/><ellipse cx=\"75\" cy=\"62\" rx=\"8\" ry=\"13\" transform=\"rotate(-25 75 62)\" fill=\"#f59e0b\"/><circle cx=\"50\" cy=\"58\" r=\"26\" fill=\"#fcd34d\"/><ellipse cx=\"50\" cy=\"69\" rx=\"15\" ry=\"11\" fill=\"#fef3c7\"/><circle cx=\"41.5\" cy=\"52\" r=\"4.4\" fill=\"#3b2a1a\"/><circle cx=\"42.91\" cy=\"50.42\" r=\"1.58\" fill=\"#fff\"/><circle cx=\"39.96\" cy=\"53.54\" r=\"0.7\" fill=\"#fff\" opacity=\".8\"/><path d=\"M37.48 50.21L35.67 49.41\" stroke=\"#2a1a12\" stroke-width=\"1.15\" stroke-linecap=\"round\"/><path d=\"M38.67 48.63L37.4 47.11\" stroke=\"#2a1a12\" stroke-width=\"1.15\" stroke-linecap=\"round\"/><circle cx=\"58.5\" cy=\"52\" r=\"4.4\" fill=\"#3b2a1a\"/><circle cx=\"59.91\" cy=\"50.42\" r=\"1.58\" fill=\"#fff\"/><circle cx=\"56.96\" cy=\"53.54\" r=\"0.7\" fill=\"#fff\" opacity=\".8\"/><path d=\"M62.52 50.21L64.33 49.41\" stroke=\"#2a1a12\" stroke-width=\"1.15\" stroke-linecap=\"round\"/><path d=\"M61.33 48.63L62.6 47.11\" stroke=\"#2a1a12\" stroke-width=\"1.15\" stroke-linecap=\"round\"/><ellipse cx=\"34\" cy=\"60\" rx=\"4.2\" ry=\"2.6\" fill=\"#fb7185\" opacity=\".45\"/><ellipse cx=\"66\" cy=\"60\" rx=\"4.2\" ry=\"2.6\" fill=\"#fb7185\" opacity=\".45\"/><path d=\"M45.5 57L54.5 57L50 63Z\" fill=\"#f97316\"/><\/g>"], ["g-butterfly", "Бабочка", "g", "<defs><radialGradient id=\"g-butterflyg\" cx=\"50%\" cy=\"32%\" r=\"75%\"><stop offset=\"0\" stop-color=\"#ffe1f4\"/><stop offset=\"1\" stop-color=\"#f0abfc\"/><\/radialGradient><clipPath id=\"g-butterflyc\"><circle cx=\"50\" cy=\"50\" r=\"50\"/><\/clipPath><\/defs><circle cx=\"50\" cy=\"50\" r=\"50\" fill=\"url(#g-butterflyg)\"/><g clip-path=\"url(#g-butterflyc)\"><ellipse cx=\"33\" cy=\"42\" rx=\"17\" ry=\"13.5\" transform=\"rotate(-28 33 42)\" fill=\"#a855f7\"/><ellipse cx=\"67\" cy=\"42\" rx=\"17\" ry=\"13.5\" transform=\"rotate(28 67 42)\" fill=\"#a855f7\"/><ellipse cx=\"36\" cy=\"68\" rx=\"12\" ry=\"9.5\" transform=\"rotate(28 36 68)\" fill=\"#ec4899\"/><ellipse cx=\"64\" cy=\"68\" rx=\"12\" ry=\"9.5\" transform=\"rotate(-28 64 68)\" fill=\"#ec4899\"/><circle cx=\"31\" cy=\"40\" r=\"4.5\" fill=\"#f5d0fe\"/><circle cx=\"69\" cy=\"40\" r=\"4.5\" fill=\"#f5d0fe\"/><circle cx=\"37\" cy=\"70\" r=\"3\" fill=\"#fce7f3\"/><circle cx=\"63\" cy=\"70\" r=\"3\" fill=\"#fce7f3\"/><ellipse cx=\"50\" cy=\"63\" rx=\"5\" ry=\"17\" fill=\"#5b21b6\"/><path d=\"M46 34C43 26 39 22 35 23M54 34C57 26 61 22 65 23\" stroke=\"#5b21b6\" stroke-width=\"1.6\" fill=\"none\" stroke-linecap=\"round\"/><circle cx=\"35\" cy=\"23\" r=\"2\" fill=\"#5b21b6\"/><circle cx=\"65\" cy=\"23\" r=\"2\" fill=\"#5b21b6\"/><circle cx=\"50\" cy=\"41\" r=\"9.5\" fill=\"#6d28d9\"/><circle cx=\"46.5\" cy=\"40.5\" r=\"2.5\" fill=\"#fff\"/><circle cx=\"47.3\" cy=\"39.6\" r=\"0.9\" fill=\"#fff\"/><circle cx=\"45.62\" cy=\"41.38\" r=\"0.4\" fill=\"#fff\" opacity=\".8\"/><path d=\"M44.22 39.48L43.19 39.03\" stroke=\"#ede9fe\" stroke-width=\"1.15\" stroke-linecap=\"round\"/><path d=\"M44.89 38.58L44.17 37.72\" stroke=\"#ede9fe\" stroke-width=\"1.15\" stroke-linecap=\"round\"/><circle cx=\"46.5\" cy=\"41\" r=\"1.5\" fill=\"#1e1b4b\"/><circle cx=\"53.5\" cy=\"40.5\" r=\"2.5\" fill=\"#fff\"/><circle cx=\"54.3\" cy=\"39.6\" r=\"0.9\" fill=\"#fff\"/><circle cx=\"52.62\" cy=\"41.38\" r=\"0.4\" fill=\"#fff\" opacity=\".8\"/><path d=\"M55.78 39.48L56.81 39.03\" stroke=\"#ede9fe\" stroke-width=\"1.15\" stroke-linecap=\"round\"/><path d=\"M55.11 38.58L55.83 37.72\" stroke=\"#ede9fe\" stroke-width=\"1.15\" stroke-linecap=\"round\"/><circle cx=\"53.5\" cy=\"41\" r=\"1.5\" fill=\"#1e1b4b\"/><ellipse cx=\"44\" cy=\"45\" rx=\"1.8\" ry=\"1.1\" fill=\"#f9a8d4\" opacity=\".7\"/><ellipse cx=\"56\" cy=\"45\" rx=\"1.8\" ry=\"1.1\" fill=\"#f9a8d4\" opacity=\".7\"/><path d=\"M46 45.2q2 2.2 4 0q2 2.2 4 0\" stroke=\"#f5d0fe\" stroke-width=\"1\" fill=\"none\" stroke-linecap=\"round\"/><\/g>"], ["n-moon", "Полумесяц", "n", "<defs><radialGradient id=\"n-moong\" cx=\"50%\" cy=\"32%\" r=\"75%\"><stop offset=\"0\" stop-color=\"#2f4aa8\"/><stop offset=\"1\" stop-color=\"#0b1330\"/><\/radialGradient><clipPath id=\"n-moonc\"><circle cx=\"50\" cy=\"50\" r=\"50\"/><\/clipPath><\/defs><circle cx=\"50\" cy=\"50\" r=\"50\" fill=\"url(#n-moong)\"/><g clip-path=\"url(#n-moonc)\"><circle cx=\"20\" cy=\"30\" r=\"1.1\" fill=\"#fff\" opacity=\".7\"/><circle cx=\"78\" cy=\"22\" r=\"1\" fill=\"#fff\" opacity=\".7\"/><circle cx=\"84\" cy=\"60\" r=\"1.2\" fill=\"#fff\" opacity=\".7\"/><circle cx=\"24\" cy=\"74\" r=\"1\" fill=\"#fff\" opacity=\".7\"/><circle cx=\"66\" cy=\"84\" r=\"1.1\" fill=\"#fff\" opacity=\".7\"/><circle cx=\"36\" cy=\"16\" r=\"0.9\" fill=\"#fff\" opacity=\".7\"/><path d=\"M58 22A30 30 0 1 0 58 78A24 24 0 1 1 58 22Z\" fill=\"#fcd34d\"/><path d=\"M66 41L68.22 46.94L74.56 47.22L69.59 51.17L71.29 57.28L66 53.78L60.71 57.28L62.41 51.17L57.44 47.22L63.78 46.94Z\" fill=\"#fbbf24\"/><\/g>"], ["n-star", "Звезда", "n", "<defs><radialGradient id=\"n-starg\" cx=\"50%\" cy=\"32%\" r=\"75%\"><stop offset=\"0\" stop-color=\"#0f8a7e\"/><stop offset=\"1\" stop-color=\"#053d35\"/><\/radialGradient><clipPath id=\"n-starc\"><circle cx=\"50\" cy=\"50\" r=\"50\"/><\/clipPath><\/defs><circle cx=\"50\" cy=\"50\" r=\"50\" fill=\"url(#n-starg)\"/><g clip-path=\"url(#n-starc)\"><circle cx=\"20\" cy=\"30\" r=\"1.1\" fill=\"#fff\" opacity=\".7\"/><circle cx=\"78\" cy=\"22\" r=\"1\" fill=\"#fff\" opacity=\".7\"/><circle cx=\"84\" cy=\"60\" r=\"1.2\" fill=\"#fff\" opacity=\".7\"/><circle cx=\"24\" cy=\"74\" r=\"1\" fill=\"#fff\" opacity=\".7\"/><circle cx=\"66\" cy=\"84\" r=\"1.1\" fill=\"#fff\" opacity=\".7\"/><circle cx=\"36\" cy=\"16\" r=\"0.9\" fill=\"#fff\" opacity=\".7\"/><rect x=\"28\" y=\"28\" width=\"44\" height=\"44\" fill=\"#fbbf24\"/><rect x=\"28\" y=\"28\" width=\"44\" height=\"44\" fill=\"#fbbf24\" transform=\"rotate(45 50 50)\"/><rect x=\"35\" y=\"35\" width=\"30\" height=\"30\" fill=\"#fde68a\"/><rect x=\"35\" y=\"35\" width=\"30\" height=\"30\" fill=\"#fde68a\" transform=\"rotate(45 50 50)\"/><circle cx=\"50\" cy=\"50\" r=\"8\" fill=\"#0f8a7e\"/><rect x=\"45.8\" y=\"45.8\" width=\"8.4\" height=\"8.4\" fill=\"#fde68a\"/><rect x=\"45.8\" y=\"45.8\" width=\"8.4\" height=\"8.4\" fill=\"#fde68a\" transform=\"rotate(45 50 50)\"/><\/g>"], ["n-lantern", "Фонарь", "n", "<defs><radialGradient id=\"n-lanterng\" cx=\"50%\" cy=\"32%\" r=\"75%\"><stop offset=\"0\" stop-color=\"#5b3fa8\"/><stop offset=\"1\" stop-color=\"#1e1b4b\"/><\/radialGradient><clipPath id=\"n-lanternc\"><circle cx=\"50\" cy=\"50\" r=\"50\"/><\/clipPath><\/defs><circle cx=\"50\" cy=\"50\" r=\"50\" fill=\"url(#n-lanterng)\"/><g clip-path=\"url(#n-lanternc)\"><circle cx=\"50\" cy=\"58\" r=\"22\" fill=\"#fbbf24\" opacity=\".22\"/><path d=\"M50 12v8\" stroke=\"#fbbf24\" stroke-width=\"2\"/><circle cx=\"50\" cy=\"12\" r=\"3\" fill=\"none\" stroke=\"#fbbf24\" stroke-width=\"2\"/><path d=\"M38 30L50 20L62 30Z\" fill=\"#f59e0b\"/><rect x=\"36\" y=\"30\" width=\"28\" height=\"4\" rx=\"1.5\" fill=\"#d97706\"/><path d=\"M38 34L62 34L66 52L60 74L40 74L34 52Z\" fill=\"#fde68a\"/><path d=\"M50 34V74M38 34L44 74M62 34L56 74M34 52H66\" stroke=\"#d97706\" stroke-width=\"1.8\" fill=\"none\"/><ellipse cx=\"50\" cy=\"56\" rx=\"5\" ry=\"7.5\" fill=\"#fff7d6\"/><path d=\"M50 51C52.5 54 52.5 58 50 61C47.5 58 47.5 54 50 51Z\" fill=\"#f97316\"/><rect x=\"38\" y=\"74\" width=\"24\" height=\"5\" rx=\"2\" fill=\"#d97706\"/><path d=\"M44 79h12l-3 6h-6Z\" fill=\"#b45309\"/><\/g>"], ["n-palm", "Пальма", "n", "<defs><radialGradient id=\"n-palmg\" cx=\"50%\" cy=\"32%\" r=\"75%\"><stop offset=\"0\" stop-color=\"#f59e0b\"/><stop offset=\"1\" stop-color=\"#b45309\"/><\/radialGradient><clipPath id=\"n-palmc\"><circle cx=\"50\" cy=\"50\" r=\"50\"/><\/clipPath><\/defs><circle cx=\"50\" cy=\"50\" r=\"50\" fill=\"url(#n-palmg)\"/><g clip-path=\"url(#n-palmc)\"><circle cx=\"72\" cy=\"30\" r=\"9\" fill=\"#fde68a\" opacity=\".85\"/><path d=\"M48 88C49 72 50 56 54 40L58 41C55 56 54 72 55 88Z\" fill=\"#7c4a1e\"/><path d=\"M50 50l3 1M49.5 58l3.4 1M49.2 66l3.6 1M49 74l3.8 1\" stroke=\"#5b3410\" stroke-width=\"1.4\"/><g fill=\"#15803d\"><path d=\"M56 40C46 30 32 30 20 38C32 36 42 37 54 44Z\"/><path d=\"M56 40C64 28 78 26 88 34C77 33 67 36 58 44Z\"/><path d=\"M55 41C50 26 52 16 58 10C56 20 58 30 58 42Z\"/><path d=\"M56 42C44 40 34 46 28 58C38 50 46 46 56 45Z\"/><path d=\"M57 42C68 40 78 46 82 58C74 50 66 46 57 45Z\"/><\/g><g fill=\"#7c2d12\"><circle cx=\"52\" cy=\"46\" r=\"2.6\"/><circle cx=\"56\" cy=\"47.5\" r=\"2.6\"/><circle cx=\"54\" cy=\"51\" r=\"2.6\"/><circle cx=\"59\" cy=\"45\" r=\"2.4\"/><\/g><ellipse cx=\"50\" cy=\"92\" rx=\"34\" ry=\"8\" fill=\"#fcd34d\"/><\/g>"], ["n-minaret", "Минарет", "n", "<defs><radialGradient id=\"n-minaretg\" cx=\"50%\" cy=\"32%\" r=\"75%\"><stop offset=\"0\" stop-color=\"#1e88d6\"/><stop offset=\"1\" stop-color=\"#0c3f66\"/><\/radialGradient><clipPath id=\"n-minaretc\"><circle cx=\"50\" cy=\"50\" r=\"50\"/><\/clipPath><\/defs><circle cx=\"50\" cy=\"50\" r=\"50\" fill=\"url(#n-minaretg)\"/><g clip-path=\"url(#n-minaretc)\"><circle cx=\"20\" cy=\"30\" r=\"1.1\" fill=\"#fff\" opacity=\".7\"/><circle cx=\"78\" cy=\"22\" r=\"1\" fill=\"#fff\" opacity=\".7\"/><circle cx=\"84\" cy=\"60\" r=\"1.2\" fill=\"#fff\" opacity=\".7\"/><circle cx=\"24\" cy=\"74\" r=\"1\" fill=\"#fff\" opacity=\".7\"/><circle cx=\"66\" cy=\"84\" r=\"1.1\" fill=\"#fff\" opacity=\".7\"/><circle cx=\"36\" cy=\"16\" r=\"0.9\" fill=\"#fff\" opacity=\".7\"/><path d=\"M50 10A5 5 0 1 0 54 17A4 4 0 1 1 50 10Z\" fill=\"#fde68a\"/><path d=\"M51 18V24\" stroke=\"#fde68a\" stroke-width=\"1.6\"/><path d=\"M44 34L51 24L58 34Z\" fill=\"#fbbf24\"/><rect x=\"44\" y=\"34\" width=\"14\" height=\"56\" fill=\"#eef2f7\"/><rect x=\"40\" y=\"44\" width=\"22\" height=\"4\" rx=\"1\" fill=\"#cbd5e1\"/><rect x=\"40\" y=\"64\" width=\"22\" height=\"4\" rx=\"1\" fill=\"#cbd5e1\"/><path d=\"M48 54a3 3 0 0 1 6 0v6h-6Z\" fill=\"#1e3a8a\"/><path d=\"M48 74a3 3 0 0 1 6 0v6h-6Z\" fill=\"#1e3a8a\"/><path d=\"M14 92C14 80 22 74 30 74C38 74 44 80 44 92Z\" fill=\"#dbe4ee\"/><path d=\"M58 92C58 82 64 77 71 77C78 77 84 82 84 92Z\" fill=\"#dbe4ee\"/><rect x=\"10\" y=\"88\" width=\"80\" height=\"12\" fill=\"#cbd5e1\"/><\/g>"], ["n-book", "Книга", "n", "<defs><radialGradient id=\"n-bookg\" cx=\"50%\" cy=\"32%\" r=\"75%\"><stop offset=\"0\" stop-color=\"#16a34a\"/><stop offset=\"1\" stop-color=\"#14532d\"/><\/radialGradient><clipPath id=\"n-bookc\"><circle cx=\"50\" cy=\"50\" r=\"50\"/><\/clipPath><\/defs><circle cx=\"50\" cy=\"50\" r=\"50\" fill=\"url(#n-bookg)\"/><g clip-path=\"url(#n-bookc)\"><circle cx=\"20\" cy=\"30\" r=\"1.1\" fill=\"#fff\" opacity=\".7\"/><circle cx=\"78\" cy=\"22\" r=\"1\" fill=\"#fff\" opacity=\".7\"/><circle cx=\"84\" cy=\"60\" r=\"1.2\" fill=\"#fff\" opacity=\".7\"/><circle cx=\"24\" cy=\"74\" r=\"1\" fill=\"#fff\" opacity=\".7\"/><circle cx=\"66\" cy=\"84\" r=\"1.1\" fill=\"#fff\" opacity=\".7\"/><circle cx=\"36\" cy=\"16\" r=\"0.9\" fill=\"#fff\" opacity=\".7\"/><path d=\"M50 34C42 28 30 27 20 30V72C30 69 42 70 50 76Z\" fill=\"#fff7ed\"/><path d=\"M50 34C58 28 70 27 80 30V72C70 69 58 70 50 76Z\" fill=\"#fdf2e0\"/><path d=\"M50 34V76\" stroke=\"#d6c7ad\" stroke-width=\"1.4\"/><g stroke=\"#cbb994\" stroke-width=\"1.3\" stroke-linecap=\"round\"><path d=\"M26 38H44M26 44H44M26 50H44M26 56H40\"/><path d=\"M56 38H74M56 44H74M56 50H74M60 56H74\"/><\/g><path d=\"M64 27V44L67.5 40.5L71 44V28Z\" fill=\"#dc2626\"/><path d=\"M18 72C30 69 42 70 50 77C58 70 70 69 82 72V76C70 73 58 74 50 81C42 74 30 73 18 76Z\" fill=\"#b45309\"/><\/g>"]];
+var AVM={};AVS.forEach(function(a){AVM[a[0]]=a});
+var OLD_EMOJI={"🦁":"b-lion","🐯":"b-tiger","🐺":"b-wolf","🐻":"b-bear","🦅":"b-eagle","🐎":"b-horse","🐘":"b-elephant","🐨":"b-bear","🦉":"g-owl","🐼":"g-panda","🦊":"g-fox","🐬":"b-elephant","🦄":"b-horse","🐢":"b-bison","🐪":"b-bison","🦌":"g-fawn","🚀":"n-star","⚔️":"b-panther","🏹":"b-falcon","🛡️":"b-lion","🌙":"n-moon","⭐":"n-star","📚":"n-book","🔥":"n-lantern"};
+(function sprite(){var d=document.createElement("div");d.setAttribute("aria-hidden","true");d.style.cssText="position:absolute;width:0;height:0;overflow:hidden";
+  d.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0">'+AVS.map(function(a){return '<symbol id="av-'+a[0]+'" viewBox="0 0 100 100">'+a[3]+'</symbol>'}).join("")+'</svg>';
+  document.body.appendChild(d)})();
+function avSvg(id){return '<svg viewBox="0 0 100 100" aria-hidden="true"><use href="#av-'+id+'"/></svg>'}
+function avDefault(g){return SYMBOLS_ONLY?"n-star":g==="f"?"g-cat":"b-lion"}
+var SYM=AVS.filter(function(a){return a[2]==="n"}).map(function(a){return a[0]});
+function avShown(id){if(!SYMBOLS_ONLY||!AVM[id]||AVM[id][2]==="n")return id;var h=0;for(var i=0;i<id.length;i++)h=(h*31+id.charCodeAt(i))>>>0;return SYM[h%SYM.length]}
+
+/* ================= помощники ================= */
+var store={get:function(k,d){try{var v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set:function(k,v){try{if(v==null)localStorage.removeItem(k);else localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+var sess={get:function(k){try{return sessionStorage.getItem(k)}catch(e){return null}},set:function(k,v){try{sessionStorage.setItem(k,v)}catch(e){}}};
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function pl(n,a,b,c){var m=Math.abs(n)%100,k=m%10;return (m>10&&m<20)?c:k===1?a:(k>1&&k<5)?b:c}
+function pn(n,a,b,c){return n+" "+pl(n,a,b,c)}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function ymd(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function wkey(d){d=new Date(d);d.setHours(12,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return ymd(d)}
+function addDays(key,n){var d=new Date(key+"T12:00:00");d.setDate(d.getDate()+n);return ymd(d)}
+function fdate(iso,o){return new Date(iso).toLocaleDateString("ru",o||{day:"numeric",month:"long"})}
+function rel(iso){var d=new Date(iso),t=new Date();t.setHours(0,0,0,0);var dd=new Date(d);dd.setHours(0,0,0,0);var df=Math.round((t-dd)/864e5);return df===0?"сегодня":df===1?"вчера":fdate(iso)}
+function medal(i){return["🥇","🥈","🥉"][i]||String(i+1)}
+var TR={"а":"a","б":"b","в":"v","г":"g","д":"d","е":"e","ё":"e","ж":"zh","з":"z","и":"i","й":"y","к":"k","л":"l","м":"m","н":"n","о":"o","п":"p","р":"r","с":"s","т":"t","у":"u","ф":"f","х":"h","ц":"c","ч":"ch","ш":"sh","щ":"sch","ъ":"","ы":"y","ь":"","э":"e","ю":"yu","я":"ya","ә":"a","ө":"o","ү":"u","җ":"zh","ң":"n","һ":"h"};
+function slugify(s){return String(s||"").toLowerCase().split("").map(function(c){return TR[c]!=null?TR[c]:c}).join("").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,40)}
+function err(code){var e=new Error(code);e.code=code;return e}
+var ERR={auth:"Нужно войти заново",forbidden:"Нет доступа к этой группе",not_found:"Группа с таким кодом не найдена. Проверьте код у учителя",no_student:"Ученик не найден в группе",bad_login:"Неверный логин или пароль",locked:"Слишком много попыток. Подождите 15 минут",short_password:"Пароль — минимум 6 символов",long_password:"Пароль слишком длинный",slug_taken:"Такой адрес уже занят — придумайте другой",login_taken:"Такой логин уже есть",bad_slug:"Адрес: латинские буквы, цифры и дефис, от 2 символов",bad_login_format:"Логин: от 3 до 32 символов, без пробелов",bad_name:"Введите имя",self_admin:"Нельзя снять права администратора с самого себя",self_delete:"Нельзя удалить самого себя",network:"Нет связи с сервером. Проверьте интернет",too_large:"Данных слишком много — скачайте копию и очистите журнал",exists:"Администратор уже создан — войдите",bad_password:"Старый пароль неверный",bad_input:"Неверные данные"};
+function emsg(e){var c=e&&(e.code||e.message);return ERR[c]||("Ошибка: "+c)}
+
+/* ================= связь с базой ================= */
+var TOK=store.get("tok",null),ME=null;
+function rpc(fn,args){
+  if(!CLOUD)return DEMO.call(fn,args||{});
+  var h={"Content-Type":"application/json",apikey:CFG.supabaseKey};
+  if(/^eyJ/.test(CFG.supabaseKey))h.Authorization="Bearer "+CFG.supabaseKey;
+  var body=JSON.stringify(args||{});
+  return fetch(String(CFG.supabaseUrl).replace(/\/+$/,"")+"/rest/v1/rpc/"+fn,{method:"POST",headers:h,body:body})
+    .catch(function(){throw err("network")})
+    .then(function(r){return r.text().then(function(t){var j=null;try{j=t?JSON.parse(t):null}catch(e){}
+      if(!r.ok)throw err((j&&(j.message||j.msg||j.error))||("http_"+r.status));return j})});
+}
+
+/* ---- демо-режим: всё хранится в этом браузере, без базы ---- */
+var DEMO=(function(){
+  var KEY="demo_db_v2",db=null;
+  function load(){if(db)return db;db=store.get(KEY,null);if(!db||!db.groups)db=seed();return db}
+  function save(){store.set(KEY,db)}
+  function clone(x){return JSON.parse(JSON.stringify(x))}
+  function who(tok){var s=db.sessions[tok];var t=s&&db.teachers.filter(function(t){return t.id===s})[0];if(!t)throw err("auth");return t}
+  function adm(tok){var t=who(tok);if(!t.is_admin)throw err("forbidden");return t}
+  function gr(slug){var g=db.groups.filter(function(g){return g.slug===String(slug||"").toLowerCase().trim()})[0];if(!g)throw err("not_found");return g}
+  function can(t,g){return t.is_admin||t.groups.indexOf(g.slug)>-1}
+  function cnt(g){return (g.data&&g.data.students||[]).length}
+  function meOf(t){return{id:t.id,login:t.login,name:t.name,is_admin:t.is_admin,groups:db.groups.filter(function(g){return can(t,g)}).map(function(g){return{slug:g.slug,name:g.name}})}}
+  function sessFor(t){var tok=uid()+uid();db.sessions[tok]=t.id;save();return{ok:true,token:tok,me:meOf(t)}}
+  function list(){return{groups:db.groups.map(function(g){return{slug:g.slug,name:g.name,students:cnt(g)}}),teachers:db.teachers.map(function(t){return{id:t.id,login:t.login,name:t.name,is_admin:t.is_admin,groups:t.groups.slice()}})}}
+  function chkPass(p){if(!p||p.length<6)throw err("short_password")}
+  function code(){var a="abcdefghjkmnpqrstuvwxyz23456789",c;do{c="";for(var i=0;i<6;i++)c+=a[Math.floor(Math.random()*a.length)]}while(db.groups.some(function(g){return g.slug===c}));return c}
+  var F={
+    app_info:function(){return{has_admin:db.teachers.length>0}},
+    group_get:function(a){var g=gr(a.p_slug);return{slug:g.slug,name:g.name,version:g.version,data:g.data}},
+    setup_admin:function(a){if(db.teachers.length)throw err("exists");chkPass(a.p_password);var t={id:uid(),login:String(a.p_login).toLowerCase().trim(),name:a.p_name,pass:a.p_password,is_admin:true,groups:[]};db.teachers.push(t);return sessFor(t)},
+    login:function(a){var t=db.teachers.filter(function(t){return t.login===String(a.p_login||"").toLowerCase().trim()})[0];if(!t||t.pass!==a.p_password)return{ok:false,error:"bad_login"};return sessFor(t)},
+    me:function(a){return meOf(who(a.p_token))},
+    logout:function(a){delete db.sessions[a.p_token];save();return{ok:true}},
+    change_password:function(a){var t=who(a.p_token);if(t.pass!==a.p_old)return{ok:false,error:"bad_password"};chkPass(a.p_new);t.pass=a.p_new;save();return{ok:true}},
+    group_save:function(a){var t=who(a.p_token),g=gr(a.p_slug);if(!can(t,g))throw err("forbidden");if(g.version!==a.p_version)return{ok:false,conflict:true,version:g.version,data:g.data};g.data=a.p_data;g.version++;save();return{ok:true,version:g.version}},
+    admin_list:function(a){adm(a.p_token);return list()},
+    admin_group_save:function(a){adm(a.p_token);var s=String(a.p_slug||"").toLowerCase().trim(),n=String(a.p_name||"").trim();if(!n)throw err("bad_name");
+      if(a.p_new){s=code();db.groups.push({slug:s,name:n,version:1,data:{defG:a.p_def_g||"m"}})}
+      else gr(s).name=n;save();var l=list();l.created=s;return l},
+    admin_group_newcode:function(a){adm(a.p_token);var g=gr(a.p_slug),old=g.slug;g.slug=code();db.teachers.forEach(function(t){t.groups=t.groups.map(function(x){return x===old?g.slug:x})});save();var l=list();l.created=g.slug;return l},
+    progress_save:function(){return{ok:true}},progress_get:function(){return[]},progress_group:function(){return[]},
+    admin_group_delete:function(a){adm(a.p_token);db.groups=db.groups.filter(function(g){return g.slug!==a.p_slug});db.teachers.forEach(function(t){t.groups=t.groups.filter(function(x){return x!==a.p_slug})});save();return list()},
+    admin_teacher_save:function(a){var me=adm(a.p_token),l=String(a.p_login||"").toLowerCase().trim(),n=String(a.p_name||"").trim();
+      if(!/^\S{3,32}$/.test(l))throw err("bad_login_format");if(!n)throw err("bad_name");if(db.teachers.some(function(t){return t.login===l&&t.id!==a.p_id}))throw err("login_taken");
+      var t;if(!a.p_id){chkPass(a.p_password);t={id:uid(),pass:a.p_password,groups:[]};db.teachers.push(t)}else{t=db.teachers.filter(function(x){return x.id===a.p_id})[0];if(!t)throw err("not_found");if(t.id===me.id&&!a.p_is_admin)throw err("self_admin");if(a.p_password){chkPass(a.p_password);t.pass=a.p_password}}
+      t.login=l;t.name=n;t.is_admin=!!a.p_is_admin;t.groups=(a.p_groups||[]).filter(function(s){return db.groups.some(function(g){return g.slug===s})});save();return list()},
+    admin_teacher_delete:function(a){var me=adm(a.p_token);if(a.p_id===me.id)throw err("self_delete");db.teachers=db.teachers.filter(function(t){return t.id!==a.p_id});save();return list()}
+  };
+  function seed(){
+    var d={teachers:[{id:"t1",login:"admin",name:"Зульфат",pass:"123456",is_admin:true,groups:[]},{id:"t2",login:"amina",name:"Амина",pass:"123456",is_admin:false,groups:["d4p9xe"]}],sessions:{},groups:[]};
+    function kid(i,n,g,av,nn,q,x,f,xp,sur,w){var wk={},m=wkey(new Date());for(var k=0;k<w;k++)wk[addDays(m,-7*k)]=2+(k%3);return{id:"e"+i,name:n,g:g,av:av,n:nn,q:q,x:x,f:f,xp:xp,sur:sur,wk:wk,ex:true}}
+    var J=JUZ.slice().reverse();
+    var boys=[kid(1,"Амир","m","b-elephant",58,57,55,0,240,["Аль-Фатиха"].concat(J.slice(0,22)),7),kid(2,"Юсуф","m","b-eagle",63,48,24,2,173,["Аль-Фатиха"].concat(J.slice(0,11)),5),kid(3,"Рамазан","m","b-lion",52,31,23,0,126,["Аль-Фатиха","Аль-Ихлас","Аль-Кяусар","Аль-Аср","Аль-Фалак","Ан-Нас"],4),kid(4,"Азат","m","b-horse",61,18,17,0,106,["Аль-Фатиха","Ан-Нас","Аль-Фалак","Аль-Ихлас"],3),kid(5,"Данияр","m","b-wolf",40,22,9,1,75,["Аль-Фатиха","Ан-Нас","Аль-Ихлас"],2),kid(6,"Тимур","m","b-bear",9,2,3,0,14,["Аль-Фатиха"],0)];
+    var girls=[kid(7,"Аиша","f","g-owl",44,52,30,0,126,["Аль-Фатиха"].concat(J.slice(0,14)),5),kid(8,"Марьям","f","g-cat",40,38,21,0,99,["Аль-Фатиха","Ан-Нас","Аль-Фалак","Аль-Ихлас","Аль-Масад"],4),kid(9,"Сафия","f","g-bunny",31,22,12,0,65,["Аль-Фатиха","Аль-Ихлас"],2),kid(10,"Амина","f","g-fawn",12,6,4,0,22,["Аль-Фатиха"],1)];
+    var now=Date.now();function L(s,t,v,h,note){return{id:uid(),s:s,t:t,v:v,g:uid(),note:note||"",d:new Date(now-h*36e5).toISOString()}}
+    var se={name:"Осенний сезон",end:ymd(new Date(now+46*864e5))};
+    d.groups.push({slug:"m7k2qa",name:"Мальчики, 7–10 лет",version:1,data:{v:4,defG:"m",season:se,goal:{target:1000,prize:"поездка всей группой"},students:boys,log:[L("e2","n",1,2),L("e1","s",1,3,"Аль-Кадр"),L("e3","x",2,26,"рассказал хадис о намазе"),L("e5","f",1,27,"шумел во время урока")],hall:[]}});
+    d.groups.push({slug:"d4p9xe",name:"Девочки, 7–10 лет",version:1,data:{v:4,defG:"f",season:se,goal:{target:600,prize:""},students:girls,log:[L("e7","q",1,1),L("e8","n",1,5)],hall:[]}});
+    return d;
+  }
+  return{call:function(fn,a){try{load();if(!F[fn])throw err("not_found");return Promise.resolve(clone(F[fn](clone(a))))}catch(e){return Promise.reject(e)}}};
+})();
+
+/* ================= данные группы ================= */
+function migrate(o){
+  o=(o&&typeof o==="object")?o:{};
+  var cid=function(v){return String(v==null?uid():v).replace(/[^\w-]/g,"").slice(0,24)||uid()};
+  o.season=o.season||{};o.season.name=String(o.season.name||"Сезон 1").slice(0,40);
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(o.season.end||""))o.season.end=ymd(new Date(Date.now()+60*864e5));
+  o.goal=o.goal||{target:1000,prize:""};o.goal.target=Math.max(0,o.goal.target|0);o.goal.prize=String(o.goal.prize||"").slice(0,60);
+  o.defG=o.defG==="f"?"f":o.defG==="x"?"x":"m";
+  o.students=(Array.isArray(o.students)?o.students:[]).filter(function(s){return s&&typeof s==="object"});
+  o.students.forEach(function(s){
+    s.id=cid(s.id);s.name=String(s.name||"Ученик").slice(0,30);
+    s.g=s.g==="f"?"f":s.g==="m"?"m":(AVM[s.av]&&AVM[s.av][2]==="g"?"f":(o.defG==="f"?"f":"m"));
+    if(!AVM[s.av])s.av=OLD_EMOJI[s.av]&&AVM[OLD_EMOJI[s.av]]?OLD_EMOJI[s.av]:avDefault(s.g);
+    s.sur=(Array.isArray(s.sur)?s.sur:[]).filter(function(x,i,a){return SUR.indexOf(x)>-1&&a.indexOf(x)===i});
+    var wk={};if(s.wk&&typeof s.wk==="object")Object.keys(s.wk).forEach(function(k){if(/^\d{4}-\d{2}-\d{2}$/.test(k)&&(s.wk[k]|0)>0)wk[k]=s.wk[k]|0});s.wk=wk;
+    ["n","q","x","f","xp"].forEach(function(k){s[k]=Math.max(0,s[k]|0)});
+  });
+  o.log=(Array.isArray(o.log)?o.log:[]).filter(function(e){return e&&CAT[e.t]&&!isNaN(new Date(e.d))}).slice(0,400);
+  o.log.forEach(function(e){e.id=cid(e.id);e.s=cid(e.s);e.g=cid(e.g);e.v=e.v|0;e.note=String(e.note||"").slice(0,80)});
+  o.hall=(Array.isArray(o.hall)?o.hall:[]).filter(function(h){return h&&typeof h==="object"});
+  o.hall.forEach(function(h){h.name=String(h.name||"Сезон");if(!/^\d{4}-\d{2}-\d{2}$/.test(h.end||""))h.end="2026-01-01";h.total=h.total|0;h.target=h.target|0;h.prize=String(h.prize||"");
+    h.w=(Array.isArray(h.w)?h.w:[]).slice(0,3).map(function(w){return{name:String(w.name||""),av:AVM[w.av]?w.av:(OLD_EMOJI[w.av]||"n-star"),p:w.p|0}});
+    var b={};["n","q","x"].forEach(function(k){var x=h.best&&h.best[k];if(x)b[k]={name:String(x.name||""),v:x.v|0}});h.best=b});
+  o.v=4;return o;
+}
+var S=null,G=null;           // данные открытой группы и {slug,name,version}
+function tot(s){return s.n+s.q+s.x-s.f}
+function lvl(s){var r=LV[0];LV.forEach(function(l){if(s.xp>=l[3])r=l});return r}
+function nextLvl(s){return LV[lvl(s)[0]]||null}
+function by(id){for(var i=0;i<S.students.length;i++)if(S.students[i].id===id)return S.students[i];return null}
+function ranked(){return S.students.slice().sort(function(a,b){return tot(b)-tot(a)||b.xp-a.xp||a.name.localeCompare(b.name,"ru")})}
+function place(s){return ranked().indexOf(s)+1}
+function streak(s){var k=wkey(new Date());if(!(s.wk[k]>0))k=addDays(k,-7);var n=0;while(s.wk[k]>0){n++;k=addDays(k,-7)}return n}
+function bestStreak(s){var ks=Object.keys(s.wk).filter(function(k){return s.wk[k]>0}).sort(),best=0,run=0,prev=null;ks.forEach(function(k){run=(prev&&addDays(prev,7)===k)?run+1:1;if(run>best)best=run;prev=k});return best}
+function juz(s){return s.sur.filter(function(x){return JUZ.indexOf(x)>-1}).length}
+function surCount(s){return s.sur.filter(function(x){return x!==AYAT}).length}
+function badges(s){
+  var out=[],bs=bestStreak(s),sc=surCount(s);
+  LV.slice(1).forEach(function(l){out.push({e:l[1],n:l[2],r:"от "+l[3]+" опыта",ok:s.xp>=l[3],k:"l"})});
+  SB.forEach(function(b){out.push({e:b[1],n:b[2],r:b[0]===114?"все 114 сур":"выучить "+pn(b[0],"суру","суры","сур"),ok:sc>=b[0],k:"s"})});
+  out.push({e:"📘",n:"Джуз Амма",r:"все суры 30-го джуза",ok:juz(s)>=JUZ.length,k:"s"});
+  STK.forEach(function(b){out.push({e:b[1],n:b[2],r:"намаз в мечети "+b[0]+" нед. подряд",ok:bs>=b[0],k:"w"})});
+  return out;
+}
+function earned(s){return badges(s).filter(function(b){return b.ok})}
+function avh(s,cls){var l=lvl(s),inner=AVM[s.av]?avSvg(avShown(s.av)):esc(s.av);return '<div class="av '+(cls||"")+'" style="--c:'+l[4]+'">'+inner+(cls==="s"?"":'<em>'+l[0]+'</em>')+'</div>'}
+function daysLeft(){return Math.ceil((new Date(S.season.end+"T23:59:59")-new Date())/864e5)}
+function seasonTotal(){return S.students.reduce(function(a,s){return a+Math.max(0,tot(s))},0)}
+function exName(s){return esc(s.name)+(s.ex?'<span class="ex">пример</span>':"")}
+
+/* ---- изменения данных (каждое изменение — операция, её можно повторить поверх свежих данных) ---- */
+var Q=[],saving=false,saveTimer=null,replaying=false,saveErr=null,lastSaved=0;
+function mut(fn){fn();if(!G)return;Q.push(fn);saveErr=null;schedule();}
+function schedule(){if(saveTimer)clearTimeout(saveTimer);saveTimer=setTimeout(save,1200);stash()}
+function stash(){if(G&&Q.length)store.set("pending_"+G.slug,{v:G.version,data:S})}
+function logPush(e){e.id=uid();e.d=e.d||new Date().toISOString();S.log.unshift(e);if(S.log.length>400)S.log.length=400}
+function apply(sid,t,v,g,note){
+  var s=by(sid);if(!s)return;var before=lvl(s)[0];
+  if(t==="f"){var nf=Math.max(0,s.f+v),df=nf-s.f;if(!df)return;v=df;s.f=nf;s.xp=Math.max(0,s.xp-v)}
+  else{var nv=Math.max(0,s[t]+v),dv=nv-s[t];if(!dv)return;v=dv;s[t]=nv;s.xp=Math.max(0,s.xp+v);
+    if(t==="n"){var k=wkey(new Date());s.wk[k]=Math.max(0,(s.wk[k]||0)+v);if(!s.wk[k])delete s.wk[k]}}
+  logPush({s:s.id,t:t,v:v,g:g||uid(),note:note||""});
+  if(lvl(s)[0]>before)flash(s.name+" — новое звание «"+lvl(s)[2]+"» "+lvl(s)[1]);
+}
+function revert(id){
+  var e=S.log.filter(function(x){return x.id===id})[0];if(!e)return;var s=by(e.s);
+  if(s){
+    if(e.t==="f"){s.f=Math.max(0,s.f-e.v);s.xp=Math.max(0,s.xp+e.v)}
+    else if(e.t==="s"){var i=s.sur.indexOf(e.note);if(i>-1)s.sur.splice(i,1)}
+    else{s[e.t]=Math.max(0,s[e.t]-e.v);s.xp=Math.max(0,s.xp-e.v);
+      if(e.t==="n"){var k=wkey(e.d);s.wk[k]=Math.max(0,(s.wk[k]||0)-e.v);if(!s.wk[k])delete s.wk[k]}}
+  }
+  S.log=S.log.filter(function(x){return x.id!==id});
+}
+function setSur(sid,name,on){
+  var s=by(sid);if(!s)return;var i=s.sur.indexOf(name);
+  if(!on&&i>-1){s.sur.splice(i,1);S.log=S.log.filter(function(x){return!(x.t==="s"&&x.s===s.id&&x.note===name)})}
+  else if(on&&i<0){var had=earned(s).map(function(b){return b.n});s.sur.push(name);logPush({s:s.id,t:"s",v:1,g:uid(),note:name});var nb=earned(s).filter(function(b){return had.indexOf(b.n)<0});if(nb.length)flash(s.name+": новый значок "+nb[0].e+" «"+nb[0].n+"»")}
+}
+function addStudent(id,name,g){
+  if(by(id))return;
+  var set=SYMBOLS_ONLY?"n":g==="f"?"g":"b",used=S.students.map(function(s){return s.av}),pool=AVS.filter(function(a){return a[2]===set}),free=pool.filter(function(a){return used.indexOf(a[0])<0});
+  var pick=(free.length?free:pool)[Math.floor(Math.random()*(free.length||pool.length))][0];
+  S.students.push({id:id,name:name,g:g,av:pick,n:0,q:0,x:0,f:0,xp:0,sur:[],wk:{}});
+}
+function endSeason(){
+  var r=ranked(),best={};
+  ["n","q","x"].forEach(function(k){var b=S.students.slice().sort(function(a,c){return c[k]-a[k]})[0];if(b&&b[k]>0)best[k]={name:b.name,v:b[k]}});
+  S.hall.unshift({name:S.season.name,end:S.season.end,total:seasonTotal(),target:S.goal.target,prize:S.goal.prize,w:r.slice(0,3).filter(function(s){return tot(s)>0}).map(function(s){return{name:s.name,av:s.av,p:tot(s)}}),best:best});
+  S.students.forEach(function(s){s.n=0;s.q=0;s.x=0;s.f=0});
+  S.log=S.log.filter(function(e){return e.t==="s"}).slice(0,60);
+  S.season={name:"Новый сезон",end:ymd(new Date(Date.now()+60*864e5))};
+}
+
+/* ---- сохранение ---- */
+function save(){
+  if(saveTimer){clearTimeout(saveTimer);saveTimer=null}
+  if(saving||!Q.length||!G||!canEdit())return;
+  saving=true;render();
+  var sent=Q.length,slug=G.slug;
+  rpc("group_save",{p_token:TOK,p_slug:slug,p_data:S,p_version:G.version}).then(function(r){
+    if(!G||G.slug!==slug)return;
+    if(r&&r.ok){G.version=r.version;Q.splice(0,sent);lastSaved=Date.now();if(Q.length)stash();else store.set("pending_"+slug,null)}
+    else if(r&&r.conflict){
+      var ops=Q.slice();S=migrate(r.data);G.version=r.version;replaying=true;
+      ops.forEach(function(f){try{f()}catch(e){}});replaying=false;
+      flash("Другой учитель тоже вносил изменения — всё объединено");
+    }
+  }).catch(function(e){
+    saveErr=e.code||"error";
+    if(e.code==="auth"){logoutLocal();flash("Вход истёк — войдите снова, изменения сохранятся")}
+    else if(e.code==="forbidden"){flash(emsg(e))}
+    else if(e.code==="network"){flash("Нет связи — сохраню, когда появится интернет")}
+    else flash(emsg(e));
+  }).then(function(){
+    saving=false;
+    if(Q.length&&(!saveErr||saveErr==="network"||saveErr==="error"))saveTimer=setTimeout(save,saveErr?10000:800);
+    render();
+  });
+}
+window.addEventListener("beforeunload",function(e){if(Q.length){e.preventDefault();e.returnValue=""}});
+document.addEventListener("visibilitychange",function(){if(document.hidden){if(Q.length)save()}else poll()});
+setInterval(poll,45000);
+function poll(){
+  if(R.view!=="group"||!G||document.hidden||Q.length||saving)return;
+  var slug=G.slug;
+  rpc("group_get",{p_slug:slug}).then(function(r){
+    if(!G||G.slug!==slug||Q.length||saving)return;
+    if(r.version!==G.version){S=migrate(r.data);G.version=r.version;G.name=r.name;render();checkCeleb()}
+  }).catch(function(){});
+}
+
+/* ================= состояние экрана ================= */
+var R={view:"loading"},INFO=null,ADM=null;
+var UI={sel:[],amt:1,note:"",sheet:null,surq:"",confirm:null,certFor:null,certImg:null,certReason:"",restore:null,showAll:false,form:null,newG:"",dropKeep:false,slugEdited:false,afterLogin:null,showAllAv:false};
+var toastMsg="",toastTimer=null,celeb=null,shownSheet=null,celebShown=false,meStudent=null;
+function canEdit(){return !!(ME&&G&&(ME.is_admin||ME.groups.some(function(g){return g.slug===G.slug})))}
+function flash(m){if(replaying)return;toastMsg=m;if(toastTimer)clearTimeout(toastTimer);toastTimer=setTimeout(function(){toastMsg="";render()},2800)}
+var TABS={r:"rating",s:"suras",h:"hall",p:"rules",t:"teacher"},TABN={rating:"r",suras:"s",hall:"h",rules:"p",teacher:"t"};
+function parseHash(){var h=location.hash.replace(/^#\/?/,"").split("/");
+  if(h[0]==="g"&&h[1])return{view:"group",slug:decodeURIComponent(h[1]).toLowerCase(),tab:TABN[h[2]]||"r"};
+  if(h[0]==="login")return{view:"login"};
+  if(h[0]==="cab")return{view:"cab"};
+  return{view:"home"};
+}
+function go(h){if(location.hash===h)route();else location.hash=h}
+
+/* ================= экраны ================= */
+function topbar(left){
+  var right=ME?'<a class="lnk" href="#/cab">👤 '+esc(ME.name)+'</a>':'<a class="lnk" href="#/login">Вход для учителя</a>';
+  return '<div class="topbar">'+(left||"<span></span>")+right+'</div>';
+}
+function brand(){return '<div class="brand"><i>✦</i>'+esc(APP)+'<i>✦</i></div>'}
+function demoNote(){return CLOUD?"":'<div class="note" style="margin:6px 0 14px">Демо-режим: данные хранятся только в этом браузере. Коды групп: <b>m7k2qa</b> и <b>d4p9xe</b>. Вход учителя: <b>admin</b> / <b>123456</b>.</div>'}
+
+function vHome(){
+  var h=topbar()+'<header class="top">'+(ICON?'<img class="logo" alt="" src="'+esc(ICON)+'">':"")+brand()+'</header>'+demoNote();
+  if(!INFO)return h+'<div class="loading">Загрузка…</div>';
+  if(!INFO.has_admin)return h+vSetup();
+  h+='<div class="box"><h2>Открыть свою группу</h2><p class="mut sm" style="margin:-6px 0 10px">Код группы даёт учитель. Он же есть в ссылке, которую прислали в чат.</p>'+
+    '<div class="btns" style="flex-wrap:nowrap"><input id="code" type="text" maxlength="12" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="k7m2qa" style="font-size:20px;letter-spacing:2px;text-transform:lowercase"><button class="btn pri" data-a="opencode">Открыть</button></div>'+
+    (UI.formErr?'<p class="note err" style="margin-top:10px">'+esc(UI.formErr)+'</p>':"")+'</div>';
+  var mine=store.get("recent",[]);
+  if(mine.length)h+='<div class="box"><h2>Недавно открытые</h2>'+mine.map(function(g){return '<a class="row" href="#/g/'+encodeURIComponent(g.slug)+'"><span style="font-size:26px">🕌</span><div class="mid"><div style="font-weight:800">'+esc(g.name)+'</div></div><span class="mut">›</span></a>'}).join("")+'</div>';
+  if(ME&&ME.groups.length)h+='<div class="box"><h2>Мои группы (учитель)</h2>'+ME.groups.map(function(g){return '<a class="row" href="#/g/'+encodeURIComponent(g.slug)+'/teacher"><span style="font-size:24px">🧑‍🏫</span><div class="mid"><div style="font-weight:800">'+esc(g.name)+'</div><div class="sm mut">код: '+esc(g.slug)+'</div></div><span class="mut">›</span></a>'}).join("")+'</div>';
+  return h;
+}
+function vSetup(){
+  return '<div class="box"><h2>Первый запуск</h2><p class="mut" style="margin:-4px 0 12px">Создайте аккаунт администратора. Это можно сделать только один раз — дальше учителей добавляете вы в кабинете.</p>'+
+  '<div class="field"><label for="su_name">Ваше имя (видно другим учителям)</label><input id="su_name" type="text" maxlength="40" autocomplete="name"></div>'+
+  '<div class="field"><label for="su_login">Логин</label><input id="su_login" type="text" maxlength="32" autocapitalize="off" autocomplete="username"></div>'+
+  '<div class="field"><label for="su_pass">Пароль (от 6 символов)</label><input id="su_pass" type="password" maxlength="72" autocomplete="new-password"></div>'+
+  (UI.formErr?'<p class="note err" style="margin-bottom:10px">'+esc(UI.formErr)+'</p>':"")+
+  '<button class="btn pri wide" data-a="setup">Создать администратора</button></div>';
+}
+function vLogin(){
+  return topbar('<a class="lnk" href="#/">‹ Главная</a>')+'<header class="top">'+brand()+'</header>'+demoNote()+
+  '<div class="box"><h2>Вход для учителя</h2>'+
+  '<div class="field"><label for="li_login">Логин</label><input id="li_login" type="text" maxlength="32" autocapitalize="off" autocomplete="username"></div>'+
+  '<div class="field"><label for="li_pass">Пароль</label><input id="li_pass" type="password" maxlength="72" autocomplete="current-password"></div>'+
+  (UI.formErr?'<p class="note err" style="margin-bottom:10px">'+esc(UI.formErr)+'</p>':"")+
+  '<button class="btn pri wide" data-a="login">Войти</button><p class="mut sm" style="margin-top:10px">Логин и пароль выдаёт администратор. Ученикам и родителям входить не нужно.</p></div>';
+}
+function vCab(){
+  if(!ME)return vLogin();
+  var h=topbar('<a class="lnk" href="#/">‹ Главная</a>')+'<header class="top">'+brand()+'</header>'+demoNote();
+  h+='<div class="box"><h2>Ассаляму алейкум, '+esc(ME.name)+'!'+(ME.is_admin?'<span class="badge">админ</span>':"")+'</h2>';
+  if(!ME.groups.length)h+='<p class="mut">'+(ME.is_admin?'Групп пока нет — создайте первую ниже.':'Вам пока не назначили группы. Попросите администратора.')+'</p>';
+  ME.groups.forEach(function(g){h+='<a class="row" href="#/g/'+encodeURIComponent(g.slug)+'/teacher"><span style="font-size:24px">🧑‍🏫</span><div class="mid"><div style="font-weight:800">'+esc(g.name)+'</div><div class="sm mut">код: '+esc(g.slug)+' · отмечать баллы</div></div><span class="mut">›</span></a>'});
+  h+='</div>';
+  if(ME.is_admin)h+=vAdmin();
+  var f=UI.form&&UI.form.k==="pass";
+  h+='<div class="box"><h2>🔑 Мой пароль</h2>'+(f?'<div class="field"><label for="pw_old">Старый пароль</label><input id="pw_old" type="password" autocomplete="current-password"></div><div class="field"><label for="pw_new">Новый пароль (от 6 символов)</label><input id="pw_new" type="password" autocomplete="new-password"></div>'+(UI.formErr?'<p class="note err" style="margin-bottom:10px">'+esc(UI.formErr)+'</p>':"")+'<div class="btns"><button class="btn pri" data-a="pwsave">Сменить пароль</button><button class="btn" data-a="formclose">Отмена</button></div>':'<button class="btn" data-a="form" data-k="pass">Сменить пароль</button>')+'</div>';
+  h+='<div class="box"><button class="btn dng wide" data-a="logout">Выйти</button></div>';
+  return h;
+}
+function groupLink(slug){return location.href.split("#")[0]+"#/g/"+encodeURIComponent(slug)}
+function vAdmin(){
+  if(!ADM)return '<div class="box"><div class="loading" style="padding:20px">Загрузка…</div></div>';
+  var F=UI.form||{},h='<div class="box"><h2>🕌 Группы <small>'+ADM.groups.length+'</small></h2>';
+  ADM.groups.forEach(function(g){
+    h+='<div class="adm"><div class="hd"><div class="mid"><b>'+esc(g.name)+'</b><div class="sm mut">'+pn(g.students,"ученик","ученика","учеников")+' · код <b style="color:var(--gold);letter-spacing:1px">'+esc(g.slug)+'</b></div><div class="code">'+esc(groupLink(g.slug))+'</div></div><div class="btns"><button class="btn sm" data-a="copylink" data-v="'+esc(g.slug)+'">📋 Ссылка</button><button class="btn sm" data-a="form" data-k="grp" data-v="'+esc(g.slug)+'">✏️</button></div></div>';
+    if(F.k==="grp"&&F.v===g.slug){
+      h+='<div class="form"><div class="field"><label for="gr_name">Название группы</label><input id="gr_name" type="text" maxlength="60" value="'+esc(g.name)+'"></div>'+(UI.formErr?'<p class="note err" style="margin-bottom:10px">'+esc(UI.formErr)+'</p>':"")+
+      '<div class="btns"><button class="btn pri" data-a="grrename" data-v="'+esc(g.slug)+'">Сохранить</button><button class="btn" data-a="formclose">Отмена</button>'+
+      (UI.confirm==="gdel"+g.slug?'<button class="btn dng" data-a="grdel" data-v="'+esc(g.slug)+'">Да, удалить навсегда</button>':'<button class="btn dng" data-a="conf" data-k="gdel'+esc(g.slug)+'">🗑 Удалить группу</button>')+'</div>'+
+      (UI.confirm==="gdel"+g.slug?'<p class="note err" style="margin-top:10px">Все ученики, баллы и Зал славы этой группы будут удалены. Сначала скачайте копию во вкладке «Учитель».</p>':"")+
+      '<div class="sec">Код группы</div><p class="mut sm" style="margin-bottom:8px">Если код попал к чужим людям, выдайте новый. Старая ссылка перестанет работать — разошлите новую.</p>'+
+      (UI.confirm==="gcode"+g.slug?'<span class="btns"><button class="btn sm dng" data-a="grcode" data-v="'+esc(g.slug)+'">Да, выдать новый код</button><button class="btn sm" data-a="noconf">Отмена</button></span>':'<button class="btn sm" data-a="conf" data-k="gcode'+esc(g.slug)+'">🔁 Новый код</button>')+'</div>';
+    }
+    h+='</div>';
+  });
+  if(F.k==="grnew"){
+    h+='<div class="form"><div class="field"><label for="ng_name">Название группы</label><input id="ng_name" type="text" maxlength="60" placeholder="Например: Мальчики, 7–10 лет"></div>'+
+    '<div class="field"><label>Кто в группе</label><div class="seg" role="group"><button class="'+(UI.newG!=="f"&&UI.newG!=="x"?"on":"")+'" data-a="newg" data-v="m">Мальчики</button><button class="'+(UI.newG==="f"?"on":"")+'" data-a="newg" data-v="f">Девочки</button><button class="'+(UI.newG==="x"?"on":"")+'" data-a="newg" data-v="x">Смешанная</button></div></div>'+
+    (UI.formErr?'<p class="note err" style="margin-bottom:10px">'+esc(UI.formErr)+'</p>':"")+'<div class="btns"><button class="btn pri" data-a="grcreate">Создать группу</button><span class="sm mut" style="align-self:center">Код группы придумается сам</span><button class="btn" data-a="formclose">Отмена</button></div></div>';
+  }else h+='<button class="btn pri" data-a="form" data-k="grnew" style="margin-top:6px">+ Новая группа</button>';
+  h+='</div>';
+  h+='<div class="box"><h2>🧑‍🏫 Учителя <small>'+ADM.teachers.length+'</small></h2>';
+  ADM.teachers.forEach(function(t){
+    var gn=t.groups.map(function(s){var g=ADM.groups.filter(function(x){return x.slug===s})[0];return g?g.name:s});
+    h+='<div class="adm"><div class="hd"><div class="mid"><b>'+esc(t.name)+'</b>'+(t.is_admin?'<span class="badge">админ</span>':"")+'<div class="sm mut">логин: '+esc(t.login)+'</div><div class="tags" style="margin-top:4px">'+(t.is_admin?'<span class="tg ts">все группы</span>':gn.length?gn.map(function(n){return '<span class="tg ts">'+esc(n)+'</span>'}).join(""):'<span class="sm mut">нет групп</span>')+'</div></div><button class="btn sm" data-a="form" data-k="tch" data-v="'+esc(t.id)+'">✏️</button></div>';
+    if(F.k==="tch"&&F.v===t.id)h+=teacherForm(t);
+    h+='</div>';
+  });
+  if(F.k==="tchnew")h+=teacherForm(null);else h+='<button class="btn pri" data-a="form" data-k="tchnew" style="margin-top:6px">+ Добавить учителя</button>';
+  return h+'</div>';
+}
+function teacherForm(t){
+  var id=t?t.id:"",gs=t?t.groups:[];
+  var h='<div class="form"><div class="grid2"><div class="field"><label for="tf_name">Имя</label><input id="tf_name" type="text" maxlength="40" value="'+esc(t?t.name:"")+'"></div><div class="field"><label for="tf_login">Логин</label><input id="tf_login" type="text" maxlength="32" autocapitalize="off" value="'+esc(t?t.login:"")+'"></div></div>'+
+  '<div class="field"><label for="tf_pass">'+(t?'Новый пароль (оставьте пустым, чтобы не менять)':'Пароль (от 6 символов)')+'</label><input id="tf_pass" type="text" maxlength="72" autocomplete="off"></div>'+
+  '<div class="sec" style="margin-top:4px">Группы</div>'+(ADM.groups.length?ADM.groups.map(function(g){return '<label class="chk"><input type="checkbox" id="tf_g_'+esc(g.slug)+'" data-g="'+esc(g.slug)+'"'+(gs.indexOf(g.slug)>-1?" checked":"")+'>'+esc(g.name)+'</label>'}).join(""):'<p class="mut sm">Сначала создайте группы</p>')+
+  '<label class="chk" style="margin-top:6px"><input type="checkbox" id="tf_admin"'+(t&&t.is_admin?" checked":"")+'>Администратор (видит все группы и управляет учителями)</label>'+
+  (UI.formErr?'<p class="note err" style="margin:8px 0">'+esc(UI.formErr)+'</p>':"")+
+  '<div class="btns" style="margin-top:8px"><button class="btn pri" data-a="tsave" data-v="'+esc(id)+'">'+(t?"Сохранить":"Добавить учителя")+'</button><button class="btn" data-a="formclose">Отмена</button>'+
+  (t&&ME&&t.id!==ME.id?(UI.confirm==="tdel"+t.id?'<button class="btn dng" data-a="tdel" data-v="'+esc(t.id)+'">Да, удалить</button>':'<button class="btn dng" data-a="conf" data-k="tdel'+esc(t.id)+'">🗑 Удалить</button>'):"")+'</div></div>';
+  return h;
+}
+
+/* ---- экраны группы ---- */
+function groupHeader(){
+  var h=topbar('<a class="lnk" href="#/">‹ Главная</a>')+'<header class="top">'+brand()+'<div class="gname">'+esc(G.name)+'</div></header>';
+  if(canEdit()){
+    var st=saveErr&&saveErr!=="network"?'<span><span class="dot e"></span>'+esc(emsg({code:saveErr}))+'</span>':saving?'<span><span class="dot w"></span>Сохраняю…</span>':Q.length?'<span><span class="dot w"></span>'+(saveErr==="network"?"Нет связи — ждут сохранения: ":"Сохраню через секунду: ")+Q.length+'</span>':'<span><span class="dot"></span>Всё сохранено</span>';
+    h+='<div class="savebar">'+st+(Q.length&&!saving?'<button class="btn sm pri" data-a="savenow">Сохранить</button>':"")+'</div>';
+  }
+  return h;
+}
+function tagsOf(s){return '<div class="tags"><span class="tg tn">🕌 Намаз '+s.n+'</span><span class="tg tq">📖 Коран '+s.q+'</span><span class="tg tx">⭐ Доп. '+s.x+'</span><span class="tg ts">📜 Суры '+surCount(s)+'</span>'+(s.f?'<span class="tg tf">⚠️ −'+s.f+'</span>':"")+'</div>'}
+function vRating(){
+  var L=ranked(),dl=daysLeft(),h='<div class="chips"><span class="chip">🏁 '+esc(S.season.name)+' · до '+fdate(S.season.end+"T12:00:00")+'</span><span class="chip g">'+(dl>0?"осталось "+pn(dl,"день","дня","дней"):"сезон закончился")+'</span></div>';
+  if(canEdit()&&S.students.some(function(s){return s.ex}))h+='<div class="box" style="border-color:rgba(251,191,36,.4)"><b>Сейчас в группе примеры учеников.</b><p class="mut sm" style="margin:4px 0 10px">Удалите их и добавьте своих ребят во вкладке «Учитель».</p><button class="btn sm pri" data-a="clearex">Удалить примеры</button></div>';
+  if(!L.length)return h+'<div class="box cen"><div class="big">🌙</div><h2>Пока нет учеников</h2><p class="mut">'+(canEdit()?"Добавьте ребят во вкладке «Учитель».":"Учитель скоро добавит ребят.")+'</p></div>';
+  var m=meStudent&&by(meStudent);
+  if(m){var nx=nextLvl(m),l=lvl(m),pc=nx?Math.round((m.xp-l[3])/(nx[3]-l[3])*100):100;
+    h+='<div class="box row me" data-a="open" data-id="'+m.id+'" role="button" tabindex="0" style="display:block"><div class="mecard">'+avh(m,"l")+'<div class="mid"><div class="sm mut">Мой персонаж</div><div class="nm">'+esc(m.name)+'</div><div class="lvl" style="color:'+l[4]+'">'+l[1]+" "+l[2]+' · '+place(m)+' место</div><div class="bar"><i style="width:'+pc+'%"></i></div><div class="sm mut" style="margin-top:4px">'+(nx?"До звания «"+nx[2]+"» "+nx[1]+": "+pn(nx[3]-m.xp,"опыт","опыта","опыта"):"Высшее звание достигнуто!")+(streak(m)>1?" · 🔥 "+pn(streak(m),"неделя","недели","недель")+" подряд":"")+'</div></div></div></div>';}
+  var tg=S.goal.target|0;
+  if(tg>0){var sum=seasonTotal(),gp=Math.min(100,Math.round(sum/tg*100));
+    h+='<div class="box goal"><div class="gh"><b>🎯 Общая цель группы</b><span>'+sum+' / '+tg+'</span></div><div class="bar"><i style="width:'+gp+'%"></i></div><p class="gs mut sm">'+(sum>=tg?"Цель достигнута! Машаллах 🎉 ":"Каждый балл любого ученика идёт в общую копилку. ")+(S.goal.prize?"Приз: <b style=\"color:var(--tx)\">"+esc(S.goal.prize)+"</b>":"")+'</p></div>';}
+  if(L.length>=3&&tot(L[2])>0){
+    var p=function(s,i){return '<div data-a="open" data-id="'+s.id+'" role="button" tabindex="0">'+(i===0?'<div class="crown">👑</div>':"")+avh(s,i===0?"l":"")+'<div class="pn">'+esc(s.name)+'</div><div class="pp">'+tot(s)+'</div><div class="blk'+(i===0?" g1":"")+'" style="height:'+[96,74,56][i]+'px">'+medal(i)+'</div></div>'};
+    h+='<div class="pod">'+p(L[1],1)+p(L[0],0)+p(L[2],2)+'</div>';
+  }
+  if(!m)h+='<p class="cen mut sm" style="margin:-4px 0 12px">Нажми на своё имя и выбери «Это я» — сверху появится твой персонаж</p>';
+  h+='<div class="box"><h2>Таблица лидеров <small>'+pn(L.length,"ученик","ученика","учеников")+'</small></h2>';
+  L.forEach(function(s,i){var l=lvl(s),eb=earned(s);
+    h+='<div class="row'+(s.id===meStudent?" me":"")+'" data-a="open" data-id="'+s.id+'" role="button" tabindex="0"><div class="rk">'+(tot(s)>0?medal(i):i+1)+'</div>'+avh(s)+'<div class="mid"><div class="nm">'+exName(s)+'</div><div class="lvl" style="color:'+l[4]+'">'+l[1]+" "+l[2]+'</div>'+tagsOf(s)+(eb.length>1?'<div class="bdg">'+eb.slice(-6).map(function(b){return b.e}).join(" ")+'</div>':"")+'</div><div class="sc"><b>'+tot(s)+'</b><small>'+pl(tot(s),"балл","балла","баллов")+'</small></div></div>';
+  });
+  return h+'</div><div class="box"><h2>Последние баллы</h2>'+logList(S.log.slice(0,8),false)+'</div>';
+}
+function logList(list,del){
+  if(!list.length)return '<p class="mut">Пока ничего нет</p>';
+  return list.map(function(e){var s=by(e.s),c=CAT[e.t];if(!s||!c)return"";
+    var txt=e.t==="s"?esc(s.name)+(s.g==="f"?" выучила суру":" выучил суру"):e.t==="f"?(e.v>0?esc(s.name)+" −"+e.v+" штраф":esc(s.name)+": штраф уменьшен на "+(-e.v)):esc(s.name)+" "+(e.v>0?"+":"−")+Math.abs(e.v)+" "+c[1];
+    return '<div class="lg"><div class="ic" style="background:var('+c[3]+')">'+c[0]+'</div><div class="lt">'+txt+(e.note?'<small>'+esc(e.note)+'</small>':"")+'</div><div class="dt">'+rel(e.d)+'</div>'+(del?'<button class="x" data-a="rev" data-id="'+e.id+'" aria-label="Отменить запись">✕</button>':"")+'</div>'}).join("");
+}
+function vSur(){
+  var L=S.students.slice().sort(function(a,b){return surCount(b)-surCount(a)||b.sur.length-a.sur.length}),total=0;L.forEach(function(s){total+=surCount(s)});
+  var h='<div class="box cen"><div class="big">📜</div><h2>Рейтинг по сурам</h2><p class="mut" style="margin:6px auto 12px;max-width:44ch">Кто сколько сур выучил наизусть — за всё время. Не обнуляется с новым сезоном и не идёт в общую таблицу, но за суры есть свои значки.</p><span class="chip">Всего выучено: <b style="color:var(--s)">'+pn(total,"сура","суры","сур")+'</b></span></div>';
+  if(!L.length)return h;
+  h+='<div class="box">';
+  L.forEach(function(s,i){var j=juz(s);
+    h+='<div class="row" data-a="open" data-id="'+s.id+'" role="button" tabindex="0" style="align-items:flex-start"><div class="rk" style="padding-top:18px">'+(surCount(s)?medal(i):"·")+'</div>'+avh(s)+'<div class="mid"><div class="nm">'+exName(s)+'</div><div class="lvl" style="color:var(--s)">📜 '+pn(surCount(s),"сура","суры","сур")+(s.sur.indexOf(AYAT)>-1?" + Аят аль-Курси":"")+'</div><div class="sm mut" style="margin-bottom:6px">Джуз Амма: '+j+' из '+JUZ.length+'</div><div class="bar" style="height:7px;margin-bottom:8px"><i style="width:'+Math.round(j/JUZ.length*100)+'%;background:var(--s)"></i></div><div class="tags">'+s.sur.map(function(x){return '<span class="tg ts">'+esc(x)+'</span>'}).join("")+'</div></div><div class="sc"><b style="color:var(--s)">'+surCount(s)+'</b></div></div>';
+  });
+  return h+'</div>';
+}
+function vHall(){
+  if(!S.hall.length)return '<div class="box cen"><div class="big">🏛️</div><h2>Зал славы пока пуст</h2><p class="mut" style="margin-top:6px">Когда учитель завершит сезон, победители навсегда останутся здесь.</p></div>';
+  return S.hall.map(function(se){
+    var h='<div class="box"><h2>🏆 '+esc(se.name)+'</h2><p class="mut sm" style="margin:-6px 0 10px">Закончился '+fdate(se.end+"T12:00:00",{day:"numeric",month:"long",year:"numeric"})+' · группа набрала '+pn(se.total||0,"балл","балла","баллов")+(se.target&&se.total>=se.target?" — общая цель выполнена 🎉":"")+'</p>';
+    (se.w||[]).forEach(function(w,i){h+='<div class="hall-w"><span class="m">'+medal(i)+'</span><div class="av s" style="--c:var(--gold)">'+(AVM[w.av]?avSvg(avShown(w.av)):esc(w.av))+'</div><span class="mid nm" style="font-size:17px">'+esc(w.name)+'</span><b style="color:var(--gold)">'+w.p+'</b></div>'});
+    var b=se.best||{};
+    if(b.n||b.q||b.x)h+='<div class="tags" style="margin-top:10px">'+(b.n?'<span class="tg tn">🕌 Больше всех намазов: '+esc(b.n.name)+' ('+b.n.v+')</span>':"")+(b.q?'<span class="tg tq">📖 Больше всех Корана: '+esc(b.q.name)+' ('+b.q.v+')</span>':"")+(b.x?'<span class="tg tx">⭐ Самый активный: '+esc(b.x.name)+'</span>':"")+'</div>';
+    return h+'</div>';
+  }).join("");
+}
+function vRules(){
+  var h='<div class="box"><h2>Как получить баллы</h2>';
+  h+='<div class="rule" style="background:var(--nbg)"><div class="e">🕌</div><div><h3 style="color:var(--n)">Намаз</h3>Пришёл в мечеть и совершил намаз — +1 балл.</div></div>';
+  h+='<div class="rule" style="background:var(--qbg)"><div class="e">📖</div><div><h3 style="color:var(--q)">Коран</h3>Прочитал страницу Корана — +1 балл. Кто только учится, читает «Муаллим Сани»: одну, две или три буквы, в зависимости от уровня — и тоже получает балл.</div></div>';
+  h+='<div class="rule" style="background:var(--xbg)"><div class="e">⭐</div><div><h3 style="color:var(--x)">Дополнительно</h3>Выучил и рассказал что-то, помог в мечети, хорошо поработал — дополнительные баллы.</div></div>';
+  h+='<div class="rule" style="background:var(--fbg)"><div class="e">⚠️</div><div><h3 style="color:var(--f)">Штраф</h3>За нарушения учитель может снять баллы — они вычитаются из общего счёта и из опыта. Можно потерять уровень и значок!</div></div>';
+  h+='<p class="mut sm">Баллы ставит только учитель. Намаз + Коран + Дополнительно − Штраф = общий счёт. Кто набрал больше, тот выше в таблице.</p></div>';
+  h+='<div class="box"><h2>🎯 Общая цель</h2><p class="mut">Все ученики группы вместе копят баллы в общую копилку. Если до конца сезона набрать цель — вся группа получает приз, который назначил учитель. Помогаешь себе — помогаешь всем.</p></div>';
+  h+='<div class="box"><h2>📜 Рейтинг по сурам</h2><div class="rule" style="background:var(--sbg);margin:0"><div class="e">📜</div><div><h3 style="color:var(--s)">Выучил суру наизусть</h3>Учитель засчитывает каждую выученную суру. Это отдельный рейтинг за всё время — вкладка «Суры». Он не обнуляется с новым сезоном и не идёт в общую таблицу, но за суры есть свои значки.</div></div></div>';
+  h+='<div class="box"><h2>Уровни персонажа</h2><p class="mut" style="margin-bottom:8px">Каждый балл — это опыт. Набирай опыт, и твой персонаж получит новое звание и новую рамку.</p>';
+  LV.forEach(function(l){h+='<div class="lrow"><u style="background:'+l[4]+'">'+l[0]+'</u><span>'+l[1]+" "+l[2]+'</span><s>'+(l[3]?"от "+l[3]+" опыта":"старт")+'</s></div>'});
+  h+='</div><div class="box"><h2>🏅 Значки</h2><p class="mut" style="margin-bottom:12px">Значки за звания приходят сами. Если штраф опустит уровень, значок за это звание пропадёт. Значки за суры и за постоянство остаются навсегда.</p><div class="bgrid">';
+  SB.forEach(function(b){h+='<div class="bd"><i>'+b[1]+'</i><b>'+b[2]+'</b><span>'+(b[0]===114?"все 114 сур":pn(b[0],"сура","суры","сур"))+'</span></div>'});
+  h+='<div class="bd"><i>📘</i><b>Джуз Амма</b><span>30-й джуз целиком</span></div>';
+  STK.forEach(function(b){h+='<div class="bd"><i>'+b[1]+'</i><b>'+b[2]+'</b><span>намаз в мечети каждую неделю</span></div>'});
+  h+='</div></div><div class="box"><h2>👤 Мой персонаж</h2><p class="mut">Нажми на своё имя в таблице и выбери «Это я». Тогда сверху всегда будет твой персонаж, а когда получишь новое звание — увидишь праздник. Аватарку выбирает учитель — скажи ему, какую хочешь.</p></div>';
+  h+='<div class="box"><h2>📲 На главный экран телефона</h2><p class="mut" style="margin-bottom:8px">Добавь страницу на главный экран — она будет открываться одним нажатием, как приложение.</p><p><b>Android (Chrome):</b> меню ⋮ → «Добавить на главный экран».<br><b>iPhone (Safari):</b> «Поделиться» → «На экран Домой».</p></div>';
+  h+='<div class="box"><h2>Сезоны</h2><p class="mut">Рейтинг идёт до конца сезона. Потом учитель начинает новый сезон: таблица обнуляется, а лучшие попадают в Зал славы. Опыт, звание, значки и выученные суры остаются с тобой.</p></div>';
+  return h;
+}
+function confirmBtn(key,label,action,id){
+  if(UI.confirm===key)return '<span class="btns"><button class="btn sm dng" data-a="'+action+'"'+(id?' data-id="'+id+'"':"")+'>Да, точно</button><button class="btn sm" data-a="noconf">Отмена</button></span>';
+  return '<button class="btn sm dng" data-a="conf" data-k="'+key+'">'+label+'</button>';
+}
+function vTeacher(){
+  var L=S.students.slice().sort(function(a,b){return a.name.localeCompare(b.name,"ru")}),h="";
+  h+='<div class="box"><h2>✅ Отметить баллы</h2><p class="mut sm" style="margin:-6px 0 6px">Выберите, кто пришёл, и нажмите кнопку — балл получат все выбранные сразу.</p>';
+  if(!L.length)h+='<p class="mut">Сначала добавьте учеников ниже.</p>';
+  else{
+    h+='<div class="btns"><button class="btn sm" data-a="selall">Выбрать всех</button><button class="btn sm" data-a="selno">Снять выбор</button><button class="btn sm" data-a="undo"'+(S.log.length?"":" disabled")+'>↩ Отменить последнее</button></div><div class="mark">';
+    L.forEach(function(s){var on=UI.sel.indexOf(s.id)>-1;h+='<button class="mk'+(on?" on":"")+'" data-a="sel" data-id="'+s.id+'" aria-pressed="'+on+'">'+avh(s,"s")+'<span>'+esc(s.name)+'</span></button>'});
+    h+='</div><div class="sticky"><div class="btns" style="align-items:center"><button class="btn pri" data-a="mass" data-k="n">+1 🕌 Намаз</button><button class="btn pri" data-a="mass" data-k="q">+1 📖 Коран</button><span class="sm mut">Выбрано: <b style="color:var(--tx)">'+UI.sel.length+'</b></span></div></div>';
+    h+='<div class="sec">Доп. баллы и штраф</div><div class="grid2"><div class="field"><label for="amt">Сколько баллов</label><input id="amt" type="number" min="1" max="50" value="'+esc(UI.amt)+'"></div><div class="field"><label for="note">За что (необязательно)</label><input id="note" type="text" maxlength="60" placeholder="Например: рассказал хадис" value="'+esc(UI.note)+'"></div></div><div class="btns"><button class="btn" data-a="mass" data-k="x">⭐ Добавить доп. баллы</button><button class="btn dng" data-a="mass" data-k="f">⚠️ Снять штраф</button></div>';
+  }
+  h+='</div>';
+  var ng=UI.newG||(S.defG==="f"?"f":"m");
+  h+='<div class="box"><h2>👥 Ученики <small>'+L.length+'</small></h2><div class="field"><input id="newname" type="text" maxlength="30" placeholder="Имя ученика, например «Амир Г.»"></div><div class="btns" style="align-items:center;margin-bottom:12px"><div class="seg"><button class="'+(ng==="m"?"on":"")+'" data-a="newg" data-v="m">Мальчик</button><button class="'+(ng==="f"?"on":"")+'" data-a="newg" data-v="f">Девочка</button></div><button class="btn pri" data-a="add">Добавить</button></div>';
+  L.forEach(function(s){h+='<div class="row" data-a="open" data-id="'+s.id+'" role="button" tabindex="0" style="padding:8px 12px">'+avh(s,"s")+'<div class="mid"><div style="font-weight:800">'+exName(s)+'</div><div class="sm mut">'+lvl(s)[2]+' · '+pn(tot(s),"балл","балла","баллов")+' · '+pn(surCount(s),"сура","суры","сур")+'</div></div><span class="mut">›</span></div>'});
+  if(S.students.some(function(s){return s.ex}))h+='<button class="btn sm" data-a="clearex" style="margin-top:6px">Удалить все примеры</button>';
+  h+='</div>';
+  h+='<div class="box"><h2>🏁 Сезон и общая цель</h2><div class="grid2"><div class="field"><label for="sname">Название сезона</label><input id="sname" type="text" maxlength="40" value="'+esc(S.season.name)+'"></div><div class="field"><label for="send">Последний день сезона</label><input id="send" type="date" value="'+esc(S.season.end)+'"></div><div class="field"><label for="gtarget">Общая цель, баллов (0 — без цели)</label><input id="gtarget" type="number" min="0" max="100000" value="'+(S.goal.target|0)+'"></div><div class="field"><label for="gprize">Приз за цель</label><input id="gprize" type="text" maxlength="60" value="'+esc(S.goal.prize)+'" placeholder="Например: поездка всей группой"></div></div><div class="btns"><button class="btn pri" data-a="saveseason">Применить</button>'+confirmBtn("season","🏁 Завершить сезон","endseason")+'</div><p class="mut sm" style="margin-top:8px">При завершении таблица обнулится, тройка лидеров попадёт в Зал славы. Опыт, звания и суры у ребят останутся.</p></div>';
+  h+='<div class="box"><h2>💬 Итоги недели для родителей</h2><p class="mut sm" style="margin:-6px 0 8px">Готовый текст за последние 7 дней — скопируйте и отправьте в чат.</p><textarea id="wtext" readonly>'+esc(weekText())+'</textarea><div class="btns" style="margin-top:8px"><button class="btn pri" data-a="copyweek">📋 Скопировать</button></div></div>';
+  var lg=UI.showAll?S.log.slice(0,60):S.log.slice(0,12);
+  h+='<div class="box"><h2>🧾 Журнал</h2><p class="mut sm" style="margin:-6px 0 6px">Ошиблись — нажмите ✕, и запись отменится вместе с баллами.</p>'+logList(lg,true)+(S.log.length>12&&!UI.showAll?'<button class="btn sm" data-a="showall" style="margin-top:8px">Показать больше</button>':"")+'</div>';
+  h+='<div class="box"><h2>💾 Резервная копия</h2><p class="mut sm" style="margin:-6px 0 10px">Скачивайте копию после каждого сезона. Из неё можно всё восстановить, в том числе из старых Савабиков.</p><div class="btns"><button class="btn" data-a="backup">⬇️ Скачать копию</button><button class="btn" data-a="restore">⬆️ Восстановить из файла</button></div><input id="rfile" type="file" accept=".json,application/json" hidden>';
+  if(UI.restore)h+='<div style="margin-top:12px;padding:12px;border-radius:14px;background:var(--fbg)"><b>Заменить данные группы копией?</b><p class="sm" style="margin:4px 0 8px">В файле: '+pn(UI.restore.students.length,"ученик","ученика","учеников")+', '+pn(UI.restore.hall.length,"сезон","сезона","сезонов")+' в Зале славы. Текущие данные группы «'+esc(G.name)+'» будут заменены.</p><span class="btns"><button class="btn sm dng" data-a="dorestore">Да, заменить</button><button class="btn sm" data-a="norestore">Отмена</button></span></div>';
+  return h+'</div>';
+}
+function weekText(){
+  var now=new Date(),from=new Date(now.getTime()-6*864e5);from.setHours(0,0,0,0);
+  var ent=S.log.filter(function(e){return new Date(e.d)>=from}),gain={},surs={},total=0;
+  ent.forEach(function(e){var v=e.t==="f"?-e.v:e.t==="s"?0:e.v;gain[e.s]=(gain[e.s]||0)+v;total+=v;if(e.t==="s"){(surs[e.s]=surs[e.s]||[]).push(e.note)}});
+  var rng=from.getMonth()===now.getMonth()?from.getDate()+"–"+fdate(now.toISOString()):fdate(from.toISOString())+" – "+fdate(now.toISOString());
+  var lines=[APP+" · "+G.name+" — итоги недели ("+rng+")",""];
+  var top=Object.keys(gain).map(function(id){return{s:by(id),v:gain[id]}}).filter(function(x){return x.s&&x.v>0}).sort(function(a,b){return b.v-a.v});
+  if(!top.length)lines.push("За эту неделю баллов пока нет.");
+  top.forEach(function(x,i){lines.push((["🥇","🥈","🥉"][i]||"▫️")+" "+x.s.name+" — +"+pn(x.v,"балл","балла","баллов"))});
+  var su=Object.keys(surs).filter(function(id){return by(id)});
+  if(su.length){lines.push("","📜 Выучили суры:");su.forEach(function(id){lines.push("• "+by(id).name+": "+surs[id].join(", "))})}
+  var lvUp=[];S.students.forEach(function(s){var g=0;ent.forEach(function(e){if(e.s===s.id&&e.t!=="s")g+=e.t==="f"?-e.v:e.v});var was=LV[0];LV.forEach(function(l){if(s.xp-g>=l[3])was=l});if(lvl(s)[0]>was[0])lvUp.push(s.name+" — «"+lvl(s)[2]+"» "+lvl(s)[1])});
+  if(lvUp.length){lines.push("","⬆️ Новые звания:");lvUp.forEach(function(x){lines.push("• "+x)})}
+  lines.push("","Всего за неделю: "+pn(Math.max(0,total),"балл","балла","баллов")+".");
+  if(S.goal.target>0)lines.push("🎯 Общая цель группы: "+seasonTotal()+" из "+S.goal.target+(S.goal.prize?" (приз: "+S.goal.prize+")":"")+".");
+  lines.push("","Рейтинг: "+groupLink(G.slug));
+  return lines.join("\n");
+}
+function vSheet(){
+  var s=by(UI.sheet);if(!s){UI.sheet=null;return""}
+  var l=lvl(s),nx=nextLvl(s),pc=nx?Math.round((s.xp-l[3])/(nx[3]-l[3])*100):100,bs=badges(s),st=streak(s);
+  var h='<div class="ov'+(shownSheet===UI.sheet?"":" anim")+'" data-a="closebg"><div class="sheet" role="dialog" aria-modal="true" aria-label="'+esc(s.name)+'"><div class="grab"></div><div class="shd">'+avh(s,"xl")+'<div class="mid"><div class="nm" style="font-size:24px">'+exName(s)+'</div><div class="lvl" style="color:'+l[4]+';font-size:17px">'+l[1]+" "+l[2]+'</div><div class="sm mut">'+place(s)+' место в сезоне'+(st?" · 🔥 "+pn(st,"неделя","недели","недель")+" подряд":"")+'</div></div><button class="close" data-a="close" aria-label="Закрыть">✕</button></div>';
+  h+='<div class="sm mut" style="display:flex;justify-content:space-between;margin-bottom:5px"><span>Опыт: <b style="color:var(--tx)">'+s.xp+'</b></span><span>'+(nx?"до «"+nx[2]+"» "+nx[1]+": "+(nx[3]-s.xp):"высшее звание")+'</span></div><div class="bar"><i style="width:'+pc+'%"></i></div>';
+  h+='<div class="stats"><div class="st"><b style="color:var(--n)">'+s.n+'</b><span>🕌 Намаз</span></div><div class="st"><b style="color:var(--q)">'+s.q+'</b><span>📖 Коран</span></div><div class="st"><b style="color:var(--x)">'+s.x+'</b><span>⭐ Доп.</span></div><div class="st"><b style="color:var(--gold)">'+tot(s)+'</b><span>Всего'+(s.f?" (−"+s.f+")":"")+'</span></div></div>';
+  h+='<div class="btns">'+(meStudent===s.id?'<button class="btn sm" data-a="notme">Это не я</button>':'<button class="btn sm pri" data-a="isme" data-id="'+s.id+'">👤 Это я</button>')+'</div>';
+  h+='<div class="sec">Значки · '+bs.filter(function(b){return b.ok}).length+' из '+bs.length+'</div><div class="bgrid">'+bs.map(function(b){return '<div class="bd'+(b.ok?"":" off")+'"><i>'+b.e+'</i><b>'+b.n+'</b><span>'+(b.ok?"получен":b.r)+'</span></div>'}).join("")+'</div>';
+  h+='<div class="sec">Суры · '+surCount(s)+(s.sur.indexOf(AYAT)>-1?" + Аят аль-Курси":"")+'</div>'+(s.sur.length?'<div class="tags">'+s.sur.map(function(x){return '<span class="tg ts">'+esc(x)+'</span>'}).join("")+'</div>':'<p class="mut sm">Пока нет выученных сур</p>');
+  h+='<div class="sec">Последние баллы</div>'+logList(S.log.filter(function(e){return e.s===s.id}).slice(0,8),false);
+  if(canEdit())h+=teacherSheet(s);
+  return h+'</div></div>';
+}
+function avPicker(s){
+  var set=s.g==="f"?"g":"b",list=AVS.filter(function(a){return SYMBOLS_ONLY?a[2]==="n":(a[2]===set||a[2]==="n")});
+  return '<div class="avgrid">'+list.map(function(a){return '<button class="avp'+(a[0]===s.av?" on":"")+'" data-a="setav" data-id="'+s.id+'" data-v="'+a[0]+'" aria-pressed="'+(a[0]===s.av)+'">'+avSvg(a[0])+esc(a[1])+'</button>'}).join("")+'</div>';
+}
+function teacherSheet(s){
+  var h='<div class="sec" style="color:var(--gold)">Для учителя</div><div class="qa">';
+  ["n","q","x","f"].forEach(function(k){var c=CAT[k];h+='<div>'+c[0]+" "+(k==="x"?"Доп.":c[1])+'<b>'+s[k]+'</b><div class="btns"><button class="btn sm" data-a="dec" data-k="'+k+'" data-id="'+s.id+'" aria-label="Минус">−</button><button class="btn sm" data-a="inc" data-k="'+k+'" data-id="'+s.id+'" aria-label="Плюс">+</button></div></div>'});
+  h+='</div><div class="sec">Аватарка</div><div class="btns" style="align-items:center;margin-bottom:4px"><div class="seg"><button class="'+(s.g!=="f"?"on":"")+'" data-a="setg" data-id="'+s.id+'" data-v="m">Мальчик</button><button class="'+(s.g==="f"?"on":"")+'" data-a="setg" data-id="'+s.id+'" data-v="f">Девочка</button></div></div>'+avPicker(s);
+  h+='<div class="sec">Отметить суры</div><input id="surq" type="search" placeholder="Поиск суры по названию или номеру" value="'+esc(UI.surq)+'"><div class="pick" id="surlist">'+surPick(s)+'</div>';
+  h+='<div class="sec">Имя</div><div class="btns" style="flex-wrap:nowrap;margin-bottom:10px"><input id="rename" type="text" maxlength="30" value="'+esc(s.name)+'"><button class="btn" data-a="rename" data-id="'+s.id+'">Сохранить</button></div>';
+  h+='<div class="sec">Грамота</div><div class="field"><label for="certr">За что</label><select id="certr">'+certReasons(s).map(function(r){return '<option'+(r===UI.certReason?" selected":"")+'>'+esc(r)+'</option>'}).join("")+'</select></div><div class="btns"><button class="btn" data-a="mkcert" data-id="'+s.id+'">🖼️ Сделать грамоту</button></div>';
+  if(UI.certImg&&UI.certFor===s.id)h+='<img class="certimg" alt="Грамота" src="'+UI.certImg+'"><div class="btns"><button class="btn pri" data-a="dlcert" data-id="'+s.id+'">⬇️ Скачать картинку</button></div>';
+  h+='<div class="sec">Удаление</div>'+confirmBtn("del"+s.id,"🗑 Удалить ученика","delst",s.id);
+  return h;
+}
+function surPick(s){var q=UI.surq.trim().toLowerCase();return SUR.filter(function(x){return!q||x.toLowerCase().indexOf(q)>-1||String(NUM[x]||"")===q}).map(function(x){return '<button class="pk'+(s.sur.indexOf(x)>-1?" on":"")+'" data-a="sur" data-id="'+s.id+'" data-v="'+esc(x)+'">'+(NUM[x]?'<span class="sm mut">'+NUM[x]+'</span>':"")+esc(x)+'</button>'}).join("")}
+function certReasons(s){
+  var r=[],p=place(s),l=lvl(s),sc=surCount(s);
+  if(p<=3&&tot(s)>0)r.push("за "+p+" место в сезоне «"+S.season.name+"»");
+  if(l[0]>1)r.push("за звание «"+l[2]+"»");
+  if(sc>0)r.push("за изучение "+pn(sc,"суры","сур","сур")+" Корана наизусть");
+  if(juz(s)>=JUZ.length)r.push("за изучение 30-го джуза (Джуз Амма)");
+  r.push("за старание и посещение мечети","за успехи в чтении Корана","за помощь в мечети");
+  return r;
+}
+function nav(){
+  var t=[["r","🏆","Рейтинг"],["s","📜","Суры"],["h","🏛️","Зал славы"],["p","❓","Правила"]];
+  if(canEdit())t.push(["t","🧑‍🏫","Учитель"]);
+  return '<nav class="nav"><div>'+t.map(function(x){return '<button class="'+(R.tab===x[0]?"on":"")+'" data-a="tab" data-v="'+x[0]+'"><span>'+x[1]+'</span>'+x[2]+'</button>'}).join("")+'</div></nav>';
+}
+function vCeleb(){
+  if(!celeb||!S)return"";var s=by(celeb.id);if(!s){celeb=null;return""}
+  var l=lvl(s);
+  return '<div class="ov'+(celebShown?"":" anim")+'" data-a="closecel" style="align-items:center"><div class="sheet" style="border-radius:26px;max-width:420px;margin:16px"><div class="cel"><div style="display:flex;justify-content:center">'+avh(s,"xl")+'</div><h2>'+(celeb.lv?"Новое звание!":"Новый значок!")+'</h2><p style="font-size:18px">'+(celeb.lv?"Теперь ты <b style=\"color:"+l[4]+"\">"+l[2]+" "+l[1]+"</b>":"")+(celeb.b?'<br>'+celeb.b.map(function(b){return b.e+" "+b.n}).join(" · "):"")+'</p><p class="mut" style="margin-top:8px">Машаллах! Так держать.</p><button class="btn pri" data-a="closecel" style="margin-top:16px">Ура!</button></div></div></div>';
+}
+function vGroup(){
+  if(!S)return topbar('<a class="lnk" href="#/">‹ Главная</a>')+'<div class="loading">'+(R.err?esc(R.err)+'<p style="margin-top:12px"><a class="btn" href="#/">К списку групп</a></p>':"Загрузка…")+'</div>';
+  if(R.tab==="t"&&!canEdit())R.tab="r";
+  var body=({r:vRating,s:vSur,h:vHall,p:vRules,t:vTeacher}[R.tab]||vRating)();
+  return groupHeader()+body+nav()+(UI.sheet?vSheet():"")+vCeleb();
+}
+
+/* ================= отрисовка ================= */
+var app=document.getElementById("app");
+function render(){
+  var y=window.scrollY,ae=document.activeElement,focusId=ae&&ae.id,selStart=null;
+  try{if(focusId&&ae.selectionStart!=null)selStart=ae.selectionStart}catch(e){}
+  var keep={};
+  if(!UI.dropKeep)app.querySelectorAll("input[id],select[id],textarea[id]").forEach(function(el){if(el.type==="file"||el.readOnly)return;keep[el.id]=el.type==="checkbox"?el.checked:el.value});
+  UI.dropKeep=false;
+  var osh=app.querySelector(".sheet"),sy=osh?osh.scrollTop:0,same=shownSheet===UI.sheet;
+  var html=R.view==="group"?vGroup():R.view==="login"?vLogin():R.view==="cab"?vCab():R.view==="home"?vHome():'<div class="loading">Загрузка…</div>';
+  app.innerHTML=html+(toastMsg?'<div class="toast" role="status">'+esc(toastMsg)+'</div>':"");
+  Object.keys(keep).forEach(function(id){var el=document.getElementById(id);if(!el)return;if(el.type==="checkbox")el.checked=keep[id];else el.value=keep[id]});
+  var nsh=app.querySelector(".sheet");if(nsh&&same&&UI.sheet)nsh.scrollTop=sy;
+  shownSheet=UI.sheet;celebShown=!!celeb;
+  window.scrollTo(0,y);
+  if(focusId){var el=document.getElementById(focusId);if(el){el.focus({preventScroll:true});try{if(selStart!=null)el.setSelectionRange(selStart,selStart)}catch(e){}}}
+}
+
+/* ================= грамота ================= */
+function loadImg(src){return new Promise(function(res){var i=new Image();i.onload=function(){res(i)};i.onerror=function(){res(null)};i.src=src})}
+function star8(x,cx,cy,r,col){x.save();x.translate(cx,cy);x.fillStyle=col;for(var k=0;k<2;k++){x.save();x.rotate(k*Math.PI/4);x.fillRect(-r,-r,2*r,2*r);x.restore()}x.restore()}
+function wrapText(x,t,cx,y,maxW,lh){var w=t.split(" "),line="",lines=[];w.forEach(function(word){var test=line?line+" "+word:word;if(x.measureText(test).width>maxW&&line){lines.push(line);line=word}else line=test});if(line)lines.push(line);lines.forEach(function(l,i){x.fillText(l,cx,y+i*lh)});return lines.length}
+function makeCert(s,reason){
+  var W=1754,H=1240,c=document.createElement("canvas");c.width=W;c.height=H;var x=c.getContext("2d");
+  var fonts=Promise.resolve();
+  var aid=avShown(s.av),avSrc=AVM[aid]?"data:image/svg+xml;charset=utf-8,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="400" height="400">'+AVM[aid][3]+'</svg>'):null;
+  return fonts.then(function(){return avSrc?loadImg(avSrc):null}).then(function(img){
+    var g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,"#fffaf0");g.addColorStop(1,"#fbecc8");x.fillStyle=g;x.fillRect(0,0,W,H);
+    x.strokeStyle="#0f1d4a";x.lineWidth=30;x.strokeRect(40,40,W-80,H-80);
+    x.strokeStyle="#c9971c";x.lineWidth=6;x.strokeRect(82,82,W-164,H-164);
+    [[120,120],[W-120,120],[120,H-120],[W-120,H-120]].forEach(function(p){star8(x,p[0],p[1],30,"#c9971c");star8(x,p[0],p[1],14,"#0f1d4a")});
+    if(img){x.save();x.beginPath();x.arc(W/2,215,95,0,Math.PI*2);x.closePath();x.fillStyle="#c9971c";x.fill();x.beginPath();x.arc(W/2,215,86,0,Math.PI*2);x.clip();x.drawImage(img,W/2-86,129,172,172);x.restore()}
+    x.textAlign="center";x.fillStyle="#0f1d4a";x.font="900 128px system-ui, sans-serif";x.fillText("ГРАМОТА",W/2,430);
+    x.font="700 42px system-ui, sans-serif";x.fillStyle="#7a6233";x.fillText(s.g==="f"?"награждается ученица":"награждается ученик",W/2,505);
+    var fs=104;x.font="900 "+fs+"px system-ui, sans-serif";while(x.measureText(s.name).width>1300&&fs>50){fs-=6;x.font="900 "+fs+"px system-ui, sans-serif"}
+    x.fillStyle="#a8770c";x.fillText(s.name,W/2,630);
+    x.font="700 50px system-ui, sans-serif";x.fillStyle="#0f1d4a";var n=wrapText(x,reason,W/2,730,1280,66);
+    x.font="600 34px system-ui, sans-serif";x.fillStyle="#7a6233";x.fillText("Звание: "+lvl(s)[2]+" · опыт "+s.xp+" · выучено "+pn(surCount(s),"сура","суры","сур"),W/2,730+n*66+30);
+    x.font="700 36px system-ui, sans-serif";x.fillStyle="#0f1d4a";x.textAlign="left";x.fillText("Учитель ____________________",190,H-170);
+    x.textAlign="right";x.fillText(new Date().toLocaleDateString("ru",{day:"numeric",month:"long",year:"numeric"}),W-190,H-170);
+    x.textAlign="center";x.font="700 34px system-ui, sans-serif";x.fillStyle="#7a6233";x.fillText(APP+" · "+G.name,W/2,H-118);
+    return c;
+  });
+}
+function download(name,blob){var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},2000)}
+
+/* ================= действия ================= */
+function setTab(t){R.tab=t;var h="#/g/"+encodeURIComponent(G.slug)+(t==="r"?"":"/"+TABS[t]);if(location.hash!==h){skipRoute=true;location.hash=h}}
+var skipRoute=false;
+function act(a,b,e){
+  var id=b.dataset.id,s=id&&S?by(id):null,k=b.dataset.k,v=b.dataset.v;
+  switch(a){
+    /* ---- вход и кабинет ---- */
+    case"login":doLogin();return;
+    case"setup":doSetup();return;
+    case"logout":rpc("logout",{p_token:TOK}).catch(function(){});logoutLocal();go("#/");return;
+    case"form":UI.form={k:k,v:v};UI.formErr="";UI.confirm=null;UI.dropKeep=true;UI.slugEdited=false;UI.newG="m";break;
+    case"formclose":UI.form=null;UI.formErr="";UI.confirm=null;UI.dropKeep=true;break;
+    case"pwsave":var po=val("pw_old"),pw=val("pw_new");rpc("change_password",{p_token:TOK,p_old:po,p_new:pw}).then(function(r){if(r&&r.ok){UI.form=null;UI.dropKeep=true;flash("Пароль изменён")}else UI.formErr=emsg({code:r&&r.error});render()}).catch(function(x){UI.formErr=emsg(x);render()});return;
+    case"copylink":copy(groupLink(v),"Ссылка скопирована — отправьте её в чат группы");return;
+    case"newg":UI.newG=v;break;
+    case"grcreate":rpc("admin_group_save",{p_token:TOK,p_slug:"",p_name:val("ng_name").trim(),p_new:true,p_def_g:UI.newG||"m"}).then(function(r){ADM=r;UI.form=null;UI.dropKeep=true;flash("Группа создана, код: "+r.created);return refreshMe()}).catch(function(x){UI.formErr=emsg(x);render()});return;
+    case"grcode":rpc("admin_group_newcode",{p_token:TOK,p_slug:v}).then(function(r){ADM=r;UI.form=null;UI.confirm=null;flash("Новый код: "+r.created);return refreshMe()}).catch(function(x){UI.formErr=emsg(x);render()});return;
+    case"opencode":var cd=val("code").trim().toLowerCase().replace(/^.*#\/g\//,"").replace(/[^a-z0-9-]/g,"");if(!cd){UI.formErr="Введите код группы";render();return}go("#/g/"+encodeURIComponent(cd));return;
+    case"grrename":rpc("admin_group_save",{p_token:TOK,p_slug:v,p_name:val("gr_name"),p_new:false}).then(function(r){ADM=r;UI.form=null;UI.dropKeep=true;flash("Сохранено");return refreshMe()}).catch(function(x){UI.formErr=emsg(x);render()});return;
+    case"grdel":rpc("admin_group_delete",{p_token:TOK,p_slug:v}).then(function(r){ADM=r;UI.form=null;UI.confirm=null;flash("Группа удалена");return refreshMe()}).catch(function(x){UI.formErr=emsg(x);render()});return;
+    case"tsave":var gsel=[].slice.call(app.querySelectorAll("input[data-g]")).filter(function(c){return c.checked}).map(function(c){return c.dataset.g});
+      rpc("admin_teacher_save",{p_token:TOK,p_id:v||null,p_login:val("tf_login"),p_name:val("tf_name"),p_password:val("tf_pass")||null,p_is_admin:!!(document.getElementById("tf_admin")||{}).checked,p_groups:gsel})
+        .then(function(r){ADM=r;UI.form=null;UI.dropKeep=true;flash(v?"Учитель обновлён":"Учитель добавлен");return refreshMe()}).catch(function(x){UI.formErr=emsg(x);render()});return;
+    case"tdel":rpc("admin_teacher_delete",{p_token:TOK,p_id:v}).then(function(r){ADM=r;UI.form=null;UI.confirm=null;flash("Учитель удалён");render()}).catch(function(x){UI.formErr=emsg(x);render()});return;
+    /* ---- группа ---- */
+    case"tab":setTab(v);UI.sheet=null;UI.confirm=null;window.scrollTo(0,0);break;
+    case"open":if(s){UI.sheet=s.id;UI.surq="";UI.certImg=null;UI.confirm=null;UI.certReason="";UI.showAllAv=false}break;
+    case"close":UI.sheet=null;break;
+    case"closebg":if(e.target===b)UI.sheet=null;else return;break;
+    case"closecel":if(e.target===b||b.tagName==="BUTTON")celeb=null;else return;break;
+    case"isme":meStudent=id;store.set("me_"+G.slug,id);if(s)store.set("seen_"+G.slug+"_"+s.id,seenOf(s));flash("Готово! Теперь это твой персонаж");break;
+    case"notme":meStudent=null;store.set("me_"+G.slug,null);break;
+    case"savenow":save();return;
+    case"sel":if(s){var j=UI.sel.indexOf(s.id);if(j>-1)UI.sel.splice(j,1);else UI.sel.push(s.id)}break;
+    case"selall":UI.sel=S.students.map(function(x){return x.id});break;
+    case"selno":UI.sel=[];break;
+    case"undo":if(S.log.length){var g0=S.log[0].g,ids=S.log.filter(function(x){return x.g===g0}).map(function(x){return x.id});mut(function(){ids.forEach(revert)});flash("Отменено: "+pn(ids.length,"запись","записи","записей"))}break;
+    case"mass":
+      var sel=UI.sel.filter(function(x){return by(x)});if(!sel.length){flash("Сначала выберите учеников");break}
+      var amt=k==="n"||k==="q"?1:Math.max(1,Math.min(50,parseInt(UI.amt,10)||1)),gid=uid(),note=k==="n"||k==="q"?"":UI.note;
+      mut(function(){sel.forEach(function(sid){apply(sid,k,amt,gid,note)})});
+      flash((k==="f"?"Штраф −":"+")+amt+" "+CAT[k][0]+" · "+pn(sel.length,"ученик","ученика","учеников"));
+      if(k==="x"||k==="f"){UI.note="";var ni=document.getElementById("note");if(ni)ni.value=""}break;
+    case"inc":if(s)mut(function(){apply(id,k,1)});break;
+    case"dec":if(s)mut(function(){apply(id,k,-1)});break;
+    case"add":var inp=document.getElementById("newname"),nm=inp&&inp.value.trim().slice(0,30);if(nm){var nid=uid(),gg2=UI.newG||(S.defG==="f"?"f":"m");mut(function(){addStudent(nid,nm,gg2)});inp.value="";flash("Добавлен: "+nm)}break;
+    case"clearex":var exIds=S.students.filter(function(x){return x.ex}).map(function(x){return x.id});mut(function(){S.students=S.students.filter(function(x){return exIds.indexOf(x.id)<0});S.log=S.log.filter(function(e){return exIds.indexOf(e.s)<0})});if(meStudent&&exIds.indexOf(meStudent)>-1){meStudent=null;store.set("me_"+G.slug,null)}UI.sel=UI.sel.filter(function(x){return exIds.indexOf(x)<0});flash("Примеры удалены");break;
+    case"rename":var rn=document.getElementById("rename"),rv=rn&&rn.value.trim().slice(0,30);if(s&&rv){mut(function(){var t=by(id);if(t){t.name=rv;delete t.ex}});flash("Имя сохранено")}break;
+    case"setav":if(s)mut(function(){var t=by(id);if(t)t.av=v});break;
+    case"setg":if(s)mut(function(){var t=by(id);if(t){t.g=v;var set=v==="f"?"g":"b";if(AVM[t.av]&&AVM[t.av][2]!==set&&AVM[t.av][2]!=="n")t.av=avDefault(v)}});break;
+    case"sur":if(s){var on=s.sur.indexOf(v)<0;mut(function(){setSur(id,v,on)})}break;
+    case"conf":UI.confirm=k;break;
+    case"noconf":UI.confirm=null;break;
+    case"delst":if(s){mut(function(){S.students=S.students.filter(function(x){return x.id!==id});S.log=S.log.filter(function(x){return x.s!==id})});UI.sel=UI.sel.filter(function(x){return x!==id});if(meStudent===id){meStudent=null;store.set("me_"+G.slug,null)}UI.sheet=null;UI.confirm=null;flash("Ученик удалён")}break;
+    case"endseason":UI.confirm=null;UI.dropKeep=true;mut(endSeason);flash("Сезон завершён. Победители в Зале славы 🏛️");break;
+    case"saveseason":
+      var nm2=val("sname").trim(),en=val("send"),tg=parseInt(val("gtarget"),10),pz=val("gprize").trim();
+      mut(function(){if(nm2)S.season.name=nm2.slice(0,40);if(/^\d{4}-\d{2}-\d{2}$/.test(en))S.season.end=en;S.goal.target=isNaN(tg)?0:Math.max(0,tg);S.goal.prize=pz.slice(0,60)});
+      UI.dropKeep=true;flash("Настройки сезона применены");break;
+    case"copyweek":copy(weekText(),"Скопировано — вставьте в чат",function(){var ta=document.getElementById("wtext");if(ta){ta.focus();ta.select()}});return;
+    case"showall":UI.showAll=true;break;
+    case"rev":if(S.log.some(function(x){return x.id===id})){mut(function(){revert(id)});flash("Запись отменена")}break;
+    case"backup":download(slugify(APP)+"-"+G.slug+"-"+ymd(new Date())+".json",new Blob([JSON.stringify(S,null,1)],{type:"application/json"}));flash("Копия скачана");break;
+    case"restore":var f=document.getElementById("rfile");if(f){f.value="";f.click()}return;
+    case"dorestore":if(UI.restore){var nd=migrate(UI.restore);mut(function(){S=JSON.parse(JSON.stringify(nd))});UI.restore=null;UI.sel=[];UI.dropKeep=true;flash("Данные восстановлены")}break;
+    case"norestore":UI.restore=null;break;
+    case"mkcert":if(s){var cs=document.getElementById("certr");UI.certReason=cs?cs.value:certReasons(s)[0];makeCert(s,UI.certReason).then(function(c){UI.certFor=s.id;UI.certCanvas=c;UI.certImg=c.toDataURL("image/jpeg",.85);render()})}return;
+    case"dlcert":if(UI.certCanvas&&s)UI.certCanvas.toBlob(function(bl){download("Грамота — "+s.name+".png",bl);flash("Грамота скачана");render()},"image/png");return;
+    default:return;
+  }
+  render();
+}
+function val(id){var el=document.getElementById(id);return el?el.value:""}
+function copy(text,ok,fallback){
+  var done=function(){flash(ok);render()},fail=function(){if(fallback)fallback();flash("Выделите текст и скопируйте вручную");render();if(fallback)setTimeout(fallback,30)};
+  try{if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(done,fail);else fail()}catch(e){fail()}
+}
+function logoutLocal(){TOK=null;ME=null;ADM=null;store.set("tok",null);if(R.tab==="t")R.tab="r";render()}
+function afterAuth(r){TOK=r.token;ME=r.me;store.set("tok",TOK);UI.formErr="";UI.dropKeep=true;var to=UI.afterLogin;UI.afterLogin=null;
+  if(to)go(to);else go(ME.groups.length===1?"#/g/"+encodeURIComponent(ME.groups[0].slug)+"/teacher":"#/cab")}
+function doLogin(){var l=val("li_login"),p=val("li_pass");if(!l||!p){UI.formErr="Введите логин и пароль";render();return}
+  rpc("login",{p_login:l,p_password:p}).then(function(r){if(r&&r.ok)afterAuth(r);else{UI.formErr=emsg({code:r&&r.error});render()}}).catch(function(x){UI.formErr=emsg(x);render()})}
+function doSetup(){rpc("setup_admin",{p_login:val("su_login"),p_name:val("su_name"),p_password:val("su_pass")}).then(function(r){INFO=null;afterAuth(r)}).catch(function(x){UI.formErr=emsg(x);render()})}
+function refreshMe(){if(!TOK){render();return Promise.resolve()}return rpc("me",{p_token:TOK}).then(function(m){ME=m;render()}).catch(function(x){if(x.code==="auth")logoutLocal();render()})}
+
+document.addEventListener("click",function(e){var b=e.target.closest("[data-a]");if(!b||!app.contains(b))return;act(b.dataset.a,b,e)});
+document.addEventListener("keydown",function(e){
+  if(e.key==="Escape"){if(celeb){celeb=null;render()}else if(UI.sheet){UI.sheet=null;render()}return}
+  var t=e.target;
+  if((e.key==="Enter"||e.key===" ")&&t.getAttribute&&t.getAttribute("role")==="button"){e.preventDefault();act(t.dataset.a,t,{target:t})}
+  if(e.key==="Enter"&&t.id==="newname"){e.preventDefault();act("add",t,{target:t})}
+  if(e.key==="Enter"&&(t.id==="li_pass"||t.id==="li_login")){e.preventDefault();doLogin()}
+  if(e.key==="Enter"&&t.id==="su_pass"){e.preventDefault();doSetup()}
+  if(e.key==="Enter"&&t.id==="code"){e.preventDefault();act("opencode",t,{target:t})}
+});
+document.addEventListener("input",function(e){
+  var t=e.target;
+  if(t.id==="amt")UI.amt=t.value;
+  else if(t.id==="note")UI.note=t.value;
+  else if(t.id==="surq"){UI.surq=t.value;var s=by(UI.sheet),box=document.getElementById("surlist");if(s&&box)box.innerHTML=surPick(s)}
+});
+document.addEventListener("change",function(e){
+  var t=e.target;
+  if(t.id==="certr")UI.certReason=t.value;
+  if(t.id==="rfile"&&t.files&&t.files[0]){var r=new FileReader();r.onload=function(){try{var o=JSON.parse(r.result);if(!o||!Array.isArray(o.students)||!o.students.every(function(s){return s&&typeof s.name==="string"}))throw 0;o.hall=o.hall||[];UI.restore=o}catch(x){flash("Этот файл не похож на копию рейтинга")}render()};r.readAsText(t.files[0])}
+});
+
+/* ================= праздник при новом звании ================= */
+function seenOf(s){return{lv:lvl(s)[0],names:earned(s).map(function(b){return b.n})}}
+function checkCeleb(){
+  var s=meStudent&&S&&by(meStudent);if(!s)return;
+  var key="seen_"+G.slug+"_"+s.id,seen=store.get(key,null),cur=seenOf(s);store.set(key,cur);
+  if(!seen||!seen.names)return;
+  var fresh=earned(s).filter(function(b){return b.k!=="l"&&seen.names.indexOf(b.n)<0});
+  if(cur.lv>seen.lv||fresh.length){celeb={id:s.id,lv:cur.lv>seen.lv,b:fresh.length?fresh.slice(0,3):null};render();confetti()}
+}
+function confetti(){
+  try{if(window.matchMedia("(prefers-reduced-motion: reduce)").matches)return}catch(e){}
+  var c=document.createElement("canvas");c.id="fx";document.body.appendChild(c);var x=c.getContext("2d"),W=c.width=innerWidth,H=c.height=innerHeight,P=[],cols=["#fbbf24","#5eead4","#93b4ff","#c4b5fd","#fda4af","#ffffff"];
+  for(var i=0;i<140;i++)P.push({x:W/2+(Math.random()-.5)*80,y:H*.45,vx:(Math.random()-.5)*13,vy:-Math.random()*14-4,r:Math.random()*6+3,c:cols[i%cols.length],a:Math.random()*6});
+  var t0=performance.now();(function f(t){x.clearRect(0,0,W,H);P.forEach(function(p){p.vy+=.35;p.x+=p.vx;p.y+=p.vy;p.a+=.1;x.save();x.translate(p.x,p.y);x.rotate(p.a);x.fillStyle=p.c;x.fillRect(-p.r,-p.r/2,p.r*2,p.r);x.restore()});if(t-t0<2600)requestAnimationFrame(f);else c.remove()})(t0);
+}
+
+/* ================= маршруты ================= */
+function route(){
+  if(skipRoute){skipRoute=false;return}
+  var r=parseHash();UI.sheet=null;UI.confirm=null;UI.form=null;UI.formErr="";UI.dropKeep=true;UI.newG="";celeb=null;
+  if(r.view==="group"){
+    if(G&&G.slug===r.slug&&S){R=r;if(R.tab==="t"&&!canEdit())R.tab="r";render();window.scrollTo(0,0);return}
+    if(Q.length&&G)save();
+    R=r;S=null;G=null;R.err="";UI.sel=[];UI.restore=null;UI.showAll=false;render();
+    rpc("group_get",{p_slug:r.slug}).then(function(g){
+      if(R.view!=="group"||R.slug!==r.slug)return;
+      G={slug:g.slug,name:g.name,version:g.version};S=migrate(g.data);meStudent=store.get("me_"+g.slug,null);if(meStudent&&!by(meStudent))meStudent=null;
+      var rc=store.get("recent",[]).filter(function(x){return x.slug!==g.slug});rc.unshift({slug:g.slug,name:g.name});store.set("recent",rc.slice(0,5));
+      var pend=store.get("pending_"+g.slug,null);
+      if(pend&&canEdit()){
+        if(pend.v===g.version){var snap=migrate(pend.data);S=JSON.parse(JSON.stringify(snap));Q.push(function(){S=JSON.parse(JSON.stringify(snap))});schedule();flash("Восстановил изменения, которые не успели сохраниться")}
+        else{store.set("pending_"+g.slug,null);flash("Несохранённые изменения с этого телефона устарели — данные обновил другой учитель")}
+      }
+      document.title=g.name+" — "+APP;render();window.scrollTo(0,0);setTimeout(checkCeleb,900);
+    }).catch(function(x){R.err=emsg(x);render()});
+    return;
+  }
+  document.title=APP;
+  if(r.view==="login"&&ME){go("#/cab");return}
+  if(r.view==="cab"&&!ME){UI.afterLogin="#/cab";R={view:"login"};render();return}
+  R=r;render();window.scrollTo(0,0);
+  if(r.view==="home")rpc("app_info",{}).then(function(i){INFO=i;render()}).catch(function(x){INFO={has_admin:true,groups:[]};flash(emsg(x));render()});
+  if(r.view==="cab"&&ME&&ME.is_admin)rpc("admin_list",{p_token:TOK}).then(function(a){ADM=a;render()}).catch(function(x){if(x.code==="auth")logoutLocal();else flash(emsg(x));render()});
+}
+window.addEventListener("hashchange",route);
+
+/* ================= старт ================= */
+(TOK?rpc("me",{p_token:TOK}).then(function(m){ME=m}).catch(function(x){if(x.code==="auth"){TOK=null;store.set("tok",null)}}):Promise.resolve()).then(route);
+if(!sess.get("splash")&&ICON){sess.set("splash","1");var sp=document.createElement("div");sp.className="splash";sp.innerHTML='<img alt="" src="'+esc(ICON)+'">';document.body.appendChild(sp);setTimeout(function(){sp.classList.add("out");setTimeout(function(){sp.remove()},600)},900)}
+})();
+</script>
+
+</body>
+</html>
