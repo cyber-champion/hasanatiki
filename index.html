@@ -1268,7 +1268,14 @@ function chatAct(a,b){
     case"chreccancel":recCancel();return true;
     case"chfile":UI.chSura=val("ch_sura")||"";UI.chPick=true;var fi=document.getElementById("hwfile");if(fi){fi.value="";fi.accept="";fi.multiple=false;fi.click()}return true;
     case"chretry":var m=CH&&CH.items.filter(function(x){return x.id===id})[0];if(m){CH.items.splice(CH.items.indexOf(m),1);chatSend(m.retry)}return true;
-    case"chsura":var sid=chatSid(),s=by(sid);if(s&&s.sur.indexOf(v)<0){mut(function(){setSur(sid,v,true)});chatSend({body:"✅ Сура «"+v+"» засчитана. Машаллах, молодец!"})}break;
+    case"chsura":var sid=chatSid(),s=by(sid);
+      var hh=HW&&HW.items?HW.items.filter(function(h){var sb=(h.subs||[]).filter(function(q){return q.student_id===sid})[0];return (h.sura===v||h.title===v)&&!(sb&&sb.status==="accepted")})[0]:null;
+      if(hh&&s){rpc("hw_review",{p_token:TOK,p_slug:G.slug,p_homework:hh.id,p_student:sid,p_accept:true,p_note:"",p_points:hh.points||0}).then(function(r){
+          kick();
+          chatSend({body:"✅ Сура «"+v+"» засчитана, задание принято"+(r.points?" (+"+r.points+")":"")+". Машаллах, молодец!"});
+          flash("Задание «"+hh.title+"» принято");
+          return refreshGroup().then(function(){var s2=by(sid);if(s2&&s2.sur.indexOf(v)<0&&!hh.sura)mut(function(){setSur(sid,v,true)})}).then(hwLoad)}).catch(function(e){flash(emsg(e));render()});return true}
+      if(s&&s.sur.indexOf(v)<0){mut(function(){setSur(sid,v,true)});chatSend({body:"✅ Сура «"+v+"» засчитана. Машаллах, молодец!"})}break;
     case"pushon":pushOn();return true;
     case"pushoff":pushOff();return true;
     case"pushtest":PUSHERR="Отправляю…";render();rpc("push_test",{p_token:TOK,p_slug:G.slug}).then(kick).then(function(r){
