@@ -1191,7 +1191,7 @@ function pushBox(){
   var ios=/iP(hone|ad|od)/.test(navigator.userAgent);
   if(!pushOk())return ios&&!standalone()?'<div class="box"><p class="sm mut">🔔 На iPhone уведомления работают, когда приложение добавлено на экран «Домой»: «Поделиться» → «На экран Домой», затем откройте его оттуда.</p></div>':"";
   if(Notification.permission==="denied")return '<div class="box"><p class="sm mut">🔕 Уведомления запрещены для этого сайта. Разрешите их в настройках браузера (значок слева от адреса → Уведомления).</p></div>';
-  if(Notification.permission==="granted"&&store.get(pushKey(),0))return canEdit()?'<div class="box"><div class="btns" style="align-items:center"><span class="sm" style="color:var(--ok);font-weight:800">🔔 Уведомления включены</span><button class="btn sm" data-a="pushtest">Проверить</button><button class="btn sm" data-a="pushoff">Выключить</button></div>'+(PUSHERR?'<p class="sm mut" style="margin-top:8px">'+esc(PUSHERR)+'</p>':"")+'</div>':"";
+  if(Notification.permission==="granted"&&store.get(pushKey(),0)===PUSHV)return canEdit()?'<div class="box"><div class="btns" style="align-items:center"><span class="sm" style="color:var(--ok);font-weight:800">🔔 Уведомления включены</span><button class="btn sm" data-a="pushtest">Проверить</button><button class="btn sm" data-a="pushoff">Выключить</button></div>'+(PUSHERR?'<p class="sm mut" style="margin-top:8px">'+esc(PUSHERR)+'</p>':"")+'</div>':"";
   var t=canEdit()?"Узнавайте сразу, когда ученик сдал задание или прислал голосовое.":STOK?"Узнавай сразу, когда учитель проверил задание или ответил тебе.":"Узнавайте о новых заданиях учителя.";
   return '<div class="box"><div class="btns" style="align-items:center;justify-content:space-between"><span class="sm" style="flex:1;min-width:180px">🔔 '+t+'</span><button class="btn sm pri" data-a="pushon">Включить уведомления</button></div></div>';
 }
@@ -1205,7 +1205,7 @@ function pushOn(){
     return swReg();
   }).then(function(reg){return reg.pushManager.getSubscription().then(function(s){return s?s.unsubscribe():null}).then(function(){return reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(PUSHV)})})})
   .then(function(sub){var j=sub.toJSON();return rpc("push_subscribe",A({p_slug:slug,p_endpoint:j.endpoint,p_p256dh:j.keys.p256dh,p_auth:j.keys.auth}))})
-  .then(function(){store.set(key,1);flash("Уведомления включены");render()})
+  .then(function(){store.set(key,PUSHV);flash("Уведомления включены");render()})
   .catch(function(x){flash(x&&x.code?emsg(x):"Не получилось включить уведомления на этом устройстве");render()});
 }
 function pushOff(){
