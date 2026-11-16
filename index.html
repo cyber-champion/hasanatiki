@@ -1185,10 +1185,12 @@ function vChat(){
   // поле ввода
   var recOn=REC&&REC.chat;
   h+='<div class="comp">';
-  if(!canEdit()&&!recOn)h+='<select id="ch_sura" aria-label="Какую суру читаешь" style="margin-bottom:8px"><option value="">Без суры — просто сообщение</option>'+surOpts()+'</select>';
+  var pend=UI.chPend;
+  if(!canEdit()&&!recOn&&!pend)h+='<select id="ch_sura" aria-label="Какую суру читаешь" style="margin-bottom:8px"><option value="">Без суры — просто сообщение</option>'+surOpts()+'</select>';
   h+='<div class="row2">';
-  if(recOn)h+='<button class="ib" data-a="chreccancel" aria-label="Отменить запись">✕</button><div class="recbar"><span class="dot"></span><span id="rect">0:00</span><span class="sm mut">идёт запись…</span></div><button class="ib go" data-a="chrecsend" aria-label="Отправить">➤</button>';
-  else h+='<button class="ib" data-a="chfile" aria-label="Прикрепить файл">📎</button><input id="ch_text" type="text" maxlength="2000" placeholder="Сообщение" autocomplete="off" enterkeyhint="send"><button class="ib" data-a="chsend" aria-label="Отправить текст">➤</button><button class="ib rec" data-a="chrec" aria-label="Записать голосовое">🎙</button>';
+  if(recOn)h+='<button class="ib" data-a="chreccancel" aria-label="Отменить запись">✕</button><div class="recbar"><span class="dot"></span><span id="rect">0:00</span><span class="sm mut">запись…</span></div><button class="ib" data-a="chrecstop" aria-label="Остановить и прослушать">⏹</button><button class="ib go" data-a="chrecsend" aria-label="Отправить">➤</button></div>'+(UI.chDraft?'<div class="sm mut" style="margin-top:6px">С текстом: «'+esc(UI.chDraft)+'»</div>':"")+'<div>';
+  else if(pend)h+='<button class="ib" data-a="chpenddel" aria-label="Удалить запись">🗑</button><div class="vc" style="flex:1;min-width:0" data-keep="chpend_'+pend.id+'"><audio controls preload="metadata" src="'+pend.url+'" style="width:100%"></audio></div></div><div class="row2" style="margin-top:8px"><input id="ch_text" type="text" maxlength="2000" placeholder="Подпись к голосовому (необязательно)" autocomplete="off" enterkeyhint="send" value="'+esc(UI.chDraft||"")+'"><button class="ib go" data-a="chpendsend" aria-label="Отправить">➤</button>';
+  else h+='<button class="ib" data-a="chfile" aria-label="Прикрепить файл">📎</button><input id="ch_text" type="text" maxlength="2000" placeholder="Сообщение" autocomplete="off" enterkeyhint="send" value="'+esc(UI.chDraft||"")+'"><button class="ib" data-a="chsend" aria-label="Отправить текст">➤</button><button class="ib rec" data-a="chrec" aria-label="Записать голосовое">🎙</button>';
   return h+'</div></div>';
 }
 /* ---- пуш ---- */
@@ -1251,11 +1253,18 @@ function chatAct(a,b){
   switch(a){
     case"seg":UI.seg=v;if(v==="chat"){if(canEdit()){UI.chat=null;THR=null}CH=null}window.scrollTo(0,0);break;
     case"chatopen":UI.chat=id;CH=null;break;
-    case"chatback":recCancel();UI.chat=null;CH=null;THR=null;break;
+    case"chatback":recCancel();UI.chPend=null;UI.chDraft="";UI.chat=null;CH=null;THR=null;break;
     case"vplay":voiceOpen(id);return true;
-    case"chsend":var t=val("ch_text").trim();if(!t)return true;UI.chSura=val("ch_sura")||UI.chSura||"";chatSend({body:t,sura:null});var el=document.getElementById("ch_text");if(el)el.value="";return true;
-    case"chrec":UI.chSura=val("ch_sura")||"";recStart(function(f,d){chatSend({file:f,dur:d,sura:canEdit()?null:UI.chSura})},true);return true;
-    case"chrecsend":recStop();return true;
+    case"chsend":if(UI.chPend){act("chpendsend",b,{target:b});return true}var t=val("ch_text").trim();if(!t)return true;UI.chSura=val("ch_sura")||UI.chSura||"";UI.chDraft="";chatSend({body:t,sura:null});var el=document.getElementById("ch_text");if(el)el.value="";return true;
+    case"chrec":UI.chSura=val("ch_sura")||"";UI.chDraft=val("ch_text").trim();UI.chRecMode="send";
+      recStart(function(f,d){var sura=canEdit()?null:UI.chSura;
+        if(UI.chRecMode==="stop"){UI.chPend={id:Date.now(),file:f,dur:d,sura:sura,url:URL.createObjectURL(f)}}
+        else{chatSend({file:f,dur:d,sura:sura,body:UI.chDraft});UI.chDraft=""}
+        render()},true);return true;
+    case"chrecsend":UI.chRecMode="send";recStop();return true;
+    case"chrecstop":UI.chRecMode="stop";recStop();return true;
+    case"chpendsend":var P=UI.chPend;if(!P)return true;var cap=val("ch_text").trim();UI.chPend=null;UI.chDraft="";chatSend({file:P.file,dur:P.dur,sura:P.sura,body:cap});return true;
+    case"chpenddel":if(UI.chPend){URL.revokeObjectURL(UI.chPend.url);UI.chPend=null}break;
     case"chreccancel":recCancel();return true;
     case"chfile":UI.chSura=val("ch_sura")||"";UI.chPick=true;var fi=document.getElementById("hwfile");if(fi){fi.value="";fi.accept="";fi.multiple=false;fi.click()}return true;
     case"chretry":var m=CH&&CH.items.filter(function(x){return x.id===id})[0];if(m){CH.items.splice(CH.items.indexOf(m),1);chatSend(m.retry)}return true;
@@ -1454,6 +1463,7 @@ document.addEventListener("input",function(e){
   var t=e.target;
   if(t.id==="amt")UI.amt=t.value;
   else if(t.id==="note")UI.note=t.value;
+  else if(t.id==="ch_text"){UI.chDraft=t.value}
   else if(t.id==="surq"){UI.surq=t.value;var s=by(UI.sheet),box=document.getElementById("surlist");if(s&&box)box.innerHTML=surPick(s)}
 });
 document.addEventListener("change",function(e){

@@ -992,7 +992,7 @@ begin
   if not byt and (select count(*) from messages where group_id = g.id and student_id = p_student and not by_teacher
                    and created_at > now() - interval '1 minute') >= 15 then raise exception 'slow'; end if;
   insert into messages(group_id, student_id, by_teacher, teacher_id, body, file_id, dur, sura)
-  values (g.id, p_student, byt, (a->>'t')::uuid, bd, p_file, greatest(0, least(3600, p_dur)), sr) returning * into m;
+  values (g.id, p_student, byt, (a->>'t')::uuid, bd, p_file, case when p_file is null or p_dur is null then null else greatest(0, least(3600, p_dur)) end, sr) returning * into m;
   insert into msg_reads(group_id, student_id, side, at) values (g.id, p_student, case when byt then 't' else 's' end, m.created_at)
   on conflict (group_id, student_id, side) do update set at = greatest(msg_reads.at, excluded.at);
   nm := _sname(g, p_student);
@@ -1133,6 +1133,8 @@ revoke all on function msg_file_begin(text, text, text, text, bigint, text, text
 grant execute on function msg_file_begin(text, text, text, text, bigint, text, text), msg_send(text, text, text, uuid, int, text, text, text),
   msg_list(text, text, timestamptz, text, text), msg_threads(text, text), push_info(), push_setup(text, text, text),
   push_subscribe(text, text, text, text, text, text), push_unsubscribe(text), push_take(text), push_gone(text, text[]), push_test(text, text) to anon, authenticated;
+
+update messages set dur = null where file_id is null and dur is not null;   -- исправление: у текстовых сообщений нет длины
 
 -- ---------- хранилище файлов (Supabase Storage) ----------
 -- Закрытая «папка» hw: до 25 МБ на файл. Загрузить, прочитать или удалить файл можно
