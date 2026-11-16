@@ -416,6 +416,7 @@ create table if not exists homework (
   created_at timestamptz not null default now()
 );
 create index if not exists homework_group_idx on homework(group_id, created_at desc);
+alter table homework add column if not exists sura text;      -- если задание — выучить суру: при приёме сура засчитывается сама
 create table if not exists submissions (           -- ответы учеников
   homework_id  uuid not null references homework(id) on delete cascade,
   student_id   text not null,
@@ -582,7 +583,7 @@ begin
   end;
   tid := a->>'t'; sid := a->>'s';
   select coalesce(json_agg(row_to_json(x) order by x.created_at desc), '[]'::json) into items from (
-    select h.id, h.title, h.body, h.due, h.points, h.created_at,
+    select h.id, h.title, h.body, h.due, h.points, h.sura, h.created_at,
            _files_json(h.id, null) as files,
            case when sid is not null then (
              select json_build_object('status', s.status, 'note', s.note, 'teacher_note', s.teacher_note, 'points', s.points, 'updated_at', s.updated_at)
@@ -602,20 +603,22 @@ begin
                            'msg_unread', case when tid is not null then _msg_unread(g.id, null, 't') when sid is not null then _msg_unread(g.id, sid, 's') else 0 end);
 end $$;
 
-create or replace function hw_save(p_token text, p_slug text, p_id uuid, p_title text, p_body text, p_due date, p_points int) returns json
+drop function if exists hw_save(text, text, uuid, text, text, date, int);
+create or replace function hw_save(p_token text, p_slug text, p_id uuid, p_title text, p_body text, p_due date, p_points int, p_sura text default null) returns json
 language plpgsql security definer set search_path = public, extensions as $$
 declare t teachers; g groups; ttl text := btrim(coalesce(p_title, '')); pts int := greatest(0, least(50, coalesce(p_points, 0))); hid uuid;
+        sr text := nullif(left(btrim(coalesce(p_sura, '')), 60), '');
 begin
   t := _who(p_token); g := _g(p_slug);
   if not _can(t, g.id) then raise exception 'forbidden'; end if;
   if ttl = '' or length(ttl) > 120 then raise exception 'bad_name'; end if;
   if length(coalesce(p_body, '')) > 4000 then raise exception 'too_large'; end if;
   if p_id is null then
-    insert into homework(group_id, title, body, due, points, created_by)
-    values (g.id, ttl, coalesce(p_body, ''), p_due, pts, t.id) returning id into hid;
+    insert into homework(group_id, title, body, due, points, created_by, sura)
+    values (g.id, ttl, coalesce(p_body, ''), p_due, pts, t.id, sr) returning id into hid;
     perform _push(g.id, null, false, true, 'Новое задание 📚', ttl, '#/g/' || g.slug || '/hw');
   else
-    update homework set title = ttl, body = coalesce(p_body, ''), due = p_due, points = pts
+    update homework set title = ttl, body = coalesce(p_body, ''), due = p_due, points = pts, sura = sr
      where id = p_id and group_id = g.id returning id into hid;
     if hid is null then raise exception 'not_found'; end if;
   end if;
@@ -676,16 +679,27 @@ begin
   on conflict (homework_id, student_id) do update
     set status = 'accepted', teacher_note = excluded.teacher_note, points = excluded.points, reviewed_at = now(), reviewed_by = t.id, updated_at = now();
   ver := g.version;
+  select (e.ord - 1)::int into idx from jsonb_array_elements(g.data->'students') with ordinality as e(v, ord) where e.v->>'id' = p_student limit 1;
+  st := g.data->'students'->idx; d := g.data;
+  if d->'log' is null or jsonb_typeof(d->'log') <> 'array' then d := jsonb_set(d, '{log}', '[]'::jsonb); end if;
   if pts > 0 then
-    select (e.ord - 1)::int into idx from jsonb_array_elements(g.data->'students') with ordinality as e(v, ord) where e.v->>'id' = p_student limit 1;
-    st := g.data->'students'->idx;
     st := st || jsonb_build_object('x',  coalesce((st->>'x')::numeric, 0)::int + pts,
                                    'xp', coalesce((st->>'xp')::numeric, 0)::int + pts);
-    d := jsonb_set(g.data, array['students', idx::text], st);
     entry := jsonb_build_object('id', encode(extensions.gen_random_bytes(6), 'hex'), 's', p_student, 't', 'x', 'v', pts,
                                 'g', encode(extensions.gen_random_bytes(6), 'hex'), 'note', left('ДЗ: ' || h.title, 80),
                                 'd', to_char(now() at time zone 'utc', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'));
-    d := jsonb_set(d, '{log}', jsonb_build_array(entry) || case when jsonb_typeof(d->'log') = 'array' then d->'log' else '[]'::jsonb end);
+    d := jsonb_set(d, '{log}', jsonb_build_array(entry) || (d->'log'));
+  end if;
+  -- задание «выучить суру»: сура засчитывается автоматически
+  if h.sura is not null and not coalesce((st->'sur') ? h.sura, false) then
+    st := jsonb_set(st, '{sur}', case when jsonb_typeof(st->'sur') = 'array' then st->'sur' else '[]'::jsonb end || to_jsonb(h.sura));
+    entry := jsonb_build_object('id', encode(extensions.gen_random_bytes(6), 'hex'), 's', p_student, 't', 's', 'v', 1,
+                                'g', encode(extensions.gen_random_bytes(6), 'hex'), 'note', h.sura,
+                                'd', to_char(now() at time zone 'utc', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'));
+    d := jsonb_set(d, '{log}', jsonb_build_array(entry) || (d->'log'));
+  end if;
+  if st is distinct from g.data->'students'->idx then
+    d := jsonb_set(d, array['students', idx::text], st);
     update groups set data = d, version = version + 1, updated_at = now(), updated_by = t.id where id = g.id returning version into ver;
   end if;
   perform _push(g.id, p_student, false, false, 'Задание принято ✅', h.title || case when pts > 0 then ' · +' || pts else '' end, '#/g/' || g.slug || '/hw');
@@ -787,12 +801,12 @@ end $$;
 revoke all on function _g(text), _swho(text), _actor(groups, text, text), _ticket(text, text, int), _files_json(uuid, text)
   from public, anon, authenticated;
 revoke all on function hw_file_ok(text, text), student_pins(text, text, boolean, text), student_login(text, text, text), student_logout(text),
-  hw_list(text, text, text), hw_save(text, text, uuid, text, text, date, int), hw_delete(text, text, uuid), hw_submit(text, text, uuid, text),
+  hw_list(text, text, text), hw_save(text, text, uuid, text, text, date, int, text), hw_delete(text, text, uuid), hw_submit(text, text, uuid, text),
   hw_review(text, text, uuid, text, boolean, text, int), file_begin(text, uuid, text, text, bigint, text, text),
   file_done(text, uuid, text, text), file_get(text, uuid, text, text), file_delete(text, uuid, text, text), hw_cleanup(text)
   from public;
 grant execute on function hw_file_ok(text, text), student_pins(text, text, boolean, text), student_login(text, text, text), student_logout(text),
-  hw_list(text, text, text), hw_save(text, text, uuid, text, text, date, int), hw_delete(text, text, uuid), hw_submit(text, text, uuid, text),
+  hw_list(text, text, text), hw_save(text, text, uuid, text, text, date, int, text), hw_delete(text, text, uuid), hw_submit(text, text, uuid, text),
   hw_review(text, text, uuid, text, boolean, text, int), file_begin(text, uuid, text, text, bigint, text, text),
   file_done(text, uuid, text, text), file_get(text, uuid, text, text), file_delete(text, uuid, text, text), hw_cleanup(text)
   to anon, authenticated;

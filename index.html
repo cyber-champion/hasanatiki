@@ -278,7 +278,7 @@ var ICON=(document.querySelector('link[rel="apple-touch-icon"]')||{}).href||"";
 var LV=[[1,"🌱","Новичок",0,"#94a3b8"],[2,"📗","Ученик",15,"#4ade80"],[3,"💪","Старательный",40,"#2dd4bf"],[4,"🧭","Знаток",80,"#3b82f6"],[5,"🎯","Мастер",130,"#8b5cf6"],[6,"🛡️","Наставник",200,"#e879f9"],[7,"🦉","Мудрец",300,"#fb923c"],[8,"⚔️","Герой",450,"#f43f5e"],[9,"👑","Легенда",650,"#facc15"]];
 var NAMES=["","Аль-Фатиха","Аль-Бакара","Али Имран","Ан-Ниса","Аль-Маида","Аль-Анам","Аль-Араф","Аль-Анфаль","Ат-Тауба","Юнус","Худ","Юсуф","Ар-Раад","Ибрахим","Аль-Хиджр","Ан-Нахль","Аль-Исра","Аль-Кахф","Марьям","Та Ха","Аль-Анбия","Аль-Хаджж","Аль-Муминун","Ан-Нур","Аль-Фуркан","Аш-Шуара","Ан-Намль","Аль-Касас","Аль-Анкабут","Ар-Рум","Лукман","Ас-Саджда","Аль-Ахзаб","Саба","Фатыр","Йа Син","Ас-Саффат","Сад","Аз-Зумар","Гафир","Фуссылат","Аш-Шура","Аз-Зухруф","Ад-Духан","Аль-Джасия","Аль-Ахкаф","Мухаммад","Аль-Фатх","Аль-Худжурат","Каф","Аз-Зарият","Ат-Тур","Ан-Наджм","Аль-Камар","Ар-Рахман","Аль-Вакиа","Аль-Хадид","Аль-Муджадаля","Аль-Хашр","Аль-Мумтахана","Ас-Сафф","Аль-Джумуа","Аль-Мунафикун","Ат-Тагабун","Ат-Таляк","Ат-Тахрим","Аль-Мульк","Аль-Калам","Аль-Хакка","Аль-Мааридж","Нух","Аль-Джинн","Аль-Музаммиль","Аль-Муддассир","Аль-Кыяма","Аль-Инсан","Аль-Мурсалят","Ан-Наба","Ан-Назиат","Абаса","Ат-Таквир","Аль-Инфитар","Аль-Мутаффифин","Аль-Иншикак","Аль-Бурудж","Ат-Тарик","Аль-Аля","Аль-Гашия","Аль-Фаджр","Аль-Балад","Аш-Шамс","Аль-Лейль","Ад-Духа","Аш-Шарх","Ат-Тин","Аль-Алак","Аль-Кадр","Аль-Баййина","Аз-Зальзаля","Аль-Адият","Аль-Кариа","Ат-Такасур","Аль-Аср","Аль-Хумаза","Аль-Филь","Курайш","Аль-Маун","Аль-Кяусар","Аль-Кафирун","Ан-Наср","Аль-Масад","Аль-Ихлас","Аль-Фалак","Ан-Нас"];
 var AYAT="Аят аль-Курси";
-var SUR=[NAMES[1]];for(var i=114;i>=78;i--)SUR.push(NAMES[i]);SUR.push(AYAT);for(i=2;i<=77;i++)SUR.push(NAMES[i]);
+var SUR=[];for(var i=1;i<=114;i++)SUR.push(NAMES[i]);SUR.push(AYAT);   // по порядку 1…114, затем Аят аль-Курси
 var JUZ=NAMES.slice(78);
 var NUM={};NAMES.forEach(function(n,i){if(i)NUM[n]=i});
 var CAT={n:["🕌","Намаз","tn","--nbg"],q:["📖","Коран","tq","--qbg"],x:["⭐","Дополнительно","tx","--xbg"],f:["⚠️","Штраф","tf","--fbg"],s:["📜","Сура","ts","--sbg"]};
@@ -795,7 +795,7 @@ function teacherSheet(s){
   h+='<div class="sec">Удаление</div>'+confirmBtn("del"+s.id,"🗑 Удалить ученика","delst",s.id);
   return h;
 }
-function surPick(s){var q=UI.surq.trim().toLowerCase();return SUR.filter(function(x){return!q||x.toLowerCase().indexOf(q)>-1||String(NUM[x]||"")===q}).map(function(x){return '<button class="pk'+(s.sur.indexOf(x)>-1?" on":"")+'" data-a="sur" data-id="'+s.id+'" data-v="'+esc(x)+'">'+(NUM[x]?'<span class="sm mut">'+NUM[x]+'</span>':"")+esc(x)+'</button>'}).join("")}
+function surPick(s){var q=UI.surq.trim().toLowerCase();return SUR.filter(function(x){return!q||x.toLowerCase().indexOf(q)>-1||String(NUM[x]||"")===q}).map(function(x){return '<button class="pk'+(s.sur.indexOf(x)>-1?" on":"")+'" data-a="sur" data-id="'+s.id+'" data-v="'+esc(x)+'">'+(NUM[x]?'<span class="sm mut">'+NUM[x]+'.</span> ':"")+esc(x)+'</button>'}).join("")}
 function certReasons(s){
   var r=[],p=place(s),l=lvl(s),sc=surCount(s);
   if(p<=3&&tot(s)>0)r.push("за "+p+" место в сезоне «"+S.season.name+"»");
@@ -939,7 +939,7 @@ function vHw(){
   return h;
 }
 function hwHead(x){
-  return '<h2 style="margin-bottom:6px">'+esc(x.title)+'</h2><div class="tags" style="margin-bottom:10px">'+(x.points?'<span class="tg tx">⭐ +'+x.points+" "+pl(x.points,"балл","балла","баллов")+'</span>':"")+(x.due?'<span class="tg ts">🗓 '+dueTxt(x.due)+'</span>':"")+'</div>'+(x.body?'<p class="hwb">'+rich(x.body)+'</p>':"")+filesBlock(x.files,false);
+  return '<h2 style="margin-bottom:6px">'+esc(x.title)+'</h2><div class="tags" style="margin-bottom:10px">'+(x.sura?'<span class="tg tq">📜 '+(NUM[x.sura]?NUM[x.sura]+". ":"")+esc(x.sura)+'</span>':"")+(x.points?'<span class="tg tx">⭐ +'+x.points+" "+pl(x.points,"балл","балла","баллов")+'</span>':"")+(x.due?'<span class="tg ts">🗓 '+dueTxt(x.due)+'</span>':"")+'</div>'+(x.body?'<p class="hwb">'+rich(x.body)+'</p>':"")+filesBlock(x.files,false);
 }
 /* ---- ученик и гость ---- */
 function vStudentCab(){
@@ -968,7 +968,7 @@ function hwCardS(x,role){
   if(my&&my.teacher_note)h+='<div class="note" style="margin-top:8px"><b>Учитель:</b> '+rich(my.teacher_note)+'</div>';
   if(my&&!F){if(my.note)h+='<div class="note" style="margin-top:8px"><b>Мой ответ:</b> '+rich(my.note)+'</div>';h+=filesBlock(x.my_files,false)}
   if(F){
-    h+='<div class="form">'+say("asl","Напиши ответ, сфотографируй тетрадь 📷 или запиши голос 🎙 — и нажми «Отправить на проверку».")+'<div class="field"><label for="sub_note">Мой ответ (можно без текста, если есть файл)</label><textarea id="sub_note" maxlength="1000" style="min-height:90px" placeholder="Напиши ответ или прикрепи фото, запись голоса, файл">'+esc(F.note)+'</textarea></div>'+filesBlock(x.my_files,true)+pickedBlock(F)+(F.err?'<p class="note err" style="margin-bottom:10px">'+esc(F.err)+'</p>':"")+
+    h+='<div class="form">'+say("asl",x.sura?"Нажми «🎙 Записать голос», прочитай суру «"+esc(x.sura)+"» наизусть, нажми «Остановить» — и «Отправить на проверку».":"Напиши ответ, сфотографируй тетрадь 📷 или запиши голос 🎙 — и нажми «Отправить на проверку».")+'<div class="field"><label for="sub_note">Мой ответ (можно без текста, если есть файл)</label><textarea id="sub_note" maxlength="1000" style="min-height:90px" placeholder="Напиши ответ или прикрепи фото, запись голоса, файл">'+esc(F.note)+'</textarea></div>'+filesBlock(x.my_files,true)+pickedBlock(F)+(F.err?'<p class="note err" style="margin-bottom:10px">'+esc(F.err)+'</p>':"")+
       '<div class="btns"><button class="btn pri" data-a="subsend"'+(F.busy?" disabled":"")+'>'+(F.busy?esc(F.prog||"Отправляю…"):"📨 Отправить на проверку")+'</button>'+(F.busy?"":'<button class="btn" data-a="subclose">Отмена</button>')+'</div></div>';
   }else if(st!=="accepted")h+='<div class="btns" style="margin-top:10px"><button class="btn '+(st==="sent"?"":"pri")+'" data-a="subopen" data-id="'+x.id+'">'+(st==="sent"?"✏️ Изменить ответ":st==="returned"?"🔁 Исправить и сдать снова":"📨 Сдать задание")+'</button></div>';
   return h+'</div>';
@@ -978,7 +978,7 @@ function vHwForm(x){
   var F=UI.hwForm;
   if(!x&&!(F&&!F.id0))return '<div class="box"><button class="btn pri wide" data-a="hwnew">+ Новое задание</button></div>';
   if(!F)return"";
-  return '<div class="'+(x?"form":"box")+'">'+(x?"":'<h2>Новое задание</h2>')+'<div class="field"><label for="hw_title">Название</label><input id="hw_title" type="text" maxlength="120" placeholder="Например: выучить суру Аль-Ихлас" value="'+esc(F.title)+'"></div><div class="field"><label for="hw_body">Что нужно сделать</label><textarea id="hw_body" maxlength="4000" style="min-height:110px" placeholder="Опишите задание. Можно вставить ссылку.">'+esc(F.body)+'</textarea></div><div class="grid2"><div class="field"><label for="hw_due">Сдать до (необязательно)</label><input id="hw_due" type="date" value="'+esc(F.due)+'"></div><div class="field"><label for="hw_pts">Баллов за выполнение</label><input id="hw_pts" type="number" min="0" max="50" value="'+esc(F.points)+'"></div></div>'+
+  return '<div class="'+(x?"form":"box")+'">'+(x?"":'<h2>Новое задание</h2>')+'<div class="field"><label for="hw_title">Название</label><input id="hw_title" type="text" maxlength="120" placeholder="Например: выучить суру Аль-Ихлас" value="'+esc(F.title)+'"></div><div class="field"><label for="hw_body">Что нужно сделать</label><textarea id="hw_body" maxlength="4000" style="min-height:110px" placeholder="Опишите задание. Можно вставить ссылку.">'+esc(F.body)+'</textarea></div><div class="field"><label for="hw_sura">Выучить суру (необязательно) — при приёме она засчитается сама</label><select id="hw_sura"><option value="">— без суры —</option>'+SUR.map(function(n){return '<option value="'+esc(n)+'"'+(F.sura===n?" selected":"")+'>'+(NUM[n]?NUM[n]+". "+esc(n):esc(n))+'</option>'}).join("")+'</select></div><div class="grid2"><div class="field"><label for="hw_due">Сдать до (необязательно)</label><input id="hw_due" type="date" value="'+esc(F.due)+'"></div><div class="field"><label for="hw_pts">Баллов за выполнение</label><input id="hw_pts" type="number" min="0" max="50" value="'+esc(F.points)+'"></div></div>'+
     (x?filesBlock(x.files,true):"")+pickedBlock(F)+'<p class="mut sm" style="margin-bottom:10px">Аудио, PDF, Word, фото, видео — до 25 МБ каждый файл.</p>'+(F.err?'<p class="note err" style="margin-bottom:10px">'+esc(F.err)+'</p>':"")+
     '<div class="btns"><button class="btn pri" data-a="hwsave"'+(F.busy?" disabled":"")+'>'+(F.busy?esc(F.prog||"Сохраняю…"):x?"Сохранить":"Опубликовать задание")+'</button>'+(F.busy?"":'<button class="btn" data-a="hwclose">Отмена</button>')+(x&&!F.busy?confirmBtn("hwdel"+x.id,"🗑 Удалить задание","hwdel",x.id):"")+'</div></div>';
 }
@@ -1024,17 +1024,17 @@ function hwAct(a,b){
   var id=b.dataset.id,v=b.dataset.v,k=b.dataset.k,x=id&&HW?HW.items.filter(function(h){return h.id===id})[0]:null,F;
   switch(a){
     case"hwreload":HWerr="";hwLoad();break;
-    case"hwnew":UI.hwForm={id0:null,id:null,title:"",body:"",due:"",points:3,files:[]};UI.dropKeep=true;break;
-    case"hwedit":if(x){UI.hwForm={id0:x.id,id:x.id,title:x.title,body:x.body,due:x.due||"",points:x.points,files:[]};UI.dropKeep=true}break;
+    case"hwnew":UI.hwForm={id0:null,id:null,title:"",body:"",due:"",points:3,sura:"",files:[]};UI.dropKeep=true;break;
+    case"hwedit":if(x){UI.hwForm={id0:x.id,id:x.id,title:x.title,body:x.body,due:x.due||"",points:x.points,sura:x.sura||"",files:[]};UI.dropKeep=true}break;
     case"hwclose":recStop();UI.hwForm=null;UI.confirm=null;UI.dropKeep=true;break;
     case"hwtoggle":UI.hwOpen=UI.hwOpen===id?null:id;break;
     case"hwsave":
       F=UI.hwForm;if(!F||F.busy)return true;
-      F.title=val("hw_title").trim();F.body=val("hw_body").trim();F.due=val("hw_due");F.points=Math.max(0,Math.min(50,parseInt(val("hw_pts"),10)||0));
+      F.title=val("hw_title").trim();F.sura=val("hw_sura");if(!F.title&&F.sura)F.title="Выучить суру «"+F.sura+"»";F.body=val("hw_body").trim();F.due=val("hw_due");F.points=Math.max(0,Math.min(50,parseInt(val("hw_pts"),10)||0));
       if(!F.title){F.err="Введите название задания";break}
       if(REC){F.err="Сначала остановите запись";break}
       F.busy=true;F.err="";F.prog="Сохраняю…";render();
-      rpc("hw_save",{p_token:TOK,p_slug:G.slug,p_id:F.id,p_title:F.title,p_body:F.body,p_due:F.due||null,p_points:F.points})
+      rpc("hw_save",{p_token:TOK,p_slug:G.slug,p_id:F.id,p_title:F.title,p_body:F.body,p_due:F.due||null,p_points:F.points,p_sura:F.sura||null})
         .then(function(r){F.id=r.id;return upAll(r.id,F)})
         .then(function(){UI.hwForm=null;UI.dropKeep=true;flash("Задание сохранено");kick();return hwLoad()})
         .catch(function(e){F.busy=false;F.err=emsg(e)+(F.id?". Задание сохранено, но не все файлы загрузились — нажмите кнопку ещё раз.":"");hwLoad()});
@@ -1074,7 +1074,7 @@ function hwAct(a,b){
       var key=id+"_"+v,ok=a==="rvok",pts=k==="oral"?(x?x.points:0):Math.max(0,Math.min(50,parseInt(val("rvp_"+key),10)||0)),st=by(v);
       rpc("hw_review",{p_token:TOK,p_slug:G.slug,p_homework:id,p_student:v,p_accept:ok,p_note:k==="oral"?"":val("rvn_"+key),p_points:pts}).then(function(r){
         UI.dropKeep=true;kick();
-        flash(!r.changed?"Уже принято раньше":ok?(st?st.name:"Ученик")+": принято"+(r.points?", +"+pn(r.points,"балл","балла","баллов"):""):"Вернули на доработку");
+        flash(!r.changed?"Уже принято раньше":ok?(st?st.name:"Ученик")+": принято"+(r.points?", +"+pn(r.points,"балл","балла","баллов"):"")+(x&&x.sura?", сура засчитана":""):"Вернули на доработку");
         return (ok&&r.changed?refreshGroup():Promise.resolve()).then(hwLoad)}).catch(function(e){flash(emsg(e));render()});
       return true;
     case"pins":rpc("student_pins",{p_token:TOK,p_slug:G.slug,p_make:true}).then(function(r){UI.pins=pinsMap(r);render()}).catch(function(e){flash(emsg(e));render()});return true;
@@ -1158,6 +1158,7 @@ function bubble(m,st){
   if(canEdit()&&!m.by_teacher&&m.sura&&st&&SUR.indexOf(m.sura)>-1)h+=st.sur.indexOf(m.sura)>-1?'<div class="sm" style="margin-top:6px;color:var(--ok)">✓ сура засчитана</div>':'<button class="btn sm pri" data-a="chsura" data-v="'+esc(m.sura)+'" style="margin-top:6px">✅ Засчитать суру</button>';
   return h+'</div>';
 }
+function surOpts(){return SUR.map(function(n){return '<option value="'+esc(n)+'"'+(UI.chSura===n?" selected":"")+'>'+(NUM[n]?NUM[n]+". "+esc(n):esc(n)+" (2:255)")+'</option>'}).join("")}
 function vChat(){
   var sid=chatSid(),h="";
   if(canEdit()&&!sid){
@@ -1176,7 +1177,7 @@ function vChat(){
   h+='<div class="box"><div class="chhd">'+(canEdit()?'<button class="btn sm" data-a="chatback">‹ Все</button>':"")+avh(st,"s")+'<div class="mid"><b>'+(canEdit()?esc(st.name):"Чат с учителем")+'</b><div class="sm mut">'+(canEdit()?"голосовые и сообщения ученика":"отправляй чтение сур голосом")+'</div></div></div><div class="chat">';
   if(!CH.loaded)h+='<div class="loading" style="padding:20px 0">Загрузка…</div>';
   else if(CH.err)h+='<p class="note err">'+esc(CH.err)+'</p>';
-  else if(!CH.items.length)h+=canEdit()?'<p class="mut sm cen" style="padding:14px 0">Сообщений пока нет.</p>':say("sab","Нажми 🎙, прочитай суру и нажми ➤ — учитель послушает и ответит. Выбери суру в списке, чтобы учитель знал, что ты читаешь.");
+  else if(!CH.items.length)h+=canEdit()?'<p class="mut sm cen" style="padding:14px 0">Сообщений пока нет.</p>':say("sab","Задания сдавай во вкладке «📚 Задания» — там за них баллы. А сюда можно задать вопрос учителю или прислать чтение суры сверх задания: выбери суру, нажми 🎙, прочитай и нажми ➤.");
   var lastDay="";
   CH.items.forEach(function(m){var d=dayName(m.created_at);if(d!==lastDay){h+='<div class="day">'+d+'</div>';lastDay=d}h+=bubble(m,st)});
   h+='</div></div>';
@@ -1184,7 +1185,7 @@ function vChat(){
   // поле ввода
   var recOn=REC&&REC.chat;
   h+='<div class="comp">';
-  if(!canEdit()&&!recOn)h+='<select id="ch_sura" aria-label="Какую суру читаешь" style="margin-bottom:8px"><option value="">Без суры — просто сообщение</option>'+SUR.map(function(n){return '<option'+(UI.chSura===n?" selected":"")+'>'+esc(n)+'</option>'}).join("")+'</select>';
+  if(!canEdit()&&!recOn)h+='<select id="ch_sura" aria-label="Какую суру читаешь" style="margin-bottom:8px"><option value="">Без суры — просто сообщение</option>'+surOpts()+'</select>';
   h+='<div class="row2">';
   if(recOn)h+='<button class="ib" data-a="chreccancel" aria-label="Отменить запись">✕</button><div class="recbar"><span class="dot"></span><span id="rect">0:00</span><span class="sm mut">идёт запись…</span></div><button class="ib go" data-a="chrecsend" aria-label="Отправить">➤</button>';
   else h+='<button class="ib" data-a="chfile" aria-label="Прикрепить файл">📎</button><input id="ch_text" type="text" maxlength="2000" placeholder="Сообщение" autocomplete="off" enterkeyhint="send"><button class="ib" data-a="chsend" aria-label="Отправить текст">➤</button><button class="ib rec" data-a="chrec" aria-label="Записать голосовое">🎙</button>';
