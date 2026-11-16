@@ -1117,6 +1117,7 @@ function chatPoll(){
 }
 setInterval(chatPoll,6000);
 function thrLoad(){if(!canEdit()||!G)return;var slug=G.slug;rpc("msg_threads",{p_token:TOK,p_slug:slug}).then(function(r){if(G&&G.slug===slug){THR=r||[];render()}}).catch(function(x){if(!THR){THR=[];flash(emsg(x))}render()})}
+function chClear(){var el=document.getElementById("ch_text");if(el)el.value=""}
 function chatSend(o){   // o: {body, file, dur, sura}
   var sid=chatSid();if(!sid||!CH)return;
   var tmp={id:"tmp"+Date.now(),pending:true,by_teacher:canEdit(),body:o.body||"",dur:o.dur,sura:o.sura||null,created_at:new Date().toISOString(),
@@ -1155,8 +1156,27 @@ function bubble(m,st){
   var read=mine&&!m.pending&&!m.failed&&CH.other&&CH.other>=m.created_at;
   h+='<div class="tm">'+(m.pending?"отправляю…":m.failed?'<span style="color:#fecaca">не отправлено</span>':hhmm(m.created_at)+(mine?(read?" ✓✓":" ✓"):""))+'</div>';
   if(m.failed)h+='<button class="btn sm" data-a="chretry" data-id="'+m.id+'" style="margin-top:4px">Повторить</button>';
-  if(canEdit()&&!m.by_teacher&&m.sura&&st&&SUR.indexOf(m.sura)>-1)h+=st.sur.indexOf(m.sura)>-1?'<div class="sm" style="margin-top:6px;color:var(--ok)">✓ сура засчитана</div>':'<button class="btn sm pri" data-a="chsura" data-v="'+esc(m.sura)+'" style="margin-top:6px">✅ Засчитать суру</button>';
+  if(canEdit()&&!m.by_teacher&&st&&!m.pending)h+=chBtns(m,st);
   return h+'</div>';
+}
+// Задания ученика, которые ещё не приняты
+var CHLAST=null;
+function hwOpenFor(sid){
+  if(!HW||!HW.items)return [];
+  return HW.items.filter(function(h){var sb=(h.subs||[]).filter(function(q){return q.student_id===sid})[0];return !(sb&&sb.status==="accepted")});
+}
+function surNorm(x){return String(x||"").toLowerCase().replace(/ё/g,"е").replace(/^[\s\d.]+/,"").replace(/^(аль|ал|ан|ат|ас|аш|ад|аз|ар|ат-т|ан-н)[-\s]+/,"").replace(/[^a-zа-я]/g,"")}
+function hwMatch(sid,sura){
+  if(!sura)return null;var n=surNorm(sura);
+  return hwOpenFor(sid).filter(function(h){if(h.sura)return h.sura===sura;var t=surNorm(h.title);return n.length>2&&(t===n||t.indexOf(n)>-1)})[0]||null;
+}
+function chBtns(m,st){
+  var h="",mt="margin-top:6px;margin-right:6px",hh=hwMatch(st.id,m.sura),isS=m.sura&&SUR.indexOf(m.sura)>-1,got=isS&&st.sur.indexOf(m.sura)>-1;
+  if(isS&&!got)h+='<button class="btn sm pri" data-a="chsura" data-v="'+esc(m.sura)+'" style="'+mt+'">✅ Засчитать суру'+(hh?" и задание":"")+'</button>';
+  else if(hh)h+='<button class="btn sm pri" data-a="chhw" data-id="'+hh.id+'" style="'+mt+'">📚 Принять задание «'+esc(hh.title)+'»'+(hh.points?" +"+hh.points:"")+'</button>';
+  else if(got)h+='<div class="sm" style="margin-top:6px;color:var(--ok)">✓ сура засчитана</div>';
+  if(!hh&&m.id===CHLAST){var op=hwOpenFor(st.id).slice(0,3);op.forEach(function(x){h+='<button class="btn sm" data-a="chhw" data-id="'+x.id+'" style="'+mt+'">📚 Зачесть как «'+esc(x.title)+'»</button>'})}
+  return h;
 }
 function surOpts(){return SUR.map(function(n){return '<option value="'+esc(n)+'"'+(UI.chSura===n?" selected":"")+'>'+(NUM[n]?NUM[n]+". "+esc(n):esc(n)+" (2:255)")+'</option>'}).join("")}
 function vChat(){
@@ -1179,6 +1199,7 @@ function vChat(){
   else if(CH.err)h+='<p class="note err">'+esc(CH.err)+'</p>';
   else if(!CH.items.length)h+=canEdit()?'<p class="mut sm cen" style="padding:14px 0">Сообщений пока нет.</p>':say("sab","Задания сдавай во вкладке «📚 Задания» — там за них баллы. А сюда можно задать вопрос учителю или прислать чтение суры сверх задания: выбери суру, нажми 🎙, прочитай и нажми ➤.");
   var lastDay="";
+  CHLAST=null;CH.items.forEach(function(m){if(!m.by_teacher&&(m.file||m.sura))CHLAST=m.id});
   CH.items.forEach(function(m){var d=dayName(m.created_at);if(d!==lastDay){h+='<div class="day">'+d+'</div>';lastDay=d}h+=bubble(m,st)});
   h+='</div></div>';
   if(CH.scroll&&CH.loaded){CH.scroll=false;setTimeout(function(){window.scrollTo(0,document.documentElement.scrollHeight)},40)}
@@ -1259,17 +1280,21 @@ function chatAct(a,b){
     case"chrec":UI.chSura=val("ch_sura")||"";UI.chDraft=val("ch_text").trim();UI.chRecMode="send";
       recStart(function(f,d){var sura=canEdit()?null:UI.chSura;
         if(UI.chRecMode==="stop"){UI.chPend={id:Date.now(),file:f,dur:d,sura:sura,url:URL.createObjectURL(f)}}
-        else{chatSend({file:f,dur:d,sura:sura,body:UI.chDraft});UI.chDraft=""}
+        else{var dr=UI.chDraft;UI.chDraft="";chClear();chatSend({file:f,dur:d,sura:sura,body:dr})}
         render()},true);return true;
     case"chrecsend":UI.chRecMode="send";recStop();return true;
     case"chrecstop":UI.chRecMode="stop";recStop();return true;
-    case"chpendsend":var P=UI.chPend;if(!P)return true;var cap=val("ch_text").trim();UI.chPend=null;UI.chDraft="";chatSend({file:P.file,dur:P.dur,sura:P.sura,body:cap});return true;
+    case"chpendsend":var P=UI.chPend;if(!P)return true;var cap=val("ch_text").trim();UI.chPend=null;UI.chDraft="";chClear();chatSend({file:P.file,dur:P.dur,sura:P.sura,body:cap});return true;
     case"chpenddel":if(UI.chPend){URL.revokeObjectURL(UI.chPend.url);UI.chPend=null}break;
     case"chreccancel":recCancel();return true;
     case"chfile":UI.chSura=val("ch_sura")||"";UI.chPick=true;var fi=document.getElementById("hwfile");if(fi){fi.value="";fi.accept="";fi.multiple=false;fi.click()}return true;
     case"chretry":var m=CH&&CH.items.filter(function(x){return x.id===id})[0];if(m){CH.items.splice(CH.items.indexOf(m),1);chatSend(m.retry)}return true;
+    case"chhw":var sid2=chatSid(),h2=HW&&HW.items?HW.items.filter(function(x){return x.id===id})[0]:null;if(!h2||!sid2)return true;
+      rpc("hw_review",{p_token:TOK,p_slug:G.slug,p_homework:h2.id,p_student:sid2,p_accept:true,p_note:"",p_points:h2.points||0}).then(function(r){
+        kick();if(r.changed)chatSend({body:"✅ Задание «"+h2.title+"» принято"+(r.points?" (+"+r.points+")":"")+". Машаллах, молодец!"});
+        flash(r.changed?"Задание «"+h2.title+"» принято":"Уже принято раньше");return refreshGroup().then(hwLoad)}).catch(function(e){flash(emsg(e));render()});return true;
     case"chsura":var sid=chatSid(),s=by(sid);
-      var hh=HW&&HW.items?HW.items.filter(function(h){var sb=(h.subs||[]).filter(function(q){return q.student_id===sid})[0];return (h.sura===v||h.title===v)&&!(sb&&sb.status==="accepted")})[0]:null;
+      var hh=hwMatch(sid,v);
       if(hh&&s){rpc("hw_review",{p_token:TOK,p_slug:G.slug,p_homework:hh.id,p_student:sid,p_accept:true,p_note:"",p_points:hh.points||0}).then(function(r){
           kick();
           chatSend({body:"✅ Сура «"+v+"» засчитана, задание принято"+(r.points?" (+"+r.points+")":"")+". Машаллах, молодец!"});
