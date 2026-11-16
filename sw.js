@@ -6,7 +6,7 @@ self.addEventListener("push", function (e) {
   var d = {};
   try { d = e.data ? e.data.json() : {}; } catch (x) { d = { body: e.data ? e.data.text() : "" }; }
   e.waitUntil(self.registration.showNotification(d.title || "Хасанатики", {
-    body: d.body || "", icon: "icon-192.png", badge: "badge.png", tag: d.tag, renotify: !!d.tag,
+    body: d.body || "", icon: "notify-icon.png", badge: "badge.png", tag: d.tag, renotify: !!d.tag,
     vibrate: [200, 100, 200], silent: false, data: { url: d.url || "./" }
   }));
 });
