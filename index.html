@@ -1401,7 +1401,9 @@ function render(){
 var PLDIR="hm";
 var PLN={1:7,78:40,79:46,80:42,81:29,82:19,83:36,84:25,85:22,86:17,87:19,88:26,89:30,90:20,91:15,92:21,93:11,94:8,95:8,96:19,97:5,98:8,99:8,100:11,101:11,102:8,103:3,104:9,105:5,106:4,107:7,108:3,109:6,110:3,111:5,112:4,113:5,114:6};
 var PLK=["1","k"];for(var pi=78;pi<=114;pi++)PLK.push(String(pi));   // порядок в списке
-var PL=null,plA=null,plPre=null;
+var PL=null,plA=null,plPre=null,plT=null,plTick=null;
+var PLGAPS=[[0,"нет"],[0.5,"½ аята"],[1,"как аят"],[1.5,"1,5 аята"],[2,"2 аята"]];   // пауза после аята — чтобы повторить за чтецом
+function plGapStop(){if(plT){clearTimeout(plT);plT=null}if(plTick){clearInterval(plTick);plTick=null}if(PL){PL.wait=0;PL.hold=false}}
 function plName(n){return n==="k"?AYAT:NAMES[n]}
 function plTitle(n){return n==="k"?AYAT:n+". "+NAMES[n]}
 function plCount(n){return n==="k"?1:PLN[n]}
@@ -1433,11 +1435,11 @@ function plStart(k,o){
     }catch(e){}}
   }
   var c=plCount(k),old=PL;o=o||{};
-  PL={k:k,from:1,to:c,a:plFirst(k),cnt:0,rep:old?old.rep:1,times:o.times||(old&&!old.hw?old.times:1),heard:0,sent:0,hw:o.hw||null,clean:true,rate:old?old.rate:1,playing:false,err:"",msg:""};
-  plPlay();
+  PL={k:k,from:1,to:c,a:plFirst(k),cnt:0,rep:old?old.rep:1,times:o.times||(old&&!old.hw?old.times:1),heard:0,sent:0,hw:o.hw||null,clean:true,rate:old?old.rate:1,gap:store.get("plgap",0),wait:0,hold:false,playing:false,err:"",msg:""};
+  plGapStop();plPlay();
 }
 function plPlay(){
-  if(!PL)return;var P=PL;
+  if(!PL)return;var P=PL;plGapStop();
   plA.src=plFile(P.k,P.a);plA.playbackRate=P.rate;
   var pr=plA.play();if(pr&&pr.catch)pr.catch(function(){if(PL===P){P.playing=false;plRender()}});
   // заранее подгружаем следующий аят
@@ -1448,6 +1450,19 @@ function plPlay(){
 function plEnded(){
   var P=PL;if(!P)return;
   if(P.a===0){P.a=P.from;P.cnt=0;return plPlay()}
+  // пауза после аята: ученик повторяет за чтецом
+  if(P.gap>0){
+    var d=plA.duration;if(!isFinite(d)||d<=0)d=4;
+    var ms=Math.max(1000,Math.round(d/(P.rate||1)*P.gap*1000));
+    P.wait=Date.now()+ms;P.hold=false;
+    plT=setTimeout(function(){plT=null;if(plTick){clearInterval(plTick);plTick=null}if(PL===P){P.wait=0;plNext()}},ms);
+    plTick=setInterval(function(){if(PL===P)plRender()},500);
+    plRender();return;
+  }
+  plNext();
+}
+function plNext(){
+  var P=PL;if(!P)return;
   P.cnt++;
   if(P.cnt<P.rep)return plPlay();
   P.cnt=0;
@@ -1471,7 +1486,14 @@ function plCounted(P){
   }).catch(function(){if(PL===P){P.msg="Нет связи — прослушивание не засчитано";plRender()}});
 }
 function plToggle(on){
-  if(!PL||!plA)return;
+  if(!PL||!plA)return;var P=PL;
+  // во время паузы между аятами: ⏸ держит паузу, ▶ сразу продолжает
+  if(P.wait||P.hold){
+    if(on===undefined)on=P.hold;
+    if(on){plGapStop();plNext()}
+    else{plGapStop();P.hold=true;P.playing=false;plRender()}
+    return;
+  }
   if(on===undefined)on=plA.paused;
   if(on){PL.done=false;PL.err="";var pr=plA.play();if(pr&&pr.catch)pr.catch(function(){})}else plA.pause();
   plRender();
@@ -1481,23 +1503,27 @@ function plStep(d){
   if(a<P.from)a=P.from;if(a>P.to)a=P.to;
   P.a=a;P.cnt=0;P.done=false;P.clean=false;plPlay();   // с перемоткой прослушивание не засчитывается
 }
-function plClose(){if(plA){plA.pause();plA.removeAttribute("src");try{plA.load()}catch(e){}}PL=null;plPre=null;plRender();render()}
+function plClose(){plGapStop();if(plA){plA.pause();plA.removeAttribute("src");try{plA.load()}catch(e){}}PL=null;plPre=null;plRender();render()}
 function plRender(){
   var box=document.getElementById("pl");if(!box)return;
   if(!PL){box.hidden=true;box.innerHTML="";document.body.classList.remove("plon");return}
   var P=PL,c=plCount(P.k),pos=P.a===0?0:P.a-P.from+1,len=P.to-P.from+1,o,i,h;
   h='<div class="t1"><span style="font-size:22px">🎧</span><b>'+esc(plTitle(P.k))+'</b><button class="x" data-p="close" aria-label="Закрыть плеер">✕</button></div>';
-  h+='<div class="t2">'+(P.err?'<span style="color:var(--err)">'+esc(P.err)+'</span>':P.done?"Прослушано ✓ Нажмите ▶, чтобы ещё раз":P.a===0?"Бисмиллях…":"Аят "+P.a+" из "+c+(P.rep>1?" · повтор "+(P.cnt+1)+" из "+P.rep:""))+' · аль-Хусари</div>';
+  h+='<div class="t2">'+(P.err?'<span style="color:var(--err)">'+esc(P.err)+'</span>':P.done?"Прослушано ✓ Нажмите ▶, чтобы ещё раз":P.hold?"⏸ Пауза. Нажмите ▶, чтобы продолжить":P.wait?"🗣 Повтори аят "+P.a+"… "+Math.max(1,Math.ceil((P.wait-Date.now())/1000))+" с":P.a===0?"Бисмиллях…":"Аят "+P.a+" из "+c+(P.rep>1?" · повтор "+(P.cnt+1)+" из "+P.rep:""))+' · аль-Хусари</div>';
   if(P.times!==1||P.heard)h+='<div class="t2" style="margin-top:-6px;color:var(--gold)">🎧 Прослушано '+P.heard+(P.times?" из "+P.times:"")+' раз'+(STOK&&!canEdit()&&P.sent?" · засчитано "+P.sent:"")+'</div>';
   if(P.msg)h+='<div class="t2" style="margin-top:-6px;color:var(--warn)">'+esc(P.msg)+'</div>';
   else if(!canEdit()&&!STOK&&P.times>1)h+='<div class="t2" style="margin-top:-6px">Чтобы учитель видел прослушивания, войдите в свой кабинет ученика</div>';
   h+='<div class="pb"><i style="width:'+Math.round(pos/len*100)+'%"></i></div>';
+  if(P.wait||P.hold)P.playing=!P.hold;
   h+='<div class="ctl"><button class="ib" data-p="prev" aria-label="Предыдущий аят">⏮</button><button class="ib big" data-p="play" aria-label="'+(P.playing?"Пауза":"Слушать")+'">'+(P.playing?"⏸":"▶")+'</button><button class="ib" data-p="next" aria-label="Следующий аят">⏭</button>';
   h+='<span style="flex:1"></span><button class="ib'+(P.rate<1?" on":"")+'" data-p="slow" aria-label="Медленнее" title="Медленнее">🐢</button></div>';
   var TL=[1,3,5,7,10,15,20,30,33,40,50,100];if(P.times&&TL.indexOf(P.times)<0){TL.push(P.times);TL.sort(function(a,b){return a-b})}
   h+='<div class="opt"><span class="sm mut">Суру целиком:</span><select data-p="times" aria-label="Сколько раз прослушать суру">';
   TL.forEach(function(n){h+='<option value="'+n+'"'+(P.times===n?" selected":"")+'>'+pn(n,"раз","раза","раз")+'</option>'});
   h+='<option value="0"'+(P.times===0?" selected":"")+'>без остановки</option></select></div>';
+  h+='<div class="opt"><span class="sm mut">Пауза после аята:</span><select data-p="gap" aria-label="Пауза после аята, чтобы повторить">';
+  PLGAPS.forEach(function(g){h+='<option value="'+g[0]+'"'+(P.gap===g[0]?" selected":"")+'>'+g[1]+'</option>'});
+  h+='</select></div>';
   h+='<div class="opt"><span class="sm mut">Каждый аят:</span><select data-p="rep" aria-label="Сколько раз повторять аят">';
   [1,2,3,5,10].forEach(function(n){h+='<option value="'+n+'"'+(P.rep===n?" selected":"")+'>'+(n===1?"1 раз":n+" раз"+(n<5?"а":""))+'</option>'});
   h+='</select>';
@@ -1522,6 +1548,7 @@ document.getElementById("pl").addEventListener("click",function(e){
 document.getElementById("pl").addEventListener("change",function(e){
   var t=e.target;if(!PL||!t.dataset||!t.dataset.p)return;var v=parseInt(t.value,10)||1,P=PL;
   if(t.dataset.p==="rep"){P.rep=v;P.cnt=0;plRender();return}
+  if(t.dataset.p==="gap"){P.gap=parseFloat(t.value)||0;store.set("plgap",P.gap);if(P.wait&&!P.gap){plGapStop();plNext()}else plRender();return}
   if(t.dataset.p==="times"){P.times=parseInt(t.value,10)||0;P.heard=0;P.done=false;plRender();return}
   if(t.dataset.p==="from"){P.from=v;if(P.to<v)P.to=v}
   if(t.dataset.p==="to"){P.to=v;if(P.from>v)P.from=v}
