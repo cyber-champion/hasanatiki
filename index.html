@@ -932,7 +932,7 @@ function vHw(){
   h+=pushBox();
   if(UI.seg==="chat"&&(role==="teacher"||role==="student"))return h+vChat();
   if(!HW)return h+'<div class="box"><div class="loading" style="padding:24px 0">'+(HWerr?esc(HWerr)+'<p style="margin-top:10px"><button class="btn sm" data-a="hwreload">Повторить</button></p>':"Загрузка…")+'</div></div>';
-  if(role==="teacher")h+=vHwForm(null);
+  if(role==="teacher"){var wt=hwBadge0();if(wt)h+=say("asl","Ассаляму алейкум! "+pn(wt,"работа ждёт","работы ждут","работ ждут")+" проверки — нажмите «Ответы учеников» у задания.");h+=vHwForm(null)}
   if(!HW.items.length)h+='<div class="box cen"><div class="masbig">'+mas("asl",110)+'</div><h2>Заданий пока нет</h2><p class="mut">'+(role==="teacher"?"Создайте первое задание — кнопка выше.":"Учитель скоро добавит задания.")+'</p></div>';
   HW.items.forEach(function(x){h+=role==="teacher"?hwCardT(x):hwCardS(x,role)});
   if(role==="teacher")h+=vPins();
@@ -946,11 +946,19 @@ function vStudentCab(){
   var s=STOK&&by(STOK.sid);
   if(s&&hwRole()==="student"){
     var done=0,wait=0,todo=0;(HW?HW.items:[]).forEach(function(x){if(x.my&&x.my.status==="accepted")done++;else if(x.my&&x.my.status==="sent")wait++;else todo++});
-    return '<div class="box"><div class="mecard">'+avh(s,"l")+'<div class="mid"><div class="sm mut">Мой кабинет</div><div class="nm">'+esc(s.name)+'</div><div class="lvl" style="color:'+lvl(s)[4]+'">'+lvl(s)[1]+" "+lvl(s)[2]+' · '+pn(tot(s),"балл","балла","баллов")+'</div><div class="tags"><span class="tg tn">✅ принято '+done+'</span><span class="tg tx">⏳ на проверке '+wait+'</span><span class="tg ts">📚 осталось '+todo+'</span></div></div></div><div class="btns" style="margin-top:12px"><button class="btn sm" data-a="open" data-id="'+s.id+'">Мои значки и суры</button><button class="btn sm" data-a="sout">Выйти из кабинета</button></div></div>';
+    return '<div class="box"><div class="mecard">'+avh(s,"l")+'<div class="mid"><div class="sm mut">Мой кабинет</div><div class="nm">'+esc(s.name)+'</div><div class="lvl" style="color:'+lvl(s)[4]+'">'+lvl(s)[1]+" "+lvl(s)[2]+' · '+pn(tot(s),"балл","балла","баллов")+'</div><div class="tags"><span class="tg tn">✅ принято '+done+'</span><span class="tg tx">⏳ на проверке '+wait+'</span><span class="tg ts">📚 осталось '+todo+'</span></div></div></div><div class="btns" style="margin-top:12px"><button class="btn sm" data-a="open" data-id="'+s.id+'">Мои значки и суры</button><button class="btn sm" data-a="sout">Выйти из кабинета</button></div></div>'+cabSay(s,done,wait,todo);
   }
   var L=S.students.slice().sort(function(a,b){return a.name.localeCompare(b.name,"ru")}),cur=UI.pinSid||meStudent||"";
   if(!L.length)return"";
   return '<div class="box"><h2>👤 Мой кабинет</h2>'+say("asl","Чтобы сдавать задания, выбери своё имя и введи PIN-код. Его даёт учитель.")+'<div class="grid2"><div class="field"><label for="pin_sid">Кто ты</label><select id="pin_sid"><option value="">— выбери имя —</option>'+L.map(function(s){return '<option value="'+s.id+'"'+(s.id===cur?" selected":"")+'>'+esc(s.name)+'</option>'}).join("")+'</select></div><div class="field"><label for="pin_code">PIN-код</label><input id="pin_code" type="password" inputmode="numeric" autocomplete="off" maxlength="4" placeholder="4 цифры"></div></div>'+(UI.pinErr?'<p class="note err" style="margin-bottom:10px">'+esc(UI.pinErr)+'</p>':"")+'<button class="btn pri" data-a="slogin">Войти</button></div>';
+}
+function cabSay(s,done,wait,todo){
+  if(!HW||!HW.items.length||UI.seg==="chat")return"";
+  var ret=HW.items.filter(function(x){return x.my&&x.my.status==="returned"}).length,first=esc(String(s.name).split(" ")[0]);
+  if(ret)return say("sab",first+", учитель вернул "+(ret>1?ret+" задания":"задание")+" на доработку. Посмотри его комментарий, исправь и сдай снова — у тебя получится!");
+  if(todo)return say("sab",first+", тебя ждёт "+pn(todo,"задание","задания","заданий")+". Выполни и нажми «Сдать задание» — я буду болеть за тебя!");
+  if(wait)return say("asl","Отлично, "+first+"! Учитель скоро проверит твою работу — а я пока соберу для тебя хасанаты 🍯");
+  return say("duo","Машаллах, "+first+"! Все задания сданы. Мы тобой гордимся!");
 }
 function hwCardS(x,role){
   var my=x.my,st=my?my.status:"",F=UI.subm&&UI.subm.hid===x.id?UI.subm:null;
@@ -960,7 +968,7 @@ function hwCardS(x,role){
   if(my&&my.teacher_note)h+='<div class="note" style="margin-top:8px"><b>Учитель:</b> '+rich(my.teacher_note)+'</div>';
   if(my&&!F){if(my.note)h+='<div class="note" style="margin-top:8px"><b>Мой ответ:</b> '+rich(my.note)+'</div>';h+=filesBlock(x.my_files,false)}
   if(F){
-    h+='<div class="form"><div class="field"><label for="sub_note">Мой ответ (можно без текста, если есть файл)</label><textarea id="sub_note" maxlength="1000" style="min-height:90px" placeholder="Напиши ответ или прикрепи фото, запись голоса, файл">'+esc(F.note)+'</textarea></div>'+filesBlock(x.my_files,true)+pickedBlock(F)+(F.err?'<p class="note err" style="margin-bottom:10px">'+esc(F.err)+'</p>':"")+
+    h+='<div class="form">'+say("asl","Напиши ответ, сфотографируй тетрадь 📷 или запиши голос 🎙 — и нажми «Отправить на проверку».")+'<div class="field"><label for="sub_note">Мой ответ (можно без текста, если есть файл)</label><textarea id="sub_note" maxlength="1000" style="min-height:90px" placeholder="Напиши ответ или прикрепи фото, запись голоса, файл">'+esc(F.note)+'</textarea></div>'+filesBlock(x.my_files,true)+pickedBlock(F)+(F.err?'<p class="note err" style="margin-bottom:10px">'+esc(F.err)+'</p>':"")+
       '<div class="btns"><button class="btn pri" data-a="subsend"'+(F.busy?" disabled":"")+'>'+(F.busy?esc(F.prog||"Отправляю…"):"📨 Отправить на проверку")+'</button>'+(F.busy?"":'<button class="btn" data-a="subclose">Отмена</button>')+'</div></div>';
   }else if(st!=="accepted")h+='<div class="btns" style="margin-top:10px"><button class="btn '+(st==="sent"?"":"pri")+'" data-a="subopen" data-id="'+x.id+'">'+(st==="sent"?"✏️ Изменить ответ":st==="returned"?"🔁 Исправить и сдать снова":"📨 Сдать задание")+'</button></div>';
   return h+'</div>';
