@@ -1394,8 +1394,11 @@ function render(){
   plPos();
 }
 
-/* ================= плеер: чтение аль-Хусари (Муаллим) ================= */
-// Файлы по одному на аят лежат на нашем же сайте: audio/h/SSSAAA.mp3 (002255 — Аят аль-Курси, 001001 — басмала)
+/* ================= плеер: чтение аль-Хусари ================= */
+// Файлы по одному на аят лежат на нашем же сайте: audio/<папка>/SSSAAA.mp3 (002255 — Аят аль-Курси, 001001 — басмала).
+// Две записи: "hm" — обычное чтение (мураттал), "h" — обучающее (Муаллим, медленнее).
+// При смене записи нужно обновить и длительности сур в базе (таблица sura_secs).
+var PLDIR="hm";
 var PLN={1:7,78:40,79:46,80:42,81:29,82:19,83:36,84:25,85:22,86:17,87:19,88:26,89:30,90:20,91:15,92:21,93:11,94:8,95:8,96:19,97:5,98:8,99:8,100:11,101:11,102:8,103:3,104:9,105:5,106:4,107:7,108:3,109:6,110:3,111:5,112:4,113:5,114:6};
 var PLK=["1","k"];for(var pi=78;pi<=114;pi++)PLK.push(String(pi));   // порядок в списке
 var PL=null,plA=null,plPre=null;
@@ -1403,7 +1406,7 @@ function plName(n){return n==="k"?AYAT:NAMES[n]}
 function plTitle(n){return n==="k"?AYAT:n+". "+NAMES[n]}
 function plCount(n){return n==="k"?1:PLN[n]}
 function p3(x){x=String(x);while(x.length<3)x="0"+x;return x}
-function plFile(n,a){return "audio/h/"+(a===0?"001001":n==="k"?"002255":p3(n)+p3(a))+".mp3"}
+function plFile(n,a){return "audio/"+PLDIR+"/"+(a===0?"001001":n==="k"?"002255":p3(n)+p3(a))+".mp3"}
 // найти суру по названию (из списка сур или из названия задания)
 function plFind(t){
   if(!t)return null;if(t===AYAT)return "k";if(NUM[t]&&PLN[NUM[t]])return String(NUM[t]);
@@ -1535,7 +1538,7 @@ function hwListen(x){
   return h+'</div>';
 }
 function vListen(){
-  var h='<div class="box"><h2>🎧 Слушать суры</h2><p class="mut sm" style="margin:6px 0 12px">Обучающее чтение шейха Махмуда Халиля аль-Хусари — медленно и чётко, удобно повторять за ним. Можно повторять каждый аят по несколько раз.</p><div class="plg">';
+  var h='<div class="box"><h2>🎧 Слушать суры</h2><p class="mut sm" style="margin:6px 0 12px">Чтение шейха Махмуда Халиля аль-Хусари — спокойно и чётко, удобно повторять за ним. 🐢 в плеере замедляет чтение. Можно повторять каждый аят по несколько раз.</p><div class="plg">';
   PLK.forEach(function(k){h+='<button data-a="pl" data-v="'+k+'"'+(PL&&PL.k===k?' class="on"':"")+'><i>'+(PL&&PL.k===k&&PL.playing?"⏸":"▶")+'</i><span>'+esc(k==="k"?AYAT:k+". "+NAMES[k])+'<small>'+(k==="k"?"2:255":pn(PLN[k],"аят","аята","аятов"))+'</small></span></button>'});
   return h+'</div></div>';
 }
