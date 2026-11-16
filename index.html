@@ -1226,6 +1226,7 @@ function vPushAdmin(){
   if(K){
     h+='<p class="note" style="margin-bottom:10px">Скопируйте эти три значения в Supabase сейчас. Закрытый ключ больше нигде не хранится — никому его не отправляйте.</p>';
     [["VAPID_PUBLIC",K.pub],["VAPID_PRIVATE",K.priv],["PUSH_SECRET",K.secret]].forEach(function(x){h+='<div class="lg"><div class="lt"><b>'+x[0]+'</b><div class="sm mut" style="overflow-wrap:anywhere">'+esc(x[1])+'</div></div><button class="btn sm" data-a="pkcopy" data-k="'+x[0]+'">📋</button></div>'});
+    h+='<div class="btns" style="margin:10px 0 12px"><button class="btn pri" data-a="pkall">📋 Скопировать все три сразу</button></div><p class="sm mut" style="margin-bottom:10px">В Supabase → Edge Functions → Secrets щёлкните в поле <b>Name</b> и нажмите Ctrl+V — Supabase сам разложит все три секрета. Затем Save.</p>';
   }
   h+='<ol class="steps">';
   h+='<li>'+(PUSHV&&!K?(UI.confirm==="pkgen"?'<span class="btns"><button class="btn sm dng" data-a="pkgen">Да, новые ключи</button><button class="btn sm" data-a="noconf">Отмена</button></span><br><span class="sm mut">После смены ключей всем нужно заново нажать «Включить уведомления».</span>':'Ключи уже созданы. <button class="btn sm" data-a="conf" data-k="pkgen">Создать новые</button>'):K?"Ключи созданы ✓":'<button class="btn sm pri" data-a="pkgen">Создать ключи</button>')+'</li>';
@@ -1262,6 +1263,7 @@ function chatAct(a,b){
         return rpc("push_setup",{p_token:TOK,p_public:K.pub,p_secret:K.secret}).then(function(){UI.pushKeys=K;PUSHV=K.pub;store.set(pushKey(),0);flash("Ключи созданы — скопируйте их в Supabase");render()})
       }).catch(function(x){flash(x&&x.code?emsg(x):"Этот браузер не умеет создавать ключи — откройте Кабинет в Chrome");render()});return true;
     case"pkcopy":var K=UI.pushKeys;if(K)copy(b.dataset.k==="VAPID_PUBLIC"?K.pub:b.dataset.k==="VAPID_PRIVATE"?K.priv:K.secret,b.dataset.k+" скопирован");return true;
+    case"pkall":var K2=UI.pushKeys;if(K2)copy("VAPID_PUBLIC="+K2.pub+"\nVAPID_PRIVATE="+K2.priv+"\nPUSH_SECRET="+K2.secret,"Все три секрета скопированы");return true;
     case"pkcode":copy(PUSH_FN,"Код функции скопирован");return true;
     case"pkcheck":UI.pkMsg="Проверяю…";render();kick().then(function(r){UI.pkMsg=!r?"Функция push не отвечает. Проверьте, что она создана и называется push.":r.ok?"Функция работает ✓ ("+JSON.stringify(r.j)+")":r.status===401?"Функция отвечает 401 — выключите Verify JWT в её настройках.":r.status===404?"Функция push не найдена — создайте её (шаг 3).":"Ошибка функции ("+r.status+"): "+(r.j&&r.j.error||r.t||"").slice(0,200);render()});return true;
     default:return false;
