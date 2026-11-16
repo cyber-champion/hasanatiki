@@ -1,0 +1,42 @@
+# Однократно скачивает обучающее чтение шейха аль-Хусари (Муаллим, everyayah.com)
+# для Аль-Фатихи, Аят аль-Курси и 30-го джуза (суры 78–114), по одному файлу на аят,
+# переводит в моно 64 кбит/с (в 2 раза легче) и кладёт в папку audio/h/.
+# Запускается сам при изменении этого файла, или вручную: Actions → «Аудио сур» → Run workflow.
+name: Аудио сур
+on:
+  workflow_dispatch:
+  push:
+    paths: [".github/workflows/audio.yml"]
+permissions:
+  contents: write
+jobs:
+  audio:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Скачать и сжать
+        run: |
+          set -e
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg > /dev/null
+          mkdir -p audio/h tmp
+          list="002255"
+          add() { s=$1; n=$2; for a in $(seq 1 $n); do list="$list $(printf '%03d%03d' $s $a)"; done; }
+          add 1 7
+          for p in 78:40 79:46 80:42 81:29 82:19 83:36 84:25 85:22 86:17 87:19 88:26 89:30 90:20 91:15 92:21 93:11 94:8 95:8 96:19 97:5 98:8 99:8 100:11 101:11 102:8 103:3 104:9 105:5 106:4 107:7 108:3 109:6 110:3 111:5 112:4 113:5 114:6; do add ${p%:*} ${p#*:}; done
+          n=0
+          for f in $list; do
+            [ -s audio/h/$f.mp3 ] && continue
+            curl -sSfL --retry 5 --retry-delay 3 -o tmp/$f.mp3 "https://everyayah.com/data/Husary_Muallim_128kbps/$f.mp3"
+            ffmpeg -loglevel error -y -i tmp/$f.mp3 -map_metadata -1 -ac 1 -ar 44100 -b:a 64k audio/h/$f.mp3
+            n=$((n+1))
+          done
+          rm -rf tmp
+          echo "Новых файлов: $n"; ls audio/h | wc -l; du -sh audio/h
+      - name: Сохранить в репозиторий
+        run: |
+          git config user.name "hasanatiki-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add audio
+          git diff --cached --quiet && echo "Нечего сохранять" && exit 0
+          git commit -m "Аудио: аль-Хусари (Муаллим) — Аль-Фатиха, Аят аль-Курси, 30-й джуз"
+          git push
