@@ -1,4 +1,4 @@
-# Однократно скачивает обучающее чтение шейха аль-Хусари (Муаллим, everyayah.com)
+# Однократно скачивает обучающее чтение шейха аль-Хусари (Муаллим, everyayah.com / зеркало quranicaudio)
 # для Аль-Фатихи, Аят аль-Курси и 30-го джуза (суры 78–114), по одному файлу на аят,
 # переводит в моно 64 кбит/с (в 2 раза легче) и кладёт в папку audio/h/.
 # Запускается сам при изменении этого файла, или вручную: Actions → «Аудио сур» → Run workflow.
@@ -9,6 +9,9 @@ on:
     paths: [".github/workflows/audio.yml"]
 permissions:
   contents: write
+concurrency:
+  group: audio
+  cancel-in-progress: true
 jobs:
   audio:
     runs-on: ubuntu-latest
@@ -26,7 +29,8 @@ jobs:
           n=0
           for f in $list; do
             [ -s audio/h/$f.mp3 ] && continue
-            curl -sSfL --retry 5 --retry-delay 3 -o tmp/$f.mp3 "https://everyayah.com/data/Husary_Muallim_128kbps/$f.mp3"
+            curl -sSfL --connect-timeout 20 --retry 3 --retry-delay 3 -o tmp/$f.mp3 "https://mirrors.quranicaudio.com/everyayah/Husary_Muallim_128kbps/$f.mp3" \
+              || curl -sSfL --connect-timeout 20 --retry 3 --retry-delay 3 -o tmp/$f.mp3 "https://everyayah.com/data/Husary_Muallim_128kbps/$f.mp3"
             ffmpeg -loglevel error -y -i tmp/$f.mp3 -map_metadata -1 -ac 1 -ar 44100 -b:a 64k audio/h/$f.mp3
             n=$((n+1))
           done
