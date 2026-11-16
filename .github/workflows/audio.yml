@@ -39,4 +39,4 @@ jobs:
           git add audio
           git diff --cached --quiet && echo "Нечего сохранять" && exit 0
           git commit -m "Аудио: аль-Хусари (Муаллим) — Аль-Фатиха, Аят аль-Курси, 30-й джуз"
-          git push
+          for i in 1 2 3 4 5; do git pull --rebase -q origin main && git push && exit 0; sleep 5; done; exit 1
