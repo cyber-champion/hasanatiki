@@ -257,10 +257,32 @@ div.fb{cursor:default}
   .nav button{font-size:11px}
   .nav button span{font-size:23px}
 }
+/* плеер сур */
+.plg{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.plg button{display:flex;align-items:center;gap:8px;text-align:left;background:var(--card2);border:2px solid transparent;border-radius:14px;padding:9px 10px;color:var(--tx);font-weight:800;cursor:pointer;min-width:0}
+.plg button i{font-style:normal;flex-shrink:0;width:30px;height:30px;border-radius:50%;background:var(--gold);color:#241a02;display:grid;place-items:center;font-size:13px}
+.plg button span{min-width:0;overflow-wrap:anywhere;line-height:1.2}
+.plg button small{display:block;color:var(--mut);font-size:11px;font-weight:700}
+.plg button.on{border-color:var(--gold)}
+#pl{position:fixed;left:50%;transform:translateX(-50%);width:calc(100% - 16px);max-width:584px;z-index:19;background:#1b2550;border:1px solid rgba(251,191,36,.35);border-radius:22px;padding:10px 12px 12px;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+#pl .t1{display:flex;align-items:center;gap:8px}
+#pl .t1 b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:16px}
+#pl .t2{font-size:13px;color:var(--mut);font-weight:700;margin:2px 0 8px}
+#pl .pb{height:5px;border-radius:5px;background:rgba(255,255,255,.1);overflow:hidden;margin-bottom:10px}
+#pl .pb i{display:block;height:100%;background:var(--gold);transition:width .3s}
+#pl .ctl{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+#pl .ib{width:42px;height:42px;font-size:17px}
+#pl .ib.big{width:52px;height:52px;font-size:22px;background:var(--gold);color:#241a02}
+#pl .ib.on{background:var(--gold);color:#241a02}
+#pl .opt{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px}
+#pl .opt select{width:auto;padding:6px 8px;border-radius:10px;font-size:14px}
+#pl .x{background:none;border:0;color:var(--mut);font-size:20px;cursor:pointer;padding:2px 6px}
+body.plon{padding-bottom:300px}
 </style>
 </head>
 <body>
 <div id="app"><div class="loading">Загрузка…</div></div>
+<div id="pl" hidden aria-label="Плеер"></div>
 <script src="config.js"></script>
 <script>
 (function(){
@@ -679,7 +701,7 @@ function logList(list,del){
 }
 function vSur(){
   var L=S.students.slice().sort(function(a,b){return surCount(b)-surCount(a)||b.sur.length-a.sur.length}),total=0;L.forEach(function(s){total+=surCount(s)});
-  var h='<div class="box cen"><div class="big">📜</div><h2>Рейтинг по сурам</h2><p class="mut" style="margin:6px auto 12px;max-width:44ch">Кто сколько сур выучил наизусть — за всё время. Не обнуляется с новым сезоном и не идёт в общую таблицу, но за суры есть свои значки.</p><span class="chip">Всего выучено: <b style="color:var(--s)">'+pn(total,"сура","суры","сур")+'</b></span></div>';
+  var h=vListen()+'<div class="box cen"><div class="big">📜</div><h2>Рейтинг по сурам</h2><p class="mut" style="margin:6px auto 12px;max-width:44ch">Кто сколько сур выучил наизусть — за всё время. Не обнуляется с новым сезоном и не идёт в общую таблицу, но за суры есть свои значки.</p><span class="chip">Всего выучено: <b style="color:var(--s)">'+pn(total,"сура","суры","сур")+'</b></span></div>';
   if(!L.length)return h;
   h+='<div class="box">';
   L.forEach(function(s,i){var j=juz(s);
@@ -939,7 +961,7 @@ function vHw(){
   return h;
 }
 function hwHead(x){
-  return '<h2 style="margin-bottom:6px">'+esc(x.title)+'</h2><div class="tags" style="margin-bottom:10px">'+(x.sura?'<span class="tg tq">📜 '+(NUM[x.sura]?NUM[x.sura]+". ":"")+esc(x.sura)+'</span>':"")+(x.points?'<span class="tg tx">⭐ +'+x.points+" "+pl(x.points,"балл","балла","баллов")+'</span>':"")+(x.due?'<span class="tg ts">🗓 '+dueTxt(x.due)+'</span>':"")+'</div>'+(x.body?'<p class="hwb">'+rich(x.body)+'</p>':"")+filesBlock(x.files,false);
+  return '<h2 style="margin-bottom:6px">'+esc(x.title)+'</h2><div class="tags" style="margin-bottom:10px">'+(x.sura?'<span class="tg tq">📜 '+(NUM[x.sura]?NUM[x.sura]+". ":"")+esc(x.sura)+'</span>':"")+(x.points?'<span class="tg tx">⭐ +'+x.points+" "+pl(x.points,"балл","балла","баллов")+'</span>':"")+(x.due?'<span class="tg ts">🗓 '+dueTxt(x.due)+'</span>':"")+'</div>'+(x.body?'<p class="hwb">'+rich(x.body)+'</p>':"")+hwListen(x)+filesBlock(x.files,false);
 }
 /* ---- ученик и гость ---- */
 function vStudentCab(){
@@ -1165,7 +1187,7 @@ function hwOpenFor(sid){
   if(!HW||!HW.items)return [];
   return HW.items.filter(function(h){var sb=(h.subs||[]).filter(function(q){return q.student_id===sid})[0];return !(sb&&sb.status==="accepted")});
 }
-function surNorm(x){return String(x||"").toLowerCase().replace(/ё/g,"е").replace(/^[\s\d.]+/,"").replace(/^(аль|ал|ан|ат|ас|аш|ад|аз|ар|ат-т|ан-н)[-\s]+/,"").replace(/[^a-zа-я]/g,"")}
+function surNorm(x){return String(x||"").toLowerCase().replace(/ё/g,"е").replace(/^[\s\d.]+/,"").replace(/^(аль|ал|ан|ат|ас|аш|ад|аз|ар|ат-т|ан-н)[-\s]+/,"").replace(/я/g,"а").replace(/[ьъ]/g,"").replace(/[^a-zа-я]/g,"")}
 function hwMatch(sid,sura){
   if(!sura)return null;var n=surNorm(sura);
   return hwOpenFor(sid).filter(function(h){if(h.sura)return h.sura===sura;var t=surNorm(h.title);return n.length>2&&(t===n||t.indexOf(n)>-1)})[0]||null;
@@ -1356,6 +1378,121 @@ function render(){
   shownSheet=UI.sheet;celebShown=!!celeb;
   window.scrollTo(0,y);
   if(focusId){var el=document.getElementById(focusId);if(el){el.focus({preventScroll:true});try{if(selStart!=null)el.setSelectionRange(selStart,selStart)}catch(e){}}}
+  plPos();
+}
+
+/* ================= плеер: чтение аль-Хусари (Муаллим) ================= */
+// Файлы по одному на аят лежат на нашем же сайте: audio/h/SSSAAA.mp3 (002255 — Аят аль-Курси, 001001 — басмала)
+var PLN={1:7,78:40,79:46,80:42,81:29,82:19,83:36,84:25,85:22,86:17,87:19,88:26,89:30,90:20,91:15,92:21,93:11,94:8,95:8,96:19,97:5,98:8,99:8,100:11,101:11,102:8,103:3,104:9,105:5,106:4,107:7,108:3,109:6,110:3,111:5,112:4,113:5,114:6};
+var PLK=["1","k"];for(var pi=78;pi<=114;pi++)PLK.push(String(pi));   // порядок в списке
+var PL=null,plA=null,plPre=null;
+function plName(n){return n==="k"?AYAT:NAMES[n]}
+function plTitle(n){return n==="k"?AYAT:n+". "+NAMES[n]}
+function plCount(n){return n==="k"?1:PLN[n]}
+function p3(x){x=String(x);while(x.length<3)x="0"+x;return x}
+function plFile(n,a){return "audio/h/"+(a===0?"001001":n==="k"?"002255":p3(n)+p3(a))+".mp3"}
+// найти суру по названию (из списка сур или из названия задания)
+function plFind(t){
+  if(!t)return null;if(t===AYAT)return "k";if(NUM[t]&&PLN[NUM[t]])return String(NUM[t]);
+  var w=surNorm(t);if(!w)return null;if(w===surNorm(AYAT)||w.indexOf("курси")>-1)return "k";
+  // по отдельным словам; короткие названия (Нас, Тин…) — только с заглавной буквы, чтобы «у нас» не стало сурой
+  var tok=String(t).split(/[\s,.;:!?«»"()]+/).filter(Boolean);
+  for(var i=0;i<PLK.length;i++){var k=PLK[i];if(k==="k")continue;var nm=surNorm(NAMES[k]);if(w===nm)return k;
+    for(var j=0;j<tok.length;j++){if(surNorm(tok[j])===nm&&(nm.length>3||/^[А-ЯЁA-Z]/.test(tok[j])))return k}}
+  return null;
+}
+function plBtn(t,label){var k=plFind(t);return k?'<button class="btn sm" data-a="pl" data-v="'+k+'">'+(label||"🎧 Слушать")+'</button>':""}
+function plStart(k){
+  if(!plA){plA=new Audio();plA.preload="auto";
+    plA.addEventListener("ended",plEnded);
+    plA.addEventListener("error",function(){if(!PL)return;PL.playing=false;PL.err="Не удалось загрузить аудио. Проверьте интернет и попробуйте ещё раз.";plRender()});
+    plA.addEventListener("playing",function(){if(PL){PL.playing=true;PL.err="";plRender()}});
+    plA.addEventListener("pause",function(){if(PL&&!plA.ended){PL.playing=false;plRender()}});
+    if("mediaSession" in navigator){try{
+      navigator.mediaSession.setActionHandler("play",function(){plToggle(true)});
+      navigator.mediaSession.setActionHandler("pause",function(){plToggle(false)});
+      navigator.mediaSession.setActionHandler("previoustrack",function(){plStep(-1)});
+      navigator.mediaSession.setActionHandler("nexttrack",function(){plStep(1)});
+    }catch(e){}}
+  }
+  var c=plCount(k),old=PL;
+  PL={k:k,from:1,to:c,a:(k==="k"||k==="1")?1:0,cnt:0,rep:old?old.rep:1,loop:old?old.loop:false,rate:old?old.rate:1,playing:false,err:""};
+  plPlay();
+}
+function plPlay(){
+  if(!PL)return;var P=PL;
+  plA.src=plFile(P.k,P.a);plA.playbackRate=P.rate;
+  var pr=plA.play();if(pr&&pr.catch)pr.catch(function(){if(PL===P){P.playing=false;plRender()}});
+  // заранее подгружаем следующий аят
+  var nx=P.a===0?P.from:P.a+1;if(nx<=P.to){plPre=new Audio();plPre.preload="auto";plPre.src=plFile(P.k,nx)}
+  if("mediaSession" in navigator&&window.MediaMetadata){try{navigator.mediaSession.metadata=new MediaMetadata({title:plTitle(P.k)+(P.a?" — аят "+P.a:" — басмала"),artist:"Махмуд Халиль аль-Хусари",album:APP,artwork:[{src:"icon-512.png",sizes:"512x512",type:"image/png"}]})}catch(e){}}
+  plRender();
+}
+function plEnded(){
+  var P=PL;if(!P)return;
+  if(P.a===0){P.a=P.from;P.cnt=0;return plPlay()}
+  P.cnt++;
+  if(P.cnt<P.rep)return plPlay();
+  P.cnt=0;
+  if(P.a<P.to){P.a++;return plPlay()}
+  if(P.loop){P.a=P.from;return plPlay()}
+  P.playing=false;P.done=true;P.a=P.from;plA.src=plFile(P.k,P.a);plRender();
+}
+function plToggle(on){
+  if(!PL||!plA)return;
+  if(on===undefined)on=plA.paused;
+  if(on){PL.done=false;PL.err="";var pr=plA.play();if(pr&&pr.catch)pr.catch(function(){})}else plA.pause();
+  plRender();
+}
+function plStep(d){
+  if(!PL)return;var P=PL,a=P.a===0?P.from:P.a+d;
+  if(a<P.from)a=P.from;if(a>P.to)a=P.to;
+  P.a=a;P.cnt=0;P.done=false;plPlay();
+}
+function plClose(){if(plA){plA.pause();plA.removeAttribute("src");try{plA.load()}catch(e){}}PL=null;plPre=null;plRender();render()}
+function plRender(){
+  var box=document.getElementById("pl");if(!box)return;
+  if(!PL){box.hidden=true;box.innerHTML="";document.body.classList.remove("plon");return}
+  var P=PL,c=plCount(P.k),pos=P.a===0?0:P.a-P.from+1,len=P.to-P.from+1,o,i,h;
+  h='<div class="t1"><span style="font-size:22px">🎧</span><b>'+esc(plTitle(P.k))+'</b><button class="x" data-p="close" aria-label="Закрыть плеер">✕</button></div>';
+  h+='<div class="t2">'+(P.err?'<span style="color:var(--err)">'+esc(P.err)+'</span>':P.done?"Прослушано ✓ Нажмите ▶, чтобы ещё раз":P.a===0?"Бисмиллях…":"Аят "+P.a+" из "+c+(P.rep>1?" · повтор "+(P.cnt+1)+" из "+P.rep:""))+' · аль-Хусари</div>';
+  h+='<div class="pb"><i style="width:'+Math.round(pos/len*100)+'%"></i></div>';
+  h+='<div class="ctl"><button class="ib" data-p="prev" aria-label="Предыдущий аят">⏮</button><button class="ib big" data-p="play" aria-label="'+(P.playing?"Пауза":"Слушать")+'">'+(P.playing?"⏸":"▶")+'</button><button class="ib" data-p="next" aria-label="Следующий аят">⏭</button>';
+  h+='<span style="flex:1"></span><button class="ib'+(P.loop?" on":"")+'" data-p="loop" aria-label="По кругу" title="Повторять по кругу">🔁</button><button class="ib'+(P.rate<1?" on":"")+'" data-p="slow" aria-label="Медленнее" title="Медленнее">🐢</button></div>';
+  h+='<div class="opt"><span class="sm mut">Каждый аят:</span><select data-p="rep" aria-label="Сколько раз повторять аят">';
+  [1,2,3,5,10].forEach(function(n){h+='<option value="'+n+'"'+(P.rep===n?" selected":"")+'>'+(n===1?"1 раз":n+" раз"+(n<5?"а":""))+'</option>'});
+  h+='</select>';
+  if(c>1){
+    o=function(sel){var r="";for(i=1;i<=c;i++)r+='<option value="'+i+'"'+(i===sel?" selected":"")+'>'+i+'</option>';return r};
+    h+='<span class="sm mut">аяты с</span><select data-p="from" aria-label="С какого аята">'+o(P.from)+'</select><span class="sm mut">по</span><select data-p="to" aria-label="По какой аят">'+o(P.to)+'</select>';
+  }
+  h+='</div>';
+  box.innerHTML=h;box.hidden=false;document.body.classList.add("plon");plPos();
+  document.querySelectorAll('.plg button[data-v]').forEach(function(b){var on=b.dataset.v===P.k,ic=b.querySelector("i");b.classList.toggle("on",on);if(ic)ic.textContent=on&&P.playing?"⏸":"▶"});
+}
+function plPos(){
+  var box=document.getElementById("pl");if(!box||box.hidden)return;
+  var nav=document.querySelector(".nav");box.style.bottom=nav?(nav.offsetHeight+8)+"px":"calc(12px + env(safe-area-inset-bottom,0px))";
+}
+document.getElementById("pl").addEventListener("click",function(e){
+  var b=e.target.closest("[data-p]");if(!b||b.tagName==="SELECT")return;var a=b.dataset.p;
+  if(a==="close")plClose();else if(a==="play"){if(PL&&PL.done){PL.done=false;PL.a=PL.from;PL.cnt=0;plPlay()}else plToggle()}
+  else if(a==="prev")plStep(-1);else if(a==="next")plStep(1);
+  else if(a==="loop"&&PL){PL.loop=!PL.loop;plRender()}
+  else if(a==="slow"&&PL){PL.rate=PL.rate<1?1:0.75;if(plA)plA.playbackRate=PL.rate;plRender()}
+});
+document.getElementById("pl").addEventListener("change",function(e){
+  var t=e.target;if(!PL||!t.dataset||!t.dataset.p)return;var v=parseInt(t.value,10)||1,P=PL;
+  if(t.dataset.p==="rep"){P.rep=v;P.cnt=0;plRender();return}
+  if(t.dataset.p==="from"){P.from=v;if(P.to<v)P.to=v}
+  if(t.dataset.p==="to"){P.to=v;if(P.from>v)P.from=v}
+  P.a=P.from;P.cnt=0;P.done=false;plPlay();
+});
+function hwListen(x){var b=plBtn(x.sura||x.title,"🎧 Послушать чтение аль-Хусари");return b?'<div style="margin:8px 0 4px">'+b+'</div>':""}
+function vListen(){
+  var h='<div class="box"><h2>🎧 Слушать суры</h2><p class="mut sm" style="margin:6px 0 12px">Обучающее чтение шейха Махмуда Халиля аль-Хусари — медленно и чётко, удобно повторять за ним. Можно повторять каждый аят по несколько раз.</p><div class="plg">';
+  PLK.forEach(function(k){h+='<button data-a="pl" data-v="'+k+'"'+(PL&&PL.k===k?' class="on"':"")+'><i>'+(PL&&PL.k===k&&PL.playing?"⏸":"▶")+'</i><span>'+esc(k==="k"?AYAT:k+". "+NAMES[k])+'<small>'+(k==="k"?"2:255":pn(PLN[k],"аят","аята","аятов"))+'</small></span></button>'});
+  return h+'</div></div>';
 }
 
 /* ================= грамота ================= */
@@ -1391,6 +1528,7 @@ function setTab(t){R.tab=t;var h="#/g/"+encodeURIComponent(G.slug)+(t==="r"?"":"
 var skipRoute=false;
 function act(a,b,e){
   var id=b.dataset.id,s=id&&S?by(id):null,k=b.dataset.k,v=b.dataset.v;
+  if(a==="pl"){if(PL&&PL.k===v)plToggle();else plStart(v);return}
   if(chatAct(a,b))return;
   if(S&&G&&hwAct(a,b))return;
   switch(a){
