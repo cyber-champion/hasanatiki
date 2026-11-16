@@ -258,6 +258,9 @@ div.fb{cursor:default}
   .nav button span{font-size:23px}
 }
 /* плеер сур */
+.lsn{background:var(--card2);border-radius:16px;padding:12px;margin:10px 0}
+.lst{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)}
+.lst:last-child{border-bottom:0}
 .plg{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
 .plg button{display:flex;align-items:center;gap:8px;text-align:left;background:var(--card2);border:2px solid transparent;border-radius:14px;padding:9px 10px;color:var(--tx);font-weight:800;cursor:pointer;min-width:0}
 .plg button i{font-style:normal;flex-shrink:0;width:30px;height:30px;border-radius:50%;background:var(--gold);color:#241a02;display:grid;place-items:center;font-size:13px}
@@ -1000,7 +1003,7 @@ function vHwForm(x){
   var F=UI.hwForm;
   if(!x&&!(F&&!F.id0))return '<div class="box"><button class="btn pri wide" data-a="hwnew">+ Новое задание</button></div>';
   if(!F)return"";
-  return '<div class="'+(x?"form":"box")+'">'+(x?"":'<h2>Новое задание</h2>')+'<div class="field"><label for="hw_title">Название</label><input id="hw_title" type="text" maxlength="120" placeholder="Например: выучить суру Аль-Ихлас" value="'+esc(F.title)+'"></div><div class="field"><label for="hw_body">Что нужно сделать</label><textarea id="hw_body" maxlength="4000" style="min-height:110px" placeholder="Опишите задание. Можно вставить ссылку.">'+esc(F.body)+'</textarea></div><div class="field"><label for="hw_sura">Выучить суру (необязательно) — при приёме она засчитается сама</label><select id="hw_sura"><option value="">— без суры —</option>'+SUR.map(function(n){return '<option value="'+esc(n)+'"'+(F.sura===n?" selected":"")+'>'+(NUM[n]?NUM[n]+". "+esc(n):esc(n))+'</option>'}).join("")+'</select></div><div class="grid2"><div class="field"><label for="hw_due">Сдать до (необязательно)</label><input id="hw_due" type="date" value="'+esc(F.due)+'"></div><div class="field"><label for="hw_pts">Баллов за выполнение</label><input id="hw_pts" type="number" min="0" max="50" value="'+esc(F.points)+'"></div></div>'+
+  return '<div class="'+(x?"form":"box")+'">'+(x?"":'<h2>Новое задание</h2>')+'<div class="field"><label for="hw_title">Название</label><input id="hw_title" type="text" maxlength="120" placeholder="Например: выучить суру Аль-Ихлас" value="'+esc(F.title)+'"></div><div class="field"><label for="hw_body">Что нужно сделать</label><textarea id="hw_body" maxlength="4000" style="min-height:110px" placeholder="Опишите задание. Можно вставить ссылку.">'+esc(F.body)+'</textarea></div><div class="field"><label for="hw_sura">Выучить суру (необязательно) — при приёме она засчитается сама</label><select id="hw_sura"><option value="">— без суры —</option>'+SUR.map(function(n){return '<option value="'+esc(n)+'"'+(F.sura===n?" selected":"")+'>'+(NUM[n]?NUM[n]+". "+esc(n):esc(n))+'</option>'}).join("")+'</select></div><div class="field"><label for="hw_listen">🎧 Сколько раз прослушать суру в плеере (необязательно)</label><input id="hw_listen" type="number" min="0" max="500" placeholder="Например: 33" value="'+(F.listen?esc(F.listen):"")+'"><p class="mut sm" style="margin-top:4px">Ученик слушает чтение аль-Хусари в приложении, а вы видите, сколько раз он прослушал суру целиком.</p></div><div class="grid2"><div class="field"><label for="hw_due">Сдать до (необязательно)</label><input id="hw_due" type="date" value="'+esc(F.due)+'"></div><div class="field"><label for="hw_pts">Баллов за выполнение</label><input id="hw_pts" type="number" min="0" max="50" value="'+esc(F.points)+'"></div></div>'+
     (x?filesBlock(x.files,true):"")+pickedBlock(F)+'<p class="mut sm" style="margin-bottom:10px">Аудио, PDF, Word, фото, видео — до 25 МБ каждый файл.</p>'+(F.err?'<p class="note err" style="margin-bottom:10px">'+esc(F.err)+'</p>':"")+
     '<div class="btns"><button class="btn pri" data-a="hwsave"'+(F.busy?" disabled":"")+'>'+(F.busy?esc(F.prog||"Сохраняю…"):x?"Сохранить":"Опубликовать задание")+'</button>'+(F.busy?"":'<button class="btn" data-a="hwclose">Отмена</button>')+(x&&!F.busy?confirmBtn("hwdel"+x.id,"🗑 Удалить задание","hwdel",x.id):"")+'</div></div>';
 }
@@ -1008,7 +1011,7 @@ function hwCardT(x){
   var subs=(x.subs||[]).filter(function(s){return by(s.student_id)}),sent=subs.filter(function(s){return s.status==="sent"}),acc=subs.filter(function(s){return s.status==="accepted"}),ret=subs.filter(function(s){return s.status==="returned"});
   var open=UI.hwOpen===x.id,edit=UI.hwForm&&UI.hwForm.id0===x.id;
   var h='<div class="box hw">'+hwHead(x);
-  h+='<div class="hwst"><span class="tags"><span class="tg tx">⏳ ждут проверки '+sent.length+'</span><span class="tg tn">✅ принято '+acc.length+' из '+S.students.length+'</span>'+(ret.length?'<span class="tg tf">↩ на доработке '+ret.length+'</span>':"")+'</span></div>';
+  h+='<div class="hwst"><span class="tags"><span class="tg tx">⏳ ждут проверки '+sent.length+'</span><span class="tg tn">✅ принято '+acc.length+' из '+S.students.length+'</span>'+(ret.length?'<span class="tg tf">↩ на доработке '+ret.length+'</span>':"")+(x.listen&&x.listens?'<span class="tg tq">🎧 прослушали '+pn(x.listen,"раз","раза","раз")+': '+S.students.filter(function(st){return (x.listens[st.id]||0)>=x.listen}).length+' из '+S.students.length+'</span>':"")+'</span></div>';
   h+='<div class="btns" style="margin-top:10px"><button class="btn sm'+(sent.length?" pri":"")+'" data-a="hwtoggle" data-id="'+x.id+'">'+(open?"Свернуть":"Ответы учеников")+'</button>'+(edit?"":'<button class="btn sm" data-a="hwedit" data-id="'+x.id+'">✏️ Изменить</button>')+'</div>';
   if(edit)h+=vHwForm(x);
   if(open){
@@ -1022,6 +1025,12 @@ function hwCardT(x){
       if(s.status!=="accepted")h+='<div class="rv"><input id="rvn_'+key+'" type="text" maxlength="500" placeholder="Комментарий ученику (необязательно)"><div class="btns" style="align-items:center"><input id="rvp_'+key+'" type="number" min="0" max="50" value="'+x.points+'" aria-label="Баллы" style="width:76px"><button class="btn sm pri" data-a="rvok" data-id="'+x.id+'" data-v="'+esc(s.student_id)+'">✅ Принять</button>'+(s.status==="sent"?'<button class="btn sm" data-a="rvback" data-id="'+x.id+'" data-v="'+esc(s.student_id)+'">↩ Вернуть</button>':"")+'</div></div>';
       h+='</div>';
     });
+    if(x.listen&&x.listens){
+      var LL=S.students.map(function(st){return {st:st,n:x.listens[st.id]||0}}).sort(function(a,b){return b.n-a.n||a.st.name.localeCompare(b.st.name,"ru")});
+      h+='<div class="sec">🎧 Прослушали суру · нужно '+pn(x.listen,"раз","раза","раз")+'</div><div class="lsn" style="margin-top:0">';
+      LL.forEach(function(r){var ok=r.n>=x.listen;h+='<div class="lst">'+avh(r.st,"s")+'<span class="mid nm">'+esc(r.st.name)+'</span><b style="color:'+(ok?"var(--ok)":r.n?"var(--gold)":"var(--mut)")+'">'+(ok?"✅ ":"")+r.n+' / '+x.listen+'</b></div>'});
+      h+='</div>';
+    }
     var none=S.students.filter(function(st){return !subs.some(function(s){return s.student_id===st.id})}).sort(function(a,b){return a.name.localeCompare(b.name,"ru")});
     if(!subs.length)h+='<p class="mut sm" style="margin-top:10px">Ответов пока нет.</p>';
     if(none.length)h+='<div class="sec">Не сдали · '+none.length+'</div><p class="mut sm" style="margin-bottom:8px">Если ученик ответил на уроке, нажмите на имя — задание зачтётся с баллами.</p><div class="pick">'+none.map(function(st){return '<button class="pk" data-a="rvok" data-id="'+x.id+'" data-v="'+esc(st.id)+'" data-k="oral">✓ '+esc(st.name)+'</button>'}).join("")+'</div>';
@@ -1046,17 +1055,21 @@ function hwAct(a,b){
   var id=b.dataset.id,v=b.dataset.v,k=b.dataset.k,x=id&&HW?HW.items.filter(function(h){return h.id===id})[0]:null,F;
   switch(a){
     case"hwreload":HWerr="";hwLoad();break;
-    case"hwnew":UI.hwForm={id0:null,id:null,title:"",body:"",due:"",points:3,sura:"",files:[]};UI.dropKeep=true;break;
-    case"hwedit":if(x){UI.hwForm={id0:x.id,id:x.id,title:x.title,body:x.body,due:x.due||"",points:x.points,sura:x.sura||"",files:[]};UI.dropKeep=true}break;
+    case"hwnew":UI.hwForm={id0:null,id:null,title:"",body:"",due:"",points:3,sura:"",listen:"",files:[]};UI.dropKeep=true;break;
+    case"hwedit":if(x){UI.hwForm={id0:x.id,id:x.id,title:x.title,body:x.body,due:x.due||"",points:x.points,sura:x.sura||"",listen:x.listen||"",files:[]};UI.dropKeep=true}break;
     case"hwclose":recStop();UI.hwForm=null;UI.confirm=null;UI.dropKeep=true;break;
     case"hwtoggle":UI.hwOpen=UI.hwOpen===id?null:id;break;
     case"hwsave":
       F=UI.hwForm;if(!F||F.busy)return true;
       F.title=val("hw_title").trim();F.sura=val("hw_sura");if(!F.title&&F.sura)F.title="Выучить суру «"+F.sura+"»";F.body=val("hw_body").trim();F.due=val("hw_due");F.points=Math.max(0,Math.min(50,parseInt(val("hw_pts"),10)||0));
       if(!F.title){F.err="Введите название задания";break}
+      F.listen=Math.max(0,Math.min(500,parseInt(val("hw_listen"),10)||0))||"";
+      if(!F.sura){var fk=plFind(F.title);if(fk)F.sura=plName(fk)}      // «Ихлас» в названии — значит, сура Аль-Ихлас
+      if(F.listen&&!F.sura){F.err="Чтобы считать прослушивания, выберите суру в списке «Выучить суру»";break}
+      if(F.listen&&!plFind(F.sura)){F.err="Для этой суры пока нет записи в плеере. Есть: Аль-Фатиха, Аят аль-Курси и суры 78–114";break}
       if(REC){F.err="Сначала остановите запись";break}
       F.busy=true;F.err="";F.prog="Сохраняю…";render();
-      rpc("hw_save",{p_token:TOK,p_slug:G.slug,p_id:F.id,p_title:F.title,p_body:F.body,p_due:F.due||null,p_points:F.points,p_sura:F.sura||null})
+      rpc("hw_save",{p_token:TOK,p_slug:G.slug,p_id:F.id,p_title:F.title,p_body:F.body,p_due:F.due||null,p_points:F.points,p_sura:F.sura||null,p_listen:F.listen||null})
         .then(function(r){F.id=r.id;return upAll(r.id,F)})
         .then(function(){UI.hwForm=null;UI.dropKeep=true;flash("Задание сохранено");kick();return hwLoad()})
         .catch(function(e){F.busy=false;F.err=emsg(e)+(F.id?". Задание сохранено, но не все файлы загрузились — нажмите кнопку ещё раз.":"");hwLoad()});
@@ -1344,7 +1357,7 @@ function chatAct(a,b){
 }
 
 function nav(){
-  var nb=hwBadge(),t=[["r","🏆","Рейтинг"],["d","📚","Задания"],["s","📜","Суры"],["h","🏛️","Зал славы"],["p","❓","Правила"]];
+  var nb=hwBadge(),t=[["r","🏆","Рейтинг"],["d","📚","Задания"],["s","📜","Суры"]].concat(S&&S.hall&&S.hall.length?[["h","🏛️","Зал славы"]]:[]).concat([["p","❓","Правила"]]);
   if(canEdit())t.push(["t","🧑‍🏫","Учитель"]);
   return '<nav class="nav"><div>'+t.map(function(x){return '<button class="'+(R.tab===x[0]?"on":"")+'" data-a="tab" data-v="'+x[0]+'"><span>'+x[1]+'</span>'+x[2]+(x[0]==="d"&&nb?'<b>'+nb+'</b>':"")+'</button>'}).join("")+'</div></nav>';
 }
@@ -1402,7 +1415,8 @@ function plFind(t){
   return null;
 }
 function plBtn(t,label){var k=plFind(t);return k?'<button class="btn sm" data-a="pl" data-v="'+k+'">'+(label||"🎧 Слушать")+'</button>':""}
-function plStart(k){
+function plFirst(k){return (k==="k"||k==="1")?1:0}   // перед сурой — басмала (у Фатихи она первый аят)
+function plStart(k,o){
   if(!plA){plA=new Audio();plA.preload="auto";
     plA.addEventListener("ended",plEnded);
     plA.addEventListener("error",function(){if(!PL)return;PL.playing=false;PL.err="Не удалось загрузить аудио. Проверьте интернет и попробуйте ещё раз.";plRender()});
@@ -1415,8 +1429,8 @@ function plStart(k){
       navigator.mediaSession.setActionHandler("nexttrack",function(){plStep(1)});
     }catch(e){}}
   }
-  var c=plCount(k),old=PL;
-  PL={k:k,from:1,to:c,a:(k==="k"||k==="1")?1:0,cnt:0,rep:old?old.rep:1,loop:old?old.loop:false,rate:old?old.rate:1,playing:false,err:""};
+  var c=plCount(k),old=PL;o=o||{};
+  PL={k:k,from:1,to:c,a:plFirst(k),cnt:0,rep:old?old.rep:1,times:o.times||(old&&!old.hw?old.times:1),heard:0,sent:0,hw:o.hw||null,clean:true,rate:old?old.rate:1,playing:false,err:"",msg:""};
   plPlay();
 }
 function plPlay(){
@@ -1435,8 +1449,23 @@ function plEnded(){
   if(P.cnt<P.rep)return plPlay();
   P.cnt=0;
   if(P.a<P.to){P.a++;return plPlay()}
-  if(P.loop){P.a=P.from;return plPlay()}
-  P.playing=false;P.done=true;P.a=P.from;plA.src=plFile(P.k,P.a);plRender();
+  // сура прослушана целиком
+  P.heard++;
+  if(P.clean&&P.from===1&&P.to===plCount(P.k))plCounted(P);
+  P.clean=true;P.a=P.from===1?plFirst(P.k):P.from;
+  if(P.times===0||P.heard<P.times)return plPlay();
+  P.playing=false;P.done=true;plA.src=plFile(P.k,P.a);plRender();
+}
+// засчитать полное прослушивание (только ученику, вошедшему в свой кабинет)
+function plCounted(P){
+  if(canEdit()||!STOK||!G)return;
+  var slug=G.slug,name=plName(P.k);
+  rpc("listen_add",{p_slug:slug,p_stoken:STOK.t,p_sura:name}).then(function(r){
+    if(PL!==P)return;
+    if(r&&r.ok){P.sent++;P.msg="";if(HW&&HW.items)HW.items.forEach(function(h){if(h.sura===name&&h.my_listens!=null)h.my_listens++});render()}
+    else P.msg=r&&r.why==="limit"?"На сегодня прослушиваний достаточно":"Это прослушивание не засчитано: запись проиграна слишком быстро";
+    plRender();
+  }).catch(function(){if(PL===P){P.msg="Нет связи — прослушивание не засчитано";plRender()}});
 }
 function plToggle(on){
   if(!PL||!plA)return;
@@ -1447,7 +1476,7 @@ function plToggle(on){
 function plStep(d){
   if(!PL)return;var P=PL,a=P.a===0?P.from:P.a+d;
   if(a<P.from)a=P.from;if(a>P.to)a=P.to;
-  P.a=a;P.cnt=0;P.done=false;plPlay();
+  P.a=a;P.cnt=0;P.done=false;P.clean=false;plPlay();   // с перемоткой прослушивание не засчитывается
 }
 function plClose(){if(plA){plA.pause();plA.removeAttribute("src");try{plA.load()}catch(e){}}PL=null;plPre=null;plRender();render()}
 function plRender(){
@@ -1456,9 +1485,16 @@ function plRender(){
   var P=PL,c=plCount(P.k),pos=P.a===0?0:P.a-P.from+1,len=P.to-P.from+1,o,i,h;
   h='<div class="t1"><span style="font-size:22px">🎧</span><b>'+esc(plTitle(P.k))+'</b><button class="x" data-p="close" aria-label="Закрыть плеер">✕</button></div>';
   h+='<div class="t2">'+(P.err?'<span style="color:var(--err)">'+esc(P.err)+'</span>':P.done?"Прослушано ✓ Нажмите ▶, чтобы ещё раз":P.a===0?"Бисмиллях…":"Аят "+P.a+" из "+c+(P.rep>1?" · повтор "+(P.cnt+1)+" из "+P.rep:""))+' · аль-Хусари</div>';
+  if(P.times!==1||P.heard)h+='<div class="t2" style="margin-top:-6px;color:var(--gold)">🎧 Прослушано '+P.heard+(P.times?" из "+P.times:"")+' раз'+(STOK&&!canEdit()&&P.sent?" · засчитано "+P.sent:"")+'</div>';
+  if(P.msg)h+='<div class="t2" style="margin-top:-6px;color:var(--warn)">'+esc(P.msg)+'</div>';
+  else if(!canEdit()&&!STOK&&P.times>1)h+='<div class="t2" style="margin-top:-6px">Чтобы учитель видел прослушивания, войдите в свой кабинет ученика</div>';
   h+='<div class="pb"><i style="width:'+Math.round(pos/len*100)+'%"></i></div>';
   h+='<div class="ctl"><button class="ib" data-p="prev" aria-label="Предыдущий аят">⏮</button><button class="ib big" data-p="play" aria-label="'+(P.playing?"Пауза":"Слушать")+'">'+(P.playing?"⏸":"▶")+'</button><button class="ib" data-p="next" aria-label="Следующий аят">⏭</button>';
-  h+='<span style="flex:1"></span><button class="ib'+(P.loop?" on":"")+'" data-p="loop" aria-label="По кругу" title="Повторять по кругу">🔁</button><button class="ib'+(P.rate<1?" on":"")+'" data-p="slow" aria-label="Медленнее" title="Медленнее">🐢</button></div>';
+  h+='<span style="flex:1"></span><button class="ib'+(P.rate<1?" on":"")+'" data-p="slow" aria-label="Медленнее" title="Медленнее">🐢</button></div>';
+  var TL=[1,3,5,7,10,15,20,30,33,40,50,100];if(P.times&&TL.indexOf(P.times)<0){TL.push(P.times);TL.sort(function(a,b){return a-b})}
+  h+='<div class="opt"><span class="sm mut">Суру целиком:</span><select data-p="times" aria-label="Сколько раз прослушать суру">';
+  TL.forEach(function(n){h+='<option value="'+n+'"'+(P.times===n?" selected":"")+'>'+pn(n,"раз","раза","раз")+'</option>'});
+  h+='<option value="0"'+(P.times===0?" selected":"")+'>без остановки</option></select></div>';
   h+='<div class="opt"><span class="sm mut">Каждый аят:</span><select data-p="rep" aria-label="Сколько раз повторять аят">';
   [1,2,3,5,10].forEach(function(n){h+='<option value="'+n+'"'+(P.rep===n?" selected":"")+'>'+(n===1?"1 раз":n+" раз"+(n<5?"а":""))+'</option>'});
   h+='</select>';
@@ -1476,19 +1512,28 @@ function plPos(){
 }
 document.getElementById("pl").addEventListener("click",function(e){
   var b=e.target.closest("[data-p]");if(!b||b.tagName==="SELECT")return;var a=b.dataset.p;
-  if(a==="close")plClose();else if(a==="play"){if(PL&&PL.done){PL.done=false;PL.a=PL.from;PL.cnt=0;plPlay()}else plToggle()}
+  if(a==="close")plClose();else if(a==="play"){if(PL&&PL.done){PL.done=false;PL.heard=0;PL.clean=true;PL.a=PL.from===1?plFirst(PL.k):PL.from;PL.cnt=0;plPlay()}else plToggle()}
   else if(a==="prev")plStep(-1);else if(a==="next")plStep(1);
-  else if(a==="loop"&&PL){PL.loop=!PL.loop;plRender()}
   else if(a==="slow"&&PL){PL.rate=PL.rate<1?1:0.75;if(plA)plA.playbackRate=PL.rate;plRender()}
 });
 document.getElementById("pl").addEventListener("change",function(e){
   var t=e.target;if(!PL||!t.dataset||!t.dataset.p)return;var v=parseInt(t.value,10)||1,P=PL;
   if(t.dataset.p==="rep"){P.rep=v;P.cnt=0;plRender();return}
+  if(t.dataset.p==="times"){P.times=parseInt(t.value,10)||0;P.heard=0;P.done=false;plRender();return}
   if(t.dataset.p==="from"){P.from=v;if(P.to<v)P.to=v}
   if(t.dataset.p==="to"){P.to=v;if(P.from>v)P.from=v}
-  P.a=P.from;P.cnt=0;P.done=false;plPlay();
+  P.a=P.from;P.cnt=0;P.done=false;P.clean=false;plPlay();
 });
-function hwListen(x){var b=plBtn(x.sura||x.title,"🎧 Послушать чтение аль-Хусари");return b?'<div style="margin:8px 0 4px">'+b+'</div>':""}
+function hwListen(x){
+  var k=plFind(x.sura||x.title);if(!k)return "";
+  if(!x.listen)return '<div style="margin:8px 0 4px"><button class="btn sm" data-a="pl" data-v="'+k+'">🎧 Послушать чтение аль-Хусари</button></div>';
+  var h='<div class="lsn"><b>🎧 Прослушать суру '+pn(x.listen,"раз","раза","раз")+'</b>';
+  if(x.my_listens!=null){var n=Math.min(x.my_listens,x.listen),done=x.my_listens>=x.listen;
+    h+='<div class="sm" style="margin:4px 0 6px;color:'+(done?"var(--ok)":"var(--mut)")+'">'+(done?"✅ Готово! Прослушано "+x.my_listens+" из "+x.listen:"Прослушано "+x.my_listens+" из "+x.listen)+'</div><div class="bar" style="height:7px;margin-bottom:8px"><i style="width:'+Math.round(n/x.listen*100)+'%"></i></div>';
+    h+='<button class="btn sm'+(done?"":" pri")+'" data-a="plhw" data-id="'+x.id+'">'+(done?"🎧 Слушать ещё":"🎧 Слушать (осталось "+(x.listen-n)+")")+'</button>';
+  }else h+='<div class="sm mut" style="margin:4px 0 6px">'+(canEdit()?"Ученики слушают в своём кабинете — счётчик виден в «Ответы учеников».":"Войдите в свой кабинет ученика, чтобы прослушивания засчитывались.")+'</div><button class="btn sm" data-a="pl" data-v="'+k+'">🎧 Послушать</button>';
+  return h+'</div>';
+}
 function vListen(){
   var h='<div class="box"><h2>🎧 Слушать суры</h2><p class="mut sm" style="margin:6px 0 12px">Обучающее чтение шейха Махмуда Халиля аль-Хусари — медленно и чётко, удобно повторять за ним. Можно повторять каждый аят по несколько раз.</p><div class="plg">';
   PLK.forEach(function(k){h+='<button data-a="pl" data-v="'+k+'"'+(PL&&PL.k===k?' class="on"':"")+'><i>'+(PL&&PL.k===k&&PL.playing?"⏸":"▶")+'</i><span>'+esc(k==="k"?AYAT:k+". "+NAMES[k])+'<small>'+(k==="k"?"2:255":pn(PLN[k],"аят","аята","аятов"))+'</small></span></button>'});
@@ -1528,7 +1573,9 @@ function setTab(t){R.tab=t;var h="#/g/"+encodeURIComponent(G.slug)+(t==="r"?"":"
 var skipRoute=false;
 function act(a,b,e){
   var id=b.dataset.id,s=id&&S?by(id):null,k=b.dataset.k,v=b.dataset.v;
-  if(a==="pl"){if(PL&&PL.k===v)plToggle();else plStart(v);return}
+  if(a==="pl"){if(PL&&PL.k===v&&!PL.hw)plToggle();else plStart(v);return}
+  if(a==="plhw"){var hx=HW&&HW.items?HW.items.filter(function(q){return q.id===id})[0]:null,hk=hx&&plFind(hx.sura||hx.title);
+    if(hk){var left=hx.listen?Math.max(1,hx.listen-(hx.my_listens||0)):1;plStart(hk,{times:left,hw:hx.id})}return}
   if(chatAct(a,b))return;
   if(S&&G&&hwAct(a,b))return;
   switch(a){

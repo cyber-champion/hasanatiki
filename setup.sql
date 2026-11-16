@@ -416,7 +416,8 @@ create table if not exists homework (
   created_at timestamptz not null default now()
 );
 create index if not exists homework_group_idx on homework(group_id, created_at desc);
-alter table homework add column if not exists sura text;      -- если задание — выучить суру: при приёме сура засчитывается сама
+alter table homework add column if not exists sura text;
+alter table homework add column if not exists listen int;     -- сколько раз прослушать суру в плеере (необязательно)      -- если задание — выучить суру: при приёме сура засчитывается сама
 create table if not exists submissions (           -- ответы учеников
   homework_id  uuid not null references homework(id) on delete cascade,
   student_id   text not null,
@@ -583,7 +584,13 @@ begin
   end;
   tid := a->>'t'; sid := a->>'s';
   select coalesce(json_agg(row_to_json(x) order by x.created_at desc), '[]'::json) into items from (
-    select h.id, h.title, h.body, h.due, h.points, h.sura, h.created_at,
+    select h.id, h.title, h.body, h.due, h.points, h.sura, h.listen, h.created_at,
+           case when sid is not null and h.listen is not null and h.sura is not null then (
+             select count(*) from listens l where l.group_id = g.id and l.student_id = sid and l.sura = h.sura and l.at >= h.created_at) end as my_listens,
+           case when tid is not null and h.listen is not null and h.sura is not null then (
+             select coalesce(json_object_agg(q.student_id, q.n), '{}'::json) from (
+               select l.student_id, count(*) as n from listens l
+                where l.group_id = g.id and l.sura = h.sura and l.at >= h.created_at group by l.student_id) q) end as listens,
            _files_json(h.id, null) as files,
            case when sid is not null then (
              select json_build_object('status', s.status, 'note', s.note, 'teacher_note', s.teacher_note, 'points', s.points, 'updated_at', s.updated_at)
@@ -604,21 +611,23 @@ begin
 end $$;
 
 drop function if exists hw_save(text, text, uuid, text, text, date, int);
-create or replace function hw_save(p_token text, p_slug text, p_id uuid, p_title text, p_body text, p_due date, p_points int, p_sura text default null) returns json
+drop function if exists hw_save(text, text, uuid, text, text, date, int, text);
+create or replace function hw_save(p_token text, p_slug text, p_id uuid, p_title text, p_body text, p_due date, p_points int, p_sura text default null, p_listen int default null) returns json
 language plpgsql security definer set search_path = public, extensions as $$
 declare t teachers; g groups; ttl text := btrim(coalesce(p_title, '')); pts int := greatest(0, least(50, coalesce(p_points, 0))); hid uuid;
         sr text := nullif(left(btrim(coalesce(p_sura, '')), 60), '');
+        ls int := case when coalesce(p_listen, 0) > 0 then least(p_listen, 500) end;
 begin
   t := _who(p_token); g := _g(p_slug);
   if not _can(t, g.id) then raise exception 'forbidden'; end if;
   if ttl = '' or length(ttl) > 120 then raise exception 'bad_name'; end if;
   if length(coalesce(p_body, '')) > 4000 then raise exception 'too_large'; end if;
   if p_id is null then
-    insert into homework(group_id, title, body, due, points, created_by, sura)
-    values (g.id, ttl, coalesce(p_body, ''), p_due, pts, t.id, sr) returning id into hid;
+    insert into homework(group_id, title, body, due, points, created_by, sura, listen)
+    values (g.id, ttl, coalesce(p_body, ''), p_due, pts, t.id, sr, ls) returning id into hid;
     perform _push(g.id, null, false, true, 'Новое задание 📚', ttl, '#/g/' || g.slug || '/hw');
   else
-    update homework set title = ttl, body = coalesce(p_body, ''), due = p_due, points = pts, sura = sr
+    update homework set title = ttl, body = coalesce(p_body, ''), due = p_due, points = pts, sura = sr, listen = ls
      where id = p_id and group_id = g.id returning id into hid;
     if hid is null then raise exception 'not_found'; end if;
   end if;
@@ -801,12 +810,12 @@ end $$;
 revoke all on function _g(text), _swho(text), _actor(groups, text, text), _ticket(text, text, int), _files_json(uuid, text)
   from public, anon, authenticated;
 revoke all on function hw_file_ok(text, text), student_pins(text, text, boolean, text), student_login(text, text, text), student_logout(text),
-  hw_list(text, text, text), hw_save(text, text, uuid, text, text, date, int, text), hw_delete(text, text, uuid), hw_submit(text, text, uuid, text),
+  hw_list(text, text, text), hw_save(text, text, uuid, text, text, date, int, text, int), hw_delete(text, text, uuid), hw_submit(text, text, uuid, text),
   hw_review(text, text, uuid, text, boolean, text, int), file_begin(text, uuid, text, text, bigint, text, text),
   file_done(text, uuid, text, text), file_get(text, uuid, text, text), file_delete(text, uuid, text, text), hw_cleanup(text)
   from public;
 grant execute on function hw_file_ok(text, text), student_pins(text, text, boolean, text), student_login(text, text, text), student_logout(text),
-  hw_list(text, text, text), hw_save(text, text, uuid, text, text, date, int, text), hw_delete(text, text, uuid), hw_submit(text, text, uuid, text),
+  hw_list(text, text, text), hw_save(text, text, uuid, text, text, date, int, text, int), hw_delete(text, text, uuid), hw_submit(text, text, uuid, text),
   hw_review(text, text, uuid, text, boolean, text, int), file_begin(text, uuid, text, text, bigint, text, text),
   file_done(text, uuid, text, text), file_get(text, uuid, text, text), file_delete(text, uuid, text, text), hw_cleanup(text)
   to anon, authenticated;
@@ -1135,6 +1144,88 @@ grant execute on function msg_file_begin(text, text, text, text, bigint, text, t
   push_subscribe(text, text, text, text, text, text), push_unsubscribe(text), push_take(text), push_gone(text, text[]), push_test(text, text) to anon, authenticated;
 
 update messages set dur = null where file_id is null and dur is not null;   -- исправление: у текстовых сообщений нет длины
+
+-- ---------- прослушивания сур в плеере ----------
+-- Каждое полное прослушивание суры учеником (от первого до последнего аята, без перемотки) — одна строка.
+-- Сервер не засчитывает прослушивание, если с прошлого прошло меньше времени, чем длится сура:
+-- так счётчик нельзя «накрутить» — запись нужно действительно проиграть до конца.
+create table if not exists listens (
+  id         bigserial primary key,
+  group_id   uuid not null references groups(id) on delete cascade,
+  student_id text not null,
+  sura       text not null,
+  at         timestamptz not null default now()
+);
+create index if not exists listens_idx on listens(group_id, student_id, sura, at);
+create table if not exists sura_secs (sura text primary key, secs int not null);   -- длительность записи с басмалой, секунд
+alter table listens enable row level security;
+alter table sura_secs enable row level security;
+revoke all on listens, sura_secs from anon, authenticated;
+revoke all on sequence listens_id_seq from anon, authenticated;
+insert into sura_secs(sura, secs) values
+  ('Аль-Фатиха', 64),
+  ('Ан-Наба', 470),
+  ('Ан-Назиат', 444),
+  ('Абаса', 375),
+  ('Ат-Таквир', 265),
+  ('Аль-Инфитар', 192),
+  ('Аль-Мутаффифин', 416),
+  ('Аль-Иншикак', 256),
+  ('Аль-Бурудж', 261),
+  ('Ат-Тарик', 152),
+  ('Аль-Аля', 175),
+  ('Аль-Гашия', 226),
+  ('Аль-Фаджр', 325),
+  ('Аль-Балад', 177),
+  ('Аш-Шамс', 148),
+  ('Аль-Лейль', 183),
+  ('Ад-Духа', 106),
+  ('Аш-Шарх', 62),
+  ('Ат-Тин', 82),
+  ('Аль-Алак', 167),
+  ('Аль-Кадр', 70),
+  ('Аль-Баййина', 211),
+  ('Аз-Зальзаля', 95),
+  ('Аль-Адият', 102),
+  ('Аль-Кариа', 91),
+  ('Ат-Такасур', 71),
+  ('Аль-Аср', 44),
+  ('Аль-Хумаза', 93),
+  ('Аль-Филь', 59),
+  ('Курайш', 50),
+  ('Аль-Маун', 70),
+  ('Аль-Кяусар', 32),
+  ('Аль-Кафирун', 63),
+  ('Ан-Наср', 49),
+  ('Аль-Масад', 51),
+  ('Аль-Ихлас', 34),
+  ('Аль-Фалак', 45),
+  ('Ан-Нас', 54),
+  ('Аят аль-Курси', 114)
+on conflict (sura) do update set secs = excluded.secs;
+
+create or replace function listen_add(p_slug text, p_stoken text, p_sura text) returns json
+language plpgsql security definer set search_path = public, extensions as $$
+declare g groups; a jsonb; sid text; sec int; last timestamptz; n int;
+begin
+  g := _g(p_slug); a := _actor(g, null, p_stoken); sid := a->>'s';
+  if sid is null then raise exception 'sauth'; end if;
+  select secs into sec from sura_secs where sura = p_sura;
+  if sec is null then raise exception 'not_found'; end if;
+  perform pg_advisory_xact_lock(hashtext(g.id::text || sid));
+  select max(at) into last from listens where group_id = g.id and student_id = sid;
+  if last is not null and now() - last < make_interval(secs => greatest(3, floor(sec * 0.9)::int)) then
+    return json_build_object('ok', false, 'why', 'too_fast');
+  end if;
+  if (select count(*) from listens where group_id = g.id and student_id = sid and at > now() - interval '1 day') >= 300 then
+    return json_build_object('ok', false, 'why', 'limit');
+  end if;
+  insert into listens(group_id, student_id, sura) values (g.id, sid, p_sura);
+  select count(*) into n from listens where group_id = g.id and student_id = sid and sura = p_sura;
+  return json_build_object('ok', true, 'total', n);
+end $$;
+revoke all on function listen_add(text, text, text) from public;
+grant execute on function listen_add(text, text, text) to anon, authenticated;
 
 -- ---------- хранилище файлов (Supabase Storage) ----------
 -- Закрытая «папка» hw: до 25 МБ на файл. Загрузить, прочитать или удалить файл можно
