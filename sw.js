@@ -6,7 +6,7 @@ self.addEventListener("push", function (e) {
   var d = {};
   try { d = e.data ? e.data.json() : {}; } catch (x) { d = { body: e.data ? e.data.text() : "" }; }
   e.waitUntil(self.registration.showNotification(d.title || "Хасанатики", {
-    body: d.body || "", icon: "icon-192.png", badge: "icon-192.png", tag: d.tag, data: { url: d.url || "./" }
+    body: d.body || "", icon: "icon-192.png", badge: "badge.png", tag: d.tag, data: { url: d.url || "./" }
   }));
 });
 self.addEventListener("notificationclick", function (e) {
