@@ -216,6 +216,32 @@ div.fb{cursor:default}
 .say p:before{content:"";position:absolute;left:-7px;top:50%;width:12px;height:12px;margin-top:-6px;background:var(--card2);border-left:1px solid var(--line);border-bottom:1px solid var(--line);transform:rotate(45deg)}
 .masbig{display:flex;justify-content:center;margin-bottom:4px}
 @keyframes bob{50%{transform:translateY(-6px)}}
+.seg.wide2{display:flex}
+.seg.wide2 button{flex:1}
+.seg .cnt{display:inline-block;min-width:18px;height:18px;border-radius:9px;background:#ef4444;color:#fff;font-size:11px;line-height:18px;padding:0 5px;margin-left:4px}
+.chhd{display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid var(--line);margin-bottom:6px}
+.chat{display:flex;flex-direction:column;gap:6px}
+.bb{max-width:84%;min-width:0;padding:8px 12px;border-radius:18px;border-bottom-left-radius:6px;background:var(--card2);align-self:flex-start;overflow-wrap:anywhere}
+.bb.me{align-self:flex-end;background:#2f4cc7;border-bottom-left-radius:18px;border-bottom-right-radius:6px}
+.bb .tm{font-size:11px;opacity:.7;text-align:right;margin-top:3px}
+.bb .fls{margin:4px 0}
+.day{align-self:center;font-size:12px;color:var(--mut);background:var(--card2);padding:3px 10px;border-radius:10px;margin:8px 0 4px}
+.vc{display:flex;align-items:center;gap:10px;min-width:200px}
+.vc audio{width:240px;max-width:100%;height:40px}
+.vc .pl{width:42px;height:42px;border-radius:50%;border:0;background:var(--gold);color:#1a1300;font-size:17px;font-weight:900;flex-shrink:0;cursor:pointer}
+.vc .wv{flex:1;height:22px;min-width:60px;background:repeating-linear-gradient(90deg,currentColor 0 3px,transparent 3px 6px);opacity:.35;border-radius:3px}
+.comp{position:sticky;bottom:calc(82px + env(safe-area-inset-bottom,0px));z-index:6;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:10px;margin-bottom:14px;box-shadow:0 8px 30px rgba(0,0,0,.35)}
+.comp .row2{display:flex;gap:8px;align-items:center}
+.comp input[type=text]{flex:1;min-width:0;margin:0}
+.ib{width:46px;height:46px;border-radius:50%;border:0;font-size:19px;flex-shrink:0;cursor:pointer;background:var(--card2);color:var(--tx)}
+.ib.go{background:var(--gold);color:#1a1300;font-weight:900}
+.ib.rec{background:#ef4444;color:#fff}
+.recbar{display:flex;align-items:center;gap:10px;flex:1;min-width:0;font-weight:800}
+.recbar .dot{width:12px;height:12px;border-radius:50%;background:#ef4444;animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.2}}
+.thr .ub{background:#ef4444;color:#fff;border-radius:11px;min-width:22px;height:22px;font-size:12px;font-weight:900;display:inline-flex;align-items:center;justify-content:center;padding:0 6px}
+.steps{padding-left:20px;margin:6px 0 0}
+.steps li{margin-bottom:8px;line-height:1.5}
 .loading{padding:60px 0;text-align:center;color:var(--mut)}
 @keyframes up{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
 @keyframes fd{from{opacity:0}}
@@ -300,8 +326,8 @@ function medal(i){return["🥇","🥈","🥉"][i]||String(i+1)}
 var TR={"а":"a","б":"b","в":"v","г":"g","д":"d","е":"e","ё":"e","ж":"zh","з":"z","и":"i","й":"y","к":"k","л":"l","м":"m","н":"n","о":"o","п":"p","р":"r","с":"s","т":"t","у":"u","ф":"f","х":"h","ц":"c","ч":"ch","ш":"sh","щ":"sch","ъ":"","ы":"y","ь":"","э":"e","ю":"yu","я":"ya","ә":"a","ө":"o","ү":"u","җ":"zh","ң":"n","һ":"h"};
 function slugify(s){return String(s||"").toLowerCase().split("").map(function(c){return TR[c]!=null?TR[c]:c}).join("").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,40)}
 function err(code){var e=new Error(code);e.code=code;return e}
-var ERR={auth:"Нужно войти заново",forbidden:"Нет доступа к этой группе",not_found:"Группа с таким кодом не найдена. Проверьте код у учителя",no_student:"Ученик не найден в группе",bad_login:"Неверный логин или пароль",locked:"Слишком много попыток. Подождите 15 минут",short_password:"Пароль — минимум 6 символов",long_password:"Пароль слишком длинный",slug_taken:"Такой адрес уже занят — придумайте другой",login_taken:"Такой логин уже есть",bad_slug:"Адрес: латинские буквы, цифры и дефис, от 2 символов",bad_login_format:"Логин: от 3 до 32 символов, без пробелов",bad_name:"Введите имя",self_admin:"Нельзя снять права администратора с самого себя",self_delete:"Нельзя удалить самого себя",network:"Нет связи с сервером. Проверьте интернет",too_large:"Данных слишком много — скачайте копию и очистите журнал",exists:"Администратор уже создан — войдите",bad_password:"Старый пароль неверный",bad_input:"Неверные данные",sauth:"Войди в кабинет заново",no_pin:"Учитель ещё не выдал тебе PIN-код",bad_pin:"Неверный PIN-код",accepted:"Это задание уже принято",empty:"Напиши ответ или прикрепи файл",file_too_large:"Файл больше 25 МБ — такой не загрузить",quota:"Хранилище файлов заполнено — удалите старые задания",too_many:"Слишком много файлов",no_upload:"Файл не загрузился — попробуйте ещё раз",upload_failed:"Файл не загрузился — попробуйте ещё раз",no_file:"Файл не найден",bad_image:"Картинка не подошла — выберите другую"};
-function emsg(e){var c=e&&(e.code||e.message);return ERR[c]||("Ошибка: "+c)}
+var ERR={auth:"Нужно войти заново",forbidden:"Нет доступа к этой группе",not_found:"Группа с таким кодом не найдена. Проверьте код у учителя",no_student:"Ученик не найден в группе",bad_login:"Неверный логин или пароль",locked:"Слишком много попыток. Подождите 15 минут",short_password:"Пароль — минимум 6 символов",long_password:"Пароль слишком длинный",slug_taken:"Такой адрес уже занят — придумайте другой",login_taken:"Такой логин уже есть",bad_slug:"Адрес: латинские буквы, цифры и дефис, от 2 символов",bad_login_format:"Логин: от 3 до 32 символов, без пробелов",bad_name:"Введите имя",self_admin:"Нельзя снять права администратора с самого себя",self_delete:"Нельзя удалить самого себя",network:"Нет связи с сервером. Проверьте интернет",too_large:"Данных слишком много — скачайте копию и очистите журнал",exists:"Администратор уже создан — войдите",bad_password:"Старый пароль неверный",bad_input:"Неверные данные",sauth:"Войди в кабинет заново",no_pin:"Учитель ещё не выдал тебе PIN-код",bad_pin:"Неверный PIN-код",accepted:"Это задание уже принято",empty:"Напиши ответ или прикрепи файл",file_too_large:"Файл больше 25 МБ — такой не загрузить",quota:"Хранилище файлов заполнено — удалите старые задания",too_many:"Слишком много файлов",no_upload:"Файл не загрузился — попробуйте ещё раз",upload_failed:"Файл не загрузился — попробуйте ещё раз",no_file:"Файл не найден",bad_image:"Картинка не подошла — выберите другую",slow:"Слишком много сообщений подряд — подожди минутку",push_denied:"Уведомления не разрешены — разрешите их в настройках браузера",no_push:"Пуш-уведомления ещё не настроены (Кабинет → Пуш-уведомления)"};
+function emsg(e){var c=e&&(e.code||e.message);if(/Could not find the function|schema cache/i.test(String(c)))return "Нужно обновить базу: запустите новый setup.sql в Supabase (SQL Editor → Run)";return ERR[c]||("Ошибка: "+c)}
 
 /* ================= связь с базой ================= */
 var TOK=store.get("tok",null),ME=null;
@@ -513,7 +539,7 @@ function canEdit(){return !!(ME&&G&&(ME.is_admin||ME.groups.some(function(g){ret
 function flash(m){if(replaying)return;toastMsg=m;if(toastTimer)clearTimeout(toastTimer);toastTimer=setTimeout(function(){toastMsg="";render()},2800)}
 var TABS={r:"rating",d:"hw",s:"suras",h:"hall",p:"rules",t:"teacher"},TABN={rating:"r",hw:"d",suras:"s",hall:"h",rules:"p",teacher:"t"};
 function parseHash(){var h=location.hash.replace(/^#\/?/,"").split("/");
-  if(h[0]==="g"&&h[1])return{view:"group",slug:decodeURIComponent(h[1]).toLowerCase(),tab:TABN[h[2]]||"r"};
+  if(h[0]==="g"&&h[1])return h[2]==="chat"?{view:"group",slug:decodeURIComponent(h[1]).toLowerCase(),tab:"d",chat:true,chatSid:h[3]?decodeURIComponent(h[3]):null}:{view:"group",slug:decodeURIComponent(h[1]).toLowerCase(),tab:TABN[h[2]]||"r"};
   if(h[0]==="login")return{view:"login"};
   if(h[0]==="cab")return{view:"cab"};
   return{view:"home"};
@@ -564,7 +590,7 @@ function vCab(){
   if(!ME.groups.length)h+='<p class="mut">'+(ME.is_admin?'Групп пока нет — создайте первую ниже.':'Вам пока не назначили группы. Попросите администратора.')+'</p>';
   ME.groups.forEach(function(g){h+='<a class="row" href="#/g/'+encodeURIComponent(g.slug)+'/teacher"><span style="font-size:24px">🧑‍🏫</span><div class="mid"><div style="font-weight:800">'+esc(g.name)+'</div><div class="sm mut">код: '+esc(g.slug)+' · отмечать баллы</div></div><span class="mut">›</span></a>'});
   h+='</div>';
-  if(ME.is_admin)h+=vAdmin();
+  if(ME.is_admin){h+=vAdmin();if(ADM)h+=vPushAdmin()}
   var f=UI.form&&UI.form.k==="pass";
   h+='<div class="box"><h2>🔑 Мой пароль</h2>'+(f?'<div class="field"><label for="pw_old">Старый пароль</label><input id="pw_old" type="password" autocomplete="current-password"></div><div class="field"><label for="pw_new">Новый пароль (от 6 символов)</label><input id="pw_new" type="password" autocomplete="new-password"></div>'+(UI.formErr?'<p class="note err" style="margin-bottom:10px">'+esc(UI.formErr)+'</p>':"")+'<div class="btns"><button class="btn pri" data-a="pwsave">Сменить пароль</button><button class="btn" data-a="formclose">Отмена</button></div>':'<button class="btn" data-a="form" data-k="pass">Сменить пароль</button>')+'</div>';
   h+='<div class="box"><button class="btn dng wide" data-a="logout">Выйти</button></div>';
@@ -800,6 +826,9 @@ function hwLoad(){
 function hwCleanup(){rpc("hw_cleanup",{p_token:TOK}).then(function(ps){(ps||[]).forEach(function(p){fetch(surl(p),{method:"DELETE",headers:shead()}).catch(function(){})})}).catch(function(){})}
 function hwBadge(){
   if(!HW||!HW.items)return 0;
+  return hwBadge0()+(HW.msg_unread||0);
+}
+function hwBadge0(){
   if(canEdit())return HW.items.reduce(function(n,h){return n+(h.subs||[]).filter(function(s){return s.status==="sent"&&by(s.student_id)}).length},0);
   if(hwRole()==="student")return HW.items.filter(function(h){return !h.my||h.my.status==="returned"}).length;
   return 0;
@@ -870,17 +899,19 @@ function pickedBlock(F){
     (canRec?(REC?'<button class="btn sm dng" data-a="recstop">⏹ Остановить · <span id="rect">0:00</span></button>':'<button class="btn sm" data-a="rec">🎙 Записать голос</button>'):"")+'</div>';
   return h;
 }
-function recStart(){
+function recStart(cb,chat){
   if(REC)return;
+  if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&window.MediaRecorder)){flash("На этом устройстве запись не работает — прикрепите аудиофайл");return}
   navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){
     var mr;try{mr=new MediaRecorder(stream)}catch(e){stream.getTracks().forEach(function(t){t.stop()});flash("На этом устройстве запись не работает — прикрепите файл");render();return}
-    REC={mr:mr,chunks:[],t0:Date.now(),stream:stream};
+    REC={mr:mr,chunks:[],t0:Date.now(),stream:stream,cb:cb,chat:!!chat};
     mr.ondataavailable=function(e){if(e.data&&e.data.size)REC.chunks.push(e.data)};
     mr.onstop=function(){
       var type=(mr.mimeType||"audio/webm").split(";")[0],ext=/mp4|aac/.test(type)?"m4a":/ogg/.test(type)?"ogg":"webm",d=new Date();
-      var bl=new Blob(REC.chunks,{type:type});stream.getTracks().forEach(function(t){t.stop()});
+      var bl=new Blob(REC.chunks,{type:type}),R0=REC,secs=Math.max(1,Math.round((Date.now()-REC.t0)/1000));stream.getTracks().forEach(function(t){t.stop()});
       clearInterval(recTimer);REC=null;
-      if(bl.size){var f;try{f=new File([bl],"Запись "+d.getDate()+"."+String(d.getMonth()+1).padStart(2,"0")+" "+d.getHours()+"-"+String(d.getMinutes()).padStart(2,"0")+"."+ext,{type:type})}catch(e){f=bl;f.name="Запись."+ext}addPicked([f])}
+      if(bl.size&&!R0.cancel){var f;try{f=new File([bl],"Запись "+d.getDate()+"."+String(d.getMonth()+1).padStart(2,"0")+" "+d.getHours()+"-"+String(d.getMinutes()).padStart(2,"0")+"."+ext,{type:type})}catch(e){f=bl;f.name="Запись."+ext}
+        if(R0.cb)R0.cb(f,secs);else addPicked([f])}
       render();
     };
     mr.start();
@@ -889,6 +920,7 @@ function recStart(){
   }).catch(function(){flash("Нет доступа к микрофону — разрешите его в настройках браузера");render()});
 }
 function recStop(){if(REC&&REC.mr.state!=="inactive")REC.mr.stop()}
+function recCancel(){if(REC){REC.cancel=true;recStop()}}
 function stName(st){return st==="accepted"?"✅ принято":st==="returned"?"↩ на доработке":st==="sent"?"⏳ на проверке":"не сдано"}
 function stCls(st){return st==="accepted"?"tn":st==="returned"?"tf":st==="sent"?"tx":"ts"}
 
@@ -896,6 +928,9 @@ function vHw(){
   if(!CLOUD)return '<div class="box cen"><div class="big">📚</div><h2>Домашние задания</h2><p class="mut">В демо-режиме задания не работают: для файлов нужна база. На настоящем сайте здесь будут задания учителя, ответы учеников и личный кабинет.</p></div>';
   var role=hwRole(),h="";
   if(role!=="teacher")h+=vStudentCab();
+  if(role==="teacher"||role==="student"){var mu=HW&&HW.msg_unread||0;h+='<div class="seg wide2" role="tablist" style="margin-bottom:14px"><button class="'+(UI.seg!=="chat"?"on":"")+'" data-a="seg" data-v="hw">📚 Задания</button><button class="'+(UI.seg==="chat"?"on":"")+'" data-a="seg" data-v="chat">💬 '+(role==="teacher"?"Сообщения":"Чат с учителем")+(mu?' <b class="cnt">'+mu+'</b>':"")+'</button></div>'}
+  h+=pushBox();
+  if(UI.seg==="chat"&&(role==="teacher"||role==="student"))return h+vChat();
   if(!HW)return h+'<div class="box"><div class="loading" style="padding:24px 0">'+(HWerr?esc(HWerr)+'<p style="margin-top:10px"><button class="btn sm" data-a="hwreload">Повторить</button></p>':"Загрузка…")+'</div></div>';
   if(role==="teacher")h+=vHwForm(null);
   if(!HW.items.length)h+='<div class="box cen"><div class="masbig">'+mas("asl",110)+'</div><h2>Заданий пока нет</h2><p class="mut">'+(role==="teacher"?"Создайте первое задание — кнопка выше.":"Учитель скоро добавит задания.")+'</p></div>';
@@ -993,7 +1028,7 @@ function hwAct(a,b){
       F.busy=true;F.err="";F.prog="Сохраняю…";render();
       rpc("hw_save",{p_token:TOK,p_slug:G.slug,p_id:F.id,p_title:F.title,p_body:F.body,p_due:F.due||null,p_points:F.points})
         .then(function(r){F.id=r.id;return upAll(r.id,F)})
-        .then(function(){UI.hwForm=null;UI.dropKeep=true;flash("Задание сохранено");return hwLoad()})
+        .then(function(){UI.hwForm=null;UI.dropKeep=true;flash("Задание сохранено");kick();return hwLoad()})
         .catch(function(e){F.busy=false;F.err=emsg(e)+(F.id?". Задание сохранено, но не все файлы загрузились — нажмите кнопку ещё раз.":"");hwLoad()});
       return true;
     case"hwdel":rpc("hw_delete",{p_token:TOK,p_slug:G.slug,p_id:id}).then(function(){UI.hwForm=null;UI.confirm=null;UI.dropKeep=true;flash("Задание удалено");return hwLoad()}).catch(function(e){flash(emsg(e));render()});return true;
@@ -1024,13 +1059,13 @@ function hwAct(a,b){
       if(!F.note&&!F.files.length&&!(cur&&cur.my_files&&cur.my_files.length)){F.err="Напиши ответ или прикрепи файл";break}
       F.busy=true;F.err="";F.prog="Отправляю…";render();
       upAll(F.hid,F).then(function(){return rpc("hw_submit",{p_slug:G.slug,p_stoken:STOK.t,p_homework:F.hid,p_note:F.note})})
-        .then(function(){UI.subm=null;UI.dropKeep=true;flash("Отправлено учителю на проверку");return hwLoad()})
+        .then(function(){UI.subm=null;UI.dropKeep=true;flash("Отправлено учителю на проверку");kick();return hwLoad()})
         .catch(function(e){F.busy=false;F.err=emsg(e);if(e.code==="sauth"){STOK=null;store.set("stok_"+G.slug,null);UI.subm=null}hwLoad()});
       return true;
     case"rvok":case"rvback":
       var key=id+"_"+v,ok=a==="rvok",pts=k==="oral"?(x?x.points:0):Math.max(0,Math.min(50,parseInt(val("rvp_"+key),10)||0)),st=by(v);
       rpc("hw_review",{p_token:TOK,p_slug:G.slug,p_homework:id,p_student:v,p_accept:ok,p_note:k==="oral"?"":val("rvn_"+key),p_points:pts}).then(function(r){
-        UI.dropKeep=true;
+        UI.dropKeep=true;kick();
         flash(!r.changed?"Уже принято раньше":ok?(st?st.name:"Ученик")+": принято"+(r.points?", +"+pn(r.points,"балл","балла","баллов"):""):"Вернули на доработку");
         return (ok&&r.changed?refreshGroup():Promise.resolve()).then(hwLoad)}).catch(function(e){flash(emsg(e));render()});
       return true;
@@ -1041,6 +1076,194 @@ function hwAct(a,b){
       var lines=[APP+" · "+G.name+" — вход в кабинет ученика","Откройте: "+groupLink(G.slug)+"/hw","Выберите имя и введите PIN-код:",""];
       S.students.slice().sort(function(p,q){return p.name.localeCompare(q.name,"ru")}).forEach(function(s){lines.push(s.name+" — "+(UI.pins[s.id]||"—"))});
       copy(lines.join("\n"),"Список скопирован");return true;
+    default:return false;
+  }
+  render();return true;
+}
+
+/* ================= чат с учителем (голосовые, чтение сур) и пуш-уведомления ================= */
+var CH=null,THR=null,PUSHV=null,PUSHERR="";
+function chatSid(){return canEdit()?UI.chat:(STOK&&!canEdit()?STOK.sid:null)}
+function hhmm(iso){return new Date(iso).toLocaleTimeString("ru",{hour:"2-digit",minute:"2-digit"})}
+function dayName(iso){var d=new Date(iso),t=new Date();t.setHours(0,0,0,0);var x=new Date(d);x.setHours(0,0,0,0);var df=Math.round((t-x)/864e5);return df===0?"Сегодня":df===1?"Вчера":fdate(iso)}
+function dur(n){n=Math.max(0,n|0);return Math.floor(n/60)+":"+String(n%60).padStart(2,"0")}
+function chatOpen(sid){
+  CH={sid:sid,items:[],loaded:false,err:"",scroll:true};render();
+  rpc("msg_list",A({p_slug:G.slug,p_student:sid})).then(function(r){if(!CH||CH.sid!==sid)return;CH.items=r.items||[];CH.other=r.other_read;CH.loaded=true;CH.scroll=true;
+    if(HW)HW.msg_unread=Math.max(0,(HW.msg_unread||0)-((THR||[]).filter(function(t){return t.student_id===sid}).map(function(t){return t.unread})[0]||(canEdit()?0:HW.msg_unread||0)));
+    (THR||[]).forEach(function(t){if(t.student_id===sid)t.unread=0})})
+    .catch(function(x){if(CH&&CH.sid===sid){CH.err=emsg(x);CH.loaded=true}}).then(render);
+}
+function chatPoll(){
+  if(R.view!=="group"||!G||R.tab!=="d"||UI.seg!=="chat"||document.hidden||!CLOUD)return;
+  var sid=chatSid();
+  if(sid&&CH&&CH.sid===sid&&CH.loaded){
+    var last=CH.items.filter(function(m){return m.created_at&&!m.pending}).slice(-1)[0];
+    rpc("msg_list",A({p_slug:G.slug,p_student:sid,p_after:last?last.created_at:null})).then(function(r){
+      if(!CH||CH.sid!==sid)return;var have={};CH.items.forEach(function(m){have[m.id]=1});
+      var add=(r.items||[]).filter(function(m){return !have[m.id]});
+      var ch=add.length||r.other_read!==CH.other;CH.other=r.other_read;
+      if(add.length){CH.items=CH.items.concat(add);CH.scroll=true}
+      if(ch)render()}).catch(function(){});
+  }else if(canEdit()&&!UI.chat)thrLoad();
+}
+setInterval(chatPoll,6000);
+function thrLoad(){if(!canEdit()||!G)return;var slug=G.slug;rpc("msg_threads",{p_token:TOK,p_slug:slug}).then(function(r){if(G&&G.slug===slug){THR=r||[];render()}}).catch(function(x){if(!THR){THR=[];flash(emsg(x))}render()})}
+function chatSend(o){   // o: {body, file, dur, sura}
+  var sid=chatSid();if(!sid||!CH)return;
+  var tmp={id:"tmp"+Date.now(),pending:true,by_teacher:canEdit(),body:o.body||"",dur:o.dur,sura:o.sura||null,created_at:new Date().toISOString(),
+    file:o.file?{id:null,name:o.file.name,mime:o.file.type,size:o.file.size}:null,localUrl:o.file?URL.createObjectURL(o.file):null};
+  CH.items.push(tmp);CH.scroll=true;render();
+  var p=Promise.resolve(null);
+  if(o.file)p=rpc("msg_file_begin",A({p_slug:G.slug,p_student:sid,p_name:o.file.name||"файл",p_mime:o.file.type||"",p_size:o.file.size})).then(function(r){
+    return fetch(surl(r.path),{method:"POST",headers:shead({"Content-Type":o.file.type||"application/octet-stream","x-upsert":"false"}),body:o.file})
+      .catch(function(){throw err("network")}).then(function(x){if(!x.ok)throw err("upload_failed");return rpc("file_done",A({p_slug:G.slug,p_id:r.id}))}).then(function(){return r.id})});
+  p.then(function(fid){return rpc("msg_send",A({p_slug:G.slug,p_student:sid,p_body:o.body||"",p_file:fid,p_dur:o.dur==null?null:o.dur,p_sura:o.sura||null}))})
+   .then(function(m){var i=CH.items.indexOf(tmp);if(i>-1){if(m.file&&tmp.localUrl&&tmp.file){var b=o.file;FC[m.file.id]={url:tmp.localUrl,blob:b,name:m.file.name,mime:m.file.mime,open:false}}CH.items[i]=m}kick();render()})
+   .catch(function(x){tmp.pending=false;tmp.failed=emsg(x);tmp.retry=o;render()});
+}
+function voiceOpen(id){
+  var c=FC[id];if(c&&c.url){playAu(id);return}
+  if(c&&c.loading)return;
+  FC[id]={loading:true};render();
+  rpc("file_get",A({p_slug:G.slug,p_id:id})).then(function(r){
+    return fetch(surl(r.path),{headers:shead()}).catch(function(){throw err("network")}).then(function(x){if(!x.ok)throw err("no_file");return x.blob()}).then(function(b){
+      var bl=new Blob([b],{type:r.mime||b.type||"audio/webm"});FC[id]={url:URL.createObjectURL(bl),blob:bl,name:r.name,mime:r.mime};render();playAu(id)})
+  }).catch(function(x){FC[id]={err:emsg(x)};render()});
+}
+function playAu(id){var a=document.querySelector('[data-keep="au_'+id+'"] audio');if(a){try{var pr=a.play();if(pr&&pr.catch)pr.catch(function(){})}catch(e){}}}
+function voiceEl(m){
+  var id=m.file&&m.file.id,c=id?FC[id]:null,url=m.localUrl||(c&&c.url);
+  if(url)return '<div class="vc" data-keep="au_'+(id||m.id)+'"><audio controls preload="metadata" src="'+url+'"></audio></div>';
+  return '<div class="vc"><button class="pl" data-a="vplay" data-id="'+id+'" aria-label="Слушать">'+(c&&c.loading?"…":"▶")+'</button><span class="wv"></span><span class="sm">'+dur(m.dur)+'</span></div>'+(c&&c.err?'<div class="sm" style="color:var(--err)">'+esc(c.err)+'</div>':"");
+}
+function bubble(m,st){
+  var mine=m.by_teacher===canEdit(),h='<div class="bb'+(mine?" me":"")+'">';
+  if(m.by_teacher&&!canEdit()&&m.teacher)h+='<div class="sm" style="color:var(--gold);font-weight:800">'+esc(m.teacher)+'</div>';
+  if(m.sura)h+='<div class="sm" style="font-weight:800;margin-bottom:4px">📜 '+esc(m.sura)+'</div>';
+  if(m.file&&m.dur!=null)h+=voiceEl(m);
+  else if(m.file)h+=m.file.id?fileChip(m.file,false):'<div class="sm">📎 '+esc(m.file.name)+'</div>';
+  if(m.body)h+='<div class="hwb">'+rich(m.body)+'</div>';
+  var read=mine&&!m.pending&&!m.failed&&CH.other&&CH.other>=m.created_at;
+  h+='<div class="tm">'+(m.pending?"отправляю…":m.failed?'<span style="color:#fecaca">не отправлено</span>':hhmm(m.created_at)+(mine?(read?" ✓✓":" ✓"):""))+'</div>';
+  if(m.failed)h+='<button class="btn sm" data-a="chretry" data-id="'+m.id+'" style="margin-top:4px">Повторить</button>';
+  if(canEdit()&&!m.by_teacher&&m.sura&&st&&SUR.indexOf(m.sura)>-1)h+=st.sur.indexOf(m.sura)>-1?'<div class="sm" style="margin-top:6px;color:var(--ok)">✓ сура засчитана</div>':'<button class="btn sm pri" data-a="chsura" data-v="'+esc(m.sura)+'" style="margin-top:6px">✅ Засчитать суру</button>';
+  return h+'</div>';
+}
+function vChat(){
+  var sid=chatSid(),h="";
+  if(canEdit()&&!sid){
+    if(THR===null){thrLoad();return h+'<div class="box"><div class="loading" style="padding:24px 0">Загрузка…</div></div>'}
+    var map={};THR.forEach(function(t){map[t.student_id]=t});
+    var L=S.students.slice().sort(function(a,b){var x=map[a.id],y=map[b.id];if(x&&y)return x.last_at<y.last_at?1:-1;if(x)return-1;if(y)return 1;return a.name.localeCompare(b.name,"ru")});
+    h+='<div class="box"><h2>💬 Сообщения</h2><p class="mut sm" style="margin:-6px 0 10px">Ученики присылают сюда чтение сур голосом и вопросы. Ответить можно текстом или голосом.</p>';
+    if(!L.length)h+='<p class="mut">В группе пока нет учеников.</p>';
+    L.forEach(function(s){var t=map[s.id],l=t&&t.last,pv=!l?'<span class="mut">нет сообщений</span>':(l.by_teacher?"Вы: ":"")+(l.voice?"🎙 Голосовое"+(l.sura?" · "+esc(l.sura):""):l.file?"📎 Файл":esc(l.body));
+      h+='<div class="row thr" data-a="chatopen" data-id="'+s.id+'" role="button" tabindex="0">'+avh(s,"s")+'<div class="mid"><div class="nm" style="font-size:16px">'+esc(s.name)+'</div><div class="sm mut" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+pv+'</div></div>'+(t&&t.unread?'<span class="ub">'+t.unread+'</span>':t?'<span class="sm mut">'+rel(t.last_at)+'</span>':"")+'</div>'});
+    return h+'</div>';
+  }
+  if(!sid)return h;
+  var st=by(sid);if(!st)return h;
+  if(!CH||CH.sid!==sid)chatOpen(sid);
+  h+='<div class="box"><div class="chhd">'+(canEdit()?'<button class="btn sm" data-a="chatback">‹ Все</button>':"")+avh(st,"s")+'<div class="mid"><b>'+(canEdit()?esc(st.name):"Чат с учителем")+'</b><div class="sm mut">'+(canEdit()?"голосовые и сообщения ученика":"отправляй чтение сур голосом")+'</div></div></div><div class="chat">';
+  if(!CH.loaded)h+='<div class="loading" style="padding:20px 0">Загрузка…</div>';
+  else if(CH.err)h+='<p class="note err">'+esc(CH.err)+'</p>';
+  else if(!CH.items.length)h+=canEdit()?'<p class="mut sm cen" style="padding:14px 0">Сообщений пока нет.</p>':say("sab","Нажми 🎙, прочитай суру и нажми ➤ — учитель послушает и ответит. Выбери суру в списке, чтобы учитель знал, что ты читаешь.");
+  var lastDay="";
+  CH.items.forEach(function(m){var d=dayName(m.created_at);if(d!==lastDay){h+='<div class="day">'+d+'</div>';lastDay=d}h+=bubble(m,st)});
+  h+='</div></div>';
+  if(CH.scroll&&CH.loaded){CH.scroll=false;setTimeout(function(){window.scrollTo(0,document.documentElement.scrollHeight)},40)}
+  // поле ввода
+  var recOn=REC&&REC.chat;
+  h+='<div class="comp">';
+  if(!canEdit()&&!recOn)h+='<select id="ch_sura" aria-label="Какую суру читаешь" style="margin-bottom:8px"><option value="">Без суры — просто сообщение</option>'+SUR.map(function(n){return '<option'+(UI.chSura===n?" selected":"")+'>'+esc(n)+'</option>'}).join("")+'</select>';
+  h+='<div class="row2">';
+  if(recOn)h+='<button class="ib" data-a="chreccancel" aria-label="Отменить запись">✕</button><div class="recbar"><span class="dot"></span><span id="rect">0:00</span><span class="sm mut">идёт запись…</span></div><button class="ib go" data-a="chrecsend" aria-label="Отправить">➤</button>';
+  else h+='<button class="ib" data-a="chfile" aria-label="Прикрепить файл">📎</button><input id="ch_text" type="text" maxlength="2000" placeholder="Сообщение" autocomplete="off" enterkeyhint="send"><button class="ib" data-a="chsend" aria-label="Отправить текст">➤</button><button class="ib rec" data-a="chrec" aria-label="Записать голосовое">🎙</button>';
+  return h+'</div></div>';
+}
+/* ---- пуш ---- */
+function standalone(){try{return window.matchMedia("(display-mode: standalone)").matches||!!navigator.standalone}catch(e){return false}}
+function pushOk(){return !!(PUSHV&&"serviceWorker" in navigator&&"PushManager" in window&&"Notification" in window)}
+function pushKey(){return "push_"+(canEdit()?"t"+(ME&&ME.id||""):STOK?"s"+STOK.sid:"g")+"_"+(G?G.slug:"")}
+function pushBox(){
+  if(!CLOUD||!PUSHV||!G)return"";
+  var ios=/iP(hone|ad|od)/.test(navigator.userAgent);
+  if(!pushOk())return ios&&!standalone()?'<div class="box"><p class="sm mut">🔔 На iPhone уведомления работают, когда приложение добавлено на экран «Домой»: «Поделиться» → «На экран Домой», затем откройте его оттуда.</p></div>':"";
+  if(Notification.permission==="denied")return '<div class="box"><p class="sm mut">🔕 Уведомления запрещены для этого сайта. Разрешите их в настройках браузера (значок слева от адреса → Уведомления).</p></div>';
+  if(Notification.permission==="granted"&&store.get(pushKey(),0))return canEdit()?'<div class="box"><div class="btns" style="align-items:center"><span class="sm" style="color:var(--ok);font-weight:800">🔔 Уведомления включены</span><button class="btn sm" data-a="pushtest">Проверить</button><button class="btn sm" data-a="pushoff">Выключить</button></div>'+(PUSHERR?'<p class="sm mut" style="margin-top:8px">'+esc(PUSHERR)+'</p>':"")+'</div>':"";
+  var t=canEdit()?"Узнавайте сразу, когда ученик сдал задание или прислал голосовое.":STOK?"Узнавай сразу, когда учитель проверил задание или ответил тебе.":"Узнавайте о новых заданиях учителя.";
+  return '<div class="box"><div class="btns" style="align-items:center;justify-content:space-between"><span class="sm" style="flex:1;min-width:180px">🔔 '+t+'</span><button class="btn sm pri" data-a="pushon">Включить уведомления</button></div></div>';
+}
+function b64u(s){s=s.replace(/-/g,"+").replace(/_/g,"/");while(s.length%4)s+="=";var r=atob(s),a=new Uint8Array(r.length);for(var i=0;i<r.length;i++)a[i]=r.charCodeAt(i);return a}
+function u8b64u(buf){var b=new Uint8Array(buf),s="";for(var i=0;i<b.length;i++)s+=String.fromCharCode(b[i]);return btoa(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")}
+function swReg(){if(!CLOUD||!("serviceWorker" in navigator))return Promise.reject(err("no_push"));return navigator.serviceWorker.register("sw.js").then(function(){return navigator.serviceWorker.ready})}
+function pushOn(){
+  var slug=G.slug,key=pushKey();
+  Notification.requestPermission().then(function(p){
+    if(p!=="granted")throw err("push_denied");
+    return swReg();
+  }).then(function(reg){return reg.pushManager.getSubscription().then(function(s){return s?s.unsubscribe():null}).then(function(){return reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(PUSHV)})})})
+  .then(function(sub){var j=sub.toJSON();return rpc("push_subscribe",A({p_slug:slug,p_endpoint:j.endpoint,p_p256dh:j.keys.p256dh,p_auth:j.keys.auth}))})
+  .then(function(){store.set(key,1);flash("Уведомления включены");render()})
+  .catch(function(x){flash(x&&x.code?emsg(x):"Не получилось включить уведомления на этом устройстве");render()});
+}
+function pushOff(){
+  store.set(pushKey(),0);
+  swReg().then(function(reg){return reg.pushManager.getSubscription()}).then(function(s){if(!s)return;var ep=s.endpoint;return s.unsubscribe().then(function(){return rpc("push_unsubscribe",{p_endpoint:ep})})}).catch(function(){}).then(function(){flash("Уведомления выключены");render()});
+}
+function kick(){if(!PUSHV||!CLOUD)return Promise.resolve(null);return fetch(sbase()+"/functions/v1/push",{method:"POST",headers:shead({"Content-Type":"application/json"}),body:"{}"}).then(function(r){return r.text().then(function(t){var j=null;try{j=JSON.parse(t)}catch(e){}return {ok:r.ok,status:r.status,j:j,t:t}})}).catch(function(){return null})}
+function pushInfo(){if(!CLOUD)return;rpc("push_info",{}).then(function(r){PUSHV=r&&r.vapid||null;render()}).catch(function(){})}
+if(CLOUD&&"serviceWorker" in navigator){
+  navigator.serviceWorker.register("sw.js").catch(function(){});
+  navigator.serviceWorker.addEventListener("message",function(e){if(e.data&&typeof e.data.go==="string"&&e.data.go)location.hash=e.data.go});
+}
+var PUSH_FN="// Хасанатики — отправка пуш-уведомлений.\n// Supabase → Edge Functions → новая функция с именем «push» → вставить этот код → Deploy.\n// Секреты (Edge Functions → Secrets): VAPID_PUBLIC, VAPID_PRIVATE, PUSH_SECRET — их создаёт Кабинет → «Пуш-уведомления».\nimport webpush from \"npm:web-push@3.6.7\";\n\nconst cors = {\n  \"Access-Control-Allow-Origin\": \"*\",\n  \"Access-Control-Allow-Headers\": \"apikey, authorization, content-type, x-client-info\",\n  \"Access-Control-Allow-Methods\": \"POST, OPTIONS\",\n};\nconst json = (o: unknown, status = 200) =>\n  new Response(JSON.stringify(o), { status, headers: { ...cors, \"Content-Type\": \"application/json\" } });\n\nDeno.serve(async (req) => {\n  if (req.method === \"OPTIONS\") return new Response(\"ok\", { headers: cors });\n  const pub = Deno.env.get(\"VAPID_PUBLIC\"), priv = Deno.env.get(\"VAPID_PRIVATE\"), secret = Deno.env.get(\"PUSH_SECRET\");\n  if (!pub || !priv || !secret) return json({ error: \"Не заданы секреты VAPID_PUBLIC, VAPID_PRIVATE, PUSH_SECRET\" }, 500);\n  webpush.setVapidDetails(Deno.env.get(\"VAPID_SUBJECT\") || \"https://hasanatiki.netlify.app\", pub, priv);\n  const base = Deno.env.get(\"SUPABASE_URL\")!;\n  const key = req.headers.get(\"apikey\") || Deno.env.get(\"SUPABASE_ANON_KEY\") || \"\";\n  const rpc = async (fn: string, args: unknown) => {\n    const h: Record<string, string> = { apikey: key, \"Content-Type\": \"application/json\" };\n    if (key.startsWith(\"eyJ\")) h.Authorization = \"Bearer \" + key;\n    const r = await fetch(`${base}/rest/v1/rpc/${fn}`, { method: \"POST\", headers: h, body: JSON.stringify(args) });\n    const body = await r.json().catch(() => null);\n    if (!r.ok) throw new Error((body && body.message) || \"http \" + r.status);\n    return body;\n  };\n  try {\n    const list = (await rpc(\"push_take\", { p_secret: secret })) as Array<{ endpoint: string; p256dh: string; auth: string; payload: unknown }>;\n    const gone: string[] = [];\n    let sent = 0, failed = 0;\n    await Promise.all(list.map(async (m) => {\n      try {\n        await webpush.sendNotification({ endpoint: m.endpoint, keys: { p256dh: m.p256dh, auth: m.auth } }, JSON.stringify(m.payload), { TTL: 86400 });\n        sent++;\n      } catch (e) {\n        const code = (e as { statusCode?: number }).statusCode;\n        if (code === 404 || code === 410) gone.push(m.endpoint); else failed++;\n      }\n    }));\n    if (gone.length) await rpc(\"push_gone\", { p_secret: secret, p_endpoints: gone });\n    return json({ ok: true, sent, failed, removed: gone.length });\n  } catch (e) {\n    return json({ error: String((e as Error).message || e) }, 500);\n  }\n});\n";
+function vPushAdmin(){
+  if(!CLOUD)return"";
+  var K=UI.pushKeys,h='<div class="box"><h2>🔔 Пуш-уведомления</h2>';
+  h+='<p class="mut sm" style="margin:-6px 0 10px">'+(PUSHV?'<b style="color:var(--ok)">Ключи созданы.</b> Если уведомления не приходят — проверьте шаги ниже.':"Пока не настроены. Это делается один раз — около 10 минут.")+'</p>';
+  if(K){
+    h+='<p class="note" style="margin-bottom:10px">Скопируйте эти три значения в Supabase сейчас. Закрытый ключ больше нигде не хранится — никому его не отправляйте.</p>';
+    [["VAPID_PUBLIC",K.pub],["VAPID_PRIVATE",K.priv],["PUSH_SECRET",K.secret]].forEach(function(x){h+='<div class="lg"><div class="lt"><b>'+x[0]+'</b><div class="sm mut" style="overflow-wrap:anywhere">'+esc(x[1])+'</div></div><button class="btn sm" data-a="pkcopy" data-k="'+x[0]+'">📋</button></div>'});
+  }
+  h+='<ol class="steps">';
+  h+='<li>'+(PUSHV&&!K?(UI.confirm==="pkgen"?'<span class="btns"><button class="btn sm dng" data-a="pkgen">Да, новые ключи</button><button class="btn sm" data-a="noconf">Отмена</button></span><br><span class="sm mut">После смены ключей всем нужно заново нажать «Включить уведомления».</span>':'Ключи уже созданы. <button class="btn sm" data-a="conf" data-k="pkgen">Создать новые</button>'):K?"Ключи созданы ✓":'<button class="btn sm pri" data-a="pkgen">Создать ключи</button>')+'</li>';
+  h+='<li>Supabase → <b>Edge Functions</b> → <b>Secrets</b> → добавьте три секрета: VAPID_PUBLIC, VAPID_PRIVATE, PUSH_SECRET (значения — выше, после создания ключей).</li>';
+  h+='<li><b>Edge Functions</b> → <b>Deploy a new function</b> → <b>Via Editor</b>. Имя функции: <b>push</b>. Сотрите пример кода и вставьте наш: <button class="btn sm" data-a="pkcode">📋 Скопировать код функции</button> → <b>Deploy</b>.</li>';
+  h+='<li>Откройте функцию push → <b>Details</b> (или Settings) → выключите <b>Verify JWT</b> (Enforce JWT verification) → Save.</li>';
+  h+='<li>Откройте свою группу → «Задания» → «Включить уведомления» → «Проверить».</li></ol>';
+  h+='<div class="btns" style="margin-top:8px"><button class="btn sm" data-a="pkcheck">Проверить функцию</button></div>'+(UI.pkMsg?'<p class="sm" style="margin-top:8px">'+esc(UI.pkMsg)+'</p>':"");
+  return h+'</div>';
+}
+function chatAct(a,b){
+  var id=b.dataset.id,v=b.dataset.v;
+  switch(a){
+    case"seg":UI.seg=v;if(v==="chat"){if(canEdit()){UI.chat=null;THR=null}CH=null}window.scrollTo(0,0);break;
+    case"chatopen":UI.chat=id;CH=null;break;
+    case"chatback":recCancel();UI.chat=null;CH=null;THR=null;break;
+    case"vplay":voiceOpen(id);return true;
+    case"chsend":var t=val("ch_text").trim();if(!t)return true;UI.chSura=val("ch_sura")||UI.chSura||"";chatSend({body:t,sura:null});var el=document.getElementById("ch_text");if(el)el.value="";return true;
+    case"chrec":UI.chSura=val("ch_sura")||"";recStart(function(f,d){chatSend({file:f,dur:d,sura:canEdit()?null:UI.chSura})},true);return true;
+    case"chrecsend":recStop();return true;
+    case"chreccancel":recCancel();return true;
+    case"chfile":UI.chSura=val("ch_sura")||"";UI.chPick=true;var fi=document.getElementById("hwfile");if(fi){fi.value="";fi.accept="";fi.multiple=false;fi.click()}return true;
+    case"chretry":var m=CH&&CH.items.filter(function(x){return x.id===id})[0];if(m){CH.items.splice(CH.items.indexOf(m),1);chatSend(m.retry)}return true;
+    case"chsura":var sid=chatSid(),s=by(sid);if(s&&s.sur.indexOf(v)<0){mut(function(){setSur(sid,v,true)});chatSend({body:"✅ Сура «"+v+"» засчитана. Машаллах, молодец!"})}break;
+    case"pushon":pushOn();return true;
+    case"pushoff":pushOff();return true;
+    case"pushtest":PUSHERR="Отправляю…";render();rpc("push_test",{p_token:TOK,p_slug:G.slug}).then(kick).then(function(r){
+        PUSHERR=!r?"Нет связи с функцией push. Проверьте, что она создана (Кабинет → Пуш-уведомления).":r.ok&&r.j?(r.j.sent?"Отправлено: "+r.j.sent+". Уведомление должно прийти через несколько секунд.":"Функция работает, но получателей не нашлось. Нажмите «Выключить» и снова «Включить уведомления»."):"Ошибка функции push ("+r.status+"): "+(r.j&&r.j.error||r.t||"").slice(0,160);render()}).catch(function(x){PUSHERR=emsg(x);render()});return true;
+    case"pkgen":UI.confirm=null;
+      crypto.subtle.generateKey({name:"ECDSA",namedCurve:"P-256"},true,["sign","verify"]).then(function(kp){
+        return Promise.all([crypto.subtle.exportKey("raw",kp.publicKey),crypto.subtle.exportKey("jwk",kp.privateKey)])}).then(function(x){
+        var sec=new Uint8Array(24);crypto.getRandomValues(sec);
+        var K={pub:u8b64u(x[0]),priv:x[1].d,secret:Array.prototype.map.call(sec,function(n){return("0"+n.toString(16)).slice(-2)}).join("")};
+        return rpc("push_setup",{p_token:TOK,p_public:K.pub,p_secret:K.secret}).then(function(){UI.pushKeys=K;PUSHV=K.pub;store.set(pushKey(),0);flash("Ключи созданы — скопируйте их в Supabase");render()})
+      }).catch(function(x){flash(x&&x.code?emsg(x):"Этот браузер не умеет создавать ключи — откройте Кабинет в Chrome");render()});return true;
+    case"pkcopy":var K=UI.pushKeys;if(K)copy(b.dataset.k==="VAPID_PUBLIC"?K.pub:b.dataset.k==="VAPID_PRIVATE"?K.priv:K.secret,b.dataset.k+" скопирован");return true;
+    case"pkcode":copy(PUSH_FN,"Код функции скопирован");return true;
+    case"pkcheck":UI.pkMsg="Проверяю…";render();kick().then(function(r){UI.pkMsg=!r?"Функция push не отвечает. Проверьте, что она создана и называется push.":r.ok?"Функция работает ✓ ("+JSON.stringify(r.j)+")":r.status===401?"Функция отвечает 401 — выключите Verify JWT в её настройках.":r.status===404?"Функция push не найдена — создайте её (шаг 3).":"Ошибка функции ("+r.status+"): "+(r.j&&r.j.error||r.t||"").slice(0,200);render()});return true;
     default:return false;
   }
   render();return true;
@@ -1116,6 +1339,7 @@ function setTab(t){R.tab=t;var h="#/g/"+encodeURIComponent(G.slug)+(t==="r"?"":"
 var skipRoute=false;
 function act(a,b,e){
   var id=b.dataset.id,s=id&&S?by(id):null,k=b.dataset.k,v=b.dataset.v;
+  if(chatAct(a,b))return;
   if(S&&G&&hwAct(a,b))return;
   switch(a){
     /* ---- вход и кабинет ---- */
@@ -1211,6 +1435,7 @@ document.addEventListener("keydown",function(e){
   if(e.key==="Enter"&&t.id==="newname"){e.preventDefault();act("add",t,{target:t})}
   if(e.key==="Enter"&&(t.id==="li_pass"||t.id==="li_login")){e.preventDefault();doLogin()}
   if(e.key==="Enter"&&t.id==="su_pass"){e.preventDefault();doSetup()}
+  if(e.key==="Enter"&&t.id==="ch_text"){e.preventDefault();act("chsend",t,{target:t})}
   if(e.key==="Enter"&&t.id==="pin_code"){e.preventDefault();act("slogin",t,{target:t})}
   if(e.key==="Enter"&&t.id==="code"){e.preventDefault();act("opencode",t,{target:t})}
 });
@@ -1223,7 +1448,8 @@ document.addEventListener("input",function(e){
 document.addEventListener("change",function(e){
   var t=e.target;
   if(t.id==="certr")UI.certReason=t.value;
-  if(t.id==="hwfile"&&t.files&&t.files.length){addPicked(t.files);render()}
+  if(t.id==="hwfile"&&t.files&&t.files.length){if(UI.chPick){UI.chPick=false;var cf=t.files[0];if(cf.size>26214400)flash("Файл больше 25 МБ — такой не отправить");else chatSend({file:cf,sura:canEdit()?null:UI.chSura,dur:/^audio\//.test(cf.type)?0:null})}else addPicked(t.files);render()}
+  if(t.id==="ch_sura")UI.chSura=t.value;
   if(t.id==="pin_sid")UI.pinSid=t.value;
   if(t.id==="avfile"&&t.files&&t.files[0]&&UI.avFor){var sidA=UI.avFor,u=URL.createObjectURL(t.files[0]);
     loadImg(u).then(function(img){URL.revokeObjectURL(u);if(!img||!img.width){flash("Это не картинка — выберите фото");render();return}
@@ -1255,14 +1481,15 @@ function confetti(){
 function route(){
   if(skipRoute){skipRoute=false;return}
   var r=parseHash();UI.sheet=null;UI.confirm=null;UI.form=null;UI.formErr="";UI.dropKeep=true;UI.newG="";celeb=null;
+  if(r.view==="group"&&r.chat){UI.seg="chat";UI.chat=r.chatSid;CH=null;THR=null}
   if(r.view==="group"){
     if(G&&G.slug===r.slug&&S){R=r;if(R.tab==="t"&&!canEdit())R.tab="r";render();window.scrollTo(0,0);if(R.tab==="d"||!HW)hwLoad();return}
     if(Q.length&&G)save();
-    R=r;S=null;G=null;R.err="";UI.sel=[];UI.restore=null;UI.showAll=false;HW=null;HWerr="";STOK=null;PH={};UI.hwForm=null;UI.subm=null;UI.pins=null;UI.hwOpen=null;UI.pinErr="";UI.pinSid="";render();
+    R=r;S=null;G=null;R.err="";UI.sel=[];UI.restore=null;UI.showAll=false;HW=null;HWerr="";STOK=null;PH={};CH=null;THR=null;if(!r.chat){UI.seg="hw";UI.chat=null}UI.hwForm=null;UI.subm=null;UI.pins=null;UI.hwOpen=null;UI.pinErr="";UI.pinSid="";render();
     rpc("group_get",{p_slug:r.slug}).then(function(g){
       if(R.view!=="group"||R.slug!==r.slug)return;
       G={slug:g.slug,name:g.name,version:g.version};S=migrate(g.data);meStudent=store.get("me_"+g.slug,null);if(meStudent&&!by(meStudent))meStudent=null;
-      STOK=store.get("stok_"+g.slug,null);if(STOK&&!by(STOK.sid))STOK=null;hwLoad();phLoad();
+      STOK=store.get("stok_"+g.slug,null);if(STOK&&!by(STOK.sid))STOK=null;hwLoad();phLoad();if(!PUSHV)pushInfo();
       var rc=store.get("recent",[]).filter(function(x){return x.slug!==g.slug});rc.unshift({slug:g.slug,name:g.name});store.set("recent",rc.slice(0,5));
       var pend=store.get("pending_"+g.slug,null);
       if(pend&&canEdit()){
@@ -1279,6 +1506,7 @@ function route(){
   R=r;render();window.scrollTo(0,0);
   if(r.view==="login")rpc("app_info",{}).then(function(i){INFO=i;if(!i.has_admin&&R.view==="login")go("#/")}).catch(function(){});
   if(r.view==="home")rpc("app_info",{}).then(function(i){INFO=i;render()}).catch(function(x){INFO={has_admin:true,groups:[]};flash(emsg(x));render()});
+  if(r.view==="cab"&&ME&&ME.is_admin&&CLOUD)pushInfo();
   if(r.view==="cab"&&ME&&ME.is_admin)rpc("admin_list",{p_token:TOK}).then(function(a){ADM=a;render()}).catch(function(x){if(x.code==="auth")logoutLocal();else flash(emsg(x));render()});
 }
 window.addEventListener("hashchange",route);

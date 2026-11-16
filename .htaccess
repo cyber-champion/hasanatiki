@@ -1,0 +1,25 @@
+# Настройки для обычного хостинга (reg.ru и другие с Apache)
+# 1) всегда открывать сайт по https
+RewriteEngine On
+RewriteCond %{HTTPS} !=on
+RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# 2) защита и запрет посторонних подключений
+<IfModule mod_headers.c>
+  Header always set X-Frame-Options "DENY"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "no-referrer"
+  Header always set Permissions-Policy "camera=(), microphone=(self), geolocation=()"
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self' https://*.supabase.co; manifest-src 'self'; frame-ancestors 'none'"
+  <FilesMatch "(index\.html|config\.js|sw\.js)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+</IfModule>
+
+# 3) не отдавать служебные файлы
+<FilesMatch "(\.sql|\.txt)$">
+  Require all denied
+</FilesMatch>
+DirectoryIndex index.html
+AddType application/manifest+json .webmanifest
