@@ -1040,7 +1040,7 @@ begin
   if coalesce(p_public, '') !~ '^[A-Za-z0-9_-]{80,100}$' or length(coalesce(p_secret, '')) < 32 then raise exception 'bad_input'; end if;
   insert into push_config(id, vapid_public, secret_hash) values (1, p_public, _hash(p_secret))
   on conflict (id) do update set vapid_public = excluded.vapid_public, secret_hash = excluded.secret_hash, updated_at = now();
-  delete from push_subs; delete from push_queue;
+  delete from push_subs where true; delete from push_queue where true;   -- Supabase требует WHERE у DELETE
   return json_build_object('ok', true);
 end $$;
 
