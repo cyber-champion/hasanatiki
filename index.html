@@ -2,6 +2,8 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self' https://*.supabase.co; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Хасанатики</title>
 
@@ -371,7 +373,7 @@ var TR={"а":"a","б":"b","в":"v","г":"g","д":"d","е":"e","ё":"e","ж":"zh"
 function slugify(s){return String(s||"").toLowerCase().split("").map(function(c){return TR[c]!=null?TR[c]:c}).join("").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,40)}
 function err(code){var e=new Error(code);e.code=code;return e}
 var ERR={auth:"Нужно войти заново",forbidden:"Нет доступа к этой группе",not_found:"Группа с таким кодом не найдена. Проверьте код у учителя",no_student:"Ученик не найден в группе",bad_login:"Неверный логин или пароль",locked:"Слишком много попыток. Подождите 15 минут",short_password:"Пароль — минимум 6 символов",long_password:"Пароль слишком длинный",slug_taken:"Такой адрес уже занят — придумайте другой",login_taken:"Такой логин уже есть",bad_slug:"Адрес: латинские буквы, цифры и дефис, от 2 символов",bad_login_format:"Логин: от 3 до 32 символов, без пробелов",bad_name:"Введите имя",self_admin:"Нельзя снять права администратора с самого себя",self_delete:"Нельзя удалить самого себя",network:"Нет связи с сервером. Проверьте интернет",too_large:"Данных слишком много — скачайте копию и очистите журнал",exists:"Администратор уже создан — войдите",bad_password:"Старый пароль неверный",bad_input:"Неверные данные",sauth:"Войди в кабинет заново",no_pin:"Учитель ещё не выдал тебе PIN-код",bad_pin:"Неверный PIN-код",accepted:"Это задание уже принято",empty:"Напиши ответ или прикрепи файл",file_too_large:"Файл больше 25 МБ — такой не загрузить",quota:"Хранилище файлов заполнено — удалите старые задания",too_many:"Слишком много файлов",no_upload:"Файл не загрузился — попробуйте ещё раз",upload_failed:"Файл не загрузился — попробуйте ещё раз",no_file:"Файл не найден",bad_image:"Картинка не подошла — выберите другую",slow:"Слишком много сообщений подряд — подожди минутку",push_denied:"Уведомления не разрешены — разрешите их в настройках браузера",no_push:"Пуш-уведомления ещё не настроены (Кабинет → Пуш-уведомления)"};
-function emsg(e){var c=e&&(e.code||e.message);if(/Could not find the function|schema cache/i.test(String(c)))return "Нужно обновить базу: запустите новый setup.sql в Supabase (SQL Editor → Run)";return ERR[c]||("Ошибка: "+c)}
+function emsg(e){var c=e&&(e.code||e.message);if(/Could not find the function|schema cache/i.test(String(c)))return "Нужно обновить базу: запустите новый setup.sql в Supabase (SQL Editor → Run)";if(ERR[c])return ERR[c];try{console.warn("Ошибка сервера:",c)}catch(x){}return "Что-то пошло не так. Попробуйте ещё раз"}
 
 /* ================= связь с базой ================= */
 var TOK=store.get("tok",null),ME=null;
@@ -634,7 +636,7 @@ function vCab(){
   if(!ME.groups.length)h+='<p class="mut">'+(ME.is_admin?'Групп пока нет — создайте первую ниже.':'Вам пока не назначили группы. Попросите администратора.')+'</p>';
   ME.groups.forEach(function(g){h+='<a class="row" href="#/g/'+encodeURIComponent(g.slug)+'/teacher"><span style="font-size:24px">🧑‍🏫</span><div class="mid"><div style="font-weight:800">'+esc(g.name)+'</div><div class="sm mut">код: '+esc(g.slug)+' · отмечать баллы</div></div><span class="mut">›</span></a>'});
   h+='</div>';
-  if(ME.is_admin){h+=vAdmin();if(ADM)h+=vPushAdmin()}
+  if(ME.is_admin){h+=vAdmin();if(ADM)h+=vPushAdmin()+vLoginLog()}
   var f=UI.form&&UI.form.k==="pass";
   h+='<div class="box"><h2>🔑 Мой пароль</h2>'+(f?'<div class="field"><label for="pw_old">Старый пароль</label><input id="pw_old" type="password" autocomplete="current-password"></div><div class="field"><label for="pw_new">Новый пароль (от 6 символов)</label><input id="pw_new" type="password" autocomplete="new-password"></div>'+(UI.formErr?'<p class="note err" style="margin-bottom:10px">'+esc(UI.formErr)+'</p>':"")+'<div class="btns"><button class="btn pri" data-a="pwsave">Сменить пароль</button><button class="btn" data-a="formclose">Отмена</button></div>':'<button class="btn" data-a="form" data-k="pass">Сменить пароль</button>')+'</div>';
   h+='<div class="box"><button class="btn dng wide" data-a="logout">Выйти</button></div>';
@@ -1305,6 +1307,18 @@ if(CLOUD&&"serviceWorker" in navigator){
   navigator.serviceWorker.addEventListener("message",function(e){if(e.data&&typeof e.data.go==="string"&&e.data.go)location.hash=e.data.go});
 }
 var PUSH_FN="// Хасанатики — отправка пуш-уведомлений.\n// Supabase → Edge Functions → новая функция с именем «push» → вставить этот код → Deploy.\n// Секреты (Edge Functions → Secrets): VAPID_PUBLIC, VAPID_PRIVATE, PUSH_SECRET — их создаёт Кабинет → «Пуш-уведомления».\nimport webpush from \"npm:web-push@3.6.7\";\n\nconst cors = {\n  \"Access-Control-Allow-Origin\": \"*\",\n  \"Access-Control-Allow-Headers\": \"apikey, authorization, content-type, x-client-info\",\n  \"Access-Control-Allow-Methods\": \"POST, OPTIONS\",\n};\nconst json = (o: unknown, status = 200) =>\n  new Response(JSON.stringify(o), { status, headers: { ...cors, \"Content-Type\": \"application/json\" } });\n\nDeno.serve(async (req) => {\n  if (req.method === \"OPTIONS\") return new Response(\"ok\", { headers: cors });\n  const pub = Deno.env.get(\"VAPID_PUBLIC\"), priv = Deno.env.get(\"VAPID_PRIVATE\"), secret = Deno.env.get(\"PUSH_SECRET\");\n  if (!pub || !priv || !secret) return json({ error: \"Не заданы секреты VAPID_PUBLIC, VAPID_PRIVATE, PUSH_SECRET\" }, 500);\n  webpush.setVapidDetails(Deno.env.get(\"VAPID_SUBJECT\") || \"https://hasanatiki.netlify.app\", pub, priv);\n  const base = Deno.env.get(\"SUPABASE_URL\")!;\n  const key = req.headers.get(\"apikey\") || Deno.env.get(\"SUPABASE_ANON_KEY\") || \"\";\n  const rpc = async (fn: string, args: unknown) => {\n    const h: Record<string, string> = { apikey: key, \"Content-Type\": \"application/json\" };\n    if (key.startsWith(\"eyJ\")) h.Authorization = \"Bearer \" + key;\n    const r = await fetch(`${base}/rest/v1/rpc/${fn}`, { method: \"POST\", headers: h, body: JSON.stringify(args) });\n    const body = await r.json().catch(() => null);\n    if (!r.ok) throw new Error((body && body.message) || \"http \" + r.status);\n    return body;\n  };\n  try {\n    const list = (await rpc(\"push_take\", { p_secret: secret })) as Array<{ endpoint: string; p256dh: string; auth: string; payload: unknown }>;\n    const gone: string[] = [], errors: string[] = [];\n    let sent = 0, failed = 0;\n    await Promise.all(list.map(async (m) => {\n      try {\n        await webpush.sendNotification({ endpoint: m.endpoint, keys: { p256dh: m.p256dh, auth: m.auth } }, JSON.stringify(m.payload), { TTL: 86400 });\n        sent++;\n      } catch (e) {\n        const err = e as { statusCode?: number; body?: string; message?: string };\n        if (err.statusCode === 404 || err.statusCode === 410) gone.push(m.endpoint);\n        else { failed++; if (errors.length < 3) errors.push(((err.statusCode ? err.statusCode + \" \" : \"\") + (err.body || err.message || String(e))).slice(0, 200)); }\n      }\n    }));\n    if (gone.length) await rpc(\"push_gone\", { p_secret: secret, p_endpoints: gone });\n    return json({ ok: true, version: 2, total: list.length, sent, failed, removed: gone.length, errors });\n  } catch (e) {\n    return json({ error: String((e as Error).message || e) }, 500);\n  }\n});\n";
+// журнал входов учителей (только администратору)
+var LLOG=null;
+function vLoginLog(){
+  var h='<div class="box"><h2>🔐 Журнал входов</h2><p class="mut sm" style="margin:6px 0 10px">Последние входы учителей. Много неудачных попыток подряд — повод сменить пароль. После 8 неудач за 15 минут вход по этому логину сам закрывается на 15 минут.</p>';
+  if(!UI.llOpen)return h+'<button class="btn sm" data-a="llopen">Показать журнал</button></div>';
+  if(!LLOG)return h+'<div class="loading" style="padding:10px">Загрузка…</div></div>';
+  if(!LLOG.length)return h+'<p class="mut">Пока записей нет.</p></div>';
+  h+='<div class="lsn" style="margin-top:0">';
+  LLOG.slice(0,50).forEach(function(r){var d=new Date(r.at);
+    h+='<div class="lst"><span style="font-size:18px">'+(r.ok?"✅":"⛔")+'</span><span class="mid nm">'+esc(r.name||r.login)+(r.name?' <small class="mut">'+esc(r.login)+'</small>':' <small class="mut">нет такого логина</small>')+'</span><small class="mut" style="text-align:right">'+d.toLocaleDateString("ru-RU",{day:"numeric",month:"short"})+' '+d.toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"})+(r.ip?'<br>'+esc(r.ip):"")+'</small></div>'});
+  return h+'</div><button class="btn sm" data-a="llopen" style="margin-top:8px">Обновить</button></div>';
+}
 function vPushAdmin(){
   if(!CLOUD)return"";
   var K=UI.pushKeys,h='<div class="box"><h2>🔔 Пуш-уведомления</h2>';
@@ -1638,6 +1652,7 @@ function act(a,b,e){
     case"pwsave":var po=val("pw_old"),pw=val("pw_new");rpc("change_password",{p_token:TOK,p_old:po,p_new:pw}).then(function(r){if(r&&r.ok){UI.form=null;UI.dropKeep=true;flash("Пароль изменён")}else UI.formErr=emsg({code:r&&r.error});render()}).catch(function(x){UI.formErr=emsg(x);render()});return;
     case"copylink":copy(groupLink(v),"Ссылка скопирована — отправьте её в чат группы");return;
     case"newg":UI.newG=v;break;
+    case"llopen":UI.llOpen=true;LLOG=null;render();rpc("admin_login_log",{p_token:TOK}).then(function(r){LLOG=r||[];render()}).catch(function(x){LLOG=[];flash(emsg(x));render()});return;
     case"grcreate":rpc("admin_group_save",{p_token:TOK,p_slug:"",p_name:val("ng_name").trim(),p_new:true,p_def_g:UI.newG||"m"}).then(function(r){ADM=r;UI.form=null;UI.dropKeep=true;flash("Группа создана, код: "+r.created);return refreshMe()}).catch(function(x){UI.formErr=emsg(x);render()});return;
     case"grcode":rpc("admin_group_newcode",{p_token:TOK,p_slug:v}).then(function(r){ADM=r;UI.form=null;UI.confirm=null;flash("Новый код: "+r.created);return refreshMe()}).catch(function(x){UI.formErr=emsg(x);render()});return;
     case"opencode":var cd=val("code").trim().toLowerCase().replace(/^.*#\/g\//,"").replace(/[^a-z0-9-]/g,"");if(!cd){UI.formErr="Введите код группы";render();return}go("#/g/"+encodeURIComponent(cd));return;

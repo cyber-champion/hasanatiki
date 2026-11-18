@@ -174,27 +174,63 @@ begin
   return _new_session(t);
 end $$;
 
+-- Журнал входов учителей: удачные и неудачные попытки (пароли не пишутся).
+create table if not exists login_log (
+  id         bigserial primary key,
+  login      text not null,
+  teacher_id uuid references teachers(id) on delete set null,
+  ok         boolean not null,
+  ip         text,
+  at         timestamptz not null default now()
+);
+create index if not exists login_log_login_idx on login_log(login, at);
+create index if not exists login_log_at_idx on login_log(at);
+alter table login_log enable row level security;
+revoke all on login_log from anon, authenticated;
+revoke all on sequence login_log_id_seq from anon, authenticated;
+
+-- IP того, кто вызывает (Supabase передаёт заголовки запроса); если нет — null
+create or replace function _req_ip() returns text
+language plpgsql stable as $$
+begin
+  return nullif(left(btrim(split_part(coalesce(current_setting('request.headers', true)::json->>'x-forwarded-for', ''), ',', 1)), 64), '');
+exception when others then return null;
+end $$;
+
+-- Вход. Ответ при неверном логине и при неверном пароле одинаковый.
+-- Блокировка — по логину (в т.ч. несуществующему): 8 неудач за 15 минут → пауза 15 минут.
 create or replace function login(p_login text, p_password text) returns json
 language plpgsql security definer set search_path = public, extensions as $$
-declare t teachers;
+declare t teachers; lg text := left(lower(trim(coalesce(p_login, ''))), 64); ip text := _req_ip();
 begin
-  select * into t from teachers where login = lower(trim(coalesce(p_login, '')));
-  if not found then
-    perform extensions.crypt('x', extensions.gen_salt('bf', 8));   -- одинаковое время ответа
-    return json_build_object('ok', false, 'error', 'bad_login');
-  end if;
-  if t.locked_until is not null and t.locked_until > now() then
+  if (select count(*) from login_log where login = lg and not ok and at > now() - interval '15 minutes') >= 8 then
     return json_build_object('ok', false, 'error', 'locked');
   end if;
+  delete from login_log where at < now() - interval '180 days';
+  select * into t from teachers where login = lg;
+  if not found then
+    perform extensions.crypt('x', extensions.gen_salt('bf', 8));   -- одинаковое время ответа
+    insert into login_log(login, ok, ip) values (lg, false, ip);
+    return json_build_object('ok', false, 'error', 'bad_login');
+  end if;
   if extensions.crypt(coalesce(p_password, ''), t.pass_hash) <> t.pass_hash then
-    update teachers
-       set failed = case when failed + 1 >= 8 then 0 else failed + 1 end,
-           locked_until = case when failed + 1 >= 8 then now() + interval '15 minutes' else locked_until end
-     where id = t.id;
+    insert into login_log(login, teacher_id, ok, ip) values (lg, t.id, false, ip);
     return json_build_object('ok', false, 'error', 'bad_login');
   end if;
   update teachers set failed = 0, locked_until = null where id = t.id;
+  insert into login_log(login, teacher_id, ok, ip) values (lg, t.id, true, ip);
   return _new_session(t);
+end $$;
+
+-- Журнал входов для администратора: последние 100 записей
+create or replace function admin_login_log(p_token text) returns json
+language plpgsql security definer set search_path = public, extensions as $$
+declare a teachers;
+begin
+  a := _admin(p_token);
+  return coalesce((select json_agg(x order by x.at desc) from (
+    select l.at, l.login, t.name, l.ok, l.ip from login_log l left join teachers t on t.id = l.teacher_id
+     order by l.at desc limit 100) x), '[]'::json);
 end $$;
 
 -- ---------- для учителей ----------
@@ -375,17 +411,19 @@ end $$;
 -- ---------- права ----------
 grant usage on schema public to anon, authenticated;
 revoke all on function _hash(text), _who(text), _admin(text), _can(teachers, uuid), _me(teachers), _new_session(teachers), _check_pass(text),
-  _new_code(), _student_ok(groups, text)
+  _new_code(), _student_ok(groups, text), _req_ip()
   from public, anon, authenticated;
 revoke all on function app_info(), group_get(text), setup_admin(text, text, text), login(text, text), me(text), logout(text),
   change_password(text, text, text), group_save(text, text, jsonb, int), admin_list(text), admin_group_save(text, text, text, boolean, text),
   admin_group_newcode(text, text), admin_group_delete(text, text), admin_teacher_save(text, uuid, text, text, text, boolean, text[]),
-  admin_teacher_delete(text, uuid), progress_save(text, text, text, text, int, int, int), progress_get(text, text), progress_group(text, text)
+  admin_teacher_delete(text, uuid), progress_save(text, text, text, text, int, int, int), progress_get(text, text), progress_group(text, text),
+  admin_login_log(text)
   from public;
 grant execute on function app_info(), group_get(text), setup_admin(text, text, text), login(text, text), me(text), logout(text),
   change_password(text, text, text), group_save(text, text, jsonb, int), admin_list(text), admin_group_save(text, text, text, boolean, text),
   admin_group_newcode(text, text), admin_group_delete(text, text), admin_teacher_save(text, uuid, text, text, text, boolean, text[]),
-  admin_teacher_delete(text, uuid), progress_save(text, text, text, text, int, int, int), progress_get(text, text), progress_group(text, text)
+  admin_teacher_delete(text, uuid), progress_save(text, text, text, text, int, int, int), progress_get(text, text), progress_group(text, text),
+  admin_login_log(text)
   to anon, authenticated;
 
 -- =====================================================================
