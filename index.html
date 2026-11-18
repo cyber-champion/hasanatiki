@@ -327,6 +327,7 @@ div.fb{cursor:default}
 body.plon{padding-bottom:300px}
 /* ===== Новое оформление в духе Учи.ру: светлая и тёмная тема (переключатель ☀️/🌙) ===== */
 @font-face{font-family:'Nunito';src:url('fonts/nunito.woff') format('woff');font-weight:300 900;font-display:swap}
+@font-face{font-family:'Hafs';src:url('fonts/hafs.woff') format('woff');font-display:swap}
 @font-face{font-family:'Sch';src:url('fonts/sch.woff') format('woff');font-display:swap}
 @font-face{font-family:'Sch';src:url('fonts/sch-b.woff') format('woff');font-weight:700;font-display:swap}
 html[data-theme=light]{color-scheme:light;
@@ -392,8 +393,8 @@ html[data-theme] .toast{background:#1F2340;color:#fff}
 html[data-theme=dark] .toast{background:#F4F7FF;color:#11162B}
 html[data-theme] a{color:var(--brand)}
 html[data-theme] :focus-visible{outline-color:var(--brand)}
-html[data-theme] .ar,html[data-theme] .lopt.ar{font-family:'Sch','Amiri','Scheherazade New','Noto Naskh Arabic',serif}
-html[data-theme] .ar{font-size:28px}html[data-theme] .ar.big2{font-size:36px}html[data-theme] .lopt.ar{font-size:26px}
+html[data-theme] .ar,html[data-theme] .lopt.ar{font-family:'Hafs','Sch','Amiri','Noto Naskh Arabic',serif;line-height:2.05}
+html[data-theme] .ar{font-size:30px}html[data-theme] .ar.big2{font-size:38px}html[data-theme] .ar.sm2{font-size:26px}html[data-theme] .lopt.ar{font-size:30px}
 html[data-theme] .lopt{box-shadow:0 4px 0 var(--line);border-color:var(--line);background:var(--card)}
 html[data-theme] .lcard{background:var(--card);box-shadow:var(--shadow);border-color:var(--line)}
 html[data-theme] .sj.on{background:var(--qbg);color:var(--q)}
@@ -1918,6 +1919,7 @@ function lpLoad(){
   if(!CLOUD||!sid||canEdit())return;
   rpc("progress_get",V_({p_code:slug,p_student:sid})).then(function(r){if(!G||G.slug!==slug)return;(r||[]).forEach(function(x){if(x.course===LMOD.id)LP[x.lesson]=Math.max(LP[x.lesson]||0,x.best_stars)});render()}).catch(function(){});
 }
+function arn(n){return String(n).replace(/\d/g,function(d){return "٠١٢٣٤٥٦٧٨٩"[d]})}
 function ruT(t){return String(t||"").replace(/\s*\[\d+\]/g,"")}
 function arPlain(w){return String(w).replace(/[ً-ٰٟۖ-ۭـ]/g,"")}
 function rnd(n){return Math.floor(Math.random()*n)}
@@ -1983,7 +1985,7 @@ function vLessons(){
   h+='<div class="sm" style="margin-bottom:10px">⭐ '+tot+' из '+LMOD.list.length*3+'</div>';
   if(!STOK&&!canEdit())h+='<p class="sm" style="background:var(--xbg);padding:8px 12px;border-radius:12px;margin-bottom:10px">Играть можно и так, но баллы получают только те, кто вошёл в свой кабинет по PIN-коду (вкладка «Задания»).</p>';
   h+=vMap();if(0)h+='<div class="lgrid">'+LMOD.list.map(function(n){var b=LP&&LP["s"+n]||0;return '<button class="lcard'+(b?" done":"")+'" data-a="lopen" data-v="'+n+'"><b>'+esc(NAMES[n])+'</b><small>'+n+' · '+pn(QD[n].ar.length,"аят","аята","аятов")+'</small><i>'+[1,2,3].map(function(k){return k<=b?"⭐":"☆"}).join("")+'</i></button>'}).join("")+'</div>';
-  h+='<p class="mut sm" style="margin-top:10px;font-size:12px">Текст Корана: Tanzil.net. Перевод смыслов: Эльмир Кулиев (Tanzil.net). Чтение: шейх Махмуд Халиль аль-Хусари.</p></div>';
+  h+='<p class="mut sm" style="margin-top:10px;font-size:12px">Текст и шрифт Корана: Комплекс короля Фахда (мединский мусхаф, Хафс). Перевод смыслов: Эльмир Кулиев (Tanzil.net). Чтение: шейх Махмуд Халиль аль-Хусари.</p></div>';
   return h;
 }
 function vLesson(){
@@ -1991,7 +1993,7 @@ function vLesson(){
   var h='<div class="box"><div class="btns" style="align-items:center;justify-content:space-between;flex-wrap:nowrap"><b style="font-size:18px">Сура «'+esc(NAMES[n])+'»</b><button class="btn sm" data-a="lquit">✕ Выйти</button></div>';
   if(LS.step==="intro"){
     h+=sayS("sab","Сначала послушай каждый аят ▶ и прочитай, что он означает. Потом сыграем — я буду подсказывать!");
-    A.forEach(function(a,i){h+='<div class="ayah"><button class="ib" data-a="lplay" data-v="'+(i+1)+'" aria-label="Слушать аят '+(i+1)+'">▶</button><div class="mid"><div class="ar">'+esc(a)+' <span class="an">'+(i+1)+'</span></div><div class="sm mut">'+esc(T[i])+'</div></div></div>'});
+    A.forEach(function(a,i){h+='<div class="ayah"><button class="ib" data-a="lplay" data-v="'+(i+1)+'" aria-label="Слушать аят '+(i+1)+'">▶</button><div class="mid"><div class="ar">'+esc(a)+' '+arn(i+1)+'</div><div class="sm mut">'+esc(T[i])+'</div></div></div>'});
     return h+'<div class="btns" style="margin-top:12px"><button class="btn pri" data-a="lstart">🎮 Начать игру</button><button class="btn" data-a="lplayall">🎧 Слушать всю суру</button></div></div>';
   }
   if(LS.step==="res"){var r=LS.res;
@@ -2003,7 +2005,7 @@ function vLesson(){
   h+='<div class="bar" style="height:8px;margin:8px 0 14px"><i style="width:'+Math.round(LS.k/L*100)+'%"></i></div>';
   var opt=function(v,label,ar,good){var cls="lopt"+(ar?" ar":""),miss=t.miss&&t.miss.indexOf(v)>-1;if(LS.fb){if(good)cls+=" ok";else if(LS.fb.pick===v||miss)cls+=" bad"}else if(miss)cls+=" bad off";return '<button class="'+cls+'" data-a="lans" data-v="'+v+'"'+(LS.fb||miss?" disabled":"")+'>'+label+'</button>'};
   if(t.t==="ord"){
-    h+='<h3>Расставь аяты по порядку</h3><p class="mut sm">Нажимай аяты в том порядке, как они идут в суре.</p><div class="lord">'+t.got.map(function(i){return '<div class="ar sm2">'+esc(A[i])+' <span class="an">'+(i+1)+'</span></div>'}).join("")+'</div>';
+    h+='<h3>Расставь аяты по порядку</h3><p class="mut sm">Нажимай аяты в том порядке, как они идут в суре.</p><div class="lord">'+t.got.map(function(i){return '<div class="ar sm2">'+esc(A[i])+' '+arn(i+1)+'</div>'}).join("")+'</div>';
     h+=t.mix.filter(function(i){return t.got.indexOf(i)<0}).map(function(i){return '<button class="lopt ar'+(LS.fb&&LS.fb.wrong===i?" bad":"")+'" data-a="lord" data-v="'+i+'">'+esc(A[i])+'</button>'}).join("");
     if(t.got.length===t.ids.length)h+=sayS("asl",praise())+'<button class="btn pri" data-a="lnext">Дальше ›</button>';
     else if(LS.fb&&LS.fb.wrong!=null)h+=sayS("sab","Не этот. Какой аят идёт "+(t.got.length?"после «…"+esc(A[t.got[t.got.length-1]].split(" ").slice(-2).join(" "))+"»":"первым")+"? Послушай: <button class=\"btn sm\" data-a=\"lplay\" data-v=\""+(t.ids[t.got.length]+1)+"\">🔊</button>");
