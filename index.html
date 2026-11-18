@@ -407,7 +407,7 @@ html[data-theme] .say p:before{background:var(--card)}
 .hello p{font-weight:800;font-size:15px;line-height:1.35;padding-bottom:14px}.hello b{display:block;font-size:19px}
 .tgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
 .tile{position:relative;overflow:hidden;height:118px;border:0;border-radius:22px;padding:14px;text-align:left;color:#fff;background:var(--tc);font:inherit;cursor:pointer;box-shadow:0 5px 0 rgba(0,0,0,.14);display:flex;flex-direction:column;align-items:flex-start}
-.tile b{font-size:19px;font-weight:900}.tile small{font-size:12px;font-weight:700;opacity:.92}.tile i{position:absolute;right:-4px;bottom:-8px;font-size:58px;font-style:normal;line-height:1}
+.tile b{font-size:19px;font-weight:900}.tile small{font-size:12px;font-weight:700;opacity:.92}.tile i{position:absolute;right:-4px;bottom:-8px;font-size:58px;font-style:normal;line-height:1}.tile i svg{display:block;margin:0 2px 8px 0}
 .tile.soon{opacity:.5}.tpr{position:absolute;left:14px;bottom:12px;width:70px;height:8px;border-radius:5px;background:rgba(255,255,255,.35)}.tpr u{display:block;height:100%;border-radius:5px;background:#fff}
 .qrow{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
 .qc{border:1px solid var(--line);background:var(--card);border-radius:20px;padding:12px;text-align:left;font:inherit;color:var(--tx);cursor:pointer;box-shadow:var(--shadow);display:flex;flex-direction:column}
@@ -421,7 +421,8 @@ html[data-theme] .say p:before{background:var(--card)}
 .lnode .lt{font-size:12px;font-weight:800;line-height:1.15;text-align:center;background:var(--night);padding:1px 4px;border-radius:6px}.lnode .ls{font-size:11px;letter-spacing:1px;min-height:12px}
 .lsab{position:absolute;pointer-events:none}
 .sic2{position:relative;width:100%;height:100%;border-radius:22%;overflow:hidden;background:radial-gradient(circle at 30% 25%,#7C9BFF 0%,#4F46E5 60%,#3B2FC0 100%);box-shadow:0 18px 40px rgba(59,47,192,.35)}
-.sic2 svg{position:absolute;inset:0;width:100%;height:100%}
+.sic2>svg{position:absolute;inset:0;width:100%;height:100%}
+.s-bee{animation:sbee 2.4s ease-in-out infinite;transform-box:fill-box;transform-origin:center}@keyframes sbee{50%{transform:translate(-2px,2px) rotate(-8deg)}}
 .sic2 i{position:absolute;width:8px;height:8px;border-radius:50%;background:#fff;opacity:.8}
 html[data-theme] .splash{background:var(--night)}html[data-theme] .splash .snm{color:var(--brand)}html[data-theme] .splash .ssb{color:var(--mut)}
 
@@ -452,7 +453,7 @@ var CHAR=String(CFG.character||"");            // имя персонажа пл
 var SYMBOLS_ONLY=CFG.avatarStyle==="symbols";     // "symbols" — только аватарки без лиц
 var CLOUD=!!(CFG.supabaseUrl&&CFG.supabaseKey);
 document.title=APP;
-function splashSvg(){return '<div class="sic2"><svg viewBox="14 12 120 120" aria-hidden="true">'+MASC.sab+'</svg><i class="s-tw" style="left:12%;top:14%"></i><i class="s-tw" style="left:82%;top:10%;animation-delay:.6s"></i><i class="s-tw" style="left:88%;top:60%;animation-delay:1.1s"></i></div>'}
+function splashSvg(){return '<div class="sic2"><svg viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="spg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5EC8FF"/><stop offset=".6" stop-color="#3B6CF6"/><stop offset="1" stop-color="#4338CA"/></linearGradient></defs><rect width="100" height="100" fill="url(#spg)"/><circle cx="82" cy="18" r="28" fill="#fff" opacity=".12"/><path d="M60 26Q72 6 86 18" stroke="#fff" stroke-width="1.6" stroke-dasharray="2 3" fill="none" opacity=".8"/><svg x="0" y="2" width="100" height="100" viewBox="10 8 150 150">'+MASC.sab+'</svg><g class="s-bee"><svg x="72" y="6" width="24" height="24" viewBox="40 10 120 185">'+MASC.asl+'</svg></g></svg><i class="s-tw" style="left:9%;top:11%"></i><i class="s-tw" style="left:91%;top:55%;animation-delay:.6s"></i></div>'}
 var ICON=(document.querySelector('link[rel="apple-touch-icon"]')||{}).href||"";
 
 /* ================= справочники ================= */
@@ -2190,7 +2191,7 @@ function navStudent(){
   var nb=hwBadge(),t=[["o","🏠","Главная"],["s","🎓","Уроки"],["r","🏆","Рейтинг"],["d","📚","Задания"],["m","👤","Я"]];
   return '<nav class="nav"><div>'+t.map(function(x){return '<button class="'+(R.tab===x[0]||(x[0]==="m"&&R.tab==="p")?"on":"")+'" data-a="tab" data-v="'+x[0]+'"><span>'+x[1]+'</span>'+x[2]+(x[0]==="d"&&nb?'<b>'+nb+'</b>':"")+'</button>'}).join("")+'</div></nav>';
 }
-var TILES=[["q","Коран","суры 30-го джуза","#22C55E","📖",1],["a","Алифба","буквы и чтение","#3B6CF6",'<span style="font-family:Hafs,Sch,serif;font-size:40px;display:inline-block;margin:0 14px 10px 0">ا ب ت</span>',1],["f","Фикх","намаз и омовение","#FF8A00","🕌",0],["k","Акида","во что мы верим","#A855F7","💎",0],["x","Ахляк","красивый нрав","#EC4899","🌸",0],["s","Сира","жизнь Пророка ﷺ","#06B6D4","🐪",0]];
+var TILES=[["q","Коран","суры 30-го джуза","#22C55E","📖",1],["a","Алифба","буквы и чтение","#3B6CF6",'<svg viewBox="0 0 120 100" width="78" height="65" aria-hidden="true"><g transform="rotate(-8 30 70)"><rect x="8" y="48" width="44" height="44" rx="10" fill="#FFC93C"/><rect x="8" y="48" width="44" height="8" rx="4" fill="#fff" opacity=".35"/><text x="30" y="82" font-size="34" text-anchor="middle" fill="#7A4A06" style="font-family:Hafs,Sch,serif">ب</text></g><g transform="rotate(7 84 72)"><rect x="62" y="50" width="44" height="44" rx="10" fill="#FF6B9A"/><rect x="62" y="50" width="44" height="8" rx="4" fill="#fff" opacity=".35"/><text x="84" y="84" font-size="34" text-anchor="middle" fill="#fff" style="font-family:Hafs,Sch,serif">ت</text></g><g transform="rotate(-3 58 28)"><rect x="36" y="6" width="44" height="44" rx="10" fill="#22C55E"/><rect x="36" y="6" width="44" height="8" rx="4" fill="#fff" opacity=".35"/><text x="58" y="42" font-size="36" text-anchor="middle" fill="#fff" style="font-family:Hafs,Sch,serif">ا</text></g><path d="M102 12l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2Z" fill="#fff"/></svg>',1],["f","Фикх","намаз и омовение","#FF8A00","🕌",0],["k","Акида","во что мы верим","#A855F7","💎",0],["x","Ахляк","красивый нрав","#EC4899","🌸",0],["s","Сира","жизнь Пророка ﷺ","#06B6D4","🐪",0]];
 function vHome2(){
   var s=STOK&&by(STOK.sid);if(!s)return vRating();
   qdLoad();if(!LP)lpLoad();
