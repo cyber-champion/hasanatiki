@@ -420,7 +420,8 @@ html[data-theme] .say p:before{background:var(--card)}
 .lnode.cur .ln{width:78px;height:78px;background:#FFA94D;border-color:#FFE3C2;color:#fff;font-size:24px;box-shadow:0 5px 0 #E07F1F;animation:lpulse 1.6s ease-in-out infinite}
 @keyframes lpulse{50%{transform:scale(1.06)}}
 .lnode .lt{font-size:12px;font-weight:800;line-height:1.15;text-align:center;background:var(--night);padding:1px 4px;border-radius:6px}.lnode .ls{font-size:11px;letter-spacing:1px;min-height:12px}
-.lsab{position:absolute;pointer-events:none}
+.lsab{position:absolute;z-index:5;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}.lsab svg{display:block;filter:drop-shadow(0 4px 4px rgba(0,0,0,.15));transition:transform .2s}.lsab.drag{cursor:grabbing}.lsab.drag svg{transform:scale(1.12) rotate(-6deg)}
+.lsab b{position:absolute;left:50%;bottom:100%;transform:translateX(-50%) scale(0);background:#fff;color:#1F2340;font-size:12px;font-weight:900;padding:4px 8px;border-radius:12px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.18);transition:transform .2s;pointer-events:none}.lsab.say b{transform:translateX(-50%) scale(1)}
 .sic2{position:relative;width:100%;height:100%;border-radius:22%;overflow:hidden;background:radial-gradient(circle at 30% 25%,#7C9BFF 0%,#4F46E5 60%,#3B2FC0 100%);box-shadow:0 18px 40px rgba(59,47,192,.35)}
 .sic2>svg{position:absolute;inset:0;width:100%;height:100%}
 .s-bee{animation:sbee 2.4s ease-in-out infinite;transform-box:fill-box;transform-origin:center}@keyframes sbee{50%{transform:translate(-2px,2px) rotate(-8deg)}}
@@ -482,6 +483,9 @@ html[data-theme=dark] .hive .zz{color:#C7CCF0}
 .hive.drag{cursor:grabbing;transform:scale(1.08)}
 .bee i{position:relative}.bee .lids{position:absolute;left:0;top:0;width:58px;height:58px;opacity:0;transition:opacity .4s;pointer-events:none}.bee.sleep .lids{opacity:1}
 .bee.home:not(.sleep) i svg:first-child{animation:beelook 1.2s ease-in-out infinite alternate}@keyframes beelook{to{transform:rotate(8deg) translateY(-2px)}}
+.sabw{position:relative;display:block;width:64px;height:64px;animation:sabbreath 3.2s ease-in-out infinite;transform-origin:50% 90%}
+@keyframes sabbreath{50%{transform:scale(1.035,1.05)}}
+.sabw .slids{position:absolute;left:0;top:0;width:64px;height:64px;opacity:0;pointer-events:none;filter:none!important}.lsab.blink .slids{opacity:1}
 </style>
 <script>(function(){var t="light";try{t=JSON.parse(localStorage.getItem("theme"))||"light"}catch(e){}document.documentElement.setAttribute("data-theme",t==="dark"?"dark":"light")})()</script>
 </head>
@@ -1781,6 +1785,7 @@ function render(){
   Object.keys(keep).forEach(function(id){var el=document.getElementById(id);if(!el)return;if(el.type==="checkbox")el.checked=keep[id];else el.value=keep[id]});
   app.querySelectorAll("[data-keep]").forEach(function(el){var o=kept[el.dataset.keep];if(o&&o!==el)el.replaceWith(o)});
   var nsh=app.querySelector(".sheet");if(nsh&&same&&UI.sheet)nsh.scrollTop=sy;
+  if(app.querySelector('.lsab'))sabPlace();
   if(app.querySelector('.lnode.big'))fitAb();
   shownSheet=UI.sheet;celebShown=!!celeb;
   window.scrollTo(0,y);
@@ -2258,7 +2263,7 @@ function vMap(){
   var h='<div class="lmap" style="height:'+H+'px"><svg viewBox="0 0 100 '+H+'" preserveAspectRatio="none" aria-hidden="true"><polyline points="'+pts+'" fill="none" stroke="var(--soft-sh)" stroke-width="10" stroke-linecap="round" stroke-dasharray="1 20" vector-effect="non-scaling-stroke"/></svg>';
   L.forEach(function(n,i){var b=LP&&LP["s"+n]||0,c=n===cur?"cur":b?"done":"",x=XS[i%4],y=i*STEP;
     h+='<button class="lnode '+c+'" style="left:'+x+'%;top:'+y+'px;--nc:'+MAPC[i%MAPC.length]+'" data-a="lopen" data-v="'+n+'"><span class="ln">'+(b?"✓":n===1?"1":n)+'</span><span class="lt">'+esc(NAMES[n])+'</span><span class="ls">'+(b?[1,2,3].map(function(k){return k<=b?"⭐":"☆"}).join(""):"")+'</span></button>';
-    if(n===cur)h+='<div class="lsab" style="left:'+(x>50?x-34:x+14)+'%;top:'+(y-6)+'px">'+mas("sab",64)+'</div>'});
+    if(n===cur)h+='<div class="lsab" style="left:'+(x>50?x-34:x+14)+'%;top:'+(y-6)+'px"><span class="sabw">'+mas("sab",64)+'<svg class="slids" viewBox="0 0 200 200"><circle cx="60" cy="66" r="9" fill="#e0a868"/><circle cx="84" cy="66" r="9" fill="#e0a868"/><path d="M52 66q8 6 16 0M76 66q8 6 16 0" stroke="#2a1a12" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg></span><b>Иду!</b></div>'});
   return h+'</div>';
 }
 
@@ -2358,7 +2363,7 @@ function vAbMap(){
   ABLES.forEach(function(x,i){var b=LP&&LP["a"+(i+1)]||0,c=i===cur?"cur":b?"done":"",X=XS[i%4],y=i*STEP,lab=x.L?x.L.split("").join("\u2009"):x.H?"بَ بِ بُ":"ا ي",fs=!x.L?20:x.L.length<=3?24:x.L.length===4?16:14,col=MAPC[i%MAPC.length];
     h+='<button class="lnode big '+c+'" style="left:'+X+'%;top:'+y+'px;--nc:'+col+'" data-a="lopen" data-k="ab" data-v="'+i+'"><span class="ln ar"><em style="font-size:'+fs+'px">'+lab+'</em><u>'+(b?"✓":i+1)+'</u></span><span class="lt">'+(x.L?"Урок "+(i+1):x.H?"Огласовки":"Повторение")+'</span><span class="ls">'+(b?[1,2,3].map(function(k){return k<=b?"⭐":"☆"}).join(""):"")+'</span></button>';
     h+='<svg class="lspark" style="left:'+(X>50?X-30:X+24)+'%;top:'+(y+40)+'px" viewBox="0 0 20 20" width="24" height="24"><path d="M10 0Q10 10 20 10Q10 10 10 20Q10 10 0 10Q10 10 10 0Z" fill="'+col+'"/></svg>';
-    if(i===cur)h+='<div class="lsab" style="left:'+(X>50?X-36:X+16)+'%;top:'+(y-6)+'px">'+mas("sab",64)+'</div>'});
+    if(i===cur)h+='<div class="lsab" style="left:'+(X>50?X-36:X+16)+'%;top:'+(y-6)+'px"><span class="sabw">'+mas("sab",64)+'<svg class="slids" viewBox="0 0 200 200"><circle cx="60" cy="66" r="9" fill="#e0a868"/><circle cx="84" cy="66" r="9" fill="#e0a868"/><path d="M52 66q8 6 16 0M76 66q8 6 16 0" stroke="#2a1a12" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg></span><b>Иду!</b></div>'});
   return h+'</div>';
 }
 
@@ -2405,6 +2410,22 @@ function hiveDrop(e){if(!HIVE.drag)return;var moved=e?Math.abs(e.clientX-HIVE.dr
   if(moved<10&&BEE.home){BEE.home=false;store.set("beehome",0);var el=document.querySelector(".bee");if(el){el.querySelector("b").textContent="Ура, полетели!";el.classList.add("say");BEE.happy=Date.now()+1400;beeTarget(el)}}}
 document.addEventListener("pointerup",hiveDrop);document.addEventListener("pointercancel",hiveDrop);
 document.addEventListener("pointerup",beeDrop);document.addEventListener("pointercancel",beeDrop);
+
+
+/* ---- Сабура на карте тоже можно таскать ---- */
+setInterval(function(){var el=document.querySelector(".lsab");if(!el||Math.random()<.45)return;el.classList.add("blink");setTimeout(function(){el.classList.remove("blink")},170)},2600);
+var SABD=null,SABSAY=["Иду, иду!","Вперёд, к знаниям!","Терпение — и всё получится!","Бисмиллях!","Ещё один урок?","Машаллах!"];
+function sabKey(){return "sabpos_"+(UI.course==="ab"?"ab":"q")}
+function sabPlace(){var el=document.querySelector(".lsab");if(!el||SABD)return;var p=store.get(sabKey(),null);if(!p)return;var par=el.parentNode;
+  el.style.left=Math.max(0,Math.min(par.clientWidth-64,p.x))+"px";el.style.top=Math.max(0,Math.min(par.clientHeight-64,p.y))+"px"}
+document.addEventListener("pointerdown",function(e){var el=e.target.closest&&e.target.closest(".lsab");if(!el)return;e.preventDefault();var pr=el.parentNode.getBoundingClientRect(),r=el.getBoundingClientRect();
+  SABD={ox:e.clientX-r.left,oy:e.clientY-r.top,sx:e.clientX,sy:e.clientY,pl:pr.left,pt:pr.top};el.classList.add("drag");try{el.setPointerCapture(e.pointerId)}catch(x){}});
+document.addEventListener("pointermove",function(e){if(!SABD)return;var el=document.querySelector(".lsab");if(!el)return;var pr=el.parentNode.getBoundingClientRect();
+  el.style.left=(e.clientX-pr.left-SABD.ox)+"px";el.style.top=(e.clientY-pr.top-SABD.oy)+"px"});
+function sabDrop(e){if(!SABD)return;var el=document.querySelector(".lsab"),moved=e?Math.abs(e.clientX-SABD.sx)+Math.abs(e.clientY-SABD.sy):99;SABD=null;if(!el)return;el.classList.remove("drag");
+  if(moved>=10)store.set(sabKey(),{x:Math.round(el.offsetLeft),y:Math.round(el.offsetTop)});
+  el.querySelector("b").textContent=SABSAY[Math.floor(Math.random()*SABSAY.length)];el.classList.add("say");setTimeout(function(){var e2=document.querySelector(".lsab");if(e2)e2.classList.remove("say")},1600)}
+document.addEventListener("pointerup",sabDrop);document.addEventListener("pointercancel",sabDrop);
 
 /* ================= грамота ================= */
 function loadImg(src){return new Promise(function(res){var i=new Image();i.onload=function(){res(i)};i.onerror=function(){res(null)};i.src=src})}
