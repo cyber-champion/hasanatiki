@@ -337,7 +337,7 @@ html[data-theme=light]{color-scheme:light;
   --soft:#EAF0FF;--soft-h:#DCE6FF;--soft-sh:#C9D7F5;--soft-tx:#2C4FB8;
   --sel:#3B6CF6;--sel-tx:#FFFFFF;--navbg:rgba(255,255,255,.97);--ovbg:rgba(20,30,70,.45);--avbg:#EEF3FF;
   --dng:#FFE4E6;--dng-tx:#BE123C;--blk:linear-gradient(#EEF3FF,#DCE6FF);--blk1:linear-gradient(#FFE7B3,#FFD27A);
-  --n:#0D9488;--nbg:#DDF6F2;--q:#2F5BEA;--qbg:#E5EDFF;--x:#C26D00;--xbg:#FFF1D6;--s:#7C3AED;--sbg:#EFE7FF;--f:#E11D48;--fbg:#FFE4EA;
+  --n:#0F8F84;--nbg:#DDF6F2;--q:#1E9E5C;--qbg:#DFF6EA;--x:#B7791F;--xbg:#FFF4D9;--s:#6D4FE0;--sbg:#EEE9FF;--f:#E0466F;--fbg:#FFE6EE;
   --ok:#16A34A;--warn:#EA7A00;--err:#DC2626;--shadow:0 2px 12px rgba(30,50,120,.08)}
 html[data-theme=dark]{color-scheme:dark;--hello:#3651C9;
   --night:#11162B;--sky:#1A2142;--card:#1B2240;--card2:#242C4F;--line:rgba(255,255,255,.07);
@@ -347,7 +347,7 @@ html[data-theme=dark]{color-scheme:dark;--hello:#3651C9;
   --soft:#2A3360;--soft-h:#334079;--soft-sh:#161C38;--soft-tx:#DDE4FF;
   --sel:#4C7CFF;--sel-tx:#FFFFFF;--navbg:rgba(17,22,43,.97);--ovbg:rgba(3,6,18,.7);--avbg:#232C55;
   --dng:#4A1D2E;--dng-tx:#FFC2CC;--blk:linear-gradient(#2A3360,#1B2240);--blk1:linear-gradient(#5a4718,#2a2412);
-  --n:#5eead4;--nbg:#123B3A;--q:#93b4ff;--qbg:#1d3262;--x:#fcd34d;--xbg:#3d3222;--s:#c4b5fd;--sbg:#2d2a5a;--f:#fda4af;--fbg:#43223a;
+  --n:#5EEAD4;--nbg:#123B3A;--q:#6EE7A8;--qbg:#143A2A;--x:#FCD34D;--xbg:#3d3222;--s:#B9A6FF;--sbg:#2d2a5a;--f:#FDA4BC;--fbg:#43223a;
   --ok:#4ade80;--warn:#fb923c;--err:#f87171;--shadow:0 2px 14px rgba(0,0,0,.25)}
 html[data-theme]{--font:'Nunito',ui-rounded,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
 html[data-theme] body{background:var(--night);background-image:none}
@@ -405,9 +405,9 @@ html[data-theme] .say p:before{background:var(--card)}
 .hello{display:flex;align-items:flex-end;gap:4px;background:var(--hello,#3B6CF6);color:#fff;border-radius:24px;padding:12px 14px 0;margin:6px 0 14px;overflow:hidden}
 .hello p{font-weight:800;font-size:15px;line-height:1.35;padding-bottom:14px}.hello b{display:block;font-size:19px}
 .tgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
-.tile{position:relative;overflow:hidden;height:118px;border:0;border-radius:22px;padding:14px;text-align:left;color:#fff;background:var(--tc);font:inherit;cursor:pointer;box-shadow:0 5px 0 rgba(0,0,0,.14);display:flex;flex-direction:column;align-items:flex-start}
+.tile{position:relative;overflow:hidden;height:118px;border:0;border-radius:22px;padding:14px;text-align:left;color:#fff;background:linear-gradient(160deg,color-mix(in srgb,var(--tc) 78%,#fff),var(--tc));font:inherit;cursor:pointer;box-shadow:0 5px 0 color-mix(in srgb,var(--tc) 70%,#000);display:flex;flex-direction:column;align-items:flex-start}
 .tile b{font-size:19px;font-weight:900}.tile small{font-size:12px;font-weight:700;opacity:.92}.tile i{position:absolute;right:-4px;bottom:-8px;font-size:58px;font-style:normal;line-height:1}
-.tile.soon{opacity:.5}.tpr{position:absolute;left:14px;bottom:12px;width:70px;height:8px;border-radius:5px;background:rgba(255,255,255,.35)}.tpr u{display:block;height:100%;border-radius:5px;background:#fff}
+.tile.soon{opacity:.72}.tpr{position:absolute;left:14px;bottom:12px;width:70px;height:8px;border-radius:5px;background:rgba(255,255,255,.35)}.tpr u{display:block;height:100%;border-radius:5px;background:#fff}
 .qrow{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
 .qc{border:1px solid var(--line);background:var(--card);border-radius:20px;padding:12px;text-align:left;font:inherit;color:var(--tx);cursor:pointer;box-shadow:var(--shadow);display:flex;flex-direction:column}
 .qc i{font-style:normal;font-size:26px}.qc b{font-size:16px;font-weight:900}.qc small{color:var(--mut);font-weight:700;font-size:12px}
@@ -2169,7 +2169,7 @@ function navStudent(){
   var nb=hwBadge(),t=[["o","🏠","Главная"],["s","🎓","Уроки"],["r","🏆","Рейтинг"],["d","📚","Задания"],["m","👤","Я"]];
   return '<nav class="nav"><div>'+t.map(function(x){return '<button class="'+(R.tab===x[0]||(x[0]==="m"&&R.tab==="p")?"on":"")+'" data-a="tab" data-v="'+x[0]+'"><span>'+x[1]+'</span>'+x[2]+(x[0]==="d"&&nb?'<b>'+nb+'</b>':"")+'</button>'}).join("")+'</div></nav>';
 }
-var TILES=[["q","Коран","суры 30-го джуза","#22C55E","📖",1],["a","Алифба","буквы и чтение","#3B6CF6",'<span style="font-family:Sch,serif;font-size:40px;display:inline-block;margin:0 14px 10px 0">ا ب ت</span>',0],["f","Фикх","намаз и омовение","#FF8A00","🕌",0],["k","Акида","во что мы верим","#A855F7","💎",0],["x","Ахляк","красивый нрав","#EC4899","🌸",0],["s","Сира","жизнь Пророка ﷺ","#06B6D4","🐪",0]];
+var TILES=[["q","Коран","суры 30-го джуза","#2BB673","📖",1],["a","Алифба","буквы и чтение","#4C7DF0",'<span style="font-family:Sch,serif;font-size:40px;display:inline-block;margin:0 14px 10px 0">ا ب ت</span>',0],["f","Фикх","намаз и омовение","#14B8A6","🕌",0],["k","Акида","во что мы верим","#8B6CF6","💎",0],["x","Ахляк","красивый нрав","#F06BA8","🌸",0],["s","Сира","жизнь Пророка ﷺ","#F2B035","🐪",0]];
 function vHome2(){
   var s=STOK&&by(STOK.sid);if(!s)return vRating();
   qdLoad();if(!LP)lpLoad();
