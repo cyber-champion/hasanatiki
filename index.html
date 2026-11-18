@@ -384,7 +384,7 @@ function installBox(){
   }else if(isI){
     h+='<p class="mut" style="margin-bottom:8px">На iPhone: откройте этот сайт в <b>Safari</b> → кнопка «Поделиться» ⬆️ → «На экран Домой». Значок «Хасанатики» появится рядом с другими приложениями.</p>';
   }else{
-    h+='<p class="mut" style="margin-bottom:8px">Откройте сайт <b>hasanatiki.ru</b> на телефоне: на Android там будет кнопка «Скачать приложение», на iPhone — Safari → «Поделиться» → «На экран Домой».</p>'+(deferredInstall?'<button class="btn sm" data-a="install">Установить на этот компьютер</button>':"");
+    h+='<p class="mut" style="margin-bottom:8px">Откройте эту ссылку на телефоне: на Android там будет кнопка «Скачать приложение», на iPhone — Safari → «Поделиться» → «На экран Домой».</p>'+(deferredInstall?'<button class="btn sm" data-a="install">Установить на этот компьютер</button>':"");
   }
   return h+'</div>';
 }
