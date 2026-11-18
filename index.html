@@ -126,6 +126,11 @@ textarea{min-height:170px;resize:vertical;font-size:14px;line-height:1.5}
 .avp{border:3px solid transparent;border-radius:16px;background:var(--card2);padding:5px 4px 4px;cursor:pointer;text-align:center;font-size:11px;font-weight:800;color:var(--mut)}
 .avp svg{width:100%;aspect-ratio:1;display:block;border-radius:50%;max-width:100%}
 .avp.on{border-color:var(--gold);color:var(--tx)}
+.tabs4{position:sticky;top:0;z-index:15;display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:4px;background:var(--night);padding:6px 0 8px;margin-bottom:6px}
+.tabs4 button{border:1px solid var(--line);background:var(--card);color:var(--mut);border-radius:14px;padding:8px 4px;font-weight:800;font-size:13px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0}
+.tabs4 button i{font-style:normal;font-size:20px;line-height:1}
+.tabs4 button span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tabs4 button.on{background:#334079;color:var(--tx);border-color:#4b5bb0}
 .seg{display:inline-flex;background:var(--card2);border-radius:13px;padding:3px;gap:3px;flex-wrap:wrap}
 .seg button{border:0;background:none;padding:7px 12px;border-radius:10px;font-weight:800;cursor:pointer;color:var(--mut)}
 .seg button.on{background:#334079;color:var(--tx)}
@@ -651,8 +656,18 @@ function vCab(){
   if(!ME.groups.length)h+='<p class="mut">'+(ME.is_admin?'Групп пока нет — создайте первую ниже.':'Вам пока не назначили группы. Попросите администратора.')+'</p>';
   ME.groups.forEach(function(g){h+='<a class="row" href="#/g/'+encodeURIComponent(g.slug)+'/teacher"><span style="font-size:24px">🧑‍🏫</span><div class="mid"><div style="font-weight:800">'+esc(g.name)+'</div><div class="sm mut">код: '+esc(g.slug)+' · отмечать баллы</div></div><span class="mut">›</span></a>'});
   h+='</div>';
-  if(ME.is_admin){h+=vAdmin();if(ADM)h+=vPushAdmin()+vLoginLog()}
   var f=UI.form&&UI.form.k==="pass";
+  if(ME.is_admin){
+    // кабинет администратора по вкладкам
+    var cs=UI.cseg||store.get("cseg",null)||"g",adm=vAdmin(),cut=adm.indexOf('<div class="box"><h2>🧑‍🏫 Учителя');if(cut<0)cut=adm.length;
+    var pre=h;h=pre.replace('<div class="box"><h2>Ассаляму','@@TABS@@<div class="box"><h2>Ассаляму');
+    var tb=tabs4("cseg",cs,[["g","🕌","Группы"],["t","🧑‍🏫","Учителя"],["p","🔔","Уведомл."],["s","🔐","Вход"]]);
+    if(cs!=="g"){h=h.slice(0,h.indexOf("@@TABS@@"))+tb}else h=h.replace("@@TABS@@",tb);
+    if(cs==="g")return h+adm.slice(0,cut);
+    if(cs==="t")return h+adm.slice(cut);
+    if(cs==="p")return h+(ADM?vPushAdmin():'<div class="box"><div class="loading" style="padding:20px">Загрузка…</div></div>');
+    h+=vLoginLog();
+  }
   h+='<div class="box"><h2>🔑 Мой пароль</h2>'+(f?'<div class="field"><label for="pw_old">Старый пароль</label><input id="pw_old" type="password" autocomplete="current-password"></div><div class="field"><label for="pw_new">Новый пароль (от 6 символов)</label><input id="pw_new" type="password" autocomplete="new-password"></div>'+(UI.formErr?'<p class="note err" style="margin-bottom:10px">'+esc(UI.formErr)+'</p>':"")+'<div class="btns"><button class="btn pri" data-a="pwsave">Сменить пароль</button><button class="btn" data-a="formclose">Отмена</button></div>':'<button class="btn" data-a="form" data-k="pass">Сменить пароль</button>')+'</div>';
   h+='<div class="box"><button class="btn dng wide" data-a="logout">Выйти</button></div>';
   return h;
@@ -822,11 +837,16 @@ function attTable(L){
     h+='<td style="text-align:center;font-weight:800">'+(a.n?Math.round(a.p/a.n*100)+"%":"—")+'</td></tr>'});
   return h+'</table></div>';
 }
+function JOURNAL_BOX(lg){return '<div class="box"><h2>🧾 Журнал</h2><p class="mut sm" style="margin:-6px 0 6px">Ошиблись — нажмите ✕, и запись отменится вместе с баллами.</p>'+logList(lg,true)+(S.log.length>12&&!UI.showAll?'<button class="btn sm" data-a="showall" style="margin-top:8px">Показать больше</button>':"")+'</div>'}
+function tabs4(act,cur,list){return '<div class="tabs4" role="tablist">'+list.map(function(t){return '<button role="tab" aria-selected="'+(cur===t[0])+'" class="'+(cur===t[0]?"on":"")+'" data-a="'+act+'" data-v="'+t[0]+'"><i>'+t[1]+'</i><span>'+t[2]+'</span></button>'}).join("")+'</div>'}
 function vTeacher(){
   var L=S.students.slice().sort(function(a,b){return a.name.localeCompare(b.name,"ru")}),h="";
-  h+=vAttend(L);
-  h+='<div class="box"><h2>✅ Отметить баллы</h2><p class="mut sm" style="margin:-6px 0 6px">Выберите, кто пришёл, и нажмите кнопку — балл получат все выбранные сразу.</p>';
-  if(!L.length)h+='<p class="mut">Сначала добавьте учеников ниже.</p>';
+  // вкладки: урок (посещения), баллы, ученики, ещё — чтобы не листать три списка подряд
+  var ts=UI.tseg||store.get("tseg",null)||(new Date().getDay()===0?"a":"b");if(!L.length&&ts!=="m")ts="u";
+  h+=tabs4("tseg",ts,[["a","📅","Урок"],["b","⭐","Баллы"],["u","👥","Ученики"],["m","⚙️","Ещё"]]);
+  if(ts==="a")return h+vAttend(L);
+  if(ts==="b"){h+='<div class="box"><h2>✅ Отметить баллы</h2><p class="mut sm" style="margin:-6px 0 6px">Выберите, кто пришёл, и нажмите кнопку — балл получат все выбранные сразу.</p>';
+  if(!L.length)h+='<p class="mut">Сначала добавьте учеников во вкладке «👥 Ученики».</p>';
   else{
     h+='<div class="btns"><button class="btn sm" data-a="selall">Выбрать всех</button><button class="btn sm" data-a="selno">Снять выбор</button><button class="btn sm" data-a="undo"'+(S.log.length?"":" disabled")+'>↩ Отменить последнее</button></div><div class="mark">';
     L.forEach(function(s){var on=UI.sel.indexOf(s.id)>-1;h+='<button class="mk'+(on?" on":"")+'" data-a="sel" data-id="'+s.id+'" aria-pressed="'+on+'">'+avh(s,"s")+'<span>'+esc(s.name)+'</span></button>'});
@@ -834,15 +854,18 @@ function vTeacher(){
     h+='<div class="sec">Доп. баллы и штраф</div><div class="grid2"><div class="field"><label for="amt">Сколько баллов</label><input id="amt" type="number" min="1" max="50" value="'+esc(UI.amt)+'"></div><div class="field"><label for="note">За что (необязательно)</label><input id="note" type="text" maxlength="60" placeholder="Например: рассказал хадис" value="'+esc(UI.note)+'"></div></div><div class="btns"><button class="btn" data-a="mass" data-k="x">⭐ Добавить доп. баллы</button><button class="btn dng" data-a="mass" data-k="f">⚠️ Снять штраф</button></div>';
   }
   h+='</div>';
+  var lg=UI.showAll?S.log.slice(0,60):S.log.slice(0,12);
+  h+=JOURNAL_BOX(lg);
+  return h}
+  if(ts==="u"){
   var ng=UI.newG||(S.defG==="f"?"f":"m");
   h+='<div class="box"><h2>👥 Ученики <small>'+L.length+'</small></h2><div class="field"><input id="newname" type="text" maxlength="30" placeholder="Имя ученика, например «Амир Г.»"></div><div class="btns" style="align-items:center;margin-bottom:12px"><div class="seg"><button class="'+(ng==="m"?"on":"")+'" data-a="newg" data-v="m">Мальчик</button><button class="'+(ng==="f"?"on":"")+'" data-a="newg" data-v="f">Девочка</button></div><button class="btn pri" data-a="add">Добавить</button></div>';
   L.forEach(function(s){h+='<div class="row" data-a="open" data-id="'+s.id+'" role="button" tabindex="0" style="padding:8px 12px">'+avh(s,"s")+'<div class="mid"><div style="font-weight:800">'+exName(s)+'</div><div class="sm mut">'+lvl(s)[2]+' · '+pn(tot(s),"балл","балла","баллов")+' · '+pn(surCount(s),"сура","суры","сур")+'</div></div><span class="mut">›</span></div>'});
   if(S.students.some(function(s){return s.ex}))h+='<button class="btn sm" data-a="clearex" style="margin-top:6px">Удалить все примеры</button>';
   h+='</div>';
+  return h}
   h+='<div class="box"><h2>🏁 Сезон и общая цель</h2><div class="grid2"><div class="field"><label for="sname">Название сезона</label><input id="sname" type="text" maxlength="40" value="'+esc(S.season.name)+'"></div><div class="field"><label for="send">Последний день сезона</label><input id="send" type="date" value="'+esc(S.season.end)+'"></div><div class="field"><label for="gtarget">Общая цель, баллов (0 — без цели)</label><input id="gtarget" type="number" min="0" max="100000" value="'+(S.goal.target|0)+'"></div><div class="field"><label for="gprize">Приз за цель</label><input id="gprize" type="text" maxlength="60" value="'+esc(S.goal.prize)+'" placeholder="Например: поездка всей группой"></div></div><div class="btns"><button class="btn pri" data-a="saveseason">Применить</button>'+confirmBtn("season","🏁 Завершить сезон","endseason")+'</div><p class="mut sm" style="margin-top:8px">При завершении таблица обнулится, тройка лидеров попадёт в Зал славы. Опыт, звания и суры у ребят останутся.</p></div>';
   h+='<div class="box"><h2>💬 Итоги недели для родителей</h2><p class="mut sm" style="margin:-6px 0 8px">Готовый текст за последние 7 дней — скопируйте и отправьте в чат.</p><textarea id="wtext" readonly>'+esc(weekText())+'</textarea><div class="btns" style="margin-top:8px"><button class="btn pri" data-a="copyweek">📋 Скопировать</button></div></div>';
-  var lg=UI.showAll?S.log.slice(0,60):S.log.slice(0,12);
-  h+='<div class="box"><h2>🧾 Журнал</h2><p class="mut sm" style="margin:-6px 0 6px">Ошиблись — нажмите ✕, и запись отменится вместе с баллами.</p>'+logList(lg,true)+(S.log.length>12&&!UI.showAll?'<button class="btn sm" data-a="showall" style="margin-top:8px">Показать больше</button>':"")+'</div>';
   h+='<div class="box"><h2>💾 Резервная копия</h2><p class="mut sm" style="margin:-6px 0 10px">Скачивайте копию после каждого сезона. Из неё можно всё восстановить, в том числе из старых Савабиков.</p><div class="btns"><button class="btn" data-a="backup">⬇️ Скачать копию</button><button class="btn" data-a="restore">⬆️ Восстановить из файла</button></div><input id="rfile" type="file" accept=".json,application/json" hidden>';
   if(UI.restore)h+='<div style="margin-top:12px;padding:12px;border-radius:14px;background:var(--fbg)"><b>Заменить данные группы копией?</b><p class="sm" style="margin:4px 0 8px">В файле: '+pn(UI.restore.students.length,"ученик","ученика","учеников")+', '+pn(UI.restore.hall.length,"сезон","сезона","сезонов")+' в Зале славы. Текущие данные группы «'+esc(G.name)+'» будут заменены.</p><span class="btns"><button class="btn sm dng" data-a="dorestore">Да, заменить</button><button class="btn sm" data-a="norestore">Отмена</button></span></div>';
   return h+'</div>';
@@ -1735,6 +1758,8 @@ function act(a,b,e){
     case"isme":meStudent=id;store.set("me_"+G.slug,id);if(s)store.set("seen_"+G.slug+"_"+s.id,seenOf(s));flash("Готово! Теперь это твой персонаж");break;
     case"notme":meStudent=null;store.set("me_"+G.slug,null);break;
     case"savenow":save();return;
+    case"tseg":UI.tseg=v;store.set("tseg",v);UI.confirm=null;window.scrollTo(0,0);break;
+    case"cseg":UI.cseg=v;store.set("cseg",v);UI.form=null;UI.confirm=null;window.scrollTo(0,0);break;
     case"att":if(s){var aday=attDay(),ast=v;mut(function(){attSet(s.id,aday,ast)})}break;
     case"attall":var aday2=attDay();S.students.forEach(function(x){if(!(S.att[aday2]&&S.att[aday2][x.id])){var xid=x.id;mut(function(){if(!(S.att[aday2]&&S.att[aday2][xid]))attSet(xid,aday2,"p")})}});flash("Отмечено");break;
     case"attday":var nd=new Date(attDay()+"T12:00:00");nd.setDate(nd.getDate()+(parseInt(v,10)||0));if(nd.getDay()!==0)nd=lastSunday(nd);if(ymd(nd)>ymd(lastSunday()))nd=lastSunday();UI.attDay=ymd(nd);UI.dropKeep=true;break;
