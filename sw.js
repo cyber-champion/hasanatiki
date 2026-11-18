@@ -1,7 +1,22 @@
 // Хасанатики — фоновый помощник: показывает пуш-уведомления
 self.addEventListener("install", function () { self.skipWaiting(); });
 self.addEventListener("activate", function (e) { e.waitUntil(self.clients.claim()); });
-self.addEventListener("fetch", function () {});
+// без интернета: страница приложения берётся из кэша (сначала всегда пробуем сеть)
+var CACHE = "hs-v1";
+self.addEventListener("fetch", function (e) {
+  var r = e.request, u;
+  try { u = new URL(r.url); } catch (x) { return; }
+  if (r.method !== "GET" || u.origin !== self.location.origin) return;
+  if (/\/audio\/|\.apk$|\.mp3$/.test(u.pathname)) return;
+  e.respondWith(fetch(r).then(function (res) {
+    if (res && res.ok) { var c = res.clone(); caches.open(CACHE).then(function (k) { k.put(r, c); }); }
+    return res;
+  }).catch(function () {
+    return caches.match(r, { ignoreSearch: true }).then(function (m) {
+      return m || (r.mode === "navigate" ? caches.match("./", { ignoreSearch: true }) : Response.error());
+    });
+  }));
+});
 self.addEventListener("push", function (e) {
   var d = {};
   try { d = e.data ? e.data.json() : {}; } catch (x) { d = { body: e.data ? e.data.text() : "" }; }

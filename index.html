@@ -64,7 +64,11 @@ p{margin:0}
 .tg{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:2px 10px;font-size:13px;font-weight:700;white-space:nowrap}
 .tn{background:var(--nbg);color:var(--n)}.tq{background:var(--qbg);color:var(--q)}.tx{background:var(--xbg);color:var(--x)}.ts{background:var(--sbg);color:var(--s)}.tf{background:var(--fbg);color:var(--f)}
 .ex{display:inline-block;white-space:nowrap;background:rgba(255,255,255,.1);color:var(--mut);font-size:11px;padding:1px 7px;border-radius:999px;vertical-align:middle;margin-left:6px;font-weight:700}
-.sc{text-align:right;flex-shrink:0}
+.sc{text-align:right;flex-shrink:0;position:relative}
+.bump{position:absolute;right:0;top:-14px;font:900 15px/1 var(--font);color:var(--ok);background:rgba(34,197,94,.16);border-radius:10px;padding:3px 7px;animation:bmp 4s ease-out forwards;pointer-events:none}
+.bump.neg{color:var(--err);background:rgba(239,68,68,.16)}
+.pp .bump{position:relative;top:-2px;margin-left:4px;font-size:13px}
+@keyframes bmp{0%{opacity:0;transform:translateY(8px) scale(.6)}12%{opacity:1;transform:translateY(0) scale(1.15)}22%{transform:scale(1)}80%{opacity:1}100%{opacity:0;transform:translateY(-8px)}}
 .sc b{display:block;font:900 30px/1 var(--font);color:var(--gold);font-variant-numeric:tabular-nums}
 .sc small{color:var(--mut);font-size:12px}
 .bdg{margin-top:5px;font-size:17px;letter-spacing:1px}
@@ -472,12 +476,13 @@ function migrate(o){
     s.sur=(Array.isArray(s.sur)?s.sur:[]).filter(function(x,i,a){return SUR.indexOf(x)>-1&&a.indexOf(x)===i});
     var wk={};if(s.wk&&typeof s.wk==="object")Object.keys(s.wk).forEach(function(k){if(/^\d{4}-\d{2}-\d{2}$/.test(k)&&(s.wk[k]|0)>0)wk[k]=s.wk[k]|0});s.wk=wk;
     ["n","q","x","f","xp"].forEach(function(k){s[k]=Math.max(0,s[k]|0)});
+    if(s.hid)s.hid=true;else delete s.hid;
   });
   o.log=(Array.isArray(o.log)?o.log:[]).filter(function(e){return e&&CAT[e.t]&&!isNaN(new Date(e.d))}).slice(0,400);
-  o.log.forEach(function(e){e.id=cid(e.id);e.s=cid(e.s);e.g=cid(e.g);e.v=e.v|0;e.note=String(e.note||"").slice(0,80)});
+  o.log.forEach(function(e){e.id=cid(e.id);e.s=cid(e.s);e.g=cid(e.g);e.v=e.v|0;e.note=String(e.note||"").slice(0,80);if(e.lid)e.lid=cid(e.lid);else delete e.lid});
   o.hall=(Array.isArray(o.hall)?o.hall:[]).filter(function(h){return h&&typeof h==="object"});
   o.hall.forEach(function(h){h.name=String(h.name||"Сезон");if(!/^\d{4}-\d{2}-\d{2}$/.test(h.end||""))h.end="2026-01-01";h.total=h.total|0;h.target=h.target|0;h.prize=String(h.prize||"");
-    h.w=(Array.isArray(h.w)?h.w:[]).slice(0,3).map(function(w){return{name:String(w.name||""),av:AVM[w.av]?w.av:(OLD_EMOJI[w.av]||"n-star"),p:w.p|0}});
+    h.w=(Array.isArray(h.w)?h.w:[]).slice(0,10).map(function(w){var o={name:String(w.name||""),av:AVM[w.av]?w.av:(OLD_EMOJI[w.av]||"n-star"),p:w.p|0};if(w.id)o.id=cid(w.id);return o});
     var b={};["n","q","x"].forEach(function(k){var x=h.best&&h.best[k];if(x)b[k]={name:String(x.name||""),v:x.v|0}});h.best=b});
   // посещения: att["ГГГГ-ММ-ДД"][id ученика] = {st:"p"|"e"|"a", lid: запись журнала с баллом}
   var att={};if(o.att&&typeof o.att==="object")Object.keys(o.att).sort().slice(-80).forEach(function(d){
@@ -490,6 +495,7 @@ function migrate(o){
   if(!cats.some(function(c){return c.id==="q"}))cats.splice(1,0,{id:"q",k:"q",e:"📖",name:"Коран",pts:1,off:false});
   o.cats=cats;
   o.att=att;o.attPts=[0,1,2,3].indexOf(o.attPts)>-1?o.attPts:1;
+  o.surPts=Math.max(0,Math.min(10,o.surPts|0));
   o.v=4;return o;
 }
 var S=null,G=null;           // данные открытой группы и {slug,name,version}
@@ -497,7 +503,8 @@ function tot(s){return s.n+s.q+s.x-s.f}
 function lvl(s){var r=LV[0];LV.forEach(function(l){if(s.xp>=l[3])r=l});return r}
 function nextLvl(s){return LV[lvl(s)[0]]||null}
 function by(id){for(var i=0;i<S.students.length;i++)if(S.students[i].id===id)return S.students[i];return null}
-function ranked(){return S.students.slice().sort(function(a,b){return tot(b)-tot(a)||b.xp-a.xp||a.name.localeCompare(b.name,"ru")})}
+function actS(){return S.students.filter(function(s){return !s.hid})}
+function ranked(){return actS().sort(function(a,b){return tot(b)-tot(a)||b.xp-a.xp||a.name.localeCompare(b.name,"ru")})}
 function place(s){return ranked().indexOf(s)+1}
 function streak(s){var k=wkey(new Date());if(!(s.wk[k]>0))k=addDays(k,-7);var n=0;while(s.wk[k]>0){n++;k=addDays(k,-7)}return n}
 function bestStreak(s){var ks=Object.keys(s.wk).filter(function(k){return s.wk[k]>0}).sort(),best=0,run=0,prev=null;ks.forEach(function(k){run=(prev&&addDays(prev,7)===k)?run+1:1;if(run>best)best=run;prev=k});return best}
@@ -509,14 +516,21 @@ function badges(s){
   SB.forEach(function(b){out.push({e:b[1],n:b[2],r:b[0]===114?"все 114 сур":"выучить "+pn(b[0],"суру","суры","сур"),ok:sc>=b[0],k:"s"})});
   out.push({e:"📘",n:"Джуз Амма",r:"все суры 30-го джуза",ok:juz(s)>=JUZ.length,k:"s"});
   STK.forEach(function(b){out.push({e:b[1],n:b[2],r:"намаз в мечети "+b[0]+" нед. подряд",ok:bs>=b[0],k:"w"})});
+  var ap=attOf(s).p;ATB.forEach(function(b){out.push({e:b[1],n:b[2],r:"прийти на "+pn(b[0],"урок","урока","уроков"),ok:ap>=b[0],k:"a"})});
+  var hp=hallPlaces(s);
+  out.push({e:"🥉",n:"В тройке",r:"попасть в тройку лучших сезона",ok:hp.some(function(i){return i<3}),k:"p"});
+  out.push({e:"👑",n:"Чемпион сезона",r:"занять 1 место в сезоне",ok:hp.indexOf(0)>-1,k:"p"});
   return out;
 }
+var ATB=[[5,"📅","Постоянство"],[15,"🛡️","Железная воля"],[30,"🌙","Верный ученик"]];
+// места ученика в прошлых сезонах (0 — первое место)
+function hallPlaces(s){var r=[];(S.hall||[]).forEach(function(h){(h.w||[]).forEach(function(w,i){if(w.id?w.id===s.id:w.name===s.name)r.push(i)})});return r}
 function earned(s){return badges(s).filter(function(b){return b.ok})}
 var PH={},PHRE=/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+\/=]+$/;
 function phLoad(){if(!CLOUD||!G)return;var slug=G.slug;rpc("avatars_get",{p_slug:slug}).then(function(r){if(!G||G.slug!==slug)return;PH={};Object.keys(r||{}).forEach(function(k){if(PHRE.test(r[k]))PH[k]=r[k]});render()}).catch(function(){})}
 function avh(s,cls){var l=lvl(s),inner=PH[s.id]?'<img alt="" src="'+PH[s.id]+'">':AVM[s.av]?avSvg(avShown(s.av)):esc(s.av);return '<div class="av '+(cls||"")+'" style="--c:'+l[4]+'">'+inner+(cls==="s"?"":'<em>'+l[0]+'</em>')+'</div>'}
 function daysLeft(){return Math.ceil((new Date(S.season.end+"T23:59:59")-new Date())/864e5)}
-function seasonTotal(){return S.students.reduce(function(a,s){return a+Math.max(0,tot(s))},0)}
+function seasonTotal(){return actS().reduce(function(a,s){return a+Math.max(0,tot(s))},0)}
 function exName(s){return esc(s.name)+(s.ex?'<span class="ex">пример</span>':"")}
 
 /* ---- изменения данных (каждое изменение — операция, её можно повторить поверх свежих данных) ---- */
@@ -525,19 +539,19 @@ function mut(fn){fn();if(!G)return;Q.push(fn);saveErr=null;schedule();}
 function schedule(){if(saveTimer)clearTimeout(saveTimer);saveTimer=setTimeout(save,1200);stash()}
 function stash(){if(G&&Q.length)store.set("pending_"+G.slug,{v:G.version,data:S})}
 function logPush(e){e.id=uid();e.d=e.d||new Date().toISOString();S.log.unshift(e);if(S.log.length>400)S.log.length=400}
-function apply(sid,t,v,g,note){
+function apply(sid,t,v,g,note,d){
   var s=by(sid);if(!s)return;var before=lvl(s)[0];
   if(t==="f"){var nf=Math.max(0,s.f+v),df=nf-s.f;if(!df)return;v=df;s.f=nf;s.xp=Math.max(0,s.xp-v)}
   else{var nv=Math.max(0,s[t]+v),dv=nv-s[t];if(!dv)return;v=dv;s[t]=nv;s.xp=Math.max(0,s.xp+v);
-    if(t==="n"){var k=wkey(new Date());s.wk[k]=Math.max(0,(s.wk[k]||0)+v);if(!s.wk[k])delete s.wk[k]}}
-  logPush({s:s.id,t:t,v:v,g:g||uid(),note:note||""});
+    if(t==="n"){var k=wkey(d||new Date());s.wk[k]=Math.max(0,(s.wk[k]||0)+v);if(!s.wk[k])delete s.wk[k]}}
+  logPush({s:s.id,t:t,v:v,g:g||uid(),note:note||"",d:d||""});
   if(lvl(s)[0]>before)flash(s.name+" — новое звание «"+lvl(s)[2]+"» "+lvl(s)[1]);
 }
 function revert(id){
   var e=S.log.filter(function(x){return x.id===id})[0];if(!e)return;var s=by(e.s);
   if(s){
     if(e.t==="f"){s.f=Math.max(0,s.f-e.v);s.xp=Math.max(0,s.xp+e.v)}
-    else if(e.t==="s"){var i=s.sur.indexOf(e.note);if(i>-1)s.sur.splice(i,1)}
+    else if(e.t==="s"){var i=s.sur.indexOf(e.note);if(i>-1)s.sur.splice(i,1);if(e.lid){var lid=e.lid;e.lid="";revert(lid)}}
     else{s[e.t]=Math.max(0,s[e.t]-e.v);s.xp=Math.max(0,s.xp-e.v);
       if(e.t==="n"){var k=wkey(e.d);s.wk[k]=Math.max(0,(s.wk[k]||0)-e.v);if(!s.wk[k])delete s.wk[k]}}
   }
@@ -545,8 +559,10 @@ function revert(id){
 }
 function setSur(sid,name,on){
   var s=by(sid);if(!s)return;var i=s.sur.indexOf(name);
-  if(!on&&i>-1){s.sur.splice(i,1);S.log=S.log.filter(function(x){return!(x.t==="s"&&x.s===s.id&&x.note===name)})}
-  else if(on&&i<0){var had=earned(s).map(function(b){return b.n});s.sur.push(name);logPush({s:s.id,t:"s",v:1,g:uid(),note:name});var nb=earned(s).filter(function(b){return had.indexOf(b.n)<0});if(nb.length)flash(s.name+": новый значок "+nb[0].e+" «"+nb[0].n+"»")}
+  if(!on&&i>-1){s.sur.splice(i,1);var ls=S.log.filter(function(x){return x.t==="s"&&x.s===s.id&&x.note===name&&x.lid}).map(function(x){return x.lid});S.log=S.log.filter(function(x){return!(x.t==="s"&&x.s===s.id&&x.note===name)});ls.forEach(revert)}
+  else if(on&&i<0){var had=earned(s).map(function(b){return b.n});s.sur.push(name);var gg=uid(),lid="";
+    if(S.surPts>0){apply(s.id,"x",S.surPts,gg,"📜 Сура «"+name+"»");if(S.log[0]&&S.log[0].s===s.id&&S.log[0].t==="x")lid=S.log[0].id}
+    logPush({s:s.id,t:"s",v:1,g:gg,note:name});if(lid)S.log[0].lid=lid;var nb=earned(s).filter(function(b){return had.indexOf(b.n)<0});if(nb.length)flash(s.name+": новый значок "+nb[0].e+" «"+nb[0].n+"»")}
 }
 function addStudent(id,name,g){
   if(by(id))return;
@@ -557,7 +573,7 @@ function addStudent(id,name,g){
 function endSeason(){
   var r=ranked(),best={};
   ["n","q","x"].forEach(function(k){var b=S.students.slice().sort(function(a,c){return c[k]-a[k]})[0];if(b&&b[k]>0)best[k]={name:b.name,v:b[k]}});
-  S.hall.unshift({name:S.season.name,end:S.season.end,total:seasonTotal(),target:S.goal.target,prize:S.goal.prize,w:r.slice(0,3).filter(function(s){return tot(s)>0}).map(function(s){return{name:s.name,av:s.av,p:tot(s)}}),best:best});
+  S.hall.unshift({name:S.season.name,end:S.season.end,total:seasonTotal(),target:S.goal.target,prize:S.goal.prize,w:r.slice(0,10).filter(function(s){return tot(s)>0}).map(function(s){return{id:s.id,name:s.name,av:s.av,p:tot(s)}}),best:best});
   S.students.forEach(function(s){s.n=0;s.q=0;s.x=0;s.f=0});
   S.log=S.log.filter(function(e){return e.t==="s"}).slice(0,60);
   S.season={name:"Новый сезон",end:ymd(new Date(Date.now()+60*864e5))};
@@ -591,16 +607,25 @@ function save(){
 }
 window.addEventListener("beforeunload",function(e){if(Q.length){e.preventDefault();e.returnValue=""}});
 document.addEventListener("visibilitychange",function(){if(document.hidden){if(Q.length)save()}else poll()});
-setInterval(poll,45000);
+// живое обновление: на рейтинге — раз в 10 секунд, на других вкладках — раз в 45
+var pollAt=0;setInterval(function(){var fast=R.view==="group"&&(R.tab==="r"||R.tab==="s")&&!UI.sheet;if(Date.now()-pollAt>=(fast?10000:45000))poll()},2500);
+var BUMP={},bumpT=null;
+function bumpDiff(o,n){if(!o||!n)return;var m={};o.students.forEach(function(x){m[x.id]=tot(x)});var any=false;
+  n.students.forEach(function(x){if(m[x.id]!=null&&tot(x)!==m[x.id]){BUMP[x.id]=tot(x)-m[x.id];any=true}});
+  if(any){if(bumpT)clearTimeout(bumpT);bumpT=setTimeout(function(){BUMP={};render()},4000)}}
+function bumpH(s){var b=BUMP[s.id];return b?'<span class="bump'+(b<0?" neg":"")+'">'+(b>0?"+":"−")+Math.abs(b)+'</span>':""}
+function cacheGroup(g){try{store.set("cache_"+g.slug,{slug:g.slug,name:g.name,version:g.version,data:g.data,at:Date.now()})}catch(e){}}
 function poll(){
+  pollAt=Date.now();
   if(R.view!=="group"||!G||document.hidden)return;
   if(R.tab==="d"&&!UI.hwForm&&!UI.subm&&!HWbusy)hwLoad();
   if(Q.length||saving)return;
   var slug=G.slug;
   rpc("group_get",{p_slug:slug}).then(function(r){
     if(!G||G.slug!==slug||Q.length||saving)return;
-    if(r.version!==G.version){S=migrate(r.data);G.version=r.version;G.name=r.name;render();checkCeleb();phLoad()}
-  }).catch(function(){});
+    if(R.offline){R.offline=false;render()}
+    if(r.version!==G.version){var old=S;S=migrate(r.data);G.version=r.version;G.name=r.name;bumpDiff(old,S);cacheGroup(r);render();checkCeleb();phLoad()}
+  }).catch(function(x){if(x&&x.code==="network"&&!R.offline){R.offline=true;render()}});
 }
 
 /* ================= состояние экрана ================= */
@@ -608,7 +633,8 @@ var R={view:"loading"},INFO=null,ADM=null;
 var UI={sel:[],amt:1,note:"",sheet:null,surq:"",confirm:null,certFor:null,certImg:null,certReason:"",restore:null,showAll:false,form:null,newG:"",dropKeep:false,slugEdited:false,afterLogin:null,showAllAv:false,hwForm:null,hwOpen:null,subm:null,pins:null,pinSid:"",pinErr:""};
 var toastMsg="",toastTimer=null,celeb=null,shownSheet=null,celebShown=false,meStudent=null;
 function canEdit(){return !!(ME&&G&&(ME.is_admin||ME.groups.some(function(g){return g.slug===G.slug})))}
-function flash(m){if(replaying)return;toastMsg=m;if(toastTimer)clearTimeout(toastTimer);toastTimer=setTimeout(function(){toastMsg="";render()},2800)}
+var toastUndo=null;
+function flash(m,undo){if(replaying)return;toastMsg=m;toastUndo=undo||null;if(toastTimer)clearTimeout(toastTimer);toastTimer=setTimeout(function(){toastMsg="";toastUndo=null;render()},undo?6000:2800)}
 var TABS={r:"rating",d:"hw",s:"suras",h:"hall",p:"rules",t:"teacher"},TABN={rating:"r",hw:"d",suras:"s",hall:"h",rules:"p",teacher:"t"};
 function parseHash(){var h=location.hash.replace(/^#\/?/,"").split("/");
   if(h[0]==="g"&&h[1])return h[2]==="chat"?{view:"group",slug:decodeURIComponent(h[1]).toLowerCase(),tab:"d",chat:true,chatSid:h[3]?decodeURIComponent(h[3]):null}:{view:"group",slug:decodeURIComponent(h[1]).toLowerCase(),tab:TABN[h[2]]||"r"};
@@ -733,7 +759,7 @@ function groupHeader(){
 }
 function tagsOf(s){return '<div class="tags"><span class="tg tn">🕌 Намаз '+s.n+'</span><span class="tg tq">📖 Коран '+s.q+'</span><span class="tg tx">⭐ Доп. '+s.x+'</span><span class="tg ts">📜 Суры '+surCount(s)+'</span>'+(s.f?'<span class="tg tf">⚠️ −'+s.f+'</span>':"")+'</div>'}
 function vRating(){
-  var L=ranked(),dl=daysLeft(),h='<div class="chips"><span class="chip">🏁 '+esc(S.season.name)+' · до '+fdate(S.season.end+"T12:00:00")+'</span><span class="chip g">'+(dl>0?"осталось "+pn(dl,"день","дня","дней"):"сезон закончился")+'</span></div>';
+  var L=ranked(),dl=daysLeft(),h=(R.offline?'<div class="box sm" style="border-color:rgba(251,191,36,.45);padding:10px 14px">📴 Нет интернета — показан последний загруженный рейтинг'+(R.offline>1?" ("+rel(new Date(R.offline).toISOString())+", "+new Date(R.offline).toLocaleTimeString("ru",{hour:"2-digit",minute:"2-digit"})+")":"")+'</div>':"")+'<div class="chips"><span class="chip">🏁 '+esc(S.season.name)+' · до '+fdate(S.season.end+"T12:00:00")+'</span><span class="chip g">'+(dl>0?"осталось "+pn(dl,"день","дня","дней"):"сезон закончился")+'</span></div>';
   if(canEdit()&&S.students.some(function(s){return s.ex}))h+='<div class="box" style="border-color:rgba(251,191,36,.4)"><b>Сейчас в группе примеры учеников.</b><p class="mut sm" style="margin:4px 0 10px">Удалите их и добавьте своих ребят во вкладке «Учитель».</p><button class="btn sm pri" data-a="clearex">Удалить примеры</button></div>';
   if(!L.length)return h+'<div class="box cen"><div class="masbig">'+mas("sab",120)+'</div><h2>Пока нет учеников</h2><p class="mut">'+(canEdit()?"Добавьте ребят во вкладке «Учитель».":"Учитель скоро добавит ребят.")+'</p></div>';
   var m=meStudent&&by(meStudent);
@@ -743,13 +769,13 @@ function vRating(){
   if(tg>0){var sum=seasonTotal(),gp=Math.min(100,Math.round(sum/tg*100));
     h+='<div class="box goal"><div class="gh"><b>🎯 Общая цель группы</b><span>'+sum+' / '+tg+'</span></div><div class="bar"><i style="width:'+gp+'%"></i></div><p class="gs mut sm">'+(sum>=tg?"Цель достигнута! Машаллах 🎉 ":"Каждый балл любого ученика идёт в общую копилку. ")+(S.goal.prize?"Приз: <b style=\"color:var(--tx)\">"+esc(S.goal.prize)+"</b>":"")+'</p></div>';}
   if(L.length>=3&&tot(L[2])>0){
-    var p=function(s,i){return '<div data-a="open" data-id="'+s.id+'" role="button" tabindex="0">'+(i===0?'<div class="crown">👑</div>':"")+avh(s,i===0?"l":"")+'<div class="pn">'+esc(s.name)+'</div><div class="pp">'+tot(s)+'</div><div class="blk'+(i===0?" g1":"")+'" style="height:'+[96,74,56][i]+'px">'+medal(i)+'</div></div>'};
+    var p=function(s,i){return '<div data-a="open" data-id="'+s.id+'" role="button" tabindex="0">'+(i===0?'<div class="crown">👑</div>':"")+avh(s,i===0?"l":"")+'<div class="pn">'+esc(s.name)+'</div><div class="pp">'+tot(s)+bumpH(s)+'</div><div class="blk'+(i===0?" g1":"")+'" style="height:'+[96,74,56][i]+'px">'+medal(i)+'</div></div>'};
     h+='<div class="pod">'+p(L[1],1)+p(L[0],0)+p(L[2],2)+'</div>';
   }
   if(!m)h+='<p class="cen mut sm" style="margin:-4px 0 12px">Нажми на своё имя и выбери «Это я» — сверху появится твой персонаж</p>';
   h+='<div class="box"><h2>Таблица лидеров <small>'+pn(L.length,"ученик","ученика","учеников")+'</small></h2>';
   L.forEach(function(s,i){var l=lvl(s),eb=earned(s);
-    h+='<div class="row'+(s.id===meStudent?" me":"")+'" data-a="open" data-id="'+s.id+'" role="button" tabindex="0"><div class="rk">'+(tot(s)>0?medal(i):i+1)+'</div>'+avh(s)+'<div class="mid"><div class="nm">'+exName(s)+'</div><div class="lvl" style="color:'+l[4]+'">'+l[1]+" "+l[2]+'</div>'+tagsOf(s)+(eb.length>1?'<div class="bdg">'+eb.slice(-6).map(function(b){return b.e}).join(" ")+'</div>':"")+'</div><div class="sc"><b>'+tot(s)+'</b><small>'+pl(tot(s),"балл","балла","баллов")+'</small></div></div>';
+    h+='<div class="row'+(s.id===meStudent?" me":"")+'" data-a="open" data-id="'+s.id+'" role="button" tabindex="0"><div class="rk">'+(tot(s)>0?medal(i):i+1)+'</div>'+avh(s)+'<div class="mid"><div class="nm">'+exName(s)+'</div><div class="lvl" style="color:'+l[4]+'">'+l[1]+" "+l[2]+'</div>'+tagsOf(s)+(eb.length>1?'<div class="bdg">'+eb.slice(-6).map(function(b){return b.e}).join(" ")+'</div>':"")+'</div><div class="sc">'+bumpH(s)+'<b>'+tot(s)+'</b><small>'+pl(tot(s),"балл","балла","баллов")+'</small></div></div>';
   });
   return h+'</div><div class="box"><h2>Последние баллы</h2>'+logList(S.log.slice(0,8),false)+'</div>';
 }
@@ -760,7 +786,7 @@ function logList(list,del){
     return '<div class="lg"><div class="ic" style="background:var('+c[3]+')">'+c[0]+'</div><div class="lt">'+txt+(e.note?'<small>'+esc(e.note)+'</small>':"")+'</div><div class="dt">'+rel(e.d)+'</div>'+(del?'<button class="x" data-a="rev" data-id="'+e.id+'" aria-label="Отменить запись">✕</button>':"")+'</div>'}).join("");
 }
 function vSur(){
-  var L=S.students.slice().sort(function(a,b){return surCount(b)-surCount(a)||b.sur.length-a.sur.length}),total=0;L.forEach(function(s){total+=surCount(s)});
+  var L=actS().sort(function(a,b){return surCount(b)-surCount(a)||b.sur.length-a.sur.length}),total=0;L.forEach(function(s){total+=surCount(s)});
   var h=vListen()+'<div class="box cen"><div class="big">📜</div><h2>Рейтинг по сурам</h2><p class="mut" style="margin:6px auto 12px;max-width:44ch">Кто сколько сур выучил наизусть — за всё время. Не обнуляется с новым сезоном и не идёт в общую таблицу, но за суры есть свои значки.</p><span class="chip">Всего выучено: <b style="color:var(--s)">'+pn(total,"сура","суры","сур")+'</b></span></div>';
   if(!L.length)return h;
   h+='<div class="box">';
@@ -773,7 +799,7 @@ function vHall(){
   if(!S.hall.length)return '<div class="box cen"><div class="big">🏛️</div><h2>Зал славы пока пуст</h2><p class="mut" style="margin-top:6px">Когда учитель завершит сезон, победители навсегда останутся здесь.</p></div>';
   return S.hall.map(function(se){
     var h='<div class="box"><h2>🏆 '+esc(se.name)+'</h2><p class="mut sm" style="margin:-6px 0 10px">Закончился '+fdate(se.end+"T12:00:00",{day:"numeric",month:"long",year:"numeric"})+' · группа набрала '+pn(se.total||0,"балл","балла","баллов")+(se.target&&se.total>=se.target?" — общая цель выполнена 🎉":"")+'</p>';
-    (se.w||[]).forEach(function(w,i){h+='<div class="hall-w"><span class="m">'+medal(i)+'</span><div class="av s" style="--c:var(--gold)">'+(AVM[w.av]?avSvg(avShown(w.av)):esc(w.av))+'</div><span class="mid nm" style="font-size:17px">'+esc(w.name)+'</span><b style="color:var(--gold)">'+w.p+'</b></div>'});
+    (se.w||[]).forEach(function(w,i){if(i>2){h+='<div class="hall-w" style="padding:3px 0;opacity:.85"><span class="m" style="font-size:15px;width:26px;text-align:center;font-weight:900;color:var(--mut)">'+(i+1)+'</span><div class="av s" style="--c:var(--line);width:32px;height:32px">'+(AVM[w.av]?avSvg(avShown(w.av)):esc(w.av))+'</div><span class="mid nm" style="font-size:15px">'+esc(w.name)+'</span><b>'+w.p+'</b></div>';return}h+='<div class="hall-w"><span class="m">'+medal(i)+'</span><div class="av s" style="--c:var(--gold)">'+(AVM[w.av]?avSvg(avShown(w.av)):esc(w.av))+'</div><span class="mid nm" style="font-size:17px">'+esc(w.name)+'</span><b style="color:var(--gold)">'+w.p+'</b></div>'});
     var b=se.best||{};
     if(b.n||b.q||b.x)h+='<div class="tags" style="margin-top:10px">'+(b.n?'<span class="tg tn">🕌 Больше всех намазов: '+esc(b.n.name)+' ('+b.n.v+')</span>':"")+(b.q?'<span class="tg tq">📖 Больше всех Корана: '+esc(b.q.name)+' ('+b.q.v+')</span>':"")+(b.x?'<span class="tg tx">⭐ Самый активный: '+esc(b.x.name)+'</span>':"")+'</div>';
     return h+'</div>';
@@ -790,16 +816,18 @@ function vRules(){
   h+='<p class="mut sm">Баллы ставит только учитель. Намаз + Коран + Дополнительно − Штраф = общий счёт. Кто набрал больше, тот выше в таблице.</p></div>';
   h+='<div class="box"><h2>📚 Домашние задания</h2><p class="mut">Во вкладке «Задания» учитель выкладывает задания с файлами: аудио, PDF, картинки. Войди в свой кабинет по PIN-коду (его даёт учитель), выполни задание и отправь ответ — текст, фото или запись голоса. Когда учитель примет работу, баллы сразу добавятся в рейтинг.</p></div>';
   h+='<div class="box"><h2>🎯 Общая цель</h2><p class="mut">Все ученики группы вместе копят баллы в общую копилку. Если до конца сезона набрать цель — вся группа получает приз, который назначил учитель. Помогаешь себе — помогаешь всем.</p></div>';
-  h+='<div class="box"><h2>📜 Рейтинг по сурам</h2><div class="rule" style="background:var(--sbg);margin:0"><div class="e">📜</div><div><h3 style="color:var(--s)">Выучил суру наизусть</h3>Учитель засчитывает каждую выученную суру. Это отдельный рейтинг за всё время — вкладка «Суры». Он не обнуляется с новым сезоном и не идёт в общую таблицу, но за суры есть свои значки.</div></div></div>';
+  h+='<div class="box"><h2>📜 Рейтинг по сурам</h2><div class="rule" style="background:var(--sbg);margin:0"><div class="e">📜</div><div><h3 style="color:var(--s)">Выучил суру наизусть</h3>Учитель засчитывает каждую выученную суру. Это отдельный рейтинг за всё время — вкладка «Суры». Он не обнуляется с новым сезоном, за суры есть свои значки'+(S.surPts>0?', а за каждую новую суру — ещё и +'+pn(S.surPts,"балл","балла","баллов")+' в общую таблицу':'')+'.</div></div></div>';
   h+='<div class="box"><h2>Уровни персонажа</h2><p class="mut" style="margin-bottom:8px">Каждый балл — это опыт. Набирай опыт, и твой персонаж получит новое звание и новую рамку.</p>';
   LV.forEach(function(l){h+='<div class="lrow"><u style="background:'+l[4]+'">'+l[0]+'</u><span>'+l[1]+" "+l[2]+'</span><s>'+(l[3]?"от "+l[3]+" опыта":"старт")+'</s></div>'});
-  h+='</div><div class="box"><h2>🏅 Значки</h2><p class="mut" style="margin-bottom:12px">Значки за звания приходят сами. Если штраф опустит уровень, значок за это звание пропадёт. Значки за суры и за постоянство остаются навсегда.</p><div class="bgrid">';
+  h+='</div><div class="box"><h2>🏅 Значки</h2><p class="mut" style="margin-bottom:12px">Значки за звания приходят сами. Если штраф опустит уровень, значок за это звание пропадёт. Значки за суры, посещения, постоянство и места в сезонах остаются навсегда.</p><div class="bgrid">';
   SB.forEach(function(b){h+='<div class="bd"><i>'+b[1]+'</i><b>'+b[2]+'</b><span>'+(b[0]===114?"все 114 сур":pn(b[0],"сура","суры","сур"))+'</span></div>'});
   h+='<div class="bd"><i>📘</i><b>Джуз Амма</b><span>30-й джуз целиком</span></div>';
   STK.forEach(function(b){h+='<div class="bd"><i>'+b[1]+'</i><b>'+b[2]+'</b><span>намаз в мечети каждую неделю</span></div>'});
+  ATB.forEach(function(b){h+='<div class="bd"><i>'+b[1]+'</i><b>'+b[2]+'</b><span>'+pn(b[0],"урок","урока","уроков")+' в медресе</span></div>'});
+  h+='<div class="bd"><i>🥉</i><b>В тройке</b><span>тройка лучших сезона</span></div><div class="bd"><i>👑</i><b>Чемпион сезона</b><span>1 место в сезоне</span></div>';
   h+='</div></div><div class="box"><h2>👤 Мой персонаж</h2><p class="mut">Нажми на своё имя в таблице и выбери «Это я». Тогда сверху всегда будет твой персонаж, а когда получишь новое звание — увидишь праздник. Аватарку можно выбрать самому: войди в кабинет по PIN-коду, нажми на своё имя и выбери персонажа или загрузи свою картинку. Учитель тоже может её поменять.</p></div>';
   h+=installBox();
-  h+='<div class="box"><h2>Сезоны</h2><p class="mut">Рейтинг идёт до конца сезона. Потом учитель начинает новый сезон: таблица обнуляется, а лучшие попадают в Зал славы. Опыт, звание, значки и выученные суры остаются с тобой.</p></div>';
+  h+='<div class="box"><h2>Сезоны</h2><p class="mut">Рейтинг идёт до конца сезона. Потом учитель начинает новый сезон: таблица обнуляется, а десятка лучших попадает в Зал славы. Опыт, звание, значки и выученные суры остаются с тобой.</p></div>';
   return h;
 }
 function confirmBtn(key,label,action,id){
@@ -849,7 +877,8 @@ function attTable(L){
 function vCatsBox(){
   var D=UI.cats;
   var h='<div class="box" id="catbox"><h2>⭐ Настройка баллов</h2><p class="mut sm" style="margin:-6px 0 10px">За что и сколько баллов дают кнопки на вкладке «⭐ Баллы». Можно менять количество, название и значок, добавлять свои пункты и штрафы.</p>';
-  if(!D){h+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">'+S.cats.map(function(c){return '<span class="tg '+(c.k==="f"?"tf":c.off?"":"tx")+'"'+(c.off?' style="opacity:.5"':"")+'>'+(c.k==="f"?"−":"+")+c.pts+' '+esc(c.e)+' '+esc(c.name)+(c.off?" (выкл.)":"")+'</span>'}).join("")+'</div><button class="btn sm" data-a="catedit">✏️ Изменить</button></div>';return h}
+  var sp='<div class="field" style="margin:4px 0 10px;max-width:320px"><label for="surpts">📜 Баллы за выученную суру</label><select id="surpts">'+[0,1,2,3,5,10].map(function(n){return '<option value="'+n+'"'+(S.surPts===n?" selected":"")+'>'+(n?"+"+pn(n,"балл","балла","баллов")+" в рейтинг":"не начислять (только рейтинг сур)")+'</option>'}).join("")+'</select></div>';
+  if(!D){h+=sp+'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">'+S.cats.map(function(c){return '<span class="tg '+(c.k==="f"?"tf":c.off?"":"tx")+'"'+(c.off?' style="opacity:.5"':"")+'>'+(c.k==="f"?"−":"+")+c.pts+' '+esc(c.e)+' '+esc(c.name)+(c.off?" (выкл.)":"")+'</span>'}).join("")+'</div><button class="btn sm" data-a="catedit">✏️ Изменить</button></div>';return h}
   D.forEach(function(c,i){var base=c.id==="n"||c.id==="q";
     h+='<div style="border:1px solid var(--line);border-radius:14px;padding:10px;margin-bottom:8px'+(c.off?";opacity:.6":"")+'"><div style="display:grid;grid-template-columns:56px 1fr 74px;gap:6px;align-items:end">'+
       '<div class="field" style="margin:0"><label for="ce_'+i+'">Знак</label><input id="ce_'+i+'" type="text" maxlength="4" value="'+esc(c.e)+'" style="text-align:center;font-size:20px;padding:8px 4px"></div>'+
@@ -866,7 +895,7 @@ function catsRead(){if(!UI.cats)return;UI.cats.forEach(function(c,i){var e=docum
 function JOURNAL_BOX(lg){return '<div class="box"><h2>🧾 Журнал</h2><p class="mut sm" style="margin:-6px 0 6px">Ошиблись — нажмите ✕, и запись отменится вместе с баллами.</p>'+logList(lg,true)+(S.log.length>12&&!UI.showAll?'<button class="btn sm" data-a="showall" style="margin-top:8px">Показать больше</button>':"")+'</div>'}
 function tabs4(act,cur,list){return '<div class="tabs4" role="tablist">'+list.map(function(t){return '<button role="tab" aria-selected="'+(cur===t[0])+'" class="'+(cur===t[0]?"on":"")+'" data-a="'+act+'" data-v="'+t[0]+'"><i>'+t[1]+'</i><span>'+t[2]+'</span></button>'}).join("")+'</div>'}
 function vTeacher(){
-  var L=S.students.slice().sort(function(a,b){return a.name.localeCompare(b.name,"ru")}),h="";
+  var L=actS().sort(function(a,b){return a.name.localeCompare(b.name,"ru")}),HID=S.students.filter(function(x){return x.hid}),h="";
   // вкладки: урок (посещения), баллы, ученики, ещё — чтобы не листать три списка подряд
   var ts=UI.tseg||store.get("tseg",null)||(new Date().getDay()===0?"a":"b");if(!L.length&&ts!=="m")ts="u";
   h+=tabs4("tseg",ts,[["a","📅","Урок"],["b","⭐","Баллы"],["u","👥","Ученики"],["m","⚙️","Ещё"]]);
@@ -874,6 +903,8 @@ function vTeacher(){
   if(ts==="b"){h+='<div class="box"><h2>✅ Отметить баллы</h2><p class="mut sm" style="margin:-6px 0 6px">Выберите, кто пришёл, и нажмите кнопку — балл получат все выбранные сразу.</p>';
   if(!L.length)h+='<p class="mut">Сначала добавьте учеников во вкладке «👥 Ученики».</p>';
   else{
+    var pd=UI.pday||"",tdy=ymd(new Date());
+    h+='<div class="btns" style="align-items:center;margin-bottom:8px"><span class="sm mut">День:</span><input id="pday" type="date" value="'+(pd||tdy)+'" max="'+tdy+'" style="width:auto;padding:8px 10px">'+(pd&&pd!==tdy?'<span class="tg tf">⚠️ баллы пойдут задним числом</span><button class="btn sm" data-a="pdaynow">Сегодня</button>':'<span class="sm mut">сегодня</span>')+'</div>';
     h+='<div class="btns"><button class="btn sm" data-a="selall">Выбрать всех</button><button class="btn sm" data-a="selno">Снять выбор</button><button class="btn sm" data-a="undo"'+(S.log.length?"":" disabled")+'>↩ Отменить последнее</button></div><div class="mark">';
     L.forEach(function(s){var on=UI.sel.indexOf(s.id)>-1;h+='<button class="mk'+(on?" on":"")+'" data-a="sel" data-id="'+s.id+'" aria-pressed="'+on+'">'+avh(s,"s")+'<span>'+esc(s.name)+'</span></button>'});
     h+='</div><div class="sticky"><div class="btns" style="align-items:center">'+S.cats.filter(function(c){return !c.off}).map(function(c){return '<button class="btn '+(c.k==="f"?"dng":"pri")+'" data-a="mass" data-k="'+c.k+'" data-v="'+c.id+'">'+(c.k==="f"?"−":"+")+c.pts+' '+esc(c.e)+' '+esc(c.name)+'</button>'}).join("")+'<span class="sm mut">Выбрано: <b style="color:var(--tx)">'+UI.sel.length+'</b></span></div></div>';
@@ -889,9 +920,11 @@ function vTeacher(){
   L.forEach(function(s){h+='<div class="row" data-a="open" data-id="'+s.id+'" role="button" tabindex="0" style="padding:8px 12px">'+avh(s,"s")+'<div class="mid"><div style="font-weight:800">'+exName(s)+'</div><div class="sm mut">'+lvl(s)[2]+' · '+pn(tot(s),"балл","балла","баллов")+' · '+pn(surCount(s),"сура","суры","сур")+'</div></div><span class="mut">›</span></div>'});
   if(S.students.some(function(s){return s.ex}))h+='<button class="btn sm" data-a="clearex" style="margin-top:6px">Удалить все примеры</button>';
   h+='</div>';
+  if(HID.length){h+='<div class="box"><h2>🙈 Скрытые <small>'+HID.length+'</small></h2><p class="mut sm" style="margin:-6px 0 8px">Ушедшие ребята. Их нет в рейтинге и списках, но баллы, суры и значки сохранены. Вернуть можно в любой момент.</p>';
+    HID.forEach(function(s){h+='<div class="lst">'+avh(s,"s")+'<span class="mid nm">'+esc(s.name)+'<br><small class="mut">'+pn(tot(s),"балл","балла","баллов")+' · '+pn(surCount(s),"сура","суры","сур")+'</small></span><button class="btn sm" data-a="unhide" data-id="'+s.id+'">↩ Вернуть</button></div>'});h+='</div>'}
   return h}
   h+=vCatsBox();
-  h+='<div class="box"><h2>🏁 Сезон и общая цель</h2><div class="grid2"><div class="field"><label for="sname">Название сезона</label><input id="sname" type="text" maxlength="40" value="'+esc(S.season.name)+'"></div><div class="field"><label for="send">Последний день сезона</label><input id="send" type="date" value="'+esc(S.season.end)+'"></div><div class="field"><label for="gtarget">Общая цель, баллов (0 — без цели)</label><input id="gtarget" type="number" min="0" max="100000" value="'+(S.goal.target|0)+'"></div><div class="field"><label for="gprize">Приз за цель</label><input id="gprize" type="text" maxlength="60" value="'+esc(S.goal.prize)+'" placeholder="Например: поездка всей группой"></div></div><div class="btns"><button class="btn pri" data-a="saveseason">Применить</button>'+confirmBtn("season","🏁 Завершить сезон","endseason")+'</div><p class="mut sm" style="margin-top:8px">При завершении таблица обнулится, тройка лидеров попадёт в Зал славы. Опыт, звания и суры у ребят останутся.</p></div>';
+  h+='<div class="box"><h2>🏁 Сезон и общая цель</h2><div class="grid2"><div class="field"><label for="sname">Название сезона</label><input id="sname" type="text" maxlength="40" value="'+esc(S.season.name)+'"></div><div class="field"><label for="send">Последний день сезона</label><input id="send" type="date" value="'+esc(S.season.end)+'"></div><div class="field"><label for="gtarget">Общая цель, баллов (0 — без цели)</label><input id="gtarget" type="number" min="0" max="100000" value="'+(S.goal.target|0)+'"></div><div class="field"><label for="gprize">Приз за цель</label><input id="gprize" type="text" maxlength="60" value="'+esc(S.goal.prize)+'" placeholder="Например: поездка всей группой"></div></div><div class="btns"><button class="btn pri" data-a="saveseason">Применить</button>'+confirmBtn("season","🏁 Завершить сезон","endseason")+'</div><p class="mut sm" style="margin-top:8px">При завершении таблица обнулится, десятка лидеров попадёт в Зал славы. Опыт, звания и суры у ребят останутся.</p></div>';
   h+='<div class="box"><h2>💬 Итоги недели для родителей</h2><p class="mut sm" style="margin:-6px 0 8px">Готовый текст за последние 7 дней — скопируйте и отправьте в чат.</p><textarea id="wtext" readonly>'+esc(weekText())+'</textarea><div class="btns" style="margin-top:8px"><button class="btn pri" data-a="copyweek">📋 Скопировать</button></div></div>';
   h+='<div class="box"><h2>💾 Резервная копия</h2><p class="mut sm" style="margin:-6px 0 10px">Скачивайте копию после каждого сезона. Из неё можно всё восстановить, в том числе из старых Савабиков.</p><div class="btns"><button class="btn" data-a="backup">⬇️ Скачать копию</button><button class="btn" data-a="restore">⬆️ Восстановить из файла</button></div><input id="rfile" type="file" accept=".json,application/json" hidden>';
   if(UI.restore)h+='<div style="margin-top:12px;padding:12px;border-radius:14px;background:var(--fbg)"><b>Заменить данные группы копией?</b><p class="sm" style="margin:4px 0 8px">В файле: '+pn(UI.restore.students.length,"ученик","ученика","учеников")+', '+pn(UI.restore.hall.length,"сезон","сезона","сезонов")+' в Зале славы. Текущие данные группы «'+esc(G.name)+'» будут заменены.</p><span class="btns"><button class="btn sm dng" data-a="dorestore">Да, заменить</button><button class="btn sm" data-a="norestore">Отмена</button></span></div>';
@@ -913,7 +946,7 @@ function weekText(){
   var lvUp=[];S.students.forEach(function(s){var g=0;ent.forEach(function(e){if(e.s===s.id&&e.t!=="s")g+=e.t==="f"?-e.v:e.v});var was=LV[0];LV.forEach(function(l){if(s.xp-g>=l[3])was=l});if(lvl(s)[0]>was[0])lvUp.push(s.name+" — «"+lvl(s)[2]+"» "+lvl(s)[1])});
   if(lvUp.length){lines.push("","⬆️ Новые звания:");lvUp.forEach(function(x){lines.push("• "+x)})}
   var lsd=Object.keys(S.att).sort().filter(function(d){return d>=ymd(from)}).pop();
-  if(lsd){var am=S.att[lsd],pr=S.students.filter(function(x){return am[x.id]&&am[x.id].st==="p"}).length;lines.push("","📅 На уроке "+fdate(lsd+"T12:00:00",{day:"numeric",month:"long"})+" были: "+pr+" из "+S.students.length+".")}
+  if(lsd){var am=S.att[lsd],pr=actS().filter(function(x){return am[x.id]&&am[x.id].st==="p"}).length;lines.push("","📅 На уроке "+fdate(lsd+"T12:00:00",{day:"numeric",month:"long"})+" были: "+pr+" из "+actS().length+".")}
   lines.push("","Всего за неделю: "+pn(Math.max(0,total),"балл","балла","баллов")+".");
   if(S.goal.target>0)lines.push("🎯 Общая цель группы: "+seasonTotal()+" из "+S.goal.target+(S.goal.prize?" (приз: "+S.goal.prize+")":"")+".");
   lines.push("","Рейтинг: "+groupLink(G.slug));
@@ -944,14 +977,15 @@ function teacherSheet(s){
   var h='<div class="sec" style="color:var(--gold)">Для учителя</div><div class="qa">';
   ["n","q","x","f"].forEach(function(k){var c=CAT[k];h+='<div>'+c[0]+" "+(k==="x"?"Доп.":c[1])+'<b>'+s[k]+'</b><div class="btns"><button class="btn sm" data-a="dec" data-k="'+k+'" data-id="'+s.id+'" aria-label="Минус">−</button><button class="btn sm" data-a="inc" data-k="'+k+'" data-id="'+s.id+'" aria-label="Плюс">+</button></div></div>'});
   h+='</div><div class="sec">Аватарка</div><div class="btns" style="align-items:center;margin-bottom:4px"><div class="seg"><button class="'+(s.g!=="f"?"on":"")+'" data-a="setg" data-id="'+s.id+'" data-v="m">Мальчик</button><button class="'+(s.g==="f"?"on":"")+'" data-a="setg" data-id="'+s.id+'" data-v="f">Девочка</button></div></div>'+avPicker(s);
-  h+='<div class="sec">Отметить суры</div><input id="surq" type="search" placeholder="Поиск суры по названию или номеру" value="'+esc(UI.surq)+'"><div class="pick" id="surlist">'+surPick(s)+'</div>';
+  h+='<div class="sec">Отметить суры</div><p class="mut sm" style="margin:-2px 0 6px">'+(S.surPts>0?"За новую суру — +"+pn(S.surPts,"балл","балла","баллов")+" в рейтинг. ":"")+'Чтобы убрать суру, нажмите на неё два раза.</p><input id="surq" type="search" placeholder="Поиск суры по названию или номеру" value="'+esc(UI.surq)+'"><div class="pick" id="surlist">'+surPick(s)+'</div>';
   h+='<div class="sec">Имя</div><div class="btns" style="flex-wrap:nowrap;margin-bottom:10px"><input id="rename" type="text" maxlength="30" value="'+esc(s.name)+'"><button class="btn" data-a="rename" data-id="'+s.id+'">Сохранить</button></div>';
   h+='<div class="sec">Грамота</div><div class="field"><label for="certr">За что</label><select id="certr">'+certReasons(s).map(function(r){return '<option'+(r===UI.certReason?" selected":"")+'>'+esc(r)+'</option>'}).join("")+'</select></div><div class="btns"><button class="btn" data-a="mkcert" data-id="'+s.id+'">🖼️ Сделать грамоту</button></div>';
   if(UI.certImg&&UI.certFor===s.id)h+='<img class="certimg" alt="Грамота" src="'+UI.certImg+'"><div class="btns"><button class="btn pri" data-a="dlcert" data-id="'+s.id+'">⬇️ Скачать картинку</button></div>';
-  h+='<div class="sec">Удаление</div>'+confirmBtn("del"+s.id,"🗑 Удалить ученика","delst",s.id);
+  h+='<div class="sec">Ушёл из группы</div><p class="mut sm" style="margin:-2px 0 8px">Скрытый ученик пропадёт из рейтинга и списков, но всё его сохранится. Вернуть — во вкладке «👥 Ученики».</p><div class="btns"><button class="btn sm" data-a="'+(s.hid?"unhide":"hide")+'" data-id="'+s.id+'">'+(s.hid?"↩ Вернуть в группу":"🙈 Скрыть ученика")+'</button></div>';
+  h+='<div class="sec">Удаление</div>'+confirmBtn("del"+s.id,"🗑 Удалить ученика навсегда","delst",s.id);
   return h;
 }
-function surPick(s){var q=UI.surq.trim().toLowerCase();return SUR.filter(function(x){return!q||x.toLowerCase().indexOf(q)>-1||String(NUM[x]||"")===q}).map(function(x){return '<button class="pk'+(s.sur.indexOf(x)>-1?" on":"")+'" data-a="sur" data-id="'+s.id+'" data-v="'+esc(x)+'">'+(NUM[x]?'<span class="sm mut">'+NUM[x]+'.</span> ':"")+esc(x)+'</button>'}).join("")}
+function surPick(s){var q=UI.surq.trim().toLowerCase();return SUR.filter(function(x){return!q||x.toLowerCase().indexOf(q)>-1||String(NUM[x]||"")===q}).map(function(x){var ask=UI.confirm==="sur"+s.id+x;return '<button class="pk'+(s.sur.indexOf(x)>-1?" on":"")+'" data-a="sur" data-id="'+s.id+'" data-v="'+esc(x)+'"'+(ask?' style="background:var(--err);color:#fff"':"")+'>'+(ask?"Убрать «"+esc(x)+"»?":(NUM[x]?'<span class="sm mut">'+NUM[x]+'.</span> ':"")+esc(x))+'</button>'}).join("")}
 function certReasons(s){
   var r=[],p=place(s),l=lvl(s),sc=surCount(s);
   if(p<=3&&tot(s)>0)r.push("за "+p+" место в сезоне «"+S.season.name+"»");
@@ -1142,7 +1176,7 @@ function hwCardT(x){
   var subs=(x.subs||[]).filter(function(s){return by(s.student_id)}),sent=subs.filter(function(s){return s.status==="sent"}),acc=subs.filter(function(s){return s.status==="accepted"}),ret=subs.filter(function(s){return s.status==="returned"});
   var open=UI.hwOpen===x.id,edit=UI.hwForm&&UI.hwForm.id0===x.id;
   var h='<div class="box hw">'+hwHead(x);
-  h+='<div class="hwst"><span class="tags"><span class="tg tx">⏳ ждут проверки '+sent.length+'</span><span class="tg tn">✅ принято '+acc.length+' из '+S.students.length+'</span>'+(ret.length?'<span class="tg tf">↩ на доработке '+ret.length+'</span>':"")+(x.listen&&x.listens?'<span class="tg tq">🎧 прослушали '+pn(x.listen,"раз","раза","раз")+': '+S.students.filter(function(st){return (x.listens[st.id]||0)>=x.listen}).length+' из '+S.students.length+'</span>':"")+'</span></div>';
+  h+='<div class="hwst"><span class="tags"><span class="tg tx">⏳ ждут проверки '+sent.length+'</span><span class="tg tn">✅ принято '+acc.length+' из '+actS().length+'</span>'+(ret.length?'<span class="tg tf">↩ на доработке '+ret.length+'</span>':"")+(x.listen&&x.listens?'<span class="tg tq">🎧 прослушали '+pn(x.listen,"раз","раза","раз")+': '+actS().filter(function(st){return (x.listens[st.id]||0)>=x.listen}).length+' из '+actS().length+'</span>':"")+'</span></div>';
   h+='<div class="btns" style="margin-top:10px"><button class="btn sm'+(sent.length?" pri":"")+'" data-a="hwtoggle" data-id="'+x.id+'">'+(open?"Свернуть":"Ответы учеников")+'</button>'+(edit?"":'<button class="btn sm" data-a="hwedit" data-id="'+x.id+'">✏️ Изменить</button>')+'</div>';
   if(edit)h+=vHwForm(x);
   if(open){
@@ -1157,12 +1191,12 @@ function hwCardT(x){
       h+='</div>';
     });
     if(x.listen&&x.listens){
-      var LL=S.students.map(function(st){return {st:st,n:x.listens[st.id]||0}}).sort(function(a,b){return b.n-a.n||a.st.name.localeCompare(b.st.name,"ru")});
+      var LL=actS().map(function(st){return {st:st,n:x.listens[st.id]||0}}).sort(function(a,b){return b.n-a.n||a.st.name.localeCompare(b.st.name,"ru")});
       h+='<div class="sec">🎧 Прослушали суру · нужно '+pn(x.listen,"раз","раза","раз")+'</div><div class="lsn" style="margin-top:0">';
       LL.forEach(function(r){var ok=r.n>=x.listen;h+='<div class="lst">'+avh(r.st,"s")+'<span class="mid nm">'+esc(r.st.name)+'</span><b style="color:'+(ok?"var(--ok)":r.n?"var(--gold)":"var(--mut)")+'">'+(ok?"✅ ":"")+r.n+' / '+x.listen+'</b></div>'});
       h+='</div>';
     }
-    var none=S.students.filter(function(st){return !subs.some(function(s){return s.student_id===st.id})}).sort(function(a,b){return a.name.localeCompare(b.name,"ru")});
+    var none=actS().filter(function(st){return !subs.some(function(s){return s.student_id===st.id})}).sort(function(a,b){return a.name.localeCompare(b.name,"ru")});
     if(!subs.length)h+='<p class="mut sm" style="margin-top:10px">Ответов пока нет.</p>';
     if(none.length)h+='<div class="sec">Не сдали · '+none.length+'</div><p class="mut sm" style="margin-bottom:8px">Если ученик ответил на уроке, нажмите на имя — задание зачтётся с баллами.</p><div class="pick">'+none.map(function(st){return '<button class="pk" data-a="rvok" data-id="'+x.id+'" data-v="'+esc(st.id)+'" data-k="oral">✓ '+esc(st.name)+'</button>'}).join("")+'</div>';
   }
@@ -1536,7 +1570,7 @@ function render(){
   var osh=app.querySelector(".sheet"),sy=osh?osh.scrollTop:0,same=shownSheet===UI.sheet;
   var kept={};app.querySelectorAll("[data-keep]").forEach(function(el){kept[el.dataset.keep]=el});
   var html=R.view==="group"?vGroup():R.view==="login"?vLogin():R.view==="cab"?vCab():R.view==="home"?vHome():'<div class="loading">Загрузка…</div>';
-  app.innerHTML=html+(toastMsg?'<div class="toast" role="status">'+esc(toastMsg)+'</div>':"");
+  app.innerHTML=html+(toastMsg?'<div class="toast" role="status">'+esc(toastMsg)+(toastUndo?' <button class="btn sm" data-a="undog" data-v="'+esc(toastUndo)+'" style="margin-left:8px;padding:6px 12px">↩ Отменить</button>':"")+'</div>':"");
   Object.keys(keep).forEach(function(id){var el=document.getElementById(id);if(!el)return;if(el.type==="checkbox")el.checked=keep[id];else el.value=keep[id]});
   app.querySelectorAll("[data-keep]").forEach(function(el){var o=kept[el.dataset.keep];if(o&&o!==el)el.replaceWith(o)});
   var nsh=app.querySelector(".sheet");if(nsh&&same&&UI.sheet)nsh.scrollTop=sy;
@@ -1803,7 +1837,7 @@ function act(a,b,e){
     case"tseg":UI.tseg=v;store.set("tseg",v);UI.confirm=null;window.scrollTo(0,0);break;
     case"cseg":UI.cseg=v;store.set("cseg",v);UI.form=null;UI.confirm=null;window.scrollTo(0,0);break;
     case"att":if(s){var aday=attDay(),ast=v;mut(function(){attSet(s.id,aday,ast)})}break;
-    case"attall":var aday2=attDay();S.students.forEach(function(x){if(!(S.att[aday2]&&S.att[aday2][x.id])){var xid=x.id;mut(function(){if(!(S.att[aday2]&&S.att[aday2][xid]))attSet(xid,aday2,"p")})}});flash("Отмечено");break;
+    case"attall":var aday2=attDay();actS().forEach(function(x){if(!(S.att[aday2]&&S.att[aday2][x.id])){var xid=x.id;mut(function(){if(!(S.att[aday2]&&S.att[aday2][xid]))attSet(xid,aday2,"p")})}});flash("Отмечено");break;
     case"attday":var nd=new Date(attDay()+"T12:00:00");nd.setDate(nd.getDate()+(parseInt(v,10)||0));if(nd.getDay()!==0)nd=lastSunday(nd);if(ymd(nd)>ymd(lastSunday()))nd=lastSunday();UI.attDay=ymd(nd);UI.dropKeep=true;break;
     case"atttable":UI.attTable=!UI.attTable;break;
     case"sel":if(s){var j=UI.sel.indexOf(s.id);if(j>-1)UI.sel.splice(j,1);else UI.sel.push(s.id)}break;
@@ -1814,8 +1848,9 @@ function act(a,b,e){
       var sel=UI.sel.filter(function(x){return by(x)});if(!sel.length){flash("Сначала выберите учеников");break}
       var cc=v?S.cats.filter(function(c){return c.id===v})[0]:null,gid=uid();
       var amt=cc?cc.pts:Math.max(1,Math.min(50,parseInt(UI.amt,10)||1)),note=cc?(cc.k==="n"||cc.k==="q"?"":cc.e+" "+cc.name):UI.note;
-      mut(function(){sel.forEach(function(sid){apply(sid,k,amt,gid,note)})});
-      flash((k==="f"?"Штраф −":"+")+amt+" "+CAT[k][0]+" · "+pn(sel.length,"ученик","ученика","учеников"));
+      var pdd=UI.pday&&UI.pday!==ymd(new Date())?new Date(UI.pday+"T12:00:00").toISOString():"";
+      mut(function(){sel.forEach(function(sid){apply(sid,k,amt,gid,note,pdd)})});
+      flash((k==="f"?"Штраф −":"+")+amt+" "+CAT[k][0]+" · "+pn(sel.length,"ученик","ученика","учеников")+(pdd?" · "+fdate(pdd):""),gid);
       if(!cc&&(k==="x"||k==="f")){UI.note="";var ni=document.getElementById("note");if(ni)ni.value=""}break;
     case"inc":if(s)mut(function(){apply(id,k,1)});break;
     case"dec":if(s)mut(function(){apply(id,k,-1)});break;
@@ -1829,7 +1864,13 @@ function act(a,b,e){
     case"avphoto":UI.avFor=id;var af=document.getElementById("avfile");if(af){af.value="";af.click()}return;
     case"avnophoto":delete PH[id];render();rpc("avatar_set",A({p_slug:G.slug,p_student:id})).then(refreshGroup).catch(function(x){flash(emsg(x));render()});return;
     case"setg":if(s)mut(function(){var t=by(id);if(t){t.g=v;var set=v==="f"?"g":"b";if(AVM[t.av]&&AVM[t.av][2]!==set&&AVM[t.av][2]!=="n")t.av=avDefault(v)}});break;
-    case"sur":if(s){var on=s.sur.indexOf(v)<0;mut(function(){setSur(id,v,on)})}break;
+    case"sur":if(s){var on=s.sur.indexOf(v)<0;
+      if(!on&&UI.confirm!=="sur"+id+v){UI.confirm="sur"+id+v;break}
+      UI.confirm=null;mut(function(){setSur(id,v,on)});if(on&&S.surPts>0)flash("📜 «"+v+"» засчитана · +"+pn(S.surPts,"балл","балла","баллов"))}break;
+    case"hide":if(s){mut(function(){var t=by(id);if(t)t.hid=true});UI.sel=UI.sel.filter(function(x){return x!==id});UI.sheet=null;flash(s.name+" скрыт(а) — баллы сохранены")}break;
+    case"unhide":if(s){mut(function(){var t=by(id);if(t)delete t.hid});flash(s.name+" снова в группе")}break;
+    case"pdaynow":UI.pday="";break;
+    case"undog":var ug=v,uids=S.log.filter(function(x){return x.g===ug}).map(function(x){return x.id});if(uids.length){mut(function(){uids.forEach(revert)});flash("Отменено")}break;
     case"conf":UI.confirm=k;break;
     case"noconf":UI.confirm=null;break;
     case"delst":if(s){mut(function(){S.students=S.students.filter(function(x){return x.id!==id});S.log=S.log.filter(function(x){return x.s!==id})});UI.sel=UI.sel.filter(function(x){return x!==id});if(meStudent===id){meStudent=null;store.set("me_"+G.slug,null)}UI.sheet=null;UI.confirm=null;flash("Ученик удалён")}break;
@@ -1879,6 +1920,8 @@ document.addEventListener("keydown",function(e){
 document.addEventListener("input",function(e){
   var t=e.target;
   if(t.id==="amt")UI.amt=t.value;
+  if(t.id==="pday"){var pv=t.value;UI.pday=/^\d{4}-\d{2}-\d{2}$/.test(pv)&&pv<=ymd(new Date())?pv:"";render()}
+  if(t.id==="surpts"&&canEdit()){var spv=parseInt(t.value,10)||0;mut(function(){S.surPts=spv});flash(spv?"За новую суру: +"+pn(spv,"балл","балла","баллов"):"За суры баллы в рейтинг не начисляются");render()}
   else if(t.id==="note")UI.note=t.value;
   else if(t.id==="ch_text"){UI.chDraft=t.value}
   else if(t.id==="surq"){UI.surq=t.value;var s=by(UI.sheet),box=document.getElementById("surlist");if(s&&box)box.innerHTML=surPick(s)}
@@ -1928,6 +1971,7 @@ function route(){
     R=r;S=null;G=null;R.err="";UI.sel=[];UI.restore=null;UI.showAll=false;HW=null;HWerr="";STOK=null;PH={};CH=null;THR=null;if(!r.chat){UI.seg="hw";UI.chat=null}UI.hwForm=null;UI.subm=null;UI.pins=null;UI.hwOpen=null;UI.pinErr="";UI.pinSid="";render();
     rpc("group_get",{p_slug:r.slug}).then(function(g){
       if(R.view!=="group"||R.slug!==r.slug)return;
+      cacheGroup(g);R.offline=false;
       G={slug:g.slug,name:g.name,version:g.version};S=migrate(g.data);meStudent=store.get("me_"+g.slug,null);if(meStudent&&!by(meStudent))meStudent=null;
       STOK=store.get("stok_"+g.slug,null);if(STOK&&!by(STOK.sid))STOK=null;hwLoad();phLoad();if(!PUSHV)pushInfo();
       var rc=store.get("recent",[]).filter(function(x){return x.slug!==g.slug});rc.unshift({slug:g.slug,name:g.name});store.set("recent",rc.slice(0,5));
@@ -1937,7 +1981,11 @@ function route(){
         else{store.set("pending_"+g.slug,null);flash("Несохранённые изменения с этого телефона устарели — данные обновил другой учитель")}
       }
       document.title=g.name+" — "+APP;render();window.scrollTo(0,0);setTimeout(checkCeleb,900);
-    }).catch(function(x){R.err=emsg(x);render()});
+    }).catch(function(x){
+      if(R.view!=="group"||R.slug!==r.slug)return;
+      var c=x&&x.code==="network"&&store.get("cache_"+r.slug,null);
+      if(c&&c.data){G={slug:c.slug,name:c.name,version:c.version};S=migrate(c.data);R.offline=c.at||1;meStudent=store.get("me_"+c.slug,null);if(meStudent&&!by(meStudent))meStudent=null;document.title=c.name+" — "+APP;render();return}
+      R.err=emsg(x);render()});
     return;
   }
   document.title=APP;
