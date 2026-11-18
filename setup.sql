@@ -1265,6 +1265,104 @@ end $$;
 revoke all on function listen_add(text, text, text) from public;
 grant execute on function listen_add(text, text, text) to anon, authenticated;
 
+-- ---------- уроки-игры и активность учеников ----------
+-- Сколько раз и как долго заходит каждый ученик (по дням, время Можги)
+create table if not exists student_activity (
+  group_id   uuid not null references groups(id) on delete cascade,
+  student_id text not null,
+  day        date not null,
+  visits     int  not null default 0,
+  secs       int  not null default 0,
+  lpts       int  not null default 0,          -- баллы за уроки в этот день (не больше 30)
+  last_at    timestamptz,
+  primary key (group_id, student_id, day)
+);
+alter table student_activity enable row level security;
+revoke all on student_activity from anon, authenticated;
+
+create or replace function _today() returns date language sql stable as $$ select (now() at time zone 'Europe/Samara')::date $$;
+
+-- Отметка «ученик в приложении»: раз в минуту, пока открыт сайт. Новый заход — после перерыва больше 30 минут.
+create or replace function activity_ping(p_slug text, p_stoken text default null, p_student text default null, p_secs int default 0) returns json
+language plpgsql security definer set search_path = public, extensions as $$
+declare g groups := _g(p_slug); s student_sessions; sid text; last timestamptz; nv boolean; sec int;
+begin
+  if p_stoken is not null and p_stoken <> '' then
+    s := _swho(p_stoken); if s.group_id <> g.id then raise exception 'sauth'; end if; sid := s.student_id;
+  else sid := p_student; end if;
+  if sid is null or not _student_ok(g, sid) then raise exception 'no_student'; end if;
+  select max(last_at) into last from student_activity where group_id = g.id and student_id = sid;
+  nv := last is null or now() - last > interval '30 minutes';
+  sec := greatest(0, least(coalesce(p_secs, 0), 120));
+  if not nv then sec := least(sec, ceil(extract(epoch from now() - last))::int + 5); else sec := least(sec, 60); end if;
+  insert into student_activity as a (group_id, student_id, day, visits, secs, last_at)
+       values (g.id, sid, _today(), case when nv then 1 else 0 end, sec, now())
+  on conflict (group_id, student_id, day) do update
+       set visits = a.visits + case when nv then 1 else 0 end, secs = a.secs + sec, last_at = now();
+  return json_build_object('ok', true);
+end $$;
+
+-- Учитель: активность и уроки каждого ученика
+create or replace function activity_group(p_token text, p_slug text) returns json
+language plpgsql stable security definer set search_path = public, extensions as $$
+declare t teachers := _who(p_token); g groups := _g(p_slug);
+begin
+  if not _can(t, g.id) then raise exception 'forbidden'; end if;
+  return coalesce((select json_object_agg(sid, o) from (
+    select x.sid, json_build_object(
+      'v7', coalesce(sum(a.visits) filter (where a.day > _today() - 7), 0),
+      's7', coalesce(sum(a.secs)   filter (where a.day > _today() - 7), 0),
+      'v',  coalesce(sum(a.visits), 0), 's', coalesce(sum(a.secs), 0), 'last', max(a.last_at),
+      'days', count(distinct a.day),
+      'les', (select count(*) from lesson_progress p where p.group_id = g.id and p.student_id = x.sid and p.best_stars > 0),
+      'stars', (select coalesce(sum(best_stars), 0) from lesson_progress p where p.group_id = g.id and p.student_id = x.sid)) o
+    from (select distinct student_id sid from student_activity where group_id = g.id
+          union select distinct student_id from lesson_progress where group_id = g.id) x
+    left join student_activity a on a.group_id = g.id and a.student_id = x.sid
+    group by x.sid) q), '{}'::json);
+end $$;
+
+-- Урок пройден: звёзды 0–3. Баллы в рейтинг — только за новые звёзды (не больше 3 за урок и 30 в день).
+create or replace function lesson_done(p_slug text, p_stoken text, p_course text, p_lesson text, p_title text, p_stars int, p_correct int, p_total int) returns json
+language plpgsql security definer set search_path = public, extensions as $$
+declare g groups; s student_sessions; old int; gain int; used int; idx int; st jsonb; d jsonb; entry jsonb; ver int;
+begin
+  select * into g from groups where slug = lower(btrim(coalesce(p_slug, ''))) for update;
+  if not found then raise exception 'not_found'; end if;
+  s := _swho(p_stoken); if s.group_id <> g.id or not _student_ok(g, s.student_id) then raise exception 'sauth'; end if;
+  if coalesce(p_course, '') !~ '^[a-z0-9_-]{1,32}$' or coalesce(p_lesson, '') !~ '^[a-z0-9_-]{1,32}$' then raise exception 'bad_input'; end if;
+  if p_stars is null or p_stars < 0 or p_stars > 3 then raise exception 'bad_input'; end if;
+  select best_stars into old from lesson_progress where group_id = g.id and student_id = s.student_id and course = p_course and lesson = p_lesson;
+  old := coalesce(old, 0);
+  insert into lesson_progress as lp (group_id, student_id, course, lesson, stars, best_stars, correct, total, attempts)
+       values (g.id, s.student_id, p_course, p_lesson, p_stars, p_stars, greatest(coalesce(p_correct, 0), 0), greatest(coalesce(p_total, 0), 0), 1)
+  on conflict (group_id, student_id, course, lesson) do update
+       set stars = excluded.stars, best_stars = greatest(lp.best_stars, excluded.stars),
+           correct = excluded.correct, total = excluded.total, attempts = lp.attempts + 1, updated_at = now();
+  gain := greatest(0, p_stars - old);
+  select coalesce(lpts, 0) into used from student_activity where group_id = g.id and student_id = s.student_id and day = _today();
+  gain := least(gain, greatest(0, 30 - coalesce(used, 0)));
+  ver := g.version;
+  if gain > 0 then
+    insert into student_activity as a (group_id, student_id, day, lpts) values (g.id, s.student_id, _today(), gain)
+    on conflict (group_id, student_id, day) do update set lpts = a.lpts + gain;
+    select (e.ord - 1)::int into idx from jsonb_array_elements(g.data->'students') with ordinality as e(v, ord) where e.v->>'id' = s.student_id limit 1;
+    st := g.data->'students'->idx; d := g.data;
+    if d->'log' is null or jsonb_typeof(d->'log') <> 'array' then d := jsonb_set(d, '{log}', '[]'::jsonb); end if;
+    st := st || jsonb_build_object('x', coalesce((st->>'x')::numeric, 0)::int + gain, 'xp', coalesce((st->>'xp')::numeric, 0)::int + gain);
+    entry := jsonb_build_object('id', encode(extensions.gen_random_bytes(6), 'hex'), 's', s.student_id, 't', 'x', 'v', gain,
+                                'g', encode(extensions.gen_random_bytes(6), 'hex'), 'note', left('🎓 ' || coalesce(nullif(btrim(p_title), ''), 'Урок'), 80),
+                                'd', to_char(now() at time zone 'utc', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'));
+    d := jsonb_set(jsonb_set(d, '{log}', jsonb_build_array(entry) || (d->'log')), array['students', idx::text], st);
+    update groups set data = d, version = version + 1, updated_at = now() where id = g.id returning version into ver;
+  end if;
+  return json_build_object('ok', true, 'points', gain, 'version', ver);
+end $$;
+
+revoke all on function _today() from public, anon, authenticated;
+revoke all on function activity_ping(text, text, text, int), activity_group(text, text), lesson_done(text, text, text, text, text, int, int, int) from public;
+grant execute on function activity_ping(text, text, text, int), activity_group(text, text), lesson_done(text, text, text, text, text, int, int, int) to anon, authenticated;
+
 -- ---------- хранилище файлов (Supabase Storage) ----------
 -- Закрытая «папка» hw: до 25 МБ на файл. Загрузить, прочитать или удалить файл можно
 -- только с временным пропуском, который выдают функции выше.

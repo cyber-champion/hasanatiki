@@ -123,6 +123,19 @@ p{margin:0}
 input[type=text],input[type=number],input[type=date],input[type=search],input[type=password],select,textarea{width:100%;min-width:0;padding:11px 13px;border-radius:13px;border:1px solid var(--line);background:var(--card2);color:var(--tx)}
 textarea{min-height:170px;resize:vertical;font-size:14px;line-height:1.5}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.subj{display:flex;flex-wrap:wrap;gap:6px}.sj{padding:7px 12px;border-radius:999px;background:var(--card2);font-weight:800;opacity:.5;font-size:14px}.sj.on{opacity:1;background:var(--qbg);color:var(--q)}.sj small{margin-left:5px;font-size:10px;font-weight:700;opacity:.8}
+.lgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.lcard{display:flex;flex-direction:column;gap:2px;text-align:left;padding:10px 12px;border-radius:14px;background:var(--card2);border:2px solid transparent;cursor:pointer;color:var(--tx);font:inherit}.lcard b{font-size:15px}.lcard small{color:var(--mut);font-size:12px}.lcard i{font-style:normal;font-size:13px;letter-spacing:1px}.lcard.done{border-color:rgba(251,191,36,.45)}
+.ar{font-family:"Amiri","Scheherazade New","Noto Naskh Arabic","Traditional Arabic","Times New Roman",serif;direction:rtl;text-align:right;font-size:24px;line-height:1.9}.ar.big2{font-size:30px;margin:8px 0;padding:10px 12px;background:var(--card2);border-radius:14px}.ar.sm2{font-size:20px}
+.an{display:inline-block;min-width:22px;padding:0 5px;border:1.5px solid var(--gold);border-radius:999px;font:700 12px/18px var(--font);color:var(--gold);text-align:center;direction:ltr}
+.ayah{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line)}.ayah .ib{flex-shrink:0;width:40px;height:40px}
+.lopt{display:block;width:100%;text-align:left;margin:0 0 8px;padding:12px 14px;border-radius:14px;background:var(--card2);border:2px solid transparent;color:var(--tx);font:600 15px/1.4 var(--font);cursor:pointer}.lopt.ar{text-align:right;font-family:"Amiri","Scheherazade New","Noto Naskh Arabic","Traditional Arabic","Times New Roman",serif;font-size:22px;line-height:1.8}
+.lopt.ok{border-color:var(--ok);background:rgba(34,197,94,.14)}.lopt.bad{border-color:var(--err);background:rgba(239,68,68,.14);animation:shk .35s}.lopt.sel{border-color:var(--gold)}.lopt:disabled{cursor:default}
+@keyframes shk{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.lfb{margin:6px 0 10px;padding:10px 14px;border-radius:12px;font-weight:800}.lfb.ok{background:rgba(34,197,94,.16);color:var(--ok)}.lfb.bad{background:rgba(239,68,68,.14);color:var(--err)}
+.lord{min-height:20px;margin:8px 0;padding:6px 10px;border-radius:12px;background:rgba(34,197,94,.08)}.gap{color:var(--gold);border-bottom:2px dashed var(--gold);padding:0 6px}
+.lpar{display:grid;grid-template-columns:1fr 1fr;gap:8px}.lpar .lopt{font-size:13px}.lpar .lopt.ar{font-size:19px}
+.atab{border-collapse:collapse;font-size:13px;min-width:100%}.atab th{padding:4px 6px;color:var(--mut);font-weight:700;vertical-align:bottom}.atab td{padding:6px;text-align:center;border-top:1px solid var(--line)}
 .pick{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 12px}
 .pk{border:2px solid transparent;border-radius:999px;padding:6px 12px;background:var(--card2);cursor:pointer;font-weight:800;display:inline-flex;gap:6px;align-items:center}
 .pk.on{border-color:var(--gold);background:#3a3216}
@@ -786,8 +799,14 @@ function logList(list,del){
     return '<div class="lg"><div class="ic" style="background:var('+c[3]+')">'+c[0]+'</div><div class="lt">'+txt+(e.note?'<small>'+esc(e.note)+'</small>':"")+'</div><div class="dt">'+rel(e.d)+'</div>'+(del?'<button class="x" data-a="rev" data-id="'+e.id+'" aria-label="Отменить запись">✕</button>':"")+'</div>'}).join("");
 }
 function vSur(){
+  var sg=UI.lseg||"l";if(LS&&sg!=="l")LS=null;
+  var top=LS?"":tabs4("lseg",sg,[["l","🎮","Учить"],["p","🎧","Слушать"],["r","📜","Рейтинг сур"]]);
+  if(sg==="l")return top+vLessons();
+  if(sg==="p")return top+vListen();
+  return top+vSurRating()}
+function vSurRating(){
   var L=actS().sort(function(a,b){return surCount(b)-surCount(a)||b.sur.length-a.sur.length}),total=0;L.forEach(function(s){total+=surCount(s)});
-  var h=vListen()+'<div class="box cen"><div class="big">📜</div><h2>Рейтинг по сурам</h2><p class="mut" style="margin:6px auto 12px;max-width:44ch">Кто сколько сур выучил наизусть — за всё время. Не обнуляется с новым сезоном и не идёт в общую таблицу, но за суры есть свои значки.</p><span class="chip">Всего выучено: <b style="color:var(--s)">'+pn(total,"сура","суры","сур")+'</b></span></div>';
+  var h='<div class="box cen"><div class="big">📜</div><h2>Рейтинг по сурам</h2><p class="mut" style="margin:6px auto 12px;max-width:44ch">Кто сколько сур выучил наизусть — за всё время. Не обнуляется с новым сезоном и не идёт в общую таблицу, но за суры есть свои значки.</p><span class="chip">Всего выучено: <b style="color:var(--s)">'+pn(total,"сура","суры","сур")+'</b></span></div>';
   if(!L.length)return h;
   h+='<div class="box">';
   L.forEach(function(s,i){var j=juz(s);
@@ -920,6 +939,7 @@ function vTeacher(){
   L.forEach(function(s){h+='<div class="row" data-a="open" data-id="'+s.id+'" role="button" tabindex="0" style="padding:8px 12px">'+avh(s,"s")+'<div class="mid"><div style="font-weight:800">'+exName(s)+'</div><div class="sm mut">'+lvl(s)[2]+' · '+pn(tot(s),"балл","балла","баллов")+' · '+pn(surCount(s),"сура","суры","сур")+'</div></div><span class="mut">›</span></div>'});
   if(S.students.some(function(s){return s.ex}))h+='<button class="btn sm" data-a="clearex" style="margin-top:6px">Удалить все примеры</button>';
   h+='</div>';
+  h+=vActivity(L);
   if(HID.length){h+='<div class="box"><h2>🙈 Скрытые <small>'+HID.length+'</small></h2><p class="mut sm" style="margin:-6px 0 8px">Ушедшие ребята. Их нет в рейтинге и списках, но баллы, суры и значки сохранены. Вернуть можно в любой момент.</p>';
     HID.forEach(function(s){h+='<div class="lst">'+avh(s,"s")+'<span class="mid nm">'+esc(s.name)+'<br><small class="mut">'+pn(tot(s),"балл","балла","баллов")+' · '+pn(surCount(s),"сура","суры","сур")+'</small></span><button class="btn sm" data-a="unhide" data-id="'+s.id+'">↩ Вернуть</button></div>'});h+='</div>'}
   return h}
@@ -1253,7 +1273,7 @@ function hwAct(a,b){
       if(!sid){UI.pinErr="Выбери своё имя";break}
       if(pin.length<4){UI.pinErr="Введи PIN-код — 4 цифры";break}
       rpc("student_login",{p_slug:G.slug,p_student:sid,p_pin:pin}).then(function(r){
-        if(r&&r.ok){STOK={t:r.token,sid:r.student_id};store.set("stok_"+G.slug,STOK);UI.pinErr="";UI.dropKeep=true;meStudent=r.student_id;store.set("me_"+G.slug,meStudent);var s=by(meStudent);if(s)store.set("seen_"+G.slug+"_"+s.id,seenOf(s));flash("Ассаляму алейкум"+(s?", "+s.name:"")+"!");return hwLoad()}
+        if(r&&r.ok){STOK={t:r.token,sid:r.student_id};store.set("stok_"+G.slug,STOK);UI.pinErr="";UI.dropKeep=true;meStudent=r.student_id;store.set("me_"+G.slug,meStudent);LP=null;var s=by(meStudent);if(s)store.set("seen_"+G.slug+"_"+s.id,seenOf(s));flash("Ассаляму алейкум"+(s?", "+s.name:"")+"!");return hwLoad()}
         UI.pinErr=emsg({code:r&&r.error});render()}).catch(function(e){UI.pinErr=emsg(e);render()});
       return true;
     case"sout":if(STOK)rpc("student_logout",{p_stoken:STOK.t}).catch(function(){});STOK=null;store.set("stok_"+G.slug,null);UI.subm=null;hwLoad();break;
@@ -1543,7 +1563,7 @@ function chatAct(a,b){
 }
 
 function nav(){
-  var nb=hwBadge(),t=[["r","🏆","Рейтинг"],["d","📚","Задания"],["s","📜","Суры"]].concat(S&&S.hall&&S.hall.length?[["h","🏛️","Зал славы"]]:[]).concat([["p","❓","Правила"]]);
+  var nb=hwBadge(),t=[["r","🏆","Рейтинг"],["d","📚","Задания"],["s","🎓","Уроки"]].concat(S&&S.hall&&S.hall.length?[["h","🏛️","Зал славы"]]:[]).concat([["p","❓","Правила"]]);
   if(canEdit())t.push(["t","🧑‍🏫","Учитель"]);
   return '<nav class="nav"><div>'+t.map(function(x){return '<button class="'+(R.tab===x[0]?"on":"")+'" data-a="tab" data-v="'+x[0]+'"><span>'+x[1]+'</span>'+x[2]+(x[0]==="d"&&nb?'<b>'+nb+'</b>':"")+'</button>'}).join("")+'</div></nav>';
 }
@@ -1756,6 +1776,162 @@ function vListen(){
   return h+'</div></div>';
 }
 
+/* ================= уроки-игры ================= */
+// Модуль «Понимаю суры 30-го джуза». Задания строятся из текста сур автоматически:
+// порядок аятов, какой аят звучит, смысл аята, пропущенное слово, найди пару, что за сура.
+var QD=null,QDerr="",LP=null,LS=null,LA=null,LAerr=false;
+var LMOD={id:"q30",name:"Понимаю суры 30-го джуза",list:[1].concat((function(){var a=[];for(var i=114;i>=78;i--)a.push(i);return a})())};
+var SUBJ=[["q","📖","Коран",1],["a","🔤","Арабский",0],["f","🕌","Фикх",0],["k","💎","Акида",0],["x","🌸","Ахляк",0],["h","📜","Хадисы",0],["s","🐪","Сира",0]];
+function qdLoad(){if(QD||QDerr==="busy")return;QDerr="busy";fetch("q30.json").then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){QD=d;QDerr="";render()}).catch(function(){QDerr="Не удалось загрузить суры. Проверьте интернет.";render()})}
+function lsid(){return STOK?STOK.sid:meStudent}
+function lpLoad(){
+  if(!G)return;var slug=G.slug,sid=lsid(),loc=store.get("lp_"+slug,{});
+  LP={};Object.keys(loc).forEach(function(k){LP[k]=loc[k]});
+  if(!CLOUD||!sid||canEdit())return;
+  rpc("progress_get",{p_code:slug,p_student:sid}).then(function(r){if(!G||G.slug!==slug)return;(r||[]).forEach(function(x){if(x.course===LMOD.id)LP[x.lesson]=Math.max(LP[x.lesson]||0,x.best_stars)});render()}).catch(function(){});
+}
+function ruT(t){return String(t||"").replace(/\s*\[\d+\]/g,"")}
+function arPlain(w){return String(w).replace(/[ً-ٰٟۖ-ۭـ]/g,"")}
+function rnd(n){return Math.floor(Math.random()*n)}
+function shuf(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=rnd(i+1),t=a[i];a[i]=a[j];a[j]=t}return a}
+function pickOthers(n,i,cnt){var o=[];for(var k=0;k<n;k++)if(k!==i)o.push(k);return shuf(o).slice(0,cnt)}
+function lsName(n){return n+". "+NAMES[n]}
+function lsBuild(n){
+  var D=QD[n],A=D.ar,T=D.ru.map(ruT),N=A.length,tasks=[],uniq=function(arr,i){return arr.filter(function(x,k){return k===i||arr[k]!==arr[i]})};
+  // 1. порядок аятов (до 5 подряд)
+  if(N>=3){var w=Math.min(5,N),st=rnd(N-w+1),ids=[];for(var k=0;k<w;k++)ids.push(st+k);tasks.push({t:"ord",ids:ids,mix:shuf(ids),got:[]})}
+  // 2. какой аят звучит
+  shuf(Array.apply(null,{length:N}).map(function(_,i){return i})).slice(0,2).forEach(function(i){tasks.push({t:"lis",i:i,opts:shuf([i].concat(pickOthers(N,i,2)))})});
+  // 3. смысл аята
+  shuf(Array.apply(null,{length:N}).map(function(_,i){return i})).slice(0,2).forEach(function(i){tasks.push({t:"mng",i:i,opts:shuf([i].concat(pickOthers(N,i,2)))})});
+  // 4. пропущенное слово
+  var cand=[];A.forEach(function(a,i){a.split(" ").forEach(function(wd,j){if(arPlain(wd).length>=3&&a.split(" ").length>=2)cand.push([i,j])})});
+  var pool={};A.forEach(function(a){a.split(" ").forEach(function(wd){if(arPlain(wd).length>=3)pool[arPlain(wd)]=wd})});
+  shuf(cand).slice(0,8).some(function(c){
+    var wd=A[c[0]].split(" ")[c[1]],pl=arPlain(wd),others=shuf(Object.keys(pool).filter(function(k){return k!==pl})).slice(0,2).map(function(k){return pool[k]});
+    if(others.length<2)return false;
+    if(!tasks.some(function(x){return x.t==="gap"&&x.i===c[0]}))tasks.push({t:"gap",i:c[0],j:c[1],w:wd,opts:shuf([wd].concat(others))});
+    return tasks.filter(function(x){return x.t==="gap"}).length>=2});
+  // 5. найди пару: короткие аяты ↔ смысл
+  var byLen=Array.apply(null,{length:N}).map(function(_,i){return i}).sort(function(a,b){return T[a].length-T[b].length}).slice(0,Math.min(4,N));
+  if(byLen.length>=3)tasks.push({t:"par",ids:byLen,L:shuf(byLen),Rr:shuf(byLen),sel:null,done:[]});
+  // 6. что за сура
+  var others=shuf(LMOD.list.filter(function(x){return x!==n})).slice(0,2);
+  tasks.push({t:"sur",n:n,opts:shuf([n].concat(others))});
+  var ord=tasks.filter(function(x){return x.t==="ord"}),rest=shuf(tasks.filter(function(x){return x.t!=="ord"&&x.t!=="sur"})),last=tasks.filter(function(x){return x.t==="sur"});
+  return ord.concat(rest).concat(last);
+}
+function lsOpen(n){if(!QD)return;if(PL&&PL.playing)plToggle(false);LS={n:n,step:"intro",tasks:null,k:0,err:0,ok:0,fb:null,res:null};window.scrollTo(0,0)}
+function laPlay(n,a){try{if(!LA){LA=new Audio()}LA.pause();LAerr=false;LA.src=plFile(String(n),a);LA.onerror=function(){LAerr=true;render()};var p=LA.play();if(p&&p.catch)p.catch(function(){})}catch(e){}}
+function laStop(){try{if(LA)LA.pause()}catch(e){}}
+function lsCur(){return LS&&LS.tasks?LS.tasks[LS.k]:null}
+function lsAnswer(ok){var t=lsCur();if(!t||LS.fb)return;if(ok)LS.ok++;else LS.err++;LS.fb={ok:ok}}
+function lsNext(){
+  laStop();LS.fb=null;LS.k++;
+  if(LS.k<LS.tasks.length){var t=lsCur();if(t.t==="lis")setTimeout(function(){if(lsCur()===t)laPlay(LS.n,t.i+1)},250);return}
+  var stars=LS.err===0?3:LS.err<=2?2:1;LS.step="res";LS.res={stars:stars,pts:null};
+  var slug=G.slug,key="s"+LS.n,loc=store.get("lp_"+slug,{});loc[key]=Math.max(loc[key]||0,stars);store.set("lp_"+slug,loc);if(LP)LP[key]=Math.max(LP[key]||0,stars);
+  if(CLOUD&&STOK&&!canEdit()){var R0=LS.res;rpc("lesson_done",{p_slug:slug,p_stoken:STOK.t,p_course:LMOD.id,p_lesson:key,p_title:"Сура «"+NAMES[LS.n]+"»",p_stars:stars,p_correct:LS.ok,p_total:LS.ok+LS.err})
+    .then(function(r){R0.pts=r&&r.points||0;if(R0.pts)refreshGroup().then(render);else render()}).catch(function(e){R0.pts=-1;R0.err=emsg(e);render()})}
+}
+function vLessons(){
+  qdLoad();if(!LP)lpLoad();
+  if(LS)return vLesson();
+  var h='<div class="box"><h2>🎓 Уроки</h2><div class="subj">'+SUBJ.map(function(s){return '<span class="sj'+(s[3]?" on":"")+'">'+s[1]+' '+s[2]+(s[3]?"":'<small>скоро</small>')+'</span>'}).join("")+'</div></div>';
+  if(!QD)return h+'<div class="box cen mut">'+(QDerr&&QDerr!=="busy"?esc(QDerr):"Загрузка…")+'</div>';
+  var sid=lsid(),tot=0;LMOD.list.forEach(function(n){tot+=LP&&LP["s"+n]||0});
+  h+='<div class="box"><h2>📖 '+esc(LMOD.name)+'</h2><p class="mut sm" style="margin:-6px 0 8px">Слушай, читай и пойми смысл каждой суры. Игры: порядок аятов, угадай аят на слух, смысл аята, пропущенное слово, найди пару. За каждую звезду — +1 балл в рейтинг.</p>';
+  h+='<div class="sm" style="margin-bottom:10px">⭐ '+tot+' из '+LMOD.list.length*3+'</div>';
+  if(!STOK&&!canEdit())h+='<p class="sm" style="background:var(--xbg);padding:8px 12px;border-radius:12px;margin-bottom:10px">Играть можно и так, но баллы получают только те, кто вошёл в свой кабинет по PIN-коду (вкладка «Задания»).</p>';
+  h+='<div class="lgrid">'+LMOD.list.map(function(n){var b=LP&&LP["s"+n]||0;return '<button class="lcard'+(b?" done":"")+'" data-a="lopen" data-v="'+n+'"><b>'+esc(NAMES[n])+'</b><small>'+n+' · '+pn(QD[n].ar.length,"аят","аята","аятов")+'</small><i>'+[1,2,3].map(function(k){return k<=b?"⭐":"☆"}).join("")+'</i></button>'}).join("")+'</div>';
+  h+='<p class="mut sm" style="margin-top:10px;font-size:12px">Текст Корана: Tanzil.net. Перевод смыслов: центр переводов «Руввад» (QuranEnc.com). Чтение: шейх Махмуд Халиль аль-Хусари.</p></div>';
+  return h;
+}
+function vLesson(){
+  var n=LS.n,D=QD[n],A=D.ar,T=D.ru.map(ruT),N=A.length;
+  var h='<div class="box"><div class="btns" style="align-items:center;justify-content:space-between;flex-wrap:nowrap"><b style="font-size:18px">Сура «'+esc(NAMES[n])+'»</b><button class="btn sm" data-a="lquit">✕ Выйти</button></div>';
+  if(LS.step==="intro"){
+    h+='<p class="mut sm" style="margin:6px 0 10px">Послушай каждый аят и прочитай его смысл. Потом — игра.</p>';
+    A.forEach(function(a,i){h+='<div class="ayah"><button class="ib" data-a="lplay" data-v="'+(i+1)+'" aria-label="Слушать аят '+(i+1)+'">▶</button><div class="mid"><div class="ar">'+esc(a)+' <span class="an">'+(i+1)+'</span></div><div class="sm mut">'+esc(T[i])+'</div></div></div>'});
+    return h+'<div class="btns" style="margin-top:12px"><button class="btn pri" data-a="lstart">🎮 Начать игру</button><button class="btn" data-a="lplayall">🎧 Слушать всю суру</button></div></div>';
+  }
+  if(LS.step==="res"){var r=LS.res;
+    h+='<div class="cen" style="padding:10px 0"><div style="font-size:44px;letter-spacing:4px">'+[1,2,3].map(function(k){return k<=r.stars?"⭐":"☆"}).join("")+'</div><h2 style="margin:8px 0">'+(r.stars===3?"Машаллах, без ошибок!":r.stars===2?"Хорошо! Почти без ошибок":"Урок пройден!")+'</h2><p class="mut">Верно: '+LS.ok+' · ошибок: '+LS.err+'</p>';
+    if(STOK&&!canEdit())h+='<p style="margin-top:8px;font-weight:800">'+(r.pts===null?"Сохраняю…":r.pts>0?"+"+pn(r.pts,"балл","балла","баллов")+" в рейтинг 🎉":r.pts<0?esc(r.err||"Не удалось сохранить"):"Баллы за этот урок уже получены — можно улучшить звёзды")+'</p>';
+    return h+'<div class="btns" style="justify-content:center;margin-top:12px"><button class="btn pri" data-a="lstart">🔁 Ещё раз</button><button class="btn" data-a="lquit">К списку сур</button></div></div></div>';
+  }
+  var t=lsCur(),L=LS.tasks.length;
+  h+='<div class="bar" style="height:8px;margin:8px 0 14px"><i style="width:'+Math.round(LS.k/L*100)+'%"></i></div>';
+  var opt=function(v,label,ar,good){var cls="lopt"+(ar?" ar":"");if(LS.fb){if(good)cls+=" ok";else if(LS.fb.pick===v)cls+=" bad"}return '<button class="'+cls+'" data-a="lans" data-v="'+v+'"'+(LS.fb?" disabled":"")+'>'+label+'</button>'};
+  if(t.t==="ord"){
+    h+='<h3>Расставь аяты по порядку</h3><p class="mut sm">Нажимай аяты в том порядке, как они идут в суре.</p><div class="lord">'+t.got.map(function(i){return '<div class="ar sm2">'+esc(A[i])+' <span class="an">'+(i+1)+'</span></div>'}).join("")+'</div>';
+    h+=t.mix.filter(function(i){return t.got.indexOf(i)<0}).map(function(i){return '<button class="lopt ar'+(LS.fb&&LS.fb.wrong===i?" bad":"")+'" data-a="lord" data-v="'+i+'">'+esc(A[i])+'</button>'}).join("");
+    if(t.got.length===t.ids.length)h+='<div class="lfb ok">Верно! Машаллах</div><button class="btn pri" data-a="lnext">Дальше ›</button>';
+  }else if(t.t==="lis"){
+    h+='<h3>Какой аят звучит?</h3><div class="btns" style="margin-bottom:10px"><button class="btn" data-a="lplay" data-v="'+(t.i+1)+'">🔊 Послушать ещё раз</button></div>'+(LAerr?'<p class="sm" style="color:var(--err)">Аудио не загрузилось — проверьте интернет.</p>':"");
+    h+=t.opts.map(function(i){return opt(i,esc(A[i]),true,i===t.i)}).join("");
+  }else if(t.t==="mng"){
+    h+='<h3>Что означает этот аят?</h3><div class="ar big2">'+esc(A[t.i])+'</div><button class="btn sm" data-a="lplay" data-v="'+(t.i+1)+'" style="margin-bottom:10px">🔊 Послушать</button>';
+    h+=t.opts.map(function(i){return opt(i,esc(T[i]),false,i===t.i)}).join("");
+  }else if(t.t==="gap"){
+    var ws=A[t.i].split(" ");ws[t.j]='<span class="gap">'+(LS.fb?esc(t.w):"؟")+'</span>';
+    h+='<h3>Какое слово пропущено?</h3><div class="ar big2">'+ws.map(function(w,k){return k===t.j?w:esc(w)}).join(" ")+'</div><p class="mut sm" style="margin-bottom:10px">'+esc(T[t.i])+'</p>';
+    h+=t.opts.map(function(w,k){return opt(k,esc(w),true,w===t.w)}).join("");
+  }else if(t.t==="par"){
+    h+='<h3>Найди пару</h3><p class="mut sm">Нажми аят, потом его смысл.</p><div class="lpar"><div>'+t.L.map(function(i){var d=t.done.indexOf(i)>-1;return '<button class="lopt ar'+(d?" ok":"")+(t.sel===i?" sel":"")+'" data-a="lpl" data-v="'+i+'"'+(d?" disabled":"")+'>'+esc(A[i])+'</button>'}).join("")+'</div><div>'+t.Rr.map(function(i){var d=t.done.indexOf(i)>-1;return '<button class="lopt'+(d?" ok":"")+(LS.fb&&LS.fb.wrong===i?" bad":"")+'" data-a="lpr" data-v="'+i+'"'+(d?" disabled":"")+'>'+esc(T[i])+'</button>'}).join("")+'</div></div>';
+    if(t.done.length===t.ids.length)h+='<div class="lfb ok">Все пары найдены!</div><button class="btn pri" data-a="lnext">Дальше ›</button>';
+  }else if(t.t==="sur"){
+    h+='<h3>Из какой суры этот аят?</h3><div class="ar big2">'+esc(QD[t.n].ar[0])+'</div><button class="btn sm" data-a="lplay" data-v="1" style="margin-bottom:10px">🔊 Послушать</button>';
+    h+=t.opts.map(function(x){return opt(x,esc(lsName(x)),false,x===t.n)}).join("");
+  }
+  if(LS.fb&&t.t!=="ord"&&t.t!=="par")h+='<div class="lfb '+(LS.fb.ok?"ok":"bad")+'">'+(LS.fb.ok?"Верно! Машаллах":"Не совсем. Правильный ответ отмечен зелёным")+'</div><button class="btn pri" data-a="lnext">Дальше ›</button>';
+  return h+'<p class="mut sm" style="margin-top:10px;text-align:right">'+(LS.k+1)+' из '+L+'</p></div>';
+}
+function lessonAct(a,v){
+  var t=lsCur();
+  switch(a){
+    case"lopen":lsOpen(parseInt(v,10));return true;
+    case"lquit":laStop();LS=null;window.scrollTo(0,0);return true;
+    case"lplay":var pn_=parseInt(v,10);laPlay(LS.step==="intro"||!t||t.t!=="sur"?LS.n:t.n,pn_);return false;
+    case"lplayall":laStop();plStart(String(LS.n),{});return true;
+    case"lstart":LS.tasks=lsBuild(LS.n);LS.k=0;LS.err=0;LS.ok=0;LS.fb=null;LS.step="game";window.scrollTo(0,0);var t0=LS.tasks[0];if(t0&&t0.t==="lis")laPlay(LS.n,t0.i+1);return true;
+    case"lnext":lsNext();window.scrollTo(0,0);return true;
+    case"lans":if(!t||LS.fb)return false;var val=t.t==="sur"?parseInt(v,10):parseInt(v,10);
+      var good=t.t==="gap"?t.opts[val]===t.w:t.t==="sur"?val===t.n:val===t.i;lsAnswer(good);LS.fb.pick=val;return true;
+    case"lord":var i=parseInt(v,10);if(!t)return false;var need=t.ids[t.got.length];
+      if(i===need){t.got.push(i);LS.fb=null}else{LS.err++;LS.fb={wrong:i};setTimeout(function(){if(LS&&LS.fb&&LS.fb.wrong===i){LS.fb=null;render()}},700)}
+      if(t.got.length===t.ids.length)LS.ok++;return true;
+    case"lpl":if(t)t.sel=parseInt(v,10);return true;
+    case"lpr":if(!t||t.sel==null)return false;var r=parseInt(v,10);
+      if(r===t.sel){t.done.push(r);t.sel=null;LS.fb=null;if(t.done.length===t.ids.length)LS.ok++}else{LS.err++;LS.fb={wrong:r};setTimeout(function(){if(LS&&LS.fb&&LS.fb.wrong===r){LS.fb=null;render()}},700)}
+      return true;
+  }
+  return null;
+}
+
+/* ---- активность учеников: раз в минуту, пока приложение открыто ---- */
+var actLast=0;
+function actPing(){
+  if(!CLOUD||R.view!=="group"||!G||document.hidden||canEdit())return;
+  var sid=lsid();if(!sid)return;
+  var now=Date.now(),secs=actLast?Math.min(120,Math.round((now-actLast)/1000)):0;actLast=now;
+  rpc("activity_ping",{p_slug:G.slug,p_stoken:STOK?STOK.t:null,p_student:STOK?null:sid,p_secs:secs}).catch(function(){});
+}
+setInterval(actPing,60000);
+document.addEventListener("visibilitychange",function(){if(document.hidden){actPing();actLast=0}else setTimeout(actPing,1500)});
+var ACTD=null,ACTslug="";
+function actLoad(){if(!CLOUD||!G||!canEdit())return;var slug=G.slug;rpc("activity_group",{p_token:TOK,p_slug:slug}).then(function(r){if(G&&G.slug===slug){ACTD=r||{};ACTslug=slug;render()}}).catch(function(){})}
+function dur(s){s=s|0;if(s<60)return s?"<1 мин":"—";var m=Math.round(s/60);return m<60?m+" мин":Math.floor(m/60)+" ч "+String(m%60).padStart(2,"0")+" мин"}
+function vActivity(L){
+  if(!CLOUD)return"";
+  if(!ACTD||ACTslug!==G.slug){if(!UI.actBusy){UI.actBusy=1;setTimeout(function(){UI.actBusy=0;actLoad()},10)}return '<div class="box"><h2>📊 Активность</h2><p class="mut">Загрузка…</p></div>'}
+  var h='<div class="box"><h2>📊 Активность учеников</h2><p class="mut sm" style="margin:-6px 0 8px">Сколько раз и сколько времени ребёнок провёл в приложении. Считаются ученики, которые вошли по PIN-коду или выбрали «Это я». Новый заход — после перерыва больше 30 минут.</p>';
+  h+='<div style="overflow-x:auto"><table class="atab"><tr><th style="text-align:left">Ученик</th><th>Заходов<br><small>7 дней</small></th><th>Время<br><small>7 дней</small></th><th>Всего</th><th>Был</th><th>🎓 Уроки</th></tr>';
+  L.slice().sort(function(a,b){var x=ACTD[a.id]||{},y=ACTD[b.id]||{};return (y.s7||0)-(x.s7||0)||(y.s||0)-(x.s||0)}).forEach(function(s){var x=ACTD[s.id]||{};
+    h+='<tr><td style="text-align:left;white-space:nowrap">'+esc(s.name)+'</td><td>'+(x.v7||"—")+'</td><td>'+dur(x.s7)+'</td><td>'+(x.v?x.v+" · "+dur(x.s):"—")+'</td><td>'+(x.last?rel(x.last):"не заходил")+'</td><td>'+(x.les?x.les+" · ⭐"+x.stars:"—")+'</td></tr>'});
+  return h+'</table></div><button class="btn sm" data-a="actre" style="margin-top:8px">🔄 Обновить</button></div>';
+}
+
 /* ================= грамота ================= */
 function loadImg(src){return new Promise(function(res){var i=new Image();i.onload=function(){res(i)};i.onerror=function(){res(null)};i.src=src})}
 function star8(x,cx,cy,r,col){x.save();x.translate(cx,cy);x.fillStyle=col;for(var k=0;k<2;k++){x.save();x.rotate(k*Math.PI/4);x.fillRect(-r,-r,2*r,2*r);x.restore()}x.restore()}
@@ -1794,6 +1970,9 @@ function act(a,b,e){
     if(hk){var left=hx.listen?Math.max(1,hx.listen-(hx.my_listens||0)):1;plStart(hk,{times:left,hw:hx.id})}return}
   if(chatAct(a,b))return;
   if(S&&G&&hwAct(a,b))return;
+  if(/^l(open|quit|play|playall|start|next|ans|ord|pl|pr)$/.test(a)){if(a!=="lopen"&&!LS)return;var lr=lessonAct(a,v);if(lr)render();return}
+  if(a==="lseg"){UI.lseg=v;if(v!=="l"){laStop();LS=null}window.scrollTo(0,0);render();return}
+  if(a==="actre"){ACTD=null;render();return}
   switch(a){
     /* ---- вход и кабинет ---- */
     case"install":if(deferredInstall){var di=deferredInstall;deferredInstall=null;try{di.prompt()}catch(x){}}break;
@@ -1821,8 +2000,8 @@ function act(a,b,e){
     case"close":UI.sheet=null;break;
     case"closebg":if(e.target===b)UI.sheet=null;else return;break;
     case"closecel":if(e.target===b||b.tagName==="BUTTON")celeb=null;else return;break;
-    case"isme":meStudent=id;store.set("me_"+G.slug,id);if(s)store.set("seen_"+G.slug+"_"+s.id,seenOf(s));flash("Готово! Теперь это твой персонаж");break;
-    case"notme":meStudent=null;store.set("me_"+G.slug,null);break;
+    case"isme":meStudent=id;store.set("me_"+G.slug,id);LP=null;setTimeout(actPing,500);if(s)store.set("seen_"+G.slug+"_"+s.id,seenOf(s));flash("Готово! Теперь это твой персонаж");break;
+    case"notme":meStudent=null;store.set("me_"+G.slug,null);LP=null;break;
     case"savenow":save();return;
     case"catgo":UI.tseg="m";store.set("tseg","m");UI.cats=JSON.parse(JSON.stringify(S.cats));UI.dropKeep=true;render();setTimeout(function(){var el=document.getElementById("catbox");if(el)el.scrollIntoView({behavior:"smooth",block:"start"})},60);return true;
     case"catedit":UI.cats=JSON.parse(JSON.stringify(S.cats));UI.dropKeep=true;break;
@@ -1968,7 +2147,7 @@ function route(){
   if(r.view==="group"){
     if(G&&G.slug===r.slug&&S){R=r;if(R.tab==="t"&&!canEdit())R.tab="r";render();window.scrollTo(0,0);if(R.tab==="d"||!HW)hwLoad();return}
     if(Q.length&&G)save();
-    R=r;S=null;G=null;R.err="";UI.sel=[];UI.restore=null;UI.showAll=false;HW=null;HWerr="";STOK=null;PH={};CH=null;THR=null;if(!r.chat){UI.seg="hw";UI.chat=null}UI.hwForm=null;UI.subm=null;UI.pins=null;UI.hwOpen=null;UI.pinErr="";UI.pinSid="";render();
+    R=r;S=null;G=null;R.err="";UI.sel=[];UI.restore=null;UI.showAll=false;HW=null;HWerr="";STOK=null;PH={};CH=null;THR=null;LP=null;LS=null;ACTD=null;if(!r.chat){UI.seg="hw";UI.chat=null}UI.hwForm=null;UI.subm=null;UI.pins=null;UI.hwOpen=null;UI.pinErr="";UI.pinSid="";render();
     rpc("group_get",{p_slug:r.slug}).then(function(g){
       if(R.view!=="group"||R.slug!==r.slug)return;
       cacheGroup(g);R.offline=false;
@@ -1980,7 +2159,7 @@ function route(){
         if(pend.v===g.version){var snap=migrate(pend.data);S=JSON.parse(JSON.stringify(snap));Q.push(function(){S=JSON.parse(JSON.stringify(snap))});schedule();flash("Восстановил изменения, которые не успели сохраниться")}
         else{store.set("pending_"+g.slug,null);flash("Несохранённые изменения с этого телефона устарели — данные обновил другой учитель")}
       }
-      document.title=g.name+" — "+APP;render();window.scrollTo(0,0);setTimeout(checkCeleb,900);
+      document.title=g.name+" — "+APP;render();window.scrollTo(0,0);setTimeout(checkCeleb,900);actLast=0;setTimeout(actPing,2500);
     }).catch(function(x){
       if(R.view!=="group"||R.slug!==r.slug)return;
       var c=x&&x.code==="network"&&store.get("cache_"+r.slug,null);
