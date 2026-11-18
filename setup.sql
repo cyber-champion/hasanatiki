@@ -1476,7 +1476,7 @@ begin
      limit 60) x;
   return json_build_object('role', case when tid is not null then 'teacher' when v ? 's' then 'student' else 'parent' end,
                            'student_id', sid, 'items', items,
-                           'msg_unread', case when tid is not null then _msg_unread(g.id, null, 't') when v ? 's' then _msg_unread(g.id, sid, 's') else 0 end);
+                           'msg_unread', case when tid is not null then _msg_unread(g.id, null, 't') when v ? 's' then _msg_unread(g.id, sid, 's') else _msg_unread(g.id, 'p:' || sid, 's') end);
 end $$;
 
 -- PIN-коды детей (4 цифры) и коды родителей (6 цифр).
@@ -1551,6 +1551,7 @@ begin
   select * into g from groups where id = p.group_id;
   if not _student_ok(g, p.student_id) then raise exception 'pauth'; end if;
   return json_build_object('slug', g.slug, 'name', g.name, 'student_id', p.student_id, 'data', g.data,
+    'unread', _msg_unread(g.id, 'p:' || p.student_id, 's'),
     'img', (select img from student_avatars where group_id = g.id and student_id = p.student_id),
     'act', (select json_build_object(
               'v7', coalesce(sum(visits) filter (where day > _today() - 7), 0), 's7', coalesce(sum(secs) filter (where day > _today() - 7), 0),
@@ -1571,6 +1572,69 @@ revoke all on function group_get(text, text, text, text), avatars_get(text, text
 grant execute on function group_get(text, text, text, text), avatars_get(text, text, text, text), progress_get(text, text, text, text, text),
   hw_list(text, text, text, text), student_pins(text, text, boolean, text, boolean), parent_login(text, text, text),
   parent_logout(text), parent_view(text) to anon, authenticated;
+
+-- ---------- чат родителя с учителем (отдельная ветка «p:<id ученика>», только текст) ----------
+create or replace function _thread_ok(g groups, p_thread text) returns boolean
+language sql stable as $$ select _student_ok(g, case when p_thread like 'p:%' then substr(p_thread, 3) else p_thread end) $$;
+
+drop function if exists msg_send(text, text, text, uuid, int, text, text, text);
+create or replace function msg_send(p_slug text, p_student text, p_body text, p_file uuid default null, p_dur int default null, p_sura text default null,
+                                    p_token text default null, p_stoken text default null, p_ptoken text default null) returns json
+language plpgsql security definer set search_path = public, extensions as $$
+declare g groups; v jsonb; byt boolean; m messages; bd text := left(btrim(coalesce(p_body, '')), 2000);
+        sr text := nullif(left(btrim(coalesce(p_sura, '')), 60), ''); nm text; what text; par boolean := coalesce(p_student, '') like 'p:%';
+begin
+  g := _g(p_slug); v := _viewer(g, p_token, p_stoken, p_ptoken);
+  if v is null then raise exception 'auth'; end if;
+  byt := v ? 't';
+  if v ? 's' and (par or (v->>'s') is distinct from p_student) then raise exception 'forbidden'; end if;
+  if v ? 'p' and p_student is distinct from 'p:' || (v->>'p') then raise exception 'forbidden'; end if;
+  if not _thread_ok(g, p_student) then raise exception 'no_student'; end if;
+  if par and p_file is not null then raise exception 'forbidden'; end if;
+  if p_file is not null and not exists (select 1 from hw_files where id = p_file and group_id = g.id and student_id = p_student
+                                         and by_teacher = byt and homework_id is null and ready) then raise exception 'not_found'; end if;
+  if bd = '' and p_file is null then raise exception 'empty'; end if;
+  if not byt and (select count(*) from messages where group_id = g.id and student_id = p_student and not by_teacher
+                   and created_at > now() - interval '1 minute') >= 15 then raise exception 'slow'; end if;
+  insert into messages(group_id, student_id, by_teacher, teacher_id, body, file_id, dur, sura)
+  values (g.id, p_student, byt, (v->>'t')::uuid, bd, p_file, case when p_file is null or p_dur is null then null else greatest(0, least(3600, p_dur)) end,
+          case when par then null else sr end) returning * into m;
+  insert into msg_reads(group_id, student_id, side, at) values (g.id, p_student, case when byt then 't' else 's' end, m.created_at)
+  on conflict (group_id, student_id, side) do update set at = greatest(msg_reads.at, excluded.at);
+  nm := _sname(g, case when par then substr(p_student, 3) else p_student end);
+  what := case when p_file is not null and m.dur is not null then '🎙 Голосовое' || coalesce(' · ' || sr, '')
+               when p_file is not null then '📎 Файл' else left(bd, 120) end;
+  if byt then
+    if not par then perform _push(g.id, p_student, false, false, 'Сообщение от учителя', what, '#/g/' || g.slug || '/chat'); end if;
+  else
+    perform _push(g.id, null, true, false, case when par then '👪 Родитель: ' else '' end || nm || ' · ' || g.name, what, '#/g/' || g.slug || '/chat/' || p_student);
+  end if;
+  return _msg_json(m);
+end $$;
+
+drop function if exists msg_list(text, text, timestamptz, text, text);
+create or replace function msg_list(p_slug text, p_student text, p_after timestamptz default null, p_token text default null, p_stoken text default null, p_ptoken text default null) returns json
+language plpgsql security definer set search_path = public, extensions as $$
+declare g groups; v jsonb; v_side text; v_other text; items json;
+begin
+  g := _g(p_slug); v := _viewer(g, p_token, p_stoken, p_ptoken);
+  if v is null then raise exception 'auth'; end if;
+  if v ? 's' and (v->>'s') is distinct from p_student then raise exception 'forbidden'; end if;
+  if v ? 'p' and p_student is distinct from 'p:' || (v->>'p') then raise exception 'forbidden'; end if;
+  v_side := case when v ? 't' then 't' else 's' end;
+  v_other := case when v_side = 't' then 's' else 't' end;
+  select coalesce(json_agg(_msg_json(x) order by x.created_at), '[]'::json) into items from (
+    select * from messages where group_id = g.id and student_id = p_student and (p_after is null or created_at > p_after)
+     order by created_at desc limit 150) x;
+  insert into msg_reads(group_id, student_id, side, at) values (g.id, p_student, v_side, now())
+  on conflict (group_id, student_id, side) do update set at = excluded.at;
+  return json_build_object('items', items,
+    'other_read', (select at from msg_reads where group_id = g.id and student_id = p_student and side = v_other));
+end $$;
+
+revoke all on function _thread_ok(groups, text) from public, anon, authenticated;
+revoke all on function msg_send(text, text, text, uuid, int, text, text, text, text), msg_list(text, text, timestamptz, text, text, text) from public;
+grant execute on function msg_send(text, text, text, uuid, int, text, text, text, text), msg_list(text, text, timestamptz, text, text, text) to anon, authenticated;
 
 -- ---------- хранилище файлов (Supabase Storage) ----------
 -- Закрытая «папка» hw: до 25 МБ на файл. Загрузить, прочитать или удалить файл можно
