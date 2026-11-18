@@ -6,11 +6,11 @@ def vcode = (System.getenv('GITHUB_RUN_NUMBER') ?: '1') as int
 
 android {
     namespace 'ru.hasanatiki.app'
-    compileSdk 34
+    compileSdk 36
     defaultConfig {
         applicationId 'ru.hasanatiki.app'
-        minSdk 21
-        targetSdk 34
+        minSdk 24
+        targetSdk 36
         versionCode vcode
         versionName "1.0.${vcode}"
         resValue 'string', 'host', host
@@ -39,5 +39,5 @@ android {
 }
 
 dependencies {
-    implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.5.0'
+    implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.7.4'
 }
