@@ -169,7 +169,7 @@ textarea{min-height:170px;resize:vertical;font-size:14px;line-height:1.5}
 .mk.on{border-color:var(--gold);background:#352e14}
 .mk .av{width:34px;height:34px;border-width:2px;box-shadow:none}
 .sticky{position:sticky;bottom:calc(78px + env(safe-area-inset-bottom,0px));background:var(--card);padding:10px 0;z-index:2}
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(96px + env(safe-area-inset-bottom,0px));z-index:60;background:#f8fafc;color:#0b1330;font-weight:800;padding:11px 18px;border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.4);max-width:calc(100% - 32px);text-align:center}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(96px + env(safe-area-inset-bottom,0px));z-index:60;background:#f8fafc;color:#0b1330;font-weight:800;padding:12px 18px;border-radius:18px;box-shadow:0 10px 30px rgba(0,0,0,.4);width:max-content;max-width:min(440px,calc(100% - 32px));text-align:center;line-height:1.35}
 .cel{text-align:center;padding:10px 0 4px}
 .cel h2{font:900 28px var(--font);color:var(--gold);margin:14px 0 6px}
 #fx{position:fixed;inset:0;pointer-events:none;z-index:70}
@@ -1362,8 +1362,11 @@ function pushBox(){
   if(Notification.permission==="denied")return '<div class="box"><p class="sm mut">🔕 Уведомления запрещены для этого сайта. Разрешите их в настройках браузера (значок слева от адреса → Уведомления).</p></div>';
   if(Notification.permission==="granted"&&store.get(pushKey(),0)===PUSHV)return canEdit()?'<div class="box"><div class="btns" style="align-items:center"><span class="sm" style="color:var(--ok);font-weight:800">🔔 Уведомления включены</span><button class="btn sm" data-a="pushtest">Проверить</button><button class="btn sm" data-a="pushoff">Выключить</button></div>'+(PUSHERR?'<p class="sm mut" style="margin-top:8px">'+esc(PUSHERR)+'</p>':"")+'</div>':"";
   var t=canEdit()?"Узнавайте сразу, когда ученик сдал задание или прислал голосовое.":STOK?"Узнавай сразу, когда учитель проверил задание или ответил тебе.":"Узнавайте о новых заданиях учителя.";
-  return '<div class="box"><div class="btns" style="align-items:center;justify-content:space-between"><span class="sm" style="flex:1;min-width:180px">🔔 '+t+'</span><button class="btn sm pri" data-a="pushon">Включить уведомления</button></div></div>';
+  return '<div class="box"><div class="btns" style="align-items:center;justify-content:space-between"><span class="sm" style="flex:1;min-width:180px">🔔 '+t+'</span><button class="btn sm pri" data-a="pushon">Включить уведомления</button></div>'+pushDiag()+'</div>';
 }
+// маленькая строка для разбора проблем с уведомлениями (видна только в установленном приложении)
+function pushDiag(){if(!standalone()&&!/^android-app:/.test(document.referrer))return"";var p="?";try{p=Notification.permission}catch(e){}
+  return '<p class="sm mut" style="margin-top:8px;font-size:11px;opacity:.7">разрешение: '+esc(p)+' · sw: '+("serviceWorker" in navigator?(navigator.serviceWorker.controller?"да":"есть"):"нет")+' · push: '+("PushManager" in window?"да":"нет")+' · '+esc((document.referrer||"").slice(0,30))+'</p>'}
 function b64u(s){s=s.replace(/-/g,"+").replace(/_/g,"/");while(s.length%4)s+="=";var r=atob(s),a=new Uint8Array(r.length);for(var i=0;i<r.length;i++)a[i]=r.charCodeAt(i);return a}
 function u8b64u(buf){var b=new Uint8Array(buf),s="";for(var i=0;i<b.length;i++)s+=String.fromCharCode(b[i]);return btoa(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")}
 function swReg(){if(!CLOUD||!("serviceWorker" in navigator))return Promise.reject(err("no_push"));return navigator.serviceWorker.register("sw.js").then(function(){return navigator.serviceWorker.ready})}
