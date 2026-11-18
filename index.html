@@ -826,13 +826,13 @@ function vAttend(L){
   h+='<div class="btns" style="align-items:center;flex-wrap:nowrap"><button class="btn sm" data-a="attday" data-v="-7" aria-label="Предыдущее воскресенье">‹</button><div style="flex:1;text-align:center;font-weight:900">'+(isSun?"Воскресенье, ":"")+fdate(day+"T12:00:00",{day:"numeric",month:"long",year:"numeric"})+'</div><button class="btn sm" data-a="attday" data-v="7" aria-label="Следующее воскресенье"'+(day>=ymd(lastSunday())?" disabled":"")+'>›</button></div>';
   h+='<div class="sm mut" style="text-align:center;margin:4px 0 10px">✅ '+cnt.p+' · 🤒 '+cnt.e+' · ❌ '+cnt.a+' · не отмечено '+(L.length-cnt.p-cnt.e-cnt.a)+'</div>';
   if(!L.length)return h+'<p class="mut">Сначала добавьте учеников.</p></div>';
-  h+='<div class="btns" style="margin-bottom:8px"><button class="btn sm pri" data-a="attall">✅ Отметить остальных: были</button><button class="btn sm" data-a="atttable">📋 Таблица</button></div>';
+  h+='<div class="btns" style="margin-bottom:8px"><button class="btn sm pri" data-a="attall">✅ Отметить остальных: были</button><button class="btn sm" data-a="atttable">'+(UI.attTable?"✏️ Отмечать":"📋 Таблица посещений")+'</button></div>';
+  if(UI.attTable)return h+attTable(L)+'</div>';
   L.forEach(function(s){var x=m[s.id],a=attOf(s);
     h+='<div class="lst">'+avh(s,"s")+'<span class="mid nm">'+esc(s.name)+'<br><small class="mut">'+(a.n?"был "+a.p+" из "+a.n:"ещё не отмечали")+'</small></span><span style="display:flex;gap:4px">';
     ["p","e","a"].forEach(function(k){var on=x&&x.st===k;h+='<button class="ib'+(on?" on":"")+'" style="width:40px;height:40px;font-size:17px;'+(on?"background:"+ATT[k][2]+";":"opacity:.55;")+'" data-a="att" data-id="'+s.id+'" data-v="'+k+'" aria-label="'+ATT[k][1]+'" aria-pressed="'+on+'">'+ATT[k][0]+'</button>'});
     h+='</span></div>'});
   h+='<div class="grid2" style="margin-top:10px"><div class="field"><label for="attother">Урок в другой день</label><input id="attother" type="date" value="'+(isSun?"":day)+'" max="'+ymd(new Date())+'"></div><div class="field"><label for="attpts">Баллы за посещение</label><select id="attpts">'+[0,1,2,3].map(function(n){return '<option value="'+n+'"'+(S.attPts===n?" selected":"")+'>'+(n?"+"+pn(n,"балл","балла","балла"):"не начислять")+'</option>'}).join("")+'</select></div></div>';
-  if(UI.attTable)h+=attTable(L);
   return h+'</div>';
 }
 function attTable(L){
@@ -848,12 +848,12 @@ function attTable(L){
 // настройка «за что баллы»: правится в черновике UI.cats, сохраняется кнопкой
 function vCatsBox(){
   var D=UI.cats;
-  var h='<div class="box"><h2>⭐ Настройка баллов</h2><p class="mut sm" style="margin:-6px 0 10px">За что и сколько баллов дают кнопки на вкладке «⭐ Баллы». Можно менять количество, название и значок, добавлять свои пункты и штрафы.</p>';
+  var h='<div class="box" id="catbox"><h2>⭐ Настройка баллов</h2><p class="mut sm" style="margin:-6px 0 10px">За что и сколько баллов дают кнопки на вкладке «⭐ Баллы». Можно менять количество, название и значок, добавлять свои пункты и штрафы.</p>';
   if(!D){h+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">'+S.cats.map(function(c){return '<span class="tg '+(c.k==="f"?"tf":c.off?"":"tx")+'"'+(c.off?' style="opacity:.5"':"")+'>'+(c.k==="f"?"−":"+")+c.pts+' '+esc(c.e)+' '+esc(c.name)+(c.off?" (выкл.)":"")+'</span>'}).join("")+'</div><button class="btn sm" data-a="catedit">✏️ Изменить</button></div>';return h}
   D.forEach(function(c,i){var base=c.id==="n"||c.id==="q";
     h+='<div style="border:1px solid var(--line);border-radius:14px;padding:10px;margin-bottom:8px'+(c.off?";opacity:.6":"")+'"><div style="display:grid;grid-template-columns:56px 1fr 74px;gap:6px;align-items:end">'+
       '<div class="field" style="margin:0"><label for="ce_'+i+'">Знак</label><input id="ce_'+i+'" type="text" maxlength="4" value="'+esc(c.e)+'" style="text-align:center;font-size:20px;padding:8px 4px"></div>'+
-      '<div class="field" style="margin:0"><label for="cn_'+i+'">'+(base?"Название (основной пункт)":"За что")+'</label><input id="cn_'+i+'" type="text" maxlength="30" value="'+esc(c.name)+'"></div>'+
+      '<div class="field" style="margin:0"><label for="cn_'+i+'">'+(base?"Название (основной пункт)":"За что")+'</label><input id="cn_'+i+'" type="text" maxlength="30" value="'+esc(c.name)+'" placeholder="'+(c.k==="f"?"Например: Опоздание":"Например: Ахляк (поведение)")+'"></div>'+
       '<div class="field" style="margin:0"><label for="cp_'+i+'">Баллы</label><input id="cp_'+i+'" type="number" min="1" max="50" value="'+c.pts+'"></div></div>'+
       '<div class="btns" style="margin-top:8px;align-items:center">'+(base?'':'<div class="seg"><button class="'+(c.k!=="f"?"on":"")+'" data-a="catkind" data-v="'+i+'" data-k="x">➕ баллы</button><button class="'+(c.k==="f"?"on":"")+'" data-a="catkind" data-v="'+i+'" data-k="f">➖ штраф</button></div>')+
       '<button class="btn sm" data-a="catoff" data-v="'+i+'">'+(c.off?"👁 Показать":"🙈 Скрыть")+'</button>'+(base?'':'<button class="btn sm dng" data-a="catdel" data-v="'+i+'">Удалить</button>')+'</div></div>'});
@@ -877,7 +877,7 @@ function vTeacher(){
     h+='<div class="btns"><button class="btn sm" data-a="selall">Выбрать всех</button><button class="btn sm" data-a="selno">Снять выбор</button><button class="btn sm" data-a="undo"'+(S.log.length?"":" disabled")+'>↩ Отменить последнее</button></div><div class="mark">';
     L.forEach(function(s){var on=UI.sel.indexOf(s.id)>-1;h+='<button class="mk'+(on?" on":"")+'" data-a="sel" data-id="'+s.id+'" aria-pressed="'+on+'">'+avh(s,"s")+'<span>'+esc(s.name)+'</span></button>'});
     h+='</div><div class="sticky"><div class="btns" style="align-items:center">'+S.cats.filter(function(c){return !c.off}).map(function(c){return '<button class="btn '+(c.k==="f"?"dng":"pri")+'" data-a="mass" data-k="'+c.k+'" data-v="'+c.id+'">'+(c.k==="f"?"−":"+")+c.pts+' '+esc(c.e)+' '+esc(c.name)+'</button>'}).join("")+'<span class="sm mut">Выбрано: <b style="color:var(--tx)">'+UI.sel.length+'</b></span></div></div>';
-    h+='<div class="sec">Другое количество баллов</div><div class="grid2"><div class="field"><label for="amt">Сколько баллов</label><input id="amt" type="number" min="1" max="50" value="'+esc(UI.amt)+'"></div><div class="field"><label for="note">За что (необязательно)</label><input id="note" type="text" maxlength="60" placeholder="Например: рассказал хадис" value="'+esc(UI.note)+'"></div></div><div class="btns"><button class="btn" data-a="mass" data-k="x">⭐ Добавить доп. баллы</button><button class="btn dng" data-a="mass" data-k="f">⚠️ Снять штраф</button></div>';
+    h+='<button class="btn sm" data-a="catgo" style="margin:4px 0 6px">⚙️ Настроить кнопки: за что и сколько баллов</button><div class="sec">Другое количество баллов</div><div class="grid2"><div class="field"><label for="amt">Сколько баллов</label><input id="amt" type="number" min="1" max="50" value="'+esc(UI.amt)+'"></div><div class="field"><label for="note">За что (необязательно)</label><input id="note" type="text" maxlength="60" placeholder="Например: рассказал хадис" value="'+esc(UI.note)+'"></div></div><div class="btns"><button class="btn" data-a="mass" data-k="x">⭐ Добавить доп. баллы</button><button class="btn dng" data-a="mass" data-k="f">⚠️ Снять штраф</button></div>';
   }
   h+='</div>';
   var lg=UI.showAll?S.log.slice(0,60):S.log.slice(0,12);
@@ -1790,6 +1790,7 @@ function act(a,b,e){
     case"isme":meStudent=id;store.set("me_"+G.slug,id);if(s)store.set("seen_"+G.slug+"_"+s.id,seenOf(s));flash("Готово! Теперь это твой персонаж");break;
     case"notme":meStudent=null;store.set("me_"+G.slug,null);break;
     case"savenow":save();return;
+    case"catgo":UI.tseg="m";store.set("tseg","m");UI.cats=JSON.parse(JSON.stringify(S.cats));UI.dropKeep=true;render();setTimeout(function(){var el=document.getElementById("catbox");if(el)el.scrollIntoView({behavior:"smooth",block:"start"})},60);return true;
     case"catedit":UI.cats=JSON.parse(JSON.stringify(S.cats));UI.dropKeep=true;break;
     case"catcancel":UI.cats=null;UI.dropKeep=true;break;
     case"catadd":catsRead();UI.cats.push({id:uid(),k:k==="f"?"f":"x",e:k==="f"?"⚠️":"⭐",name:"",pts:1,off:false});UI.dropKeep=true;setTimeout(function(){var el=document.getElementById("cn_"+(UI.cats.length-1));if(el)el.focus()},50);break;
