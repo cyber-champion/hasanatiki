@@ -1817,7 +1817,9 @@ window.addEventListener("hashchange",route);
 /* ================= старт ================= */
 // заставка при запуске: мерцающие звёзды, вращающийся восьмиугольник (один раз за сеанс)
 var SPL=null,SPT=Date.now();
-if(!sess.get("splash")){sess.set("splash","1");SPL=document.createElement("div");SPL.className="splash";
+var SPST=false;try{SPST=window.matchMedia("(display-mode: standalone)").matches||navigator.standalone||/^android-app:/.test(document.referrer)}catch(e){}
+// в установленном приложении — при каждом запуске, в браузере — раз за сеанс
+if(SPST||!sess.get("splash")){sess.set("splash","1");SPL=document.createElement("div");SPL.className="splash";
   SPL.innerHTML='<div class="sic">'+SPLASH_SVG+'</div><div class="snm">'+esc(APP)+'</div><div class="ssb">собираем хасанаты вместе</div>';document.body.appendChild(SPL)}
 function splashOff(){if(!SPL)return;var sp=SPL;SPL=null;setTimeout(function(){sp.classList.add("out");setTimeout(function(){sp.remove()},500)},Math.max(0,2000-(Date.now()-SPT)))}
 setTimeout(splashOff,5000);
