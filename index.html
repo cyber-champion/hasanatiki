@@ -424,6 +424,17 @@ html[data-theme] .say p:before{background:var(--card)}
 .sic2 svg{position:absolute;inset:0;width:100%;height:100%}
 .sic2 i{position:absolute;width:8px;height:8px;border-radius:50%;background:#fff;opacity:.8}
 html[data-theme] .splash{background:var(--night)}html[data-theme] .splash .snm{color:var(--brand)}html[data-theme] .splash .ssb{color:var(--mut)}
+
+.abopts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px}
+.abopts .lopt{margin:0;text-align:center;padding:10px 6px;min-height:64px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800}
+html[data-theme] .abopts .lopt.ar{font-size:40px;text-align:center;line-height:1.3}
+.abq{text-align:center;font-size:64px!important;line-height:1.5!important;padding:6px 0;margin:4px 0 12px;background:var(--card2);border-radius:18px}
+.abcard{display:flex;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.abl{font-size:56px!important;line-height:1.3!important;min-width:70px;text-align:center;background:var(--soft);border-radius:18px;padding:2px 8px}
+.abf{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;direction:rtl}.abf span{display:flex;flex-direction:column;align-items:center;background:var(--card2);border-radius:12px;padding:2px 8px}
+.abf i{font-style:normal;font-size:30px;line-height:1.5}.abf small{font-size:10px;color:var(--mut);direction:ltr}
+.abgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 0}.abc{display:flex;flex-direction:column;align-items:center;background:var(--card2);border-radius:16px;padding:8px}.abc small{color:var(--mut)}
+.abrow{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;font-size:34px;margin:8px 0}.abg{font-size:38px;background:var(--qbg);border-radius:12px;padding:0 10px}
 </style>
 <script>(function(){var t="light";try{t=JSON.parse(localStorage.getItem("theme"))||"light"}catch(e){}document.documentElement.setAttribute("data-theme",t==="dark"?"dark":"light")})()</script>
 </head>
@@ -1917,7 +1928,7 @@ function lpLoad(){
   if(!G)return;var slug=G.slug,sid=lsid(),loc=store.get("lp_"+slug,{});
   LP={};Object.keys(loc).forEach(function(k){LP[k]=loc[k]});
   if(!CLOUD||!sid||canEdit())return;
-  rpc("progress_get",V_({p_code:slug,p_student:sid})).then(function(r){if(!G||G.slug!==slug)return;(r||[]).forEach(function(x){if(x.course===LMOD.id)LP[x.lesson]=Math.max(LP[x.lesson]||0,x.best_stars)});render()}).catch(function(){});
+  rpc("progress_get",V_({p_code:slug,p_student:sid})).then(function(r){if(!G||G.slug!==slug)return;(r||[]).forEach(function(x){if(x.course===LMOD.id||x.course==="ab")LP[x.lesson]=Math.max(LP[x.lesson]||0,x.best_stars)});render()}).catch(function(){});
 }
 function arn(n){return String(n).replace(/\d/g,function(d){return "٠١٢٣٤٥٦٧٨٩"[d]})}
 function ruT(t){return String(t||"").replace(/\s*\[\d+\]/g,"")}
@@ -1959,7 +1970,7 @@ function lsCur(){return LS&&LS.tasks?LS.tasks[LS.k]:null}
 function lsAnswer(ok,val){var t=lsCur();if(!t||LS.fb)return;
   if(ok){if(!t.miss)LS.ok++;LS.fb={ok:true,pick:val};return}
   LS.err++;t.miss=(t.miss||[]).concat([val]);
-  if(t.miss.length<2){t.hint=lsHint(t);if(t.t==="lis"||t.t==="gap")laPlay(LS.n,t.i+1);return}
+  if(t.miss.length<2){if(LS.ab==null){t.hint=lsHint(t);if(t.t==="lis"||t.t==="gap")laPlay(LS.n,t.i+1)}return}
   LS.fb={ok:false,pick:val}}
 function lsHint(t){
   if(t.t==="lis")return "Послушай ещё раз внимательно — особенно начало аята. Я включил его снова 🔊";
@@ -1971,8 +1982,8 @@ function lsNext(){
   laStop();LS.fb=null;LS.k++;
   if(LS.k<LS.tasks.length){var t=lsCur();if(t.t==="lis")setTimeout(function(){if(lsCur()===t)laPlay(LS.n,t.i+1)},250);return}
   var stars=LS.err===0?3:LS.err<=2?2:1;LS.step="res";LS.res={stars:stars,pts:null};
-  var slug=G.slug,key="s"+LS.n,loc=store.get("lp_"+slug,{});loc[key]=Math.max(loc[key]||0,stars);store.set("lp_"+slug,loc);if(LP)LP[key]=Math.max(LP[key]||0,stars);
-  if(CLOUD&&STOK&&!canEdit()){var R0=LS.res;rpc("lesson_done",{p_slug:slug,p_stoken:STOK.t,p_course:LMOD.id,p_lesson:key,p_title:"Сура «"+NAMES[LS.n]+"»",p_stars:stars,p_correct:LS.ok,p_total:LS.ok+LS.err})
+  var isAb=LS.ab!=null,slug=G.slug,key=isAb?"a"+(LS.ab+1):"s"+LS.n,loc=store.get("lp_"+slug,{});loc[key]=Math.max(loc[key]||0,stars);store.set("lp_"+slug,loc);if(LP)LP[key]=Math.max(LP[key]||0,stars);
+  if(CLOUD&&STOK&&!canEdit()){var R0=LS.res;rpc("lesson_done",{p_slug:slug,p_stoken:STOK.t,p_course:isAb?"ab":LMOD.id,p_lesson:key,p_title:isAb?"Алифба: "+ABLES[LS.ab].t:"Сура «"+NAMES[LS.n]+"»",p_stars:stars,p_correct:LS.ok,p_total:LS.ok+LS.err})
     .then(function(r){R0.pts=r&&r.points||0;if(R0.pts)refreshGroup().then(render);else render()}).catch(function(e){R0.pts=-1;R0.err=emsg(e);render()})}
 }
 function vLessons(){
@@ -1980,6 +1991,10 @@ function vLessons(){
   if(LS)return vLesson();
   var h=STOK&&!canEdit()?"":'<div class="box"><h2>🎓 Уроки</h2><div class="subj">'+SUBJ.map(function(s){return '<span class="sj'+(s[3]?" on":"")+'">'+s[1]+' '+s[2]+(s[3]?"":'<small>скоро</small>')+'</span>'}).join("")+'</div></div>';
   if(!QD)return h+'<div class="box cen mut">'+(QDerr&&QDerr!=="busy"?esc(QDerr):"Загрузка…")+'</div>';
+  var cs=UI.course==="ab"?"ab":"q";
+  h+='<div class="seg wide2" style="margin-bottom:12px"><button class="'+(cs==="q"?"on":"")+'" data-a="course" data-v="q">📖 Суры</button><button class="'+(cs==="ab"?"on":"")+'" data-a="course" data-v="ab">🔤 Алифба</button></div>';
+  if(cs==="ab"){var at=0;ABLES.forEach(function(x,i){at+=LP&&LP["a"+(i+1)]||0});
+    return h+'<div class="box"><h2>🔤 Алифба — буквы и чтение</h2><p class="mut sm" style="margin:-6px 0 8px">Узнаём все 28 букв, их формы в начале, середине и конце слова, огласовки и собираем слова из Корана. За каждую звезду — +1 балл в рейтинг.</p><div class="sm" style="margin-bottom:10px">⭐ '+at+' из '+ABLES.length*3+'</div>'+vAbMap()+'<p class="mut sm" style="margin-top:10px;font-size:12px">Буквы показаны шрифтом мединского мусхафа — такими же их увидишь в Коране.</p></div>'}
   var sid=lsid(),tot=0;LMOD.list.forEach(function(n){tot+=LP&&LP["s"+n]||0});
   h+='<div class="box"><h2>📖 '+esc(LMOD.name)+'</h2><p class="mut sm" style="margin:-6px 0 8px">Слушай, читай и пойми смысл каждой суры. Игры: порядок аятов, угадай аят на слух, смысл аята, пропущенное слово, найди пару. За каждую звезду — +1 балл в рейтинг.</p>';
   h+='<div class="sm" style="margin-bottom:10px">⭐ '+tot+' из '+LMOD.list.length*3+'</div>';
@@ -1988,7 +2003,13 @@ function vLessons(){
   h+='<p class="mut sm" style="margin-top:10px;font-size:12px">Текст и шрифт Корана: Комплекс короля Фахда (мединский мусхаф, Хафс). Перевод смыслов: Эльмир Кулиев (Tanzil.net). Чтение: шейх Махмуд Халиль аль-Хусари.</p></div>';
   return h;
 }
+function vLessonRes(){var r=LS.res;
+    var h='<div class="cen" style="padding:10px 0"><div style="font-size:44px;letter-spacing:4px">'+[1,2,3].map(function(k){return k<=r.stars?"⭐":"☆"}).join("")+'</div><h2 style="margin:8px 0">'+(r.stars===3?"Машаллах, без ошибок!":r.stars===2?"Хорошо! Почти без ошибок":"Урок пройден!")+'</h2>'+(r.stars<3?sayS("sab","Пройди ещё раз — получится лучше! Каждый повтор помогает запомнить."):sayS("asl","Ты собрал все звёзды! Возьмёмся за следующую суру?"))+'<p class="mut">Верно: '+LS.ok+' · ошибок: '+LS.err+'</p>';
+    if(STOK&&!canEdit())h+='<p style="margin-top:8px;font-weight:800">'+(r.pts===null?"Сохраняю…":r.pts>0?"+"+pn(r.pts,"балл","балла","баллов")+" в рейтинг 🎉":r.pts<0?esc(r.err||"Не удалось сохранить"):"Баллы за этот урок уже получены — можно улучшить звёзды")+'</p>';
+    return h+'<div class="btns" style="justify-content:center;margin-top:12px"><button class="btn pri" data-a="lstart">🔁 Ещё раз</button><button class="btn" data-a="lquit">К списку уроков</button></div></div>';
+}
 function vLesson(){
+  if(LS.ab!=null)return vAb();
   var n=LS.n,D=QD[n],A=D.ar,T=D.ru.map(ruT),N=A.length;
   var h='<div class="box"><div class="btns" style="align-items:center;justify-content:space-between;flex-wrap:nowrap"><b style="font-size:18px">Сура «'+esc(NAMES[n])+'»</b><button class="btn sm" data-a="lquit">✕ Выйти</button></div>';
   if(LS.step==="intro"){
@@ -1996,11 +2017,7 @@ function vLesson(){
     A.forEach(function(a,i){h+='<div class="ayah"><button class="ib" data-a="lplay" data-v="'+(i+1)+'" aria-label="Слушать аят '+(i+1)+'">▶</button><div class="mid"><div class="ar">'+esc(a)+' '+arn(i+1)+'</div><div class="sm mut">'+esc(T[i])+'</div></div></div>'});
     return h+'<div class="btns" style="margin-top:12px"><button class="btn pri" data-a="lstart">🎮 Начать игру</button><button class="btn" data-a="lplayall">🎧 Слушать всю суру</button></div></div>';
   }
-  if(LS.step==="res"){var r=LS.res;
-    h+='<div class="cen" style="padding:10px 0"><div style="font-size:44px;letter-spacing:4px">'+[1,2,3].map(function(k){return k<=r.stars?"⭐":"☆"}).join("")+'</div><h2 style="margin:8px 0">'+(r.stars===3?"Машаллах, без ошибок!":r.stars===2?"Хорошо! Почти без ошибок":"Урок пройден!")+'</h2>'+(r.stars<3?sayS("sab","Пройди ещё раз — получится лучше! Каждый повтор помогает запомнить суру."):sayS("asl","Ты собрал все звёзды! Возьмёмся за следующую суру?"))+'<p class="mut">Верно: '+LS.ok+' · ошибок: '+LS.err+'</p>';
-    if(STOK&&!canEdit())h+='<p style="margin-top:8px;font-weight:800">'+(r.pts===null?"Сохраняю…":r.pts>0?"+"+pn(r.pts,"балл","балла","баллов")+" в рейтинг 🎉":r.pts<0?esc(r.err||"Не удалось сохранить"):"Баллы за этот урок уже получены — можно улучшить звёзды")+'</p>';
-    return h+'<div class="btns" style="justify-content:center;margin-top:12px"><button class="btn pri" data-a="lstart">🔁 Ещё раз</button><button class="btn" data-a="lquit">К списку сур</button></div></div></div>';
-  }
+  if(LS.step==="res")return h+vLessonRes()+'</div>';
   var t=lsCur(),L=LS.tasks.length;
   h+='<div class="bar" style="height:8px;margin:8px 0 14px"><i style="width:'+Math.round(LS.k/L*100)+'%"></i></div>';
   var opt=function(v,label,ar,good){var cls="lopt"+(ar?" ar":""),miss=t.miss&&t.miss.indexOf(v)>-1;if(LS.fb){if(good)cls+=" ok";else if(LS.fb.pick===v||miss)cls+=" bad"}else if(miss)cls+=" bad off";return '<button class="'+cls+'" data-a="lans" data-v="'+v+'"'+(LS.fb||miss?" disabled":"")+'>'+label+'</button>'};
@@ -2031,17 +2048,19 @@ function vLesson(){
   if(LS.fb&&t.t!=="ord"&&t.t!=="par")h+=(LS.fb.ok?sayS("asl",t.miss?"Верно, со второй попытки! Молодец 👍":praise()):sayS("sab","Ничего страшного! Правильный ответ отмечен зелёным — запомни его, он ещё встретится."))+'<button class="btn pri" data-a="lnext">Дальше ›</button>';
   return h+'<p class="mut sm" style="margin-top:10px;text-align:right">'+(LS.k+1)+' из '+L+'</p></div>';
 }
-function lessonAct(a,v){
+function lessonAct(a,v,k){
   var t=lsCur();
   switch(a){
-    case"lopen":lsOpen(parseInt(v,10));return true;
+    case"lopen":if(k==="ab")abOpen(parseInt(v,10));else lsOpen(parseInt(v,10));return true;
+    case"lbld":if(!t)return false;var bk=parseInt(v,10),bm=t.mix[bk];if(!bm||t.got.indexOf(bk)>-1)return false;
+      if(bm.c===t.seq[t.got.length]){t.got.push(bk);LS.fb=null;if(t.got.length===t.seq.length)LS.ok++}else{LS.err++;LS.fb={wrong:bk}}return true;
     case"lquit":laStop();LS=null;window.scrollTo(0,0);return true;
-    case"lplay":var pn_=parseInt(v,10);laPlay(LS.step==="intro"||!t||t.t!=="sur"?LS.n:t.n,pn_);return false;
+    case"lplay":if(LS.ab!=null)return false;var pn_=parseInt(v,10);laPlay(LS.step==="intro"||!t||t.t!=="sur"?LS.n:t.n,pn_);return false;
     case"lplayall":laStop();plStart(String(LS.n),{});return true;
-    case"lstart":LS.tasks=lsBuild(LS.n);LS.k=0;LS.err=0;LS.ok=0;LS.fb=null;LS.step="game";window.scrollTo(0,0);var t0=LS.tasks[0];if(t0&&t0.t==="lis")laPlay(LS.n,t0.i+1);return true;
+    case"lstart":LS.tasks=LS.ab!=null?abBuild(LS.ab):lsBuild(LS.n);LS.k=0;LS.err=0;LS.ok=0;LS.fb=null;LS.step="game";window.scrollTo(0,0);var t0=LS.tasks[0];if(t0&&t0.t==="lis")laPlay(LS.n,t0.i+1);return true;
     case"lnext":lsNext();window.scrollTo(0,0);return true;
     case"lans":if(!t||LS.fb)return false;var val=parseInt(v,10);
-      var good=t.t==="gap"?t.opts[val]===t.w:t.t==="sur"?val===t.n:val===t.i;lsAnswer(good,val);return true;
+      var good=LS.ab!=null?val===t.good:t.t==="gap"?t.opts[val]===t.w:t.t==="sur"?val===t.n:val===t.i;lsAnswer(good,val);return true;
     case"lord":var i=parseInt(v,10);if(!t)return false;var need=t.ids[t.got.length];
       if(i===need){t.got.push(i);LS.fb=null}else{LS.err++;LS.fb={wrong:i}}
       if(t.got.length===t.ids.length)LS.ok++;return true;
@@ -2171,7 +2190,7 @@ function navStudent(){
   var nb=hwBadge(),t=[["o","🏠","Главная"],["s","🎓","Уроки"],["r","🏆","Рейтинг"],["d","📚","Задания"],["m","👤","Я"]];
   return '<nav class="nav"><div>'+t.map(function(x){return '<button class="'+(R.tab===x[0]||(x[0]==="m"&&R.tab==="p")?"on":"")+'" data-a="tab" data-v="'+x[0]+'"><span>'+x[1]+'</span>'+x[2]+(x[0]==="d"&&nb?'<b>'+nb+'</b>':"")+'</button>'}).join("")+'</div></nav>';
 }
-var TILES=[["q","Коран","суры 30-го джуза","#22C55E","📖",1],["a","Алифба","буквы и чтение","#3B6CF6",'<span style="font-family:Sch,serif;font-size:40px;display:inline-block;margin:0 14px 10px 0">ا ب ت</span>',0],["f","Фикх","намаз и омовение","#FF8A00","🕌",0],["k","Акида","во что мы верим","#A855F7","💎",0],["x","Ахляк","красивый нрав","#EC4899","🌸",0],["s","Сира","жизнь Пророка ﷺ","#06B6D4","🐪",0]];
+var TILES=[["q","Коран","суры 30-го джуза","#22C55E","📖",1],["a","Алифба","буквы и чтение","#3B6CF6",'<span style="font-family:Hafs,Sch,serif;font-size:40px;display:inline-block;margin:0 14px 10px 0">ا ب ت</span>',1],["f","Фикх","намаз и омовение","#FF8A00","🕌",0],["k","Акида","во что мы верим","#A855F7","💎",0],["x","Ахляк","красивый нрав","#EC4899","🌸",0],["s","Сира","жизнь Пророка ﷺ","#06B6D4","🐪",0]];
 function vHome2(){
   var s=STOK&&by(STOK.sid);if(!s)return vRating();
   qdLoad();if(!LP)lpLoad();
@@ -2179,8 +2198,8 @@ function vHome2(){
   LMOD.list.forEach(function(n){var b=LP&&LP["s"+n]||0;st+=b;if(!next&&b<3)next=n});
   var line=[];if(todo)line.push("заданий: "+todo);if(next)line.push("урок по суре «"+NAMES[next]+"»");
   var h='<div class="hello">'+mas("sab",92)+'<p><b>Ассаляму алейкум, '+esc(s.name)+'!</b>'+(line.length?"Сегодня: "+line.join(" и ")+". Вперёд!":"Всё сделано — машаллах! Повтори суры или поиграй ещё.")+'</p></div>';
-  h+='<div class="tgrid">'+TILES.map(function(t){var pr=t[0]==="q"?Math.round(st/(LMOD.list.length*3)*100):0;
-    return '<button class="tile'+(t[5]?"":" soon")+'" style="--tc:'+t[3]+'"'+(t[5]?' data-a="tab" data-v="s"':' data-a="soon"')+'><b>'+t[1]+'</b><small>'+(t[5]?t[2]:"скоро")+'</small>'+(t[5]?'<span class="tpr"><u style="width:'+Math.max(4,pr)+'%"></u></span>':"")+'<i>'+t[4]+'</i></button>'}).join("")+'</div>';
+  h+='<div class="tgrid">'+TILES.map(function(t){var at2=0;ABLES.forEach(function(x,i){at2+=LP&&LP["a"+(i+1)]||0});var pr=t[0]==="q"?Math.round(st/(LMOD.list.length*3)*100):t[0]==="a"?Math.round(at2/(ABLES.length*3)*100):0;
+    return '<button class="tile'+(t[5]?"":" soon")+'" style="--tc:'+t[3]+'"'+(t[5]?' data-a="course" data-v="'+(t[0]==="a"?"ab":"q")+'"':' data-a="soon"')+'><b>'+t[1]+'</b><small>'+(t[5]?t[2]:"скоро")+'</small>'+(t[5]?'<span class="tpr"><u style="width:'+Math.max(4,pr)+'%"></u></span>':"")+'<i>'+t[4]+'</i></button>'}).join("")+'</div>';
   var L=ranked();h+='<div class="qrow"><button class="qc" data-a="tab" data-v="r"><i>🏆</i><b>'+place(s)+' место</b><small>из '+L.length+' · '+pn(tot(s),"балл","балла","баллов")+'</small></button><button class="qc" data-a="tab" data-v="d"><i>📚</i><b>'+(todo?pn(todo,"задание","задания","заданий"):"Задания")+'</b><small>'+(todo?"ждут тебя":"все сданы")+'</small></button></div>';
   return h;
 }
@@ -2191,6 +2210,102 @@ function vMap(){
   L.forEach(function(n,i){var b=LP&&LP["s"+n]||0,c=n===cur?"cur":b?"done":"",x=XS[i%4],y=i*STEP;
     h+='<button class="lnode '+c+'" style="left:'+x+'%;top:'+y+'px" data-a="lopen" data-v="'+n+'"><span class="ln">'+(b?"✓":n===1?"1":n)+'</span><span class="lt">'+esc(NAMES[n])+'</span><span class="ls">'+(b?[1,2,3].map(function(k){return k<=b?"⭐":"☆"}).join(""):"")+'</span></button>';
     if(n===cur)h+='<div class="lsab" style="left:'+(x>50?x-34:x+14)+'%;top:'+(y-6)+'px">'+mas("sab",64)+'</div>'});
+  return h+'</div>';
+}
+
+/* ================= Алифба: буквы, формы, огласовки, слова ================= */
+// [буква, название, как звучит, соединяется ли с последующей]
+var ABL={"ا":["Алиф","а (подставка для гласной)",0],"ب":["Ба","б",1],"ت":["Та","т",1],"ث":["Са","межзубный с (кончик языка между зубами)",1],"ج":["Джим","дж",1],"ح":["Ха","гортанный х (как будто дышим на стекло)",1],"خ":["Хо","хриплый х (как в слове «хор»)",1],"د":["Даль","д",0],"ذ":["Заль","межзубный з",0],"ر":["Ро","р",0],"ز":["Зай","з",0],"س":["Син","с",1],"ش":["Шин","ш",1],"ص":["Сод","твёрдый с",1],"ض":["Дод","твёрдый д",1],"ط":["То","твёрдый т",1],"ظ":["За","твёрдый межзубный з",1],"ع":["Айн","гортанный звук из глубины горла",1],"غ":["Гайн","картавое г (как французское r)",1],"ف":["Фа","ф",1],"ق":["Коф","глубокий к (из самого горла)",1],"ك":["Каф","к",1],"ل":["Лям","л",1],"م":["Мим","м",1],"ن":["Нун","н",1],"ه":["Ха","лёгкий выдох «h»",1],"و":["Вав","в (губы трубочкой)",0],"ي":["Йа","й",1]};
+var ABLES=[
+ {L:"ابتث",t:"Алиф, Ба, Та, Са",tip:"Ба, Та и Са — одна «лодочка». Отличаются точками: у Ба одна снизу, у Та две сверху, у Са три сверху."},
+ {L:"جحخ",t:"Джим, Ха, Хо",tip:"Три «крючка». У Джим точка внутри снизу, у Ха точки нет, у Хо точка сверху."},
+ {L:"دذرز",t:"Даль, Заль, Ро, Зай",tip:"Эти буквы не соединяются со следующей буквой. Даль и Заль — «уголки», Ро и Зай — «хвостики»; у Заль и Зай есть точка."},
+ {L:"سشصض",t:"Син, Шин, Сод, Дод",tip:"У Син три зубчика, у Шин ещё три точки. Сод и Дод — с «петлёй», у Дод точка сверху."},
+ {L:"طظعغ",t:"То, За, Айн, Гайн",tip:"То и За — с палочкой, у За точка. Айн и Гайн похожи на «улитку», у Гайн точка сверху."},
+ {L:"فقكل",t:"Фа, Коф, Каф, Лям",tip:"У Фа одна точка сверху, у Коф — две. Каф и Лям высокие, у Каф внутри маленький значок."},
+ {L:"منهوي",t:"Мим, Нун, Ха, Вав, Йа",tip:"Мим — кружок, Нун — чашка с точкой, Ха меняется сильнее всех, Вав не соединяется дальше, у Йа две точки снизу."},
+ {H:1,t:"Огласовки: фатха, кясра, дамма",tip:"Фатха — чёрточка сверху, звук «а». Кясра — чёрточка снизу, звук «и». Дамма — маленькая «вав» сверху, звук «у»."},
+ {R:1,t:"Повторение: все буквы",tip:"Все 28 букв и огласовки вместе. Не спеши — смотри на точки!"}
+];
+var ABALL=Object.keys(ABL);
+function abName(c){return ABL[c][0]}
+function abForms(c){var j=ABL[c][2];return j?[c,c+"ـ","ـ"+c+"ـ","ـ"+c]:[c,"ـ"+c]}
+var HAR=[["َ","а","фатха"],["ِ","и","кясра"],["ُ","у","дамма"]];
+function abRu(c){var r=ABL[c][1];return /^[а-яё]{1,2}$/.test(r)?r:{"ا":"","ث":"с","ح":"х","خ":"х","ذ":"з","ص":"с","ض":"д","ط":"т","ظ":"з","ع":"","غ":"г","ق":"к","ه":"х","و":"в"}[c]}
+function abSyl(c,h){return (abRu(c)||"")+HAR[h][1]}
+function abLetters(i){var x=ABLES[i];return x.L?x.L.split(""):ABALL}
+function abKnown(i){var s=[];for(var k=0;k<=Math.min(i,6);k++)if(ABLES[k].L)s=s.concat(ABLES[k].L.split(""));return i>=7?ABALL:s}
+// слова из выученных сур, составленные только из знакомых букв
+function abWords(known){
+  if(!QD)return[];var set={},out=[],seen={};known.forEach(function(c){set[c]=1});
+  var MAP={"ٱ":"ا","أ":"ا","إ":"ا","آ":"ا"};
+  Object.keys(QD).forEach(function(k){QD[k].ar.forEach(function(a){a.split(" ").forEach(function(w){
+    var base=arPlain(w).replace(/[ٱأإآ]/g,function(m){return MAP[m]});
+    if(base.length<2||base.length>4||seen[base])return;var ok=base.split("").every(function(c){return set[c]});
+    if(ok){seen[base]=1;out.push({w:w,L:base.split("")})}})})});
+  return out;
+}
+function pick(arr,n){return shuf(arr).slice(0,n)}
+function abOpts(good,pool,n){return shuf([good].concat(pick(pool.filter(function(x){return x!==good}),n-1)))}
+function abBuild(i){
+  var Ls=abLetters(i),K=abKnown(i),T=[],x=ABLES[i];
+  if(x.H){
+    K=K.filter(function(c){return c!=="ا"&&c!=="ع"});
+    pick(K,4).forEach(function(c){var h=rnd(3);T.push({t:"syl",q:c+HAR[h][0],opts:[0,1,2].map(function(k){return abSyl(c,k)}),good:h,hint:"Посмотри, где чёрточка: сверху — «а», снизу — «и», маленькая «вав» сверху — «у»."})});
+    pick(K,3).forEach(function(c){var h=rnd(3),others=pick(K.filter(function(z){return z!==c}),2),opts=shuf([[c,h]].concat(others.map(function(z){return [z,rnd(3)]})));
+      T.push({t:"fsyl",say:abSyl(c,h),opts:opts.map(function(o){return o[0]+HAR[o[1]][0]}),good:opts.findIndex(function(o){return o[0]===c&&o[1]===h}),hint:"Сначала найди букву «"+abName(c)+"», потом посмотри на огласовку."})});
+    pick(K,2).forEach(function(c){var h=rnd(3);T.push({t:"har",q:c+HAR[h][0],opts:HAR.map(function(z){return z[2]}),good:h,hint:"Фатха — сверху, кясра — снизу, дамма похожа на маленькую «вав»."})});
+    return shuf(T);
+  }
+  var pool=x.R?ABALL:K;
+  pick(Ls,x.R?4:Math.min(4,Ls.length)).forEach(function(c){var o=abOpts(c,pool.length>3?pool:ABALL,3);T.push({t:"fnd",say:abName(c),opts:o,good:o.indexOf(c),hint:"Вспомни: "+(ABLES.filter(function(l){return l.L&&l.L.indexOf(c)>-1})[0]||{}).tip})});
+  pick(Ls,x.R?3:Math.min(3,Ls.length)).forEach(function(c){var o=abOpts(c,pool.length>3?pool:ABALL,3);T.push({t:"nam",q:c,opts:o.map(abName),good:o.indexOf(c),hint:"Посмотри на точки: сколько их и где — сверху или снизу?"})});
+  pick(Ls,x.R?3:2).forEach(function(c){var F=abForms(c),f=1+rnd(F.length-1),o=abOpts(c,pool.length>3?pool:ABALL,3);T.push({t:"frm",q:F[f],fn:["","в начале слова","в середине слова","в конце слова"][F.length===2?3:f],opts:o,good:o.indexOf(c),hint:"В слове буква меняет вид, но точки остаются на месте. Посмотри на точки!"})});
+  var W=pick(abWords(K),2);W.forEach(function(w){var extra=pick(pool.filter(function(c){return w.L.indexOf(c)<0}),2);T.push({t:"bld",w:w.w,seq:w.L,mix:shuf(w.L.map(function(c,k){return {c:c,k:k}}).concat(extra.map(function(c){return {c:c,k:-1}}))),got:[]})});
+  return T;
+}
+function abOpen(i){if(PL&&PL.playing)plToggle(false);LS={ab:i,step:"intro",tasks:null,k:0,err:0,ok:0,fb:null,res:null};window.scrollTo(0,0)}
+function vAbIntro(i){
+  var x=ABLES[i],h=sayS("sab",x.tip);
+  if(x.H){h+='<div class="abgrid">'+HAR.map(function(z){return '<div class="abc"><div class="ar abl">بـ'+z[0]+'</div><b>'+z[2]+'</b><small>звук «'+z[1]+'»</small></div>'}).join("")+'</div>';
+    h+='<p class="sm mut" style="margin:10px 0 4px">Примеры:</p><div class="tags" style="justify-content:center">'+["ب","ت","م","ن","ل","ك"].map(function(c){return HAR.map(function(z){return '<span class="tg tq" style="font-size:18px"><span class="ar" style="font-size:24px;line-height:1.4">'+c+z[0]+'</span>&nbsp;'+abSyl(c,HAR.indexOf(z))+'</span>'}).join("")}).join("")+'</div>';return h}
+  if(x.R)return h+'<div class="abrow">'+ABALL.map(function(c){return '<span class="ar">'+c+'</span>'}).join(" ")+'</div>';
+  x.L.split("").forEach(function(c){var F=abForms(c);
+    h+='<div class="abcard"><div class="ar abl">'+c+'</div><div class="mid"><b style="font-size:20px">'+abName(c)+'</b><div class="sm mut">звук: '+esc(ABL[c][1])+'</div><div class="abf">'+F.map(function(f,k){return '<span><i class="ar">'+f+'</i><small>'+(F.length===2?["одна","в конце"][k]:["одна","начало","середина","конец"][k])+'</small></span>'}).join("")+'</div></div></div>'});
+  return h;
+}
+function vAb(){
+  var i=LS.ab,x=ABLES[i];
+  var h='<div class="box"><div class="btns" style="align-items:center;justify-content:space-between;flex-wrap:nowrap"><b style="font-size:18px">🔤 '+esc(x.t)+'</b><button class="btn sm" data-a="lquit">✕ Выйти</button></div>';
+  if(LS.step==="intro")return h+vAbIntro(i)+'<div class="btns" style="margin-top:12px"><button class="btn pri" data-a="lstart">🎮 Начать игру</button></div></div>';
+  if(LS.step==="res")return h+vLessonRes()+'</div>';
+  var t=lsCur(),L=LS.tasks.length;
+  h+='<div class="bar" style="height:8px;margin:8px 0 14px"><i style="width:'+Math.round(LS.k/L*100)+'%"></i></div>';
+  var opt=function(v,label,ar){var cls="lopt abo"+(ar?" ar":""),miss=t.miss&&t.miss.indexOf(v)>-1;if(LS.fb){if(v===t.good)cls+=" ok";else if(LS.fb.pick===v||miss)cls+=" bad"}else if(miss)cls+=" bad off";return '<button class="'+cls+'" data-a="lans" data-v="'+v+'"'+(LS.fb||miss?" disabled":"")+'>'+label+'</button>'};
+  var grid=function(items,ar){return '<div class="abopts">'+items.map(function(o,k){return opt(k,esc(o),ar)}).join("")+'</div>'};
+  if(t.t==="fnd")h+='<h3>Найди букву «'+esc(t.say)+'»</h3>'+grid(t.opts,true);
+  else if(t.t==="nam")h+='<h3>Как называется эта буква?</h3><div class="ar abq">'+esc(t.q)+'</div>'+grid(t.opts,false);
+  else if(t.t==="frm")h+='<h3>Какая это буква?</h3><p class="mut sm">Так она пишется '+esc(t.fn)+'</p><div class="ar abq">'+esc(t.q)+'</div>'+grid(t.opts,true);
+  else if(t.t==="syl")h+='<h3>Как читается слог?</h3><div class="ar abq">'+esc(t.q)+'</div>'+grid(t.opts,false);
+  else if(t.t==="fsyl")h+='<h3>Найди слог «'+esc(t.say)+'»</h3>'+grid(t.opts,true);
+  else if(t.t==="har")h+='<h3>Какая здесь огласовка?</h3><div class="ar abq">'+esc(t.q)+'</div>'+grid(t.opts,false);
+  else if(t.t==="bld"){
+    h+='<h3>Собери слово из Корана</h3><p class="mut sm">Нажимай буквы по порядку — справа налево, как читаем по-арабски.</p><div class="ar abq">'+esc(t.w)+'</div>';
+    h+='<div class="abrow" style="min-height:52px;direction:rtl">'+t.got.map(function(k){return '<span class="ar abg">'+t.mix[k].c+'</span>'}).join("")+'</div><div class="abopts">'+t.mix.map(function(m,k){var used=t.got.indexOf(k)>-1;return used?"":'<button class="lopt abo ar'+(LS.fb&&LS.fb.wrong===k?" bad":"")+'" data-a="lbld" data-v="'+k+'">'+m.c+'</button>'}).join("")+'</div>';
+    if(t.got.length===t.seq.length)h+=sayS("asl","Машаллах! Ты собрал слово из Корана!")+'<button class="btn pri" data-a="lnext">Дальше ›</button>';
+    else if(LS.fb&&LS.fb.wrong!=null)h+=sayS("sab","Не та буква. Посмотри на слово: какая буква идёт "+(t.got.length?"следующей":"первой — справа")+"?");
+  }
+  if(!LS.fb&&t.hint&&t.miss)h+=sayS("sab",t.hint);
+  if(LS.fb&&t.t!=="bld")h+=(LS.fb.ok?sayS("asl",t.miss?"Верно, со второй попытки! Молодец 👍":praise()):sayS("sab","Ничего страшного! Правильный ответ отмечен зелёным — запомни его."))+'<button class="btn pri" data-a="lnext">Дальше ›</button>';
+  return h+'<p class="mut sm" style="margin-top:10px;text-align:right">'+(LS.k+1)+' из '+L+'</p></div>';
+}
+function vAbMap(){
+  var cur=null;ABLES.forEach(function(x,i){if(cur==null&&!(LP&&LP["a"+(i+1)]))cur=i});
+  var XS=[50,78,50,22],STEP=112,H=ABLES.length*STEP+30,pts=ABLES.map(function(x,i){return XS[i%4]+","+(i*STEP+44)}).join(" ");
+  var h='<div class="lmap" style="height:'+H+'px"><svg viewBox="0 0 100 '+H+'" preserveAspectRatio="none" aria-hidden="true"><polyline points="'+pts+'" fill="none" stroke="var(--soft-sh)" stroke-width="10" stroke-linecap="round" stroke-dasharray="1 20" vector-effect="non-scaling-stroke"/></svg>';
+  ABLES.forEach(function(x,i){var b=LP&&LP["a"+(i+1)]||0,c=i===cur?"cur":b?"done":"",X=XS[i%4],y=i*STEP,lab=x.L?x.L.split("").join(" "):x.H?"بَ بِ بُ":"ا – ي";
+    h+='<button class="lnode '+c+'" style="left:'+X+'%;top:'+y+'px" data-a="lopen" data-k="ab" data-v="'+i+'"><span class="ln">'+(b?"✓":i+1)+'</span><span class="lt'+(x.L?' ar':'')+'" style="'+(x.L?'font-size:22px;line-height:1.3;direction:rtl':'')+'">'+(x.L?lab:x.H?"Огласовки":"Повторение")+'</span><span class="ls">'+(b?[1,2,3].map(function(k){return k<=b?"⭐":"☆"}).join(""):"")+'</span></button>';
+    if(i===cur)h+='<div class="lsab" style="left:'+(X>50?X-34:X+14)+'%;top:'+(y-6)+'px">'+mas("sab",64)+'</div>'});
   return h+'</div>';
 }
 
@@ -2232,9 +2347,10 @@ function act(a,b,e){
     if(hk){var left=hx.listen?Math.max(1,hx.listen-(hx.my_listens||0)):1;plStart(hk,{times:left,hw:hx.id})}return}
   if(chatAct(a,b))return;
   if(S&&G&&hwAct(a,b))return;
-  if(/^l(open|quit|play|playall|start|next|ans|ord|pl|pr)$/.test(a)){if(a!=="lopen"&&!LS)return;var lr=lessonAct(a,v);if(lr)render();return}
+  if(/^l(open|quit|play|playall|start|next|ans|ord|pl|pr|bld)$/.test(a)){if(a!=="lopen"&&!LS)return;var lr=lessonAct(a,v,k);if(lr)render();return}
   if(a==="lseg"){UI.lseg=v;if(v!=="l"){laStop();LS=null}window.scrollTo(0,0);render();return}
   if(a==="actre"){ACTD=null;render();return}
+  if(a==="course"){UI.course=v;LS=null;if(R.tab!=="s"){go("#/g/"+encodeURIComponent(G.slug)+"/suras")}render();return}
   if(a==="soon"){flash("Этот предмет скоро появится, иншаАллах!");return}
   if(a==="theme"){setTheme(theme()==="dark"?"light":"dark");render();return}
   if(a==="gmode"){UI.gmode=v;UI.gErr="";render();return}
