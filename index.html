@@ -483,6 +483,12 @@ function migrate(o){
   var att={};if(o.att&&typeof o.att==="object")Object.keys(o.att).sort().slice(-80).forEach(function(d){
     if(!/^\d{4}-\d{2}-\d{2}$/.test(d)||!o.att[d]||typeof o.att[d]!=="object")return;var m={};
     Object.keys(o.att[d]).forEach(function(id){var x=o.att[d][id];if(x&&/^[pea]$/.test(x.st))m[cid(id)]={st:x.st,lid:x.lid?cid(x.lid):""}});att[d]=m});
+  // за что баллы: настраивает учитель. k: n — намаз, q — Коран, x — доп. баллы, f — штраф
+  var cats=(Array.isArray(o.cats)?o.cats:[]).filter(function(c){return c&&typeof c==="object"&&/^[nqxf]$/.test(c.k)}).slice(0,24).map(function(c){
+    return {id:cid(c.id),k:c.k,e:String(c.e||"").slice(0,4)||({n:"🕌",q:"📖",x:"⭐",f:"⚠️"})[c.k],name:String(c.name||"").slice(0,30)||CAT[c.k][1],pts:Math.max(1,Math.min(50,c.pts|0||1)),off:!!c.off}});
+  if(!cats.some(function(c){return c.id==="n"}))cats.unshift({id:"n",k:"n",e:"🕌",name:"Намаз",pts:1,off:false});
+  if(!cats.some(function(c){return c.id==="q"}))cats.splice(1,0,{id:"q",k:"q",e:"📖",name:"Коран",pts:1,off:false});
+  o.cats=cats;
   o.att=att;o.attPts=[0,1,2,3].indexOf(o.attPts)>-1?o.attPts:1;
   o.v=4;return o;
 }
@@ -663,9 +669,9 @@ function vCab(){
     var pre=h;h=pre.replace('<div class="box"><h2>Ассаляму','@@TABS@@<div class="box"><h2>Ассаляму');
     var tb=tabs4("cseg",cs,[["g","🕌","Группы"],["t","🧑‍🏫","Учителя"],["p","🔔","Уведомл."],["s","🔐","Вход"]]);
     if(cs!=="g"){h=h.slice(0,h.indexOf("@@TABS@@"))+tb}else h=h.replace("@@TABS@@",tb);
-    if(cs==="g")return h+adm.slice(0,cut);
-    if(cs==="t")return h+adm.slice(cut);
-    if(cs==="p")return h+(ADM?vPushAdmin():'<div class="box"><div class="loading" style="padding:20px">Загрузка…</div></div>');
+    if(cs==="g")return h+adm.slice(0,cut)+logoutBox();
+    if(cs==="t")return h+adm.slice(cut)+logoutBox();
+    if(cs==="p")return h+(ADM?vPushAdmin():'<div class="box"><div class="loading" style="padding:20px">Загрузка…</div></div>')+logoutBox();
     h+=vLoginLog();
   }
   h+='<div class="box"><h2>🔑 Мой пароль</h2>'+(f?'<div class="field"><label for="pw_old">Старый пароль</label><input id="pw_old" type="password" autocomplete="current-password"></div><div class="field"><label for="pw_new">Новый пароль (от 6 символов)</label><input id="pw_new" type="password" autocomplete="new-password"></div>'+(UI.formErr?'<p class="note err" style="margin-bottom:10px">'+esc(UI.formErr)+'</p>':"")+'<div class="btns"><button class="btn pri" data-a="pwsave">Сменить пароль</button><button class="btn" data-a="formclose">Отмена</button></div>':'<button class="btn" data-a="form" data-k="pass">Сменить пароль</button>')+'</div>';
@@ -773,12 +779,14 @@ function vHall(){
     return h+'</div>';
   }).join("");
 }
+function catPts(id){var c=S&&S.cats?S.cats.filter(function(x){return x.id===id})[0]:null;return c?c.pts:1}
+function catList(k){var L=S&&S.cats?S.cats.filter(function(c){return c.k===k&&!c.off}):[];return L.length?'<div style="margin-top:6px">'+L.map(function(c){return '<div>'+esc(c.e)+' '+esc(c.name)+' — '+(k==="f"?"−":"+")+pn(c.pts,"балл","балла","баллов")+'</div>'}).join("")+'</div>':""}
 function vRules(){
   var h=say("duo",'Я <b style="color:var(--gold)">Сабур</b> — верблюжонок: иду к цели шаг за шагом и не сдаюсь. А пчёлка <b style="color:var(--gold)">Асаль</b> собирает хасанаты, как мёд. Здесь мы расскажем, как всё устроено.')+'<div class="box"><h2>Как получить баллы</h2>';
-  h+='<div class="rule" style="background:var(--nbg)"><div class="e">🕌</div><div><h3 style="color:var(--n)">Намаз</h3>Пришёл в мечеть и совершил намаз — +1 балл.</div></div>';
-  h+='<div class="rule" style="background:var(--qbg)"><div class="e">📖</div><div><h3 style="color:var(--q)">Коран</h3>Прочитал страницу Корана — +1 балл. Кто только учится, читает «Муаллим Сани»: одну, две или три буквы, в зависимости от уровня — и тоже получает балл.</div></div>';
-  h+='<div class="rule" style="background:var(--xbg)"><div class="e">⭐</div><div><h3 style="color:var(--x)">Дополнительно</h3>Выучил и рассказал что-то, помог в мечети, хорошо поработал — дополнительные баллы.</div></div>';
-  h+='<div class="rule" style="background:var(--fbg)"><div class="e">⚠️</div><div><h3 style="color:var(--f)">Штраф</h3>За нарушения учитель может снять баллы — они вычитаются из общего счёта и из опыта. Можно потерять уровень и значок!</div></div>';
+  h+='<div class="rule" style="background:var(--nbg)"><div class="e">🕌</div><div><h3 style="color:var(--n)">Намаз</h3>Пришёл в мечеть и совершил намаз — +'+pn(catPts("n"),"балл","балла","баллов")+'.</div></div>';
+  h+='<div class="rule" style="background:var(--qbg)"><div class="e">📖</div><div><h3 style="color:var(--q)">Коран</h3>Прочитал страницу Корана — +'+pn(catPts("q"),"балл","балла","баллов")+'. Кто только учится, читает «Муаллим Сани»: одну, две или три буквы, в зависимости от уровня — и тоже получает балл.</div></div>';
+  h+='<div class="rule" style="background:var(--xbg)"><div class="e">⭐</div><div><h3 style="color:var(--x)">Дополнительно</h3>Выучил и рассказал что-то, помог в мечети, хорошо поработал — дополнительные баллы.'+catList("x")+'</div></div>';
+  h+='<div class="rule" style="background:var(--fbg)"><div class="e">⚠️</div><div><h3 style="color:var(--f)">Штраф</h3>За нарушения учитель может снять баллы — они вычитаются из общего счёта и из опыта. Можно потерять уровень и значок!'+catList("f")+'</div></div>';
   h+='<p class="mut sm">Баллы ставит только учитель. Намаз + Коран + Дополнительно − Штраф = общий счёт. Кто набрал больше, тот выше в таблице.</p></div>';
   h+='<div class="box"><h2>📚 Домашние задания</h2><p class="mut">Во вкладке «Задания» учитель выкладывает задания с файлами: аудио, PDF, картинки. Войди в свой кабинет по PIN-коду (его даёт учитель), выполни задание и отправь ответ — текст, фото или запись голоса. Когда учитель примет работу, баллы сразу добавятся в рейтинг.</p></div>';
   h+='<div class="box"><h2>🎯 Общая цель</h2><p class="mut">Все ученики группы вместе копят баллы в общую копилку. Если до конца сезона набрать цель — вся группа получает приз, который назначил учитель. Помогаешь себе — помогаешь всем.</p></div>';
@@ -837,6 +845,24 @@ function attTable(L){
     h+='<td style="text-align:center;font-weight:800">'+(a.n?Math.round(a.p/a.n*100)+"%":"—")+'</td></tr>'});
   return h+'</table></div>';
 }
+// настройка «за что баллы»: правится в черновике UI.cats, сохраняется кнопкой
+function vCatsBox(){
+  var D=UI.cats;
+  var h='<div class="box"><h2>⭐ Настройка баллов</h2><p class="mut sm" style="margin:-6px 0 10px">За что и сколько баллов дают кнопки на вкладке «⭐ Баллы». Можно менять количество, название и значок, добавлять свои пункты и штрафы.</p>';
+  if(!D){h+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">'+S.cats.map(function(c){return '<span class="tg '+(c.k==="f"?"tf":c.off?"":"tx")+'"'+(c.off?' style="opacity:.5"':"")+'>'+(c.k==="f"?"−":"+")+c.pts+' '+esc(c.e)+' '+esc(c.name)+(c.off?" (выкл.)":"")+'</span>'}).join("")+'</div><button class="btn sm" data-a="catedit">✏️ Изменить</button></div>';return h}
+  D.forEach(function(c,i){var base=c.id==="n"||c.id==="q";
+    h+='<div style="border:1px solid var(--line);border-radius:14px;padding:10px;margin-bottom:8px'+(c.off?";opacity:.6":"")+'"><div style="display:grid;grid-template-columns:56px 1fr 74px;gap:6px;align-items:end">'+
+      '<div class="field" style="margin:0"><label for="ce_'+i+'">Знак</label><input id="ce_'+i+'" type="text" maxlength="4" value="'+esc(c.e)+'" style="text-align:center;font-size:20px;padding:8px 4px"></div>'+
+      '<div class="field" style="margin:0"><label for="cn_'+i+'">'+(base?"Название (основной пункт)":"За что")+'</label><input id="cn_'+i+'" type="text" maxlength="30" value="'+esc(c.name)+'"></div>'+
+      '<div class="field" style="margin:0"><label for="cp_'+i+'">Баллы</label><input id="cp_'+i+'" type="number" min="1" max="50" value="'+c.pts+'"></div></div>'+
+      '<div class="btns" style="margin-top:8px;align-items:center">'+(base?'':'<div class="seg"><button class="'+(c.k!=="f"?"on":"")+'" data-a="catkind" data-v="'+i+'" data-k="x">➕ баллы</button><button class="'+(c.k==="f"?"on":"")+'" data-a="catkind" data-v="'+i+'" data-k="f">➖ штраф</button></div>')+
+      '<button class="btn sm" data-a="catoff" data-v="'+i+'">'+(c.off?"👁 Показать":"🙈 Скрыть")+'</button>'+(base?'':'<button class="btn sm dng" data-a="catdel" data-v="'+i+'">Удалить</button>')+'</div></div>'});
+  h+='<div class="btns"><button class="btn sm" data-a="catadd" data-k="x">+ Пункт с баллами</button><button class="btn sm" data-a="catadd" data-k="f">+ Штраф</button></div>';
+  h+='<div class="btns" style="margin-top:10px"><button class="btn pri" data-a="catsave">💾 Сохранить</button><button class="btn" data-a="catcancel">Отмена</button></div>';
+  h+='<p class="mut sm" style="margin-top:8px">Изменения действуют на новые баллы. Уже начисленные баллы не меняются.</p></div>';
+  return h;
+}
+function catsRead(){if(!UI.cats)return;UI.cats.forEach(function(c,i){var e=document.getElementById("ce_"+i),n=document.getElementById("cn_"+i),p=document.getElementById("cp_"+i);if(e)c.e=e.value.trim().slice(0,4);if(n)c.name=n.value.trim().slice(0,30);if(p)c.pts=Math.max(1,Math.min(50,parseInt(p.value,10)||1))})}
 function JOURNAL_BOX(lg){return '<div class="box"><h2>🧾 Журнал</h2><p class="mut sm" style="margin:-6px 0 6px">Ошиблись — нажмите ✕, и запись отменится вместе с баллами.</p>'+logList(lg,true)+(S.log.length>12&&!UI.showAll?'<button class="btn sm" data-a="showall" style="margin-top:8px">Показать больше</button>':"")+'</div>'}
 function tabs4(act,cur,list){return '<div class="tabs4" role="tablist">'+list.map(function(t){return '<button role="tab" aria-selected="'+(cur===t[0])+'" class="'+(cur===t[0]?"on":"")+'" data-a="'+act+'" data-v="'+t[0]+'"><i>'+t[1]+'</i><span>'+t[2]+'</span></button>'}).join("")+'</div>'}
 function vTeacher(){
@@ -850,8 +876,8 @@ function vTeacher(){
   else{
     h+='<div class="btns"><button class="btn sm" data-a="selall">Выбрать всех</button><button class="btn sm" data-a="selno">Снять выбор</button><button class="btn sm" data-a="undo"'+(S.log.length?"":" disabled")+'>↩ Отменить последнее</button></div><div class="mark">';
     L.forEach(function(s){var on=UI.sel.indexOf(s.id)>-1;h+='<button class="mk'+(on?" on":"")+'" data-a="sel" data-id="'+s.id+'" aria-pressed="'+on+'">'+avh(s,"s")+'<span>'+esc(s.name)+'</span></button>'});
-    h+='</div><div class="sticky"><div class="btns" style="align-items:center"><button class="btn pri" data-a="mass" data-k="n">+1 🕌 Намаз</button><button class="btn pri" data-a="mass" data-k="q">+1 📖 Коран</button><span class="sm mut">Выбрано: <b style="color:var(--tx)">'+UI.sel.length+'</b></span></div></div>';
-    h+='<div class="sec">Доп. баллы и штраф</div><div class="grid2"><div class="field"><label for="amt">Сколько баллов</label><input id="amt" type="number" min="1" max="50" value="'+esc(UI.amt)+'"></div><div class="field"><label for="note">За что (необязательно)</label><input id="note" type="text" maxlength="60" placeholder="Например: рассказал хадис" value="'+esc(UI.note)+'"></div></div><div class="btns"><button class="btn" data-a="mass" data-k="x">⭐ Добавить доп. баллы</button><button class="btn dng" data-a="mass" data-k="f">⚠️ Снять штраф</button></div>';
+    h+='</div><div class="sticky"><div class="btns" style="align-items:center">'+S.cats.filter(function(c){return !c.off}).map(function(c){return '<button class="btn '+(c.k==="f"?"dng":"pri")+'" data-a="mass" data-k="'+c.k+'" data-v="'+c.id+'">'+(c.k==="f"?"−":"+")+c.pts+' '+esc(c.e)+' '+esc(c.name)+'</button>'}).join("")+'<span class="sm mut">Выбрано: <b style="color:var(--tx)">'+UI.sel.length+'</b></span></div></div>';
+    h+='<div class="sec">Другое количество баллов</div><div class="grid2"><div class="field"><label for="amt">Сколько баллов</label><input id="amt" type="number" min="1" max="50" value="'+esc(UI.amt)+'"></div><div class="field"><label for="note">За что (необязательно)</label><input id="note" type="text" maxlength="60" placeholder="Например: рассказал хадис" value="'+esc(UI.note)+'"></div></div><div class="btns"><button class="btn" data-a="mass" data-k="x">⭐ Добавить доп. баллы</button><button class="btn dng" data-a="mass" data-k="f">⚠️ Снять штраф</button></div>';
   }
   h+='</div>';
   var lg=UI.showAll?S.log.slice(0,60):S.log.slice(0,12);
@@ -864,12 +890,15 @@ function vTeacher(){
   if(S.students.some(function(s){return s.ex}))h+='<button class="btn sm" data-a="clearex" style="margin-top:6px">Удалить все примеры</button>';
   h+='</div>';
   return h}
+  h+=vCatsBox();
   h+='<div class="box"><h2>🏁 Сезон и общая цель</h2><div class="grid2"><div class="field"><label for="sname">Название сезона</label><input id="sname" type="text" maxlength="40" value="'+esc(S.season.name)+'"></div><div class="field"><label for="send">Последний день сезона</label><input id="send" type="date" value="'+esc(S.season.end)+'"></div><div class="field"><label for="gtarget">Общая цель, баллов (0 — без цели)</label><input id="gtarget" type="number" min="0" max="100000" value="'+(S.goal.target|0)+'"></div><div class="field"><label for="gprize">Приз за цель</label><input id="gprize" type="text" maxlength="60" value="'+esc(S.goal.prize)+'" placeholder="Например: поездка всей группой"></div></div><div class="btns"><button class="btn pri" data-a="saveseason">Применить</button>'+confirmBtn("season","🏁 Завершить сезон","endseason")+'</div><p class="mut sm" style="margin-top:8px">При завершении таблица обнулится, тройка лидеров попадёт в Зал славы. Опыт, звания и суры у ребят останутся.</p></div>';
   h+='<div class="box"><h2>💬 Итоги недели для родителей</h2><p class="mut sm" style="margin:-6px 0 8px">Готовый текст за последние 7 дней — скопируйте и отправьте в чат.</p><textarea id="wtext" readonly>'+esc(weekText())+'</textarea><div class="btns" style="margin-top:8px"><button class="btn pri" data-a="copyweek">📋 Скопировать</button></div></div>';
   h+='<div class="box"><h2>💾 Резервная копия</h2><p class="mut sm" style="margin:-6px 0 10px">Скачивайте копию после каждого сезона. Из неё можно всё восстановить, в том числе из старых Савабиков.</p><div class="btns"><button class="btn" data-a="backup">⬇️ Скачать копию</button><button class="btn" data-a="restore">⬆️ Восстановить из файла</button></div><input id="rfile" type="file" accept=".json,application/json" hidden>';
   if(UI.restore)h+='<div style="margin-top:12px;padding:12px;border-radius:14px;background:var(--fbg)"><b>Заменить данные группы копией?</b><p class="sm" style="margin:4px 0 8px">В файле: '+pn(UI.restore.students.length,"ученик","ученика","учеников")+', '+pn(UI.restore.hall.length,"сезон","сезона","сезонов")+' в Зале славы. Текущие данные группы «'+esc(G.name)+'» будут заменены.</p><span class="btns"><button class="btn sm dng" data-a="dorestore">Да, заменить</button><button class="btn sm" data-a="norestore">Отмена</button></span></div>';
-  return h+'</div>';
+  h+='</div>';
+  return h+logoutBox();
 }
+function logoutBox(){return '<div class="box"><div class="btns" style="align-items:center;justify-content:space-between"><span class="sm mut">Вы вошли как <b style="color:var(--tx)">'+esc(ME?ME.name:"учитель")+'</b></span><button class="btn dng sm" data-a="logout">🚪 Выйти</button></div></div>'}
 function weekText(){
   var now=new Date(),from=new Date(now.getTime()-6*864e5);from.setHours(0,0,0,0);
   var ent=S.log.filter(function(e){return new Date(e.d)>=from}),gain={},surs={},total=0;
@@ -1761,6 +1790,15 @@ function act(a,b,e){
     case"isme":meStudent=id;store.set("me_"+G.slug,id);if(s)store.set("seen_"+G.slug+"_"+s.id,seenOf(s));flash("Готово! Теперь это твой персонаж");break;
     case"notme":meStudent=null;store.set("me_"+G.slug,null);break;
     case"savenow":save();return;
+    case"catedit":UI.cats=JSON.parse(JSON.stringify(S.cats));UI.dropKeep=true;break;
+    case"catcancel":UI.cats=null;UI.dropKeep=true;break;
+    case"catadd":catsRead();UI.cats.push({id:uid(),k:k==="f"?"f":"x",e:k==="f"?"⚠️":"⭐",name:"",pts:1,off:false});UI.dropKeep=true;setTimeout(function(){var el=document.getElementById("cn_"+(UI.cats.length-1));if(el)el.focus()},50);break;
+    case"catdel":catsRead();UI.cats.splice(parseInt(v,10),1);UI.dropKeep=true;break;
+    case"catoff":catsRead();var co=UI.cats[parseInt(v,10)];if(co)co.off=!co.off;UI.dropKeep=true;break;
+    case"catkind":catsRead();var ck=UI.cats[parseInt(v,10)];if(ck)ck.k=k==="f"?"f":"x";UI.dropKeep=true;break;
+    case"catsave":catsRead();var bad=UI.cats.filter(function(c){return !c.name});if(bad.length){flash("Впишите, за что баллы, в каждом пункте");break}
+      var nc=UI.cats.map(function(c){return {id:c.id,k:c.k,e:c.e||({n:"🕌",q:"📖",x:"⭐",f:"⚠️"})[c.k],name:c.name,pts:c.pts,off:!!c.off}});
+      mut(function(){S.cats=nc});UI.cats=null;UI.dropKeep=true;flash("Настройки баллов сохранены");break;
     case"tseg":UI.tseg=v;store.set("tseg",v);UI.confirm=null;window.scrollTo(0,0);break;
     case"cseg":UI.cseg=v;store.set("cseg",v);UI.form=null;UI.confirm=null;window.scrollTo(0,0);break;
     case"att":if(s){var aday=attDay(),ast=v;mut(function(){attSet(s.id,aday,ast)})}break;
@@ -1773,10 +1811,11 @@ function act(a,b,e){
     case"undo":if(S.log.length){var g0=S.log[0].g,ids=S.log.filter(function(x){return x.g===g0}).map(function(x){return x.id});mut(function(){ids.forEach(revert)});flash("Отменено: "+pn(ids.length,"запись","записи","записей"))}break;
     case"mass":
       var sel=UI.sel.filter(function(x){return by(x)});if(!sel.length){flash("Сначала выберите учеников");break}
-      var amt=k==="n"||k==="q"?1:Math.max(1,Math.min(50,parseInt(UI.amt,10)||1)),gid=uid(),note=k==="n"||k==="q"?"":UI.note;
+      var cc=v?S.cats.filter(function(c){return c.id===v})[0]:null,gid=uid();
+      var amt=cc?cc.pts:Math.max(1,Math.min(50,parseInt(UI.amt,10)||1)),note=cc?(cc.k==="n"||cc.k==="q"?"":cc.e+" "+cc.name):UI.note;
       mut(function(){sel.forEach(function(sid){apply(sid,k,amt,gid,note)})});
       flash((k==="f"?"Штраф −":"+")+amt+" "+CAT[k][0]+" · "+pn(sel.length,"ученик","ученика","учеников"));
-      if(k==="x"||k==="f"){UI.note="";var ni=document.getElementById("note");if(ni)ni.value=""}break;
+      if(!cc&&(k==="x"||k==="f")){UI.note="";var ni=document.getElementById("note");if(ni)ni.value=""}break;
     case"inc":if(s)mut(function(){apply(id,k,1)});break;
     case"dec":if(s)mut(function(){apply(id,k,-1)});break;
     case"add":var inp=document.getElementById("newname"),nm=inp&&inp.value.trim().slice(0,30);if(nm){var nid=uid(),gg2=UI.newG||(S.defG==="f"?"f":"m");mut(function(){addStudent(nid,nm,gg2)});inp.value="";flash("Добавлен: "+nm)}break;
