@@ -465,6 +465,11 @@ function migrate(o){
   o.hall.forEach(function(h){h.name=String(h.name||"Сезон");if(!/^\d{4}-\d{2}-\d{2}$/.test(h.end||""))h.end="2026-01-01";h.total=h.total|0;h.target=h.target|0;h.prize=String(h.prize||"");
     h.w=(Array.isArray(h.w)?h.w:[]).slice(0,3).map(function(w){return{name:String(w.name||""),av:AVM[w.av]?w.av:(OLD_EMOJI[w.av]||"n-star"),p:w.p|0}});
     var b={};["n","q","x"].forEach(function(k){var x=h.best&&h.best[k];if(x)b[k]={name:String(x.name||""),v:x.v|0}});h.best=b});
+  // посещения: att["ГГГГ-ММ-ДД"][id ученика] = {st:"p"|"e"|"a", lid: запись журнала с баллом}
+  var att={};if(o.att&&typeof o.att==="object")Object.keys(o.att).sort().slice(-80).forEach(function(d){
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(d)||!o.att[d]||typeof o.att[d]!=="object")return;var m={};
+    Object.keys(o.att[d]).forEach(function(id){var x=o.att[d][id];if(x&&/^[pea]$/.test(x.st))m[cid(id)]={st:x.st,lid:x.lid?cid(x.lid):""}});att[d]=m});
+  o.att=att;o.attPts=[0,1,2,3].indexOf(o.attPts)>-1?o.attPts:1;
   o.v=4;return o;
 }
 var S=null,G=null;           // данные открытой группы и {slug,name,version}
@@ -769,8 +774,48 @@ function confirmBtn(key,label,action,id){
   if(UI.confirm===key)return '<span class="btns"><button class="btn sm dng" data-a="'+action+'"'+(id?' data-id="'+id+'"':"")+'>Да, точно</button><button class="btn sm" data-a="noconf">Отмена</button></span>';
   return '<button class="btn sm dng" data-a="conf" data-k="'+key+'">'+label+'</button>';
 }
+/* ---- журнал посещений (уроки по воскресеньям) ---- */
+function lastSunday(d){d=new Date(d||Date.now());d.setHours(12,0,0,0);d.setDate(d.getDate()-d.getDay());return d}
+function attDay(){return UI.attDay||ymd(lastSunday())}
+function attOf(s){var n=0,p=0;Object.keys(S.att).forEach(function(d){var x=S.att[d][s.id];if(x&&x.st!=="e"){n++;if(x.st==="p")p++}});return{p:p,n:n}}
+function attSet(sid,day,st){
+  var m=S.att[day]||(S.att[day]={}),old=m[sid];
+  if(old&&old.lid){revert(old.lid)}
+  if(!st||(old&&old.st===st)){delete m[sid];if(!Object.keys(m).length)delete S.att[day];return}
+  var x={st:st,lid:""};
+  if(st==="p"&&S.attPts>0){apply(sid,"x",S.attPts,null,"Урок "+fdate(day+"T12:00:00",{day:"numeric",month:"short"}));if(S.log[0]&&S.log[0].s===sid)x.lid=S.log[0].id}
+  m[sid]=x;
+}
+var ATT={p:["✅","Был","var(--ok)"],e:["🤒","Уваж.","var(--gold)"],a:["❌","Не был","var(--err)"]};
+function vAttend(L){
+  var day=attDay(),m=S.att[day]||{},dt=new Date(day+"T12:00:00"),isSun=dt.getDay()===0;
+  var cnt={p:0,e:0,a:0};L.forEach(function(s){var x=m[s.id];if(x)cnt[x.st]++});
+  var h='<div class="box"><h2>📅 Посещения</h2><p class="mut sm" style="margin:-6px 0 8px">Уроки по воскресеньям. Отметьте каждого: ✅ был, 🤒 уважительная причина, ❌ не был. '+(S.attPts?"За посещение — +"+pn(S.attPts,"балл","балла","баллов")+" в рейтинг.":"")+'</p>';
+  h+='<div class="btns" style="align-items:center;flex-wrap:nowrap"><button class="btn sm" data-a="attday" data-v="-7" aria-label="Предыдущее воскресенье">‹</button><div style="flex:1;text-align:center;font-weight:900">'+(isSun?"Воскресенье, ":"")+fdate(day+"T12:00:00",{day:"numeric",month:"long",year:"numeric"})+'</div><button class="btn sm" data-a="attday" data-v="7" aria-label="Следующее воскресенье"'+(day>=ymd(lastSunday())?" disabled":"")+'>›</button></div>';
+  h+='<div class="sm mut" style="text-align:center;margin:4px 0 10px">✅ '+cnt.p+' · 🤒 '+cnt.e+' · ❌ '+cnt.a+' · не отмечено '+(L.length-cnt.p-cnt.e-cnt.a)+'</div>';
+  if(!L.length)return h+'<p class="mut">Сначала добавьте учеников.</p></div>';
+  h+='<div class="btns" style="margin-bottom:8px"><button class="btn sm pri" data-a="attall">✅ Отметить остальных: были</button><button class="btn sm" data-a="atttable">📋 Таблица</button></div>';
+  L.forEach(function(s){var x=m[s.id],a=attOf(s);
+    h+='<div class="lst">'+avh(s,"s")+'<span class="mid nm">'+esc(s.name)+'<br><small class="mut">'+(a.n?"был "+a.p+" из "+a.n:"ещё не отмечали")+'</small></span><span style="display:flex;gap:4px">';
+    ["p","e","a"].forEach(function(k){var on=x&&x.st===k;h+='<button class="ib'+(on?" on":"")+'" style="width:40px;height:40px;font-size:17px;'+(on?"background:"+ATT[k][2]+";":"opacity:.55;")+'" data-a="att" data-id="'+s.id+'" data-v="'+k+'" aria-label="'+ATT[k][1]+'" aria-pressed="'+on+'">'+ATT[k][0]+'</button>'});
+    h+='</span></div>'});
+  h+='<div class="grid2" style="margin-top:10px"><div class="field"><label for="attother">Урок в другой день</label><input id="attother" type="date" value="'+(isSun?"":day)+'" max="'+ymd(new Date())+'"></div><div class="field"><label for="attpts">Баллы за посещение</label><select id="attpts">'+[0,1,2,3].map(function(n){return '<option value="'+n+'"'+(S.attPts===n?" selected":"")+'>'+(n?"+"+pn(n,"балл","балла","балла"):"не начислять")+'</option>'}).join("")+'</select></div></div>';
+  if(UI.attTable)h+=attTable(L);
+  return h+'</div>';
+}
+function attTable(L){
+  var days=Object.keys(S.att).sort().slice(-10);if(!days.length)return '<p class="mut sm" style="margin-top:10px">Пока нет отмеченных уроков.</p>';
+  var h='<div style="overflow-x:auto;margin-top:12px"><table style="border-collapse:collapse;font-size:13px;min-width:100%"><tr><th style="text-align:left;padding:4px 6px">Ученик</th>';
+  days.forEach(function(d){h+='<th style="padding:4px 3px;font-weight:700;color:var(--mut)">'+fdate(d+"T12:00:00",{day:"numeric",month:"numeric"})+'</th>'});
+  h+='<th style="padding:4px 6px">Итого</th></tr>';
+  L.forEach(function(s){var a=attOf(s);h+='<tr style="border-top:1px solid var(--line)"><td style="padding:5px 6px;white-space:nowrap">'+esc(s.name)+'</td>';
+    days.forEach(function(d){var x=S.att[d][s.id];h+='<td style="text-align:center">'+(x?ATT[x.st][0]:"·")+'</td>'});
+    h+='<td style="text-align:center;font-weight:800">'+(a.n?Math.round(a.p/a.n*100)+"%":"—")+'</td></tr>'});
+  return h+'</table></div>';
+}
 function vTeacher(){
   var L=S.students.slice().sort(function(a,b){return a.name.localeCompare(b.name,"ru")}),h="";
+  h+=vAttend(L);
   h+='<div class="box"><h2>✅ Отметить баллы</h2><p class="mut sm" style="margin:-6px 0 6px">Выберите, кто пришёл, и нажмите кнопку — балл получат все выбранные сразу.</p>';
   if(!L.length)h+='<p class="mut">Сначала добавьте учеников ниже.</p>';
   else{
@@ -806,6 +851,8 @@ function weekText(){
   if(su.length){lines.push("","📜 Выучили суры:");su.forEach(function(id){lines.push("• "+by(id).name+": "+surs[id].join(", "))})}
   var lvUp=[];S.students.forEach(function(s){var g=0;ent.forEach(function(e){if(e.s===s.id&&e.t!=="s")g+=e.t==="f"?-e.v:e.v});var was=LV[0];LV.forEach(function(l){if(s.xp-g>=l[3])was=l});if(lvl(s)[0]>was[0])lvUp.push(s.name+" — «"+lvl(s)[2]+"» "+lvl(s)[1])});
   if(lvUp.length){lines.push("","⬆️ Новые звания:");lvUp.forEach(function(x){lines.push("• "+x)})}
+  var lsd=Object.keys(S.att).sort().filter(function(d){return d>=ymd(from)}).pop();
+  if(lsd){var am=S.att[lsd],pr=S.students.filter(function(x){return am[x.id]&&am[x.id].st==="p"}).length;lines.push("","📅 На уроке "+fdate(lsd+"T12:00:00",{day:"numeric",month:"long"})+" были: "+pr+" из "+S.students.length+".")}
   lines.push("","Всего за неделю: "+pn(Math.max(0,total),"балл","балла","баллов")+".");
   if(S.goal.target>0)lines.push("🎯 Общая цель группы: "+seasonTotal()+" из "+S.goal.target+(S.goal.prize?" (приз: "+S.goal.prize+")":"")+".");
   lines.push("","Рейтинг: "+groupLink(G.slug));
@@ -817,6 +864,7 @@ function vSheet(){
   var h='<div class="ov'+(shownSheet===UI.sheet?"":" anim")+'" data-a="closebg"><div class="sheet" role="dialog" aria-modal="true" aria-label="'+esc(s.name)+'"><div class="grab"></div><div class="shd">'+avh(s,"xl")+'<div class="mid"><div class="nm" style="font-size:24px">'+exName(s)+'</div><div class="lvl" style="color:'+l[4]+';font-size:17px">'+l[1]+" "+l[2]+'</div><div class="sm mut">'+place(s)+' место в сезоне'+(st?" · 🔥 "+pn(st,"неделя","недели","недель")+" подряд":"")+'</div></div><button class="close" data-a="close" aria-label="Закрыть">✕</button></div>';
   h+='<div class="sm mut" style="display:flex;justify-content:space-between;margin-bottom:5px"><span>Опыт: <b style="color:var(--tx)">'+s.xp+'</b></span><span>'+(nx?"до «"+nx[2]+"» "+nx[1]+": "+(nx[3]-s.xp):"высшее звание")+'</span></div><div class="bar"><i style="width:'+pc+'%"></i></div>';
   h+='<div class="stats"><div class="st"><b style="color:var(--n)">'+s.n+'</b><span>🕌 Намаз</span></div><div class="st"><b style="color:var(--q)">'+s.q+'</b><span>📖 Коран</span></div><div class="st"><b style="color:var(--x)">'+s.x+'</b><span>⭐ Доп.</span></div><div class="st"><b style="color:var(--gold)">'+tot(s)+'</b><span>Всего'+(s.f?" (−"+s.f+")":"")+'</span></div></div>';
+  var aS=attOf(s);if(aS.n)h+='<p class="sm mut" style="margin:-4px 0 10px">📅 На уроках: <b style="color:var(--tx)">'+aS.p+' из '+aS.n+'</b> ('+Math.round(aS.p/aS.n*100)+'%)</p>';
   h+='<div class="btns">'+(meStudent===s.id?'<button class="btn sm" data-a="notme">Это не я</button>':'<button class="btn sm pri" data-a="isme" data-id="'+s.id+'">👤 Это я</button>')+'</div>';
   h+='<div class="sec">Значки · '+bs.filter(function(b){return b.ok}).length+' из '+bs.length+'</div><div class="bgrid">'+bs.map(function(b){return '<div class="bd'+(b.ok?"":" off")+'"><i>'+b.e+'</i><b>'+b.n+'</b><span>'+(b.ok?"получен":b.r)+'</span></div>'}).join("")+'</div>';
   h+='<div class="sec">Суры · '+surCount(s)+(s.sur.indexOf(AYAT)>-1?" + Аят аль-Курси":"")+'</div>'+(s.sur.length?'<div class="tags">'+s.sur.map(function(x){return '<span class="tg ts">'+esc(x)+'</span>'}).join("")+'</div>':'<p class="mut sm">Пока нет выученных сур</p>');
@@ -1672,6 +1720,10 @@ function act(a,b,e){
     case"isme":meStudent=id;store.set("me_"+G.slug,id);if(s)store.set("seen_"+G.slug+"_"+s.id,seenOf(s));flash("Готово! Теперь это твой персонаж");break;
     case"notme":meStudent=null;store.set("me_"+G.slug,null);break;
     case"savenow":save();return;
+    case"att":if(s){var aday=attDay(),ast=v;mut(function(){attSet(s.id,aday,ast)})}break;
+    case"attall":var aday2=attDay();S.students.forEach(function(x){if(!(S.att[aday2]&&S.att[aday2][x.id])){var xid=x.id;mut(function(){if(!(S.att[aday2]&&S.att[aday2][xid]))attSet(xid,aday2,"p")})}});flash("Отмечено");break;
+    case"attday":var nd=new Date(attDay()+"T12:00:00");nd.setDate(nd.getDate()+(parseInt(v,10)||0));if(nd.getDay()!==0)nd=lastSunday(nd);if(ymd(nd)>ymd(lastSunday()))nd=lastSunday();UI.attDay=ymd(nd);UI.dropKeep=true;break;
+    case"atttable":UI.attTable=!UI.attTable;break;
     case"sel":if(s){var j=UI.sel.indexOf(s.id);if(j>-1)UI.sel.splice(j,1);else UI.sel.push(s.id)}break;
     case"selall":UI.sel=S.students.map(function(x){return x.id});break;
     case"selno":UI.sel=[];break;
@@ -1753,6 +1805,8 @@ document.addEventListener("change",function(e){
   if(t.id==="certr")UI.certReason=t.value;
   if(t.id==="hwfile"&&t.files&&t.files.length){if(UI.chPick){UI.chPick=false;var cf=t.files[0];if(cf.size>26214400)flash("Файл больше 25 МБ — такой не отправить");else chatSend({file:cf,sura:canEdit()?null:UI.chSura,dur:/^audio\//.test(cf.type)?0:null})}else addPicked(t.files);render()}
   if(t.id==="ch_sura")UI.chSura=t.value;
+  if(t.id==="attother"&&/^\d{4}-\d{2}-\d{2}$/.test(t.value)&&t.value<=ymd(new Date())){UI.attDay=t.value;UI.dropKeep=true;render()}
+  if(t.id==="attpts"&&canEdit()){var ap=parseInt(t.value,10)||0;mut(function(){S.attPts=ap});flash(ap?"За посещение: +"+pn(ap,"балл","балла","балла"):"Баллы за посещение не начисляются");render()}
   if(t.id==="pin_sid")UI.pinSid=t.value;
   if(t.id==="avfile"&&t.files&&t.files[0]&&UI.avFor){var sidA=UI.avFor,u=URL.createObjectURL(t.files[0]);
     loadImg(u).then(function(img){URL.revokeObjectURL(u);if(!img||!img.width){flash("Это не картинка — выберите фото");render();return}
