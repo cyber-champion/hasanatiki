@@ -130,6 +130,7 @@ textarea{min-height:170px;resize:vertical;font-size:14px;line-height:1.5}
 .an{display:inline-block;min-width:22px;padding:0 5px;border:1.5px solid var(--gold);border-radius:999px;font:700 12px/18px var(--font);color:var(--gold);text-align:center;direction:ltr}
 .ayah{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line)}.ayah .ib{flex-shrink:0;width:40px;height:40px}
 .lopt{display:block;width:100%;text-align:left;margin:0 0 8px;padding:12px 14px;border-radius:14px;background:var(--card2);border:2px solid transparent;color:var(--tx);font:600 15px/1.4 var(--font);cursor:pointer}.lopt.ar{text-align:right;font-family:"Amiri","Scheherazade New","Noto Naskh Arabic","Traditional Arabic","Times New Roman",serif;font-size:22px;line-height:1.8}
+.lopt.off{opacity:.45}
 .lopt.ok{border-color:var(--ok);background:rgba(34,197,94,.14)}.lopt.bad{border-color:var(--err);background:rgba(239,68,68,.14);animation:shk .35s}.lopt.sel{border-color:var(--gold)}.lopt:disabled{cursor:default}
 @keyframes shk{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 .lfb{margin:6px 0 10px;padding:10px 14px;border-radius:12px;font-weight:800}.lfb.ok{background:rgba(34,197,94,.16);color:var(--ok)}.lfb.bad{background:rgba(239,68,68,.14);color:var(--err)}
@@ -251,6 +252,7 @@ div.fb{cursor:default}
 .av img{width:100%;height:100%;border-radius:50%;display:block;object-fit:cover}
 .avp img{width:100%;aspect-ratio:1;display:block;border-radius:50%;object-fit:cover}
 .say{display:flex;align-items:center;gap:10px;margin:4px 0 16px}
+.say.sm3{margin:8px 0 10px}.say.sm3 .who{width:64px;height:64px}.say.sm3 p{font-size:14px}
 .say .who{position:relative;flex-shrink:0;width:96px;height:96px}
 .say .who svg{display:block}
 .say .who .bee{position:absolute;right:-10px;top:-8px;animation:bob 2.6s ease-in-out infinite}
@@ -360,10 +362,13 @@ var OLD_EMOJI={"🦁":"b-lion","🐯":"b-tiger","🐺":"b-wolf","🐻":"b-bear",
   d.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0">'+AVS.map(function(a){return '<symbol id="av-'+a[0]+'" viewBox="0 0 100 100">'+a[3]+'</symbol>'}).join("")+'</svg>';
   document.body.appendChild(d)})();
 /* Персонажи платформы: верблюжонок Сабур и его помощница пчёлка Асаль */
-var MASC={"sab": "<ellipse cx=\"118\" cy=\"128\" rx=\"46\" ry=\"34\" fill=\"#e0a868\"/><path d=\"M96 104Q118 62 142 104Z\" fill=\"#e0a868\"/><path d=\"M106 92q12 -18 26 0\" stroke=\"#c98d4b\" stroke-width=\"5\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"88\" y=\"150\" width=\"13\" height=\"36\" rx=\"6\" fill=\"#d39a58\"/><rect x=\"108\" y=\"152\" width=\"13\" height=\"34\" rx=\"6\" fill=\"#e0a868\"/><rect x=\"132\" y=\"152\" width=\"13\" height=\"34\" rx=\"6\" fill=\"#d39a58\"/><rect x=\"150\" y=\"148\" width=\"13\" height=\"38\" rx=\"6\" fill=\"#e0a868\"/><path d=\"M160 120q16 4 14 22\" stroke=\"#c98d4b\" stroke-width=\"6\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M70 150Q62 110 66 84L90 84Q92 116 100 140Z\" fill=\"#e0a868\"/><ellipse cx=\"44\" cy=\"52\" rx=\"9\" ry=\"14\" transform=\"rotate(-28 44 52)\" fill=\"#e0a868\"/><ellipse cx=\"45\" cy=\"53\" rx=\"4.5\" ry=\"8.5\" transform=\"rotate(-28 45 53)\" fill=\"#f7c9a0\"/><ellipse cx=\"100\" cy=\"52\" rx=\"9\" ry=\"14\" transform=\"rotate(28 100 52)\" fill=\"#e0a868\"/><ellipse cx=\"99\" cy=\"53\" rx=\"4.5\" ry=\"8.5\" transform=\"rotate(28 99 53)\" fill=\"#f7c9a0\"/><ellipse cx=\"72\" cy=\"70\" rx=\"31\" ry=\"29\" fill=\"#e0a868\"/><path d=\"M58 44q6 -12 14 -4q8 -9 14 3q-8 5 -14 4q-7 2 -14 -3Z\" fill=\"#c98d4b\"/><ellipse cx=\"72\" cy=\"88\" rx=\"23\" ry=\"17\" fill=\"#f3d3a9\"/><circle cx=\"60\" cy=\"66\" r=\"7.5\" fill=\"#2a1a12\"/><circle cx=\"62.4\" cy=\"63.3\" r=\"2.6999999999999997\" fill=\"#fff\"/><circle cx=\"57.375\" cy=\"68.625\" r=\"1.2\" fill=\"#fff\" opacity=\".8\"/><circle cx=\"84\" cy=\"66\" r=\"7.5\" fill=\"#2a1a12\"/><circle cx=\"86.4\" cy=\"63.3\" r=\"2.6999999999999997\" fill=\"#fff\"/><circle cx=\"81.375\" cy=\"68.625\" r=\"1.2\" fill=\"#fff\" opacity=\".8\"/><ellipse cx=\"46\" cy=\"80\" rx=\"8\" ry=\"5\" fill=\"#fb7185\" opacity=\".45\"/><ellipse cx=\"98\" cy=\"80\" rx=\"8\" ry=\"5\" fill=\"#fb7185\" opacity=\".45\"/><ellipse cx=\"66\" cy=\"84\" rx=\"2.4\" ry=\"3.4\" fill=\"#7a5230\"/><ellipse cx=\"78\" cy=\"84\" rx=\"2.4\" ry=\"3.4\" fill=\"#7a5230\"/><path d=\"M62 94q10 9 20 0\" stroke=\"#7a5230\" stroke-width=\"2.6\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M98 108L140 108Q146 122 140 134L100 134Q104 120 98 108Z\" fill=\"#1d4ed8\"/><path d=\"M98 108L140 108\" stroke=\"#fbbf24\" stroke-width=\"4\"/><path d=\"M100 134L140 134\" stroke=\"#fbbf24\" stroke-width=\"4\"/><path d=\"M114 114l3 5 5 1 -4 4 1 5 -5 -3 -5 3 1 -5 -4 -4 5 -1Z\" fill=\"#fbbf24\"/>", "asl": "<ellipse cx=\"58\" cy=\"96\" rx=\"30\" ry=\"20\" transform=\"rotate(-28 58 96)\" fill=\"#bfe3ff\" opacity=\".9\"/><ellipse cx=\"142\" cy=\"96\" rx=\"30\" ry=\"20\" transform=\"rotate(28 142 96)\" fill=\"#bfe3ff\" opacity=\".9\"/><ellipse cx=\"62\" cy=\"100\" rx=\"18\" ry=\"11\" transform=\"rotate(-28 62 100)\" fill=\"#e6f4ff\"/><ellipse cx=\"138\" cy=\"100\" rx=\"18\" ry=\"11\" transform=\"rotate(28 138 100)\" fill=\"#e6f4ff\"/><defs><clipPath id=\"ms-bb\"><ellipse cx=\"100\" cy=\"138\" rx=\"38\" ry=\"44\"/><\/clipPath><\/defs><ellipse cx=\"100\" cy=\"138\" rx=\"38\" ry=\"44\" fill=\"#fbbf24\"/><g clip-path=\"url(#ms-bb)\"><rect x=\"50\" y=\"128\" width=\"100\" height=\"13\" fill=\"#5b3a1a\"/><rect x=\"50\" y=\"152\" width=\"100\" height=\"13\" fill=\"#5b3a1a\"/><\/g><path d=\"M90 180l-3 9M110 180l3 9\" stroke=\"#5b3a1a\" stroke-width=\"4\" stroke-linecap=\"round\"/><path d=\"M64 130q-14 4 -16 16M136 130q14 4 16 16\" stroke=\"#5b3a1a\" stroke-width=\"5\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M84 48Q76 26 66 22M116 48Q124 26 134 22\" stroke=\"#5b3a1a\" stroke-width=\"4\" fill=\"none\" stroke-linecap=\"round\"/><circle cx=\"66\" cy=\"22\" r=\"6\" fill=\"#fbbf24\"/><circle cx=\"134\" cy=\"22\" r=\"6\" fill=\"#fbbf24\"/><circle cx=\"100\" cy=\"80\" r=\"38\" fill=\"#fcd34d\"/><circle cx=\"85\" cy=\"78\" r=\"9\" fill=\"#2a1a12\"/><circle cx=\"87.88\" cy=\"74.76\" r=\"3.2399999999999998\" fill=\"#fff\"/><circle cx=\"81.85\" cy=\"81.15\" r=\"1.44\" fill=\"#fff\" opacity=\".8\"/><circle cx=\"115\" cy=\"78\" r=\"9\" fill=\"#2a1a12\"/><circle cx=\"117.88\" cy=\"74.76\" r=\"3.2399999999999998\" fill=\"#fff\"/><circle cx=\"111.85\" cy=\"81.15\" r=\"1.44\" fill=\"#fff\" opacity=\".8\"/><ellipse cx=\"68\" cy=\"94\" rx=\"8\" ry=\"5\" fill=\"#fb7185\" opacity=\".45\"/><ellipse cx=\"132\" cy=\"94\" rx=\"8\" ry=\"5\" fill=\"#fb7185\" opacity=\".45\"/><path d=\"M90 96q10 10 20 0\" stroke=\"#5b3a1a\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/>"};
+var MASC={"sab": "<ellipse cx=\"118\" cy=\"128\" rx=\"46\" ry=\"34\" fill=\"#e0a868\"/><path d=\"M96 104Q118 62 142 104Z\" fill=\"#e0a868\"/><path d=\"M106 92q12 -18 26 0\" stroke=\"#c98d4b\" stroke-width=\"5\" fill=\"none\" stroke-linecap=\"round\"/><rect x=\"88\" y=\"150\" width=\"13\" height=\"36\" rx=\"6\" fill=\"#d39a58\"/><rect x=\"108\" y=\"152\" width=\"13\" height=\"34\" rx=\"6\" fill=\"#e0a868\"/><rect x=\"132\" y=\"152\" width=\"13\" height=\"34\" rx=\"6\" fill=\"#d39a58\"/><rect x=\"150\" y=\"148\" width=\"13\" height=\"38\" rx=\"6\" fill=\"#e0a868\"/><path d=\"M160 120q16 4 14 22\" stroke=\"#c98d4b\" stroke-width=\"6\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M64 86Q56 112 80 138L104 128Q88 110 90 86Z\" fill=\"#e0a868\"/><ellipse cx=\"44\" cy=\"52\" rx=\"9\" ry=\"14\" transform=\"rotate(-28 44 52)\" fill=\"#e0a868\"/><ellipse cx=\"45\" cy=\"53\" rx=\"4.5\" ry=\"8.5\" transform=\"rotate(-28 45 53)\" fill=\"#f7c9a0\"/><ellipse cx=\"100\" cy=\"52\" rx=\"9\" ry=\"14\" transform=\"rotate(28 100 52)\" fill=\"#e0a868\"/><ellipse cx=\"99\" cy=\"53\" rx=\"4.5\" ry=\"8.5\" transform=\"rotate(28 99 53)\" fill=\"#f7c9a0\"/><ellipse cx=\"72\" cy=\"70\" rx=\"31\" ry=\"29\" fill=\"#e0a868\"/><ellipse cx=\"72\" cy=\"88\" rx=\"23\" ry=\"17\" fill=\"#f3d3a9\"/><circle cx=\"60\" cy=\"66\" r=\"7.5\" fill=\"#2a1a12\"/><circle cx=\"62.4\" cy=\"63.3\" r=\"2.6999999999999997\" fill=\"#fff\"/><circle cx=\"57.375\" cy=\"68.625\" r=\"1.2\" fill=\"#fff\" opacity=\".8\"/><circle cx=\"84\" cy=\"66\" r=\"7.5\" fill=\"#2a1a12\"/><circle cx=\"86.4\" cy=\"63.3\" r=\"2.6999999999999997\" fill=\"#fff\"/><circle cx=\"81.375\" cy=\"68.625\" r=\"1.2\" fill=\"#fff\" opacity=\".8\"/><ellipse cx=\"46\" cy=\"80\" rx=\"8\" ry=\"5\" fill=\"#fb7185\" opacity=\".45\"/><ellipse cx=\"98\" cy=\"80\" rx=\"8\" ry=\"5\" fill=\"#fb7185\" opacity=\".45\"/><ellipse cx=\"66\" cy=\"84\" rx=\"2.4\" ry=\"3.4\" fill=\"#7a5230\"/><ellipse cx=\"78\" cy=\"84\" rx=\"2.4\" ry=\"3.4\" fill=\"#7a5230\"/><path d=\"M62 94q10 9 20 0\" stroke=\"#7a5230\" stroke-width=\"2.6\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M98 108L140 108Q146 122 140 134L100 134Q104 120 98 108Z\" fill=\"#1d4ed8\"/><path d=\"M98 108L140 108\" stroke=\"#fbbf24\" stroke-width=\"4\"/><path d=\"M100 134L140 134\" stroke=\"#fbbf24\" stroke-width=\"4\"/><path d=\"M114 114l3 5 5 1 -4 4 1 5 -5 -3 -5 3 1 -5 -4 -4 5 -1Z\" fill=\"#fbbf24\"/><path d=\"M50 48Q72 36 94 48L93 41Q72 31 51 41Z\" fill=\"#111827\"/><path d=\"M72 18L110 32L72 46L34 32Z\" fill=\"#1f2937\"/><path d=\"M72 18L110 32L72 46L34 32Z\" fill=\"none\" stroke=\"#0b1220\" stroke-width=\"1.5\"/><circle cx=\"72\" cy=\"32\" r=\"2.6\" fill=\"#fbbf24\"/><path d=\"M72 32L102 37L102 52\" stroke=\"#fbbf24\" stroke-width=\"2.2\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M99 50h6l1.5 9h-9Z\" fill=\"#fbbf24\"/>", "asl": "<ellipse cx=\"58\" cy=\"96\" rx=\"30\" ry=\"20\" transform=\"rotate(-28 58 96)\" fill=\"#bfe3ff\" opacity=\".9\"/><ellipse cx=\"142\" cy=\"96\" rx=\"30\" ry=\"20\" transform=\"rotate(28 142 96)\" fill=\"#bfe3ff\" opacity=\".9\"/><ellipse cx=\"62\" cy=\"100\" rx=\"18\" ry=\"11\" transform=\"rotate(-28 62 100)\" fill=\"#e6f4ff\"/><ellipse cx=\"138\" cy=\"100\" rx=\"18\" ry=\"11\" transform=\"rotate(28 138 100)\" fill=\"#e6f4ff\"/><defs><clipPath id=\"ms-bb\"><ellipse cx=\"100\" cy=\"138\" rx=\"38\" ry=\"44\"/><\/clipPath><\/defs><ellipse cx=\"100\" cy=\"138\" rx=\"38\" ry=\"44\" fill=\"#fbbf24\"/><g clip-path=\"url(#ms-bb)\"><rect x=\"50\" y=\"128\" width=\"100\" height=\"13\" fill=\"#5b3a1a\"/><rect x=\"50\" y=\"152\" width=\"100\" height=\"13\" fill=\"#5b3a1a\"/><\/g><path d=\"M90 180l-3 9M110 180l3 9\" stroke=\"#5b3a1a\" stroke-width=\"4\" stroke-linecap=\"round\"/><path d=\"M64 130q-14 4 -16 16M136 130q14 4 16 16\" stroke=\"#5b3a1a\" stroke-width=\"5\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M84 48Q76 26 66 22M116 48Q124 26 134 22\" stroke=\"#5b3a1a\" stroke-width=\"4\" fill=\"none\" stroke-linecap=\"round\"/><circle cx=\"66\" cy=\"22\" r=\"6\" fill=\"#fbbf24\"/><circle cx=\"134\" cy=\"22\" r=\"6\" fill=\"#fbbf24\"/><circle cx=\"100\" cy=\"80\" r=\"38\" fill=\"#fcd34d\"/><circle cx=\"85\" cy=\"78\" r=\"9\" fill=\"#2a1a12\"/><circle cx=\"87.88\" cy=\"74.76\" r=\"3.2399999999999998\" fill=\"#fff\"/><circle cx=\"81.85\" cy=\"81.15\" r=\"1.44\" fill=\"#fff\" opacity=\".8\"/><circle cx=\"115\" cy=\"78\" r=\"9\" fill=\"#2a1a12\"/><circle cx=\"117.88\" cy=\"74.76\" r=\"3.2399999999999998\" fill=\"#fff\"/><circle cx=\"111.85\" cy=\"81.15\" r=\"1.44\" fill=\"#fff\" opacity=\".8\"/><ellipse cx=\"68\" cy=\"94\" rx=\"8\" ry=\"5\" fill=\"#fb7185\" opacity=\".45\"/><ellipse cx=\"132\" cy=\"94\" rx=\"8\" ry=\"5\" fill=\"#fb7185\" opacity=\".45\"/><path d=\"M90 96q10 10 20 0\" stroke=\"#5b3a1a\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/>"};
 (function(){var d=document.createElement("div");d.setAttribute("aria-hidden","true");d.style.cssText="position:absolute;width:0;height:0;overflow:hidden";
   d.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0">'+Object.keys(MASC).map(function(k){return '<symbol id="ms-'+k+'" viewBox="0 0 200 200">'+MASC[k]+'</symbol>'}).join("")+'</svg>';document.body.appendChild(d)})();
 function mas(k,w,cls){return '<svg'+(cls?' class="'+cls+'"':"")+' viewBox="0 0 200 200" width="'+w+'" height="'+w+'" aria-hidden="true"><use href="#ms-'+k+'"/></svg>'}
+function sayS(k,html){return '<div class="say sm3"><div class="who">'+mas(k,64)+'</div><p>'+html+'</p></div>'}
+var PRAISE=["Машаллах! Верно 🌟","Баракаллаху фик! Так держать","Отлично! Ты молодец","Верно! Ещё шаг к цели","Альхамдулиллах, правильно!"];
+function praise(){return PRAISE[rnd(PRAISE.length)]}
 function say(k,html){return '<div class="say"><div class="who">'+(k==="duo"?mas("sab",96)+mas("asl",44,"bee"):mas(k,96))+'</div><p>'+html+'</p></div>'}
 var deferredInstall=null;
 window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();deferredInstall=e;render()});
@@ -506,6 +511,7 @@ function migrate(o){
     return {id:cid(c.id),k:c.k,e:String(c.e||"").slice(0,4)||({n:"🕌",q:"📖",x:"⭐",f:"⚠️"})[c.k],name:String(c.name||"").slice(0,30)||CAT[c.k][1],pts:Math.max(1,Math.min(50,c.pts|0||1)),off:!!c.off}});
   if(!cats.some(function(c){return c.id==="n"}))cats.unshift({id:"n",k:"n",e:"🕌",name:"Намаз",pts:1,off:false});
   if(!cats.some(function(c){return c.id==="q"}))cats.splice(1,0,{id:"q",k:"q",e:"📖",name:"Коран",pts:1,off:false});
+  if((o.catsV|0)<2){if(!cats.some(function(c){return /ахляк/i.test(c.name)}))cats.push({id:"akh",k:"x",e:"🌸",name:"Ахляк (поведение)",pts:1,off:false});o.catsV=2}
   o.cats=cats;
   o.att=att;o.attPts=[0,1,2,3].indexOf(o.attPts)>-1?o.attPts:1;
   o.surPts=Math.max(0,Math.min(10,o.surPts|0));
@@ -832,7 +838,9 @@ function vRules(){
   h+='<div class="rule" style="background:var(--qbg)"><div class="e">📖</div><div><h3 style="color:var(--q)">Коран</h3>Прочитал страницу Корана — +'+pn(catPts("q"),"балл","балла","баллов")+'. Кто только учится, читает «Муаллим Сани»: одну, две или три буквы, в зависимости от уровня — и тоже получает балл.</div></div>';
   h+='<div class="rule" style="background:var(--xbg)"><div class="e">⭐</div><div><h3 style="color:var(--x)">Дополнительно</h3>Выучил и рассказал что-то, помог в мечети, хорошо поработал — дополнительные баллы.'+catList("x")+'</div></div>';
   h+='<div class="rule" style="background:var(--fbg)"><div class="e">⚠️</div><div><h3 style="color:var(--f)">Штраф</h3>За нарушения учитель может снять баллы — они вычитаются из общего счёта и из опыта. Можно потерять уровень и значок!'+catList("f")+'</div></div>';
-  h+='<p class="mut sm">Баллы ставит только учитель. Намаз + Коран + Дополнительно − Штраф = общий счёт. Кто набрал больше, тот выше в таблице.</p></div>';
+  if(S.attPts)h+='<div class="rule" style="background:var(--nbg)"><div class="e">📅</div><div><h3 style="color:var(--n)">Пришёл на урок</h3>За каждый урок в медресе — +'+pn(S.attPts,"балл","балла","баллов")+'.</div></div>';
+  h+='<div class="rule" style="background:var(--qbg)"><div class="e">🎓</div><div><h3 style="color:var(--q)">Уроки-игры</h3>Во вкладке «Уроки» проходи игры по сурам: за каждую звезду — +1 балл (до 3 баллов за суру). Баллы получает тот, кто вошёл в свой кабинет.</div></div>';
+  h+='<p class="mut sm">Баллы ставит учитель, а за уроки-игры и задания они приходят сами. Намаз + Коран + Дополнительно − Штраф = общий счёт. Кто набрал больше, тот выше в таблице.</p></div>';
   h+='<div class="box"><h2>📚 Домашние задания</h2><p class="mut">Во вкладке «Задания» учитель выкладывает задания с файлами: аудио, PDF, картинки. Войди в свой кабинет по PIN-коду (его даёт учитель), выполни задание и отправь ответ — текст, фото или запись голоса. Когда учитель примет работу, баллы сразу добавятся в рейтинг.</p></div>';
   h+='<div class="box"><h2>🎯 Общая цель</h2><p class="mut">Все ученики группы вместе копят баллы в общую копилку. Если до конца сезона набрать цель — вся группа получает приз, который назначил учитель. Помогаешь себе — помогаешь всем.</p></div>';
   h+='<div class="box"><h2>📜 Рейтинг по сурам</h2><div class="rule" style="background:var(--sbg);margin:0"><div class="e">📜</div><div><h3 style="color:var(--s)">Выучил суру наизусть</h3>Учитель засчитывает каждую выученную суру. Это отдельный рейтинг за всё время — вкладка «Суры». Он не обнуляется с новым сезоном, за суры есть свои значки'+(S.surPts>0?', а за каждую новую суру — ещё и +'+pn(S.surPts,"балл","балла","баллов")+' в общую таблицу':'')+'.</div></div></div>';
@@ -1825,7 +1833,18 @@ function lsOpen(n){if(!QD)return;if(PL&&PL.playing)plToggle(false);LS={n:n,step:
 function laPlay(n,a){try{if(!LA){LA=new Audio()}LA.pause();LAerr=false;LA.src=plFile(String(n),a);LA.onerror=function(){LAerr=true;render()};var p=LA.play();if(p&&p.catch)p.catch(function(){})}catch(e){}}
 function laStop(){try{if(LA)LA.pause()}catch(e){}}
 function lsCur(){return LS&&LS.tasks?LS.tasks[LS.k]:null}
-function lsAnswer(ok){var t=lsCur();if(!t||LS.fb)return;if(ok)LS.ok++;else LS.err++;LS.fb={ok:ok}}
+// ошибка → подсказка и вторая попытка; после второй ошибки показываем ответ
+function lsAnswer(ok,val){var t=lsCur();if(!t||LS.fb)return;
+  if(ok){if(!t.miss)LS.ok++;LS.fb={ok:true,pick:val};return}
+  LS.err++;t.miss=(t.miss||[]).concat([val]);
+  if(t.miss.length<2){t.hint=lsHint(t);if(t.t==="lis"||t.t==="gap")laPlay(LS.n,t.i+1);return}
+  LS.fb={ok:false,pick:val}}
+function lsHint(t){
+  if(t.t==="lis")return "Послушай ещё раз внимательно — особенно начало аята. Я включил его снова 🔊";
+  if(t.t==="gap")return "Послушай аят — пропущенное слово там звучит. Я включил его 🔊";
+  if(t.t==="mng")return "Подсказка: это "+(t.i+1)+"-й аят суры. Вспомни, о чём говорится в начале, в середине и в конце суры.";
+  if(t.t==="sur")return "Подсказка: название суры начинается на «"+esc(NAMES[t.n].replace(/^(Аль|Ан|Ат|Аш|Ас|Аз|Ад|Ар|Ат-|Ан-)-?/,"").charAt(0))+"».";
+  return "Попробуй ещё раз!"}
 function lsNext(){
   laStop();LS.fb=null;LS.k++;
   if(LS.k<LS.tasks.length){var t=lsCur();if(t.t==="lis")setTimeout(function(){if(lsCur()===t)laPlay(LS.n,t.i+1)},250);return}
@@ -1844,29 +1863,30 @@ function vLessons(){
   h+='<div class="sm" style="margin-bottom:10px">⭐ '+tot+' из '+LMOD.list.length*3+'</div>';
   if(!STOK&&!canEdit())h+='<p class="sm" style="background:var(--xbg);padding:8px 12px;border-radius:12px;margin-bottom:10px">Играть можно и так, но баллы получают только те, кто вошёл в свой кабинет по PIN-коду (вкладка «Задания»).</p>';
   h+='<div class="lgrid">'+LMOD.list.map(function(n){var b=LP&&LP["s"+n]||0;return '<button class="lcard'+(b?" done":"")+'" data-a="lopen" data-v="'+n+'"><b>'+esc(NAMES[n])+'</b><small>'+n+' · '+pn(QD[n].ar.length,"аят","аята","аятов")+'</small><i>'+[1,2,3].map(function(k){return k<=b?"⭐":"☆"}).join("")+'</i></button>'}).join("")+'</div>';
-  h+='<p class="mut sm" style="margin-top:10px;font-size:12px">Текст Корана: Tanzil.net. Перевод смыслов: центр переводов «Руввад» (QuranEnc.com). Чтение: шейх Махмуд Халиль аль-Хусари.</p></div>';
+  h+='<p class="mut sm" style="margin-top:10px;font-size:12px">Текст Корана: Tanzil.net. Перевод смыслов: Эльмир Кулиев (Tanzil.net). Чтение: шейх Махмуд Халиль аль-Хусари.</p></div>';
   return h;
 }
 function vLesson(){
   var n=LS.n,D=QD[n],A=D.ar,T=D.ru.map(ruT),N=A.length;
   var h='<div class="box"><div class="btns" style="align-items:center;justify-content:space-between;flex-wrap:nowrap"><b style="font-size:18px">Сура «'+esc(NAMES[n])+'»</b><button class="btn sm" data-a="lquit">✕ Выйти</button></div>';
   if(LS.step==="intro"){
-    h+='<p class="mut sm" style="margin:6px 0 10px">Послушай каждый аят и прочитай его смысл. Потом — игра.</p>';
+    h+=sayS("sab","Сначала послушай каждый аят ▶ и прочитай, что он означает. Потом сыграем — я буду подсказывать!");
     A.forEach(function(a,i){h+='<div class="ayah"><button class="ib" data-a="lplay" data-v="'+(i+1)+'" aria-label="Слушать аят '+(i+1)+'">▶</button><div class="mid"><div class="ar">'+esc(a)+' <span class="an">'+(i+1)+'</span></div><div class="sm mut">'+esc(T[i])+'</div></div></div>'});
     return h+'<div class="btns" style="margin-top:12px"><button class="btn pri" data-a="lstart">🎮 Начать игру</button><button class="btn" data-a="lplayall">🎧 Слушать всю суру</button></div></div>';
   }
   if(LS.step==="res"){var r=LS.res;
-    h+='<div class="cen" style="padding:10px 0"><div style="font-size:44px;letter-spacing:4px">'+[1,2,3].map(function(k){return k<=r.stars?"⭐":"☆"}).join("")+'</div><h2 style="margin:8px 0">'+(r.stars===3?"Машаллах, без ошибок!":r.stars===2?"Хорошо! Почти без ошибок":"Урок пройден!")+'</h2><p class="mut">Верно: '+LS.ok+' · ошибок: '+LS.err+'</p>';
+    h+='<div class="cen" style="padding:10px 0"><div style="font-size:44px;letter-spacing:4px">'+[1,2,3].map(function(k){return k<=r.stars?"⭐":"☆"}).join("")+'</div><h2 style="margin:8px 0">'+(r.stars===3?"Машаллах, без ошибок!":r.stars===2?"Хорошо! Почти без ошибок":"Урок пройден!")+'</h2>'+(r.stars<3?sayS("sab","Пройди ещё раз — получится лучше! Каждый повтор помогает запомнить суру."):sayS("asl","Ты собрал все звёзды! Возьмёмся за следующую суру?"))+'<p class="mut">Верно: '+LS.ok+' · ошибок: '+LS.err+'</p>';
     if(STOK&&!canEdit())h+='<p style="margin-top:8px;font-weight:800">'+(r.pts===null?"Сохраняю…":r.pts>0?"+"+pn(r.pts,"балл","балла","баллов")+" в рейтинг 🎉":r.pts<0?esc(r.err||"Не удалось сохранить"):"Баллы за этот урок уже получены — можно улучшить звёзды")+'</p>';
     return h+'<div class="btns" style="justify-content:center;margin-top:12px"><button class="btn pri" data-a="lstart">🔁 Ещё раз</button><button class="btn" data-a="lquit">К списку сур</button></div></div></div>';
   }
   var t=lsCur(),L=LS.tasks.length;
   h+='<div class="bar" style="height:8px;margin:8px 0 14px"><i style="width:'+Math.round(LS.k/L*100)+'%"></i></div>';
-  var opt=function(v,label,ar,good){var cls="lopt"+(ar?" ar":"");if(LS.fb){if(good)cls+=" ok";else if(LS.fb.pick===v)cls+=" bad"}return '<button class="'+cls+'" data-a="lans" data-v="'+v+'"'+(LS.fb?" disabled":"")+'>'+label+'</button>'};
+  var opt=function(v,label,ar,good){var cls="lopt"+(ar?" ar":""),miss=t.miss&&t.miss.indexOf(v)>-1;if(LS.fb){if(good)cls+=" ok";else if(LS.fb.pick===v||miss)cls+=" bad"}else if(miss)cls+=" bad off";return '<button class="'+cls+'" data-a="lans" data-v="'+v+'"'+(LS.fb||miss?" disabled":"")+'>'+label+'</button>'};
   if(t.t==="ord"){
     h+='<h3>Расставь аяты по порядку</h3><p class="mut sm">Нажимай аяты в том порядке, как они идут в суре.</p><div class="lord">'+t.got.map(function(i){return '<div class="ar sm2">'+esc(A[i])+' <span class="an">'+(i+1)+'</span></div>'}).join("")+'</div>';
     h+=t.mix.filter(function(i){return t.got.indexOf(i)<0}).map(function(i){return '<button class="lopt ar'+(LS.fb&&LS.fb.wrong===i?" bad":"")+'" data-a="lord" data-v="'+i+'">'+esc(A[i])+'</button>'}).join("");
-    if(t.got.length===t.ids.length)h+='<div class="lfb ok">Верно! Машаллах</div><button class="btn pri" data-a="lnext">Дальше ›</button>';
+    if(t.got.length===t.ids.length)h+=sayS("asl",praise())+'<button class="btn pri" data-a="lnext">Дальше ›</button>';
+    else if(LS.fb&&LS.fb.wrong!=null)h+=sayS("sab","Не этот. Какой аят идёт "+(t.got.length?"после «…"+esc(A[t.got[t.got.length-1]].split(" ").slice(-2).join(" "))+"»":"первым")+"? Послушай: <button class=\"btn sm\" data-a=\"lplay\" data-v=\""+(t.ids[t.got.length]+1)+"\">🔊</button>");
   }else if(t.t==="lis"){
     h+='<h3>Какой аят звучит?</h3><div class="btns" style="margin-bottom:10px"><button class="btn" data-a="lplay" data-v="'+(t.i+1)+'">🔊 Послушать ещё раз</button></div>'+(LAerr?'<p class="sm" style="color:var(--err)">Аудио не загрузилось — проверьте интернет.</p>':"");
     h+=t.opts.map(function(i){return opt(i,esc(A[i]),true,i===t.i)}).join("");
@@ -1879,12 +1899,14 @@ function vLesson(){
     h+=t.opts.map(function(w,k){return opt(k,esc(w),true,w===t.w)}).join("");
   }else if(t.t==="par"){
     h+='<h3>Найди пару</h3><p class="mut sm">Нажми аят, потом его смысл.</p><div class="lpar"><div>'+t.L.map(function(i){var d=t.done.indexOf(i)>-1;return '<button class="lopt ar'+(d?" ok":"")+(t.sel===i?" sel":"")+'" data-a="lpl" data-v="'+i+'"'+(d?" disabled":"")+'>'+esc(A[i])+'</button>'}).join("")+'</div><div>'+t.Rr.map(function(i){var d=t.done.indexOf(i)>-1;return '<button class="lopt'+(d?" ok":"")+(LS.fb&&LS.fb.wrong===i?" bad":"")+'" data-a="lpr" data-v="'+i+'"'+(d?" disabled":"")+'>'+esc(T[i])+'</button>'}).join("")+'</div></div>';
-    if(t.done.length===t.ids.length)h+='<div class="lfb ok">Все пары найдены!</div><button class="btn pri" data-a="lnext">Дальше ›</button>';
+    if(t.done.length===t.ids.length)h+=sayS("asl","Все пары найдены! "+praise())+'<button class="btn pri" data-a="lnext">Дальше ›</button>';
+    else if(LS.fb&&LS.fb.wrong!=null)h+=sayS("sab","Не подходит. Послушай выбранный аят и подумай ещё: <button class=\"btn sm\" data-a=\"lplay\" data-v=\""+(t.sel!=null?t.sel+1:1)+"\">🔊</button>");
   }else if(t.t==="sur"){
     h+='<h3>Из какой суры этот аят?</h3><div class="ar big2">'+esc(QD[t.n].ar[0])+'</div><button class="btn sm" data-a="lplay" data-v="1" style="margin-bottom:10px">🔊 Послушать</button>';
     h+=t.opts.map(function(x){return opt(x,esc(lsName(x)),false,x===t.n)}).join("");
   }
-  if(LS.fb&&t.t!=="ord"&&t.t!=="par")h+='<div class="lfb '+(LS.fb.ok?"ok":"bad")+'">'+(LS.fb.ok?"Верно! Машаллах":"Не совсем. Правильный ответ отмечен зелёным")+'</div><button class="btn pri" data-a="lnext">Дальше ›</button>';
+  if(!LS.fb&&t.hint)h+=sayS("sab",t.hint);
+  if(LS.fb&&t.t!=="ord"&&t.t!=="par")h+=(LS.fb.ok?sayS("asl",t.miss?"Верно, со второй попытки! Молодец 👍":praise()):sayS("sab","Ничего страшного! Правильный ответ отмечен зелёным — запомни его, он ещё встретится."))+'<button class="btn pri" data-a="lnext">Дальше ›</button>';
   return h+'<p class="mut sm" style="margin-top:10px;text-align:right">'+(LS.k+1)+' из '+L+'</p></div>';
 }
 function lessonAct(a,v){
@@ -1896,14 +1918,14 @@ function lessonAct(a,v){
     case"lplayall":laStop();plStart(String(LS.n),{});return true;
     case"lstart":LS.tasks=lsBuild(LS.n);LS.k=0;LS.err=0;LS.ok=0;LS.fb=null;LS.step="game";window.scrollTo(0,0);var t0=LS.tasks[0];if(t0&&t0.t==="lis")laPlay(LS.n,t0.i+1);return true;
     case"lnext":lsNext();window.scrollTo(0,0);return true;
-    case"lans":if(!t||LS.fb)return false;var val=t.t==="sur"?parseInt(v,10):parseInt(v,10);
-      var good=t.t==="gap"?t.opts[val]===t.w:t.t==="sur"?val===t.n:val===t.i;lsAnswer(good);LS.fb.pick=val;return true;
+    case"lans":if(!t||LS.fb)return false;var val=parseInt(v,10);
+      var good=t.t==="gap"?t.opts[val]===t.w:t.t==="sur"?val===t.n:val===t.i;lsAnswer(good,val);return true;
     case"lord":var i=parseInt(v,10);if(!t)return false;var need=t.ids[t.got.length];
-      if(i===need){t.got.push(i);LS.fb=null}else{LS.err++;LS.fb={wrong:i};setTimeout(function(){if(LS&&LS.fb&&LS.fb.wrong===i){LS.fb=null;render()}},700)}
+      if(i===need){t.got.push(i);LS.fb=null}else{LS.err++;LS.fb={wrong:i}}
       if(t.got.length===t.ids.length)LS.ok++;return true;
     case"lpl":if(t)t.sel=parseInt(v,10);return true;
     case"lpr":if(!t||t.sel==null)return false;var r=parseInt(v,10);
-      if(r===t.sel){t.done.push(r);t.sel=null;LS.fb=null;if(t.done.length===t.ids.length)LS.ok++}else{LS.err++;LS.fb={wrong:r};setTimeout(function(){if(LS&&LS.fb&&LS.fb.wrong===r){LS.fb=null;render()}},700)}
+      if(r===t.sel){t.done.push(r);t.sel=null;LS.fb=null;if(t.done.length===t.ids.length)LS.ok++}else{LS.err++;LS.fb={wrong:r}}
       return true;
   }
   return null;
