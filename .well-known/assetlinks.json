@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "ru.hasanatiki.app",
+    "sha256_cert_fingerprints": ["51:94:73:8F:4B:79:72:74:63:05:DF:11:14:C1:18:13:72:E8:05:33:8D:79:44:D0:14:D9:67:B7:9C:F7:1A:15"]
+  }
+}]

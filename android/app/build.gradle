@@ -1,0 +1,43 @@
+plugins { id 'com.android.application' }
+
+def host = project.findProperty('siteHost')
+def url = project.findProperty('siteUrl')
+def vcode = (System.getenv('GITHUB_RUN_NUMBER') ?: '1') as int
+
+android {
+    namespace 'ru.hasanatiki.app'
+    compileSdk 34
+    defaultConfig {
+        applicationId 'ru.hasanatiki.app'
+        minSdk 21
+        targetSdk 34
+        versionCode vcode
+        versionName "1.0.${vcode}"
+        resValue 'string', 'host', host
+        resValue 'string', 'launch_url', url
+        resValue 'string', 'asset_statements', "[{\\\"relation\\\": [\\\"delegate_permission/common.handle_all_urls\\\"], \\\"target\\\": {\\\"namespace\\\": \\\"web\\\", \\\"site\\\": \\\"https://${host}\\\"}}]"
+    }
+    signingConfigs {
+        release {
+            // ключ подписи передаётся только из секретов GitHub (KS_PATH, KS_PASS) — в репозитории его нет
+            storeFile file(System.getenv('KS_PATH') ?: 'missing.jks')
+            storePassword System.getenv('KS_PASS')
+            keyAlias 'hasanatiki'
+            keyPassword System.getenv('KS_PASS')
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.5.0'
+}
