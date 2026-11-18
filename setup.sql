@@ -1363,6 +1363,215 @@ revoke all on function _today() from public, anon, authenticated;
 revoke all on function activity_ping(text, text, text, int), activity_group(text, text), lesson_done(text, text, text, text, text, int, int, int) from public;
 grant execute on function activity_ping(text, text, text, int), activity_group(text, text), lesson_done(text, text, text, text, text, int, int, int) to anon, authenticated;
 
+-- ---------- закрытые группы, кабинет ребёнка и кабинет родителя ----------
+create table if not exists parent_keys (           -- коды родителей (6 цифр, выдаёт учитель)
+  group_id     uuid not null references groups(id) on delete cascade,
+  student_id   text not null,
+  pin          text not null,
+  failed       int not null default 0,
+  locked_until timestamptz,
+  primary key (group_id, student_id)
+);
+create table if not exists parent_sessions (
+  token_hash text primary key,
+  group_id   uuid not null references groups(id) on delete cascade,
+  student_id text not null,
+  expires_at timestamptz not null
+);
+alter table parent_keys enable row level security;
+alter table parent_sessions enable row level security;
+revoke all on parent_keys, parent_sessions from anon, authenticated;
+
+-- Кто смотрит группу: учитель {"t"}, ученик {"s"}, родитель {"p"}. Чужой — null.
+create or replace function _viewer(g groups, p_token text, p_stoken text, p_ptoken text) returns jsonb
+language plpgsql stable security definer set search_path = public, extensions as $$
+declare t teachers; s student_sessions; p parent_sessions;
+begin
+  if coalesce(p_token, '') <> '' then
+    begin t := _who(p_token); if _can(t, g.id) then return jsonb_build_object('t', t.id); end if;
+    exception when others then null; end;
+  end if;
+  if coalesce(p_stoken, '') <> '' then
+    select * into s from student_sessions where token_hash = _hash(p_stoken) and expires_at > now();
+    if found and s.group_id = g.id and _student_ok(g, s.student_id) then return jsonb_build_object('s', s.student_id); end if;
+  end if;
+  if coalesce(p_ptoken, '') <> '' then
+    select * into p from parent_sessions where token_hash = _hash(p_ptoken) and expires_at > now();
+    if found and p.group_id = g.id and _student_ok(g, p.student_id) then return jsonb_build_object('p', p.student_id); end if;
+  end if;
+  return null;
+end $$;
+
+-- Группа открывается только своим. Чужому — название и имена для экрана входа.
+drop function if exists group_get(text);
+create or replace function group_get(p_slug text, p_token text default null, p_stoken text default null, p_ptoken text default null) returns json
+language plpgsql stable security definer set search_path = public, extensions as $$
+declare g groups; v jsonb;
+begin
+  select * into g from groups where slug = lower(trim(p_slug));
+  if not found then raise exception 'not_found'; end if;
+  v := _viewer(g, p_token, p_stoken, p_ptoken);
+  if v is null then
+    return json_build_object('slug', g.slug, 'name', g.name, 'closed', true, 'students',
+      (select coalesce(json_agg(json_build_object('id', e->>'id', 'name', e->>'name') order by e->>'name'), '[]'::json)
+         from jsonb_array_elements(case when jsonb_typeof(g.data->'students') = 'array' then g.data->'students' else '[]'::jsonb end) e
+        where coalesce(e->>'hid', 'false') <> 'true'));
+  end if;
+  return json_build_object('slug', g.slug, 'name', g.name, 'version', g.version, 'data', g.data, 'updated_at', g.updated_at, 'viewer', v);
+end $$;
+
+drop function if exists avatars_get(text);
+create or replace function avatars_get(p_slug text, p_token text default null, p_stoken text default null, p_ptoken text default null) returns json
+language plpgsql stable security definer set search_path = public, extensions as $$
+declare g groups;
+begin
+  g := _g(p_slug);
+  if _viewer(g, p_token, p_stoken, p_ptoken) is null then return '{}'::json; end if;
+  return coalesce((select json_object_agg(a.student_id, a.img) from student_avatars a where a.group_id = g.id), '{}'::json);
+end $$;
+
+drop function if exists progress_get(text, text);
+create or replace function progress_get(p_code text, p_student text, p_token text default null, p_stoken text default null, p_ptoken text default null) returns json
+language plpgsql stable security definer set search_path = public, extensions as $$
+declare g groups;
+begin
+  g := _g(p_code);
+  if _viewer(g, p_token, p_stoken, p_ptoken) is null then return '[]'::json; end if;
+  return coalesce((select json_agg(json_build_object('course', course, 'lesson', lesson, 'stars', stars, 'best_stars', best_stars,
+                    'correct', correct, 'total', total, 'attempts', attempts, 'updated_at', updated_at) order by course, lesson)
+                     from lesson_progress where group_id = g.id and student_id = p_student), '[]'::json);
+end $$;
+
+-- Задания: только своим. Родитель видит задания и ответы своего ребёнка (без права сдавать).
+drop function if exists hw_list(text, text, text);
+create or replace function hw_list(p_slug text, p_token text default null, p_stoken text default null, p_ptoken text default null) returns json
+language plpgsql stable security definer set search_path = public, extensions as $$
+declare g groups; v jsonb; tid text; sid text; items json;
+begin
+  g := _g(p_slug);
+  v := _viewer(g, p_token, p_stoken, p_ptoken);
+  if v is null then return json_build_object('role', 'guest', 'items', '[]'::json, 'msg_unread', 0); end if;
+  tid := v->>'t'; sid := coalesce(v->>'s', v->>'p');
+  select coalesce(json_agg(row_to_json(x) order by x.created_at desc), '[]'::json) into items from (
+    select h.id, h.title, h.body, h.due, h.points, h.sura, h.listen, h.created_at,
+           case when sid is not null and h.listen is not null and h.sura is not null then (
+             select count(*) from listens l where l.group_id = g.id and l.student_id = sid and l.sura = h.sura and l.at >= h.created_at) end as my_listens,
+           case when tid is not null and h.listen is not null and h.sura is not null then (
+             select coalesce(json_object_agg(q.student_id, q.n), '{}'::json) from (
+               select l.student_id, count(*) as n from listens l
+                where l.group_id = g.id and l.sura = h.sura and l.at >= h.created_at group by l.student_id) q) end as listens,
+           _files_json(h.id, null) as files,
+           case when sid is not null then (
+             select json_build_object('status', s.status, 'note', s.note, 'teacher_note', s.teacher_note, 'points', s.points, 'updated_at', s.updated_at)
+               from submissions s where s.homework_id = h.id and s.student_id = sid) end as my,
+           case when sid is not null then _files_json(h.id, sid) end as my_files,
+           case when tid is not null then (
+             select coalesce(json_agg(json_build_object('student_id', s.student_id, 'status', s.status, 'note', s.note,
+                      'teacher_note', s.teacher_note, 'points', s.points, 'updated_at', s.updated_at,
+                      'files', _files_json(h.id, s.student_id)) order by s.updated_at desc), '[]'::json)
+               from submissions s where s.homework_id = h.id) end as subs
+      from homework h
+     where h.group_id = g.id
+     order by h.created_at desc
+     limit 60) x;
+  return json_build_object('role', case when tid is not null then 'teacher' when v ? 's' then 'student' else 'parent' end,
+                           'student_id', sid, 'items', items,
+                           'msg_unread', case when tid is not null then _msg_unread(g.id, null, 't') when v ? 's' then _msg_unread(g.id, sid, 's') else 0 end);
+end $$;
+
+-- PIN-коды детей (4 цифры) и коды родителей (6 цифр).
+drop function if exists student_pins(text, text, boolean, text);
+create or replace function student_pins(p_token text, p_slug text, p_make boolean default false, p_student text default null, p_parent boolean default false) returns json
+language plpgsql security definer set search_path = public, extensions as $$
+declare t teachers; g groups; sid text; b bytea; n int;
+begin
+  t := _who(p_token); g := _g(p_slug);
+  if not _can(t, g.id) then raise exception 'forbidden'; end if;
+  if jsonb_typeof(g.data->'students') = 'array' then
+    for sid in select e->>'id' from jsonb_array_elements(g.data->'students') e loop
+      if (p_student is not null and sid = p_student and not coalesce(p_parent, false))
+         or (p_make and not exists (select 1 from student_keys where group_id = g.id and student_id = sid)) then
+        b := extensions.gen_random_bytes(3);
+        insert into student_keys(group_id, student_id, pin)
+        values (g.id, sid, lpad((((get_byte(b,0) * 65536 + get_byte(b,1) * 256 + get_byte(b,2)) % 9000) + 1000)::text, 4, '0'))
+        on conflict (group_id, student_id) do update set pin = excluded.pin, failed = 0, locked_until = null;
+        if p_student is not null then delete from student_sessions where group_id = g.id and student_id = sid; end if;
+      end if;
+      if (p_student is not null and sid = p_student and coalesce(p_parent, false))
+         or (p_make and not exists (select 1 from parent_keys where group_id = g.id and student_id = sid)) then
+        b := extensions.gen_random_bytes(3);
+        n := ((get_byte(b,0) * 65536 + get_byte(b,1) * 256 + get_byte(b,2)) % 900000) + 100000;
+        insert into parent_keys(group_id, student_id, pin) values (g.id, sid, n::text)
+        on conflict (group_id, student_id) do update set pin = excluded.pin, failed = 0, locked_until = null;
+        if p_student is not null then delete from parent_sessions where group_id = g.id and student_id = sid; end if;
+      end if;
+    end loop;
+  end if;
+  return coalesce((select json_agg(json_build_object('student_id', k.student_id, 'pin', k.pin, 'ppin', p.pin))
+                     from student_keys k left join parent_keys p on p.group_id = k.group_id and p.student_id = k.student_id
+                    where k.group_id = g.id), '[]'::json);
+end $$;
+
+create or replace function parent_login(p_slug text, p_student text, p_pin text) returns json
+language plpgsql security definer set search_path = public, extensions as $$
+declare g groups; k parent_keys; tok text;
+begin
+  g := _g(p_slug);
+  select * into k from parent_keys where group_id = g.id and student_id = p_student;
+  if not found or not _student_ok(g, p_student) then return json_build_object('ok', false, 'error', 'no_pin'); end if;
+  if k.locked_until is not null and k.locked_until > now() then return json_build_object('ok', false, 'error', 'locked'); end if;
+  if k.pin <> regexp_replace(coalesce(p_pin, ''), '\D', '', 'g') then
+    update parent_keys set failed = case when failed + 1 >= 5 then 0 else failed + 1 end,
+           locked_until = case when failed + 1 >= 5 then now() + interval '15 minutes' else null end
+     where group_id = g.id and student_id = p_student;
+    return json_build_object('ok', false, 'error', 'bad_pin');
+  end if;
+  update parent_keys set failed = 0, locked_until = null where group_id = g.id and student_id = p_student;
+  delete from parent_sessions where expires_at < now();
+  tok := encode(extensions.gen_random_bytes(24), 'hex');
+  insert into parent_sessions(token_hash, group_id, student_id, expires_at) values (_hash(tok), g.id, p_student, now() + interval '365 days');
+  return json_build_object('ok', true, 'token', tok, 'student_id', p_student, 'group', g.name,
+    'name', (select e->>'name' from jsonb_array_elements(g.data->'students') e where e->>'id' = p_student limit 1));
+end $$;
+
+create or replace function parent_logout(p_ptoken text) returns json
+language plpgsql security definer set search_path = public, extensions as $$
+begin
+  delete from parent_sessions where token_hash = _hash(p_ptoken);
+  return json_build_object('ok', true);
+end $$;
+
+-- Кабинет родителя: всё о ребёнке одним запросом.
+create or replace function parent_view(p_ptoken text) returns json
+language plpgsql stable security definer set search_path = public, extensions as $$
+declare p parent_sessions; g groups;
+begin
+  select * into p from parent_sessions where token_hash = _hash(p_ptoken) and expires_at > now();
+  if not found then raise exception 'pauth'; end if;
+  select * into g from groups where id = p.group_id;
+  if not _student_ok(g, p.student_id) then raise exception 'pauth'; end if;
+  return json_build_object('slug', g.slug, 'name', g.name, 'student_id', p.student_id, 'data', g.data,
+    'img', (select img from student_avatars where group_id = g.id and student_id = p.student_id),
+    'act', (select json_build_object(
+              'v7', coalesce(sum(visits) filter (where day > _today() - 7), 0), 's7', coalesce(sum(secs) filter (where day > _today() - 7), 0),
+              'd7', count(*) filter (where day > _today() - 7 and (visits > 0 or secs > 0)),
+              'last', max(last_at)) from student_activity where group_id = g.id and student_id = p.student_id),
+    'les', (select json_build_object('n', count(*) filter (where best_stars > 0), 'stars', coalesce(sum(best_stars), 0))
+              from lesson_progress where group_id = g.id and student_id = p.student_id),
+    'hw', (select coalesce(json_agg(json_build_object('title', h.title, 'due', h.due, 'points', h.points, 'created_at', h.created_at,
+                    'status', s.status, 'teacher_note', s.teacher_note, 'got', s.points) order by h.created_at desc), '[]'::json)
+             from (select * from homework where group_id = g.id order by created_at desc limit 15) h
+             left join submissions s on s.homework_id = h.id and s.student_id = p.student_id));
+end $$;
+
+revoke all on function _viewer(groups, text, text, text) from public, anon, authenticated;
+revoke all on function group_get(text, text, text, text), avatars_get(text, text, text, text), progress_get(text, text, text, text, text),
+  hw_list(text, text, text, text), student_pins(text, text, boolean, text, boolean), parent_login(text, text, text),
+  parent_logout(text), parent_view(text) from public;
+grant execute on function group_get(text, text, text, text), avatars_get(text, text, text, text), progress_get(text, text, text, text, text),
+  hw_list(text, text, text, text), student_pins(text, text, boolean, text, boolean), parent_login(text, text, text),
+  parent_logout(text), parent_view(text) to anon, authenticated;
+
 -- ---------- хранилище файлов (Supabase Storage) ----------
 -- Закрытая «папка» hw: до 25 МБ на файл. Загрузить, прочитать или удалить файл можно
 -- только с временным пропуском, который выдают функции выше.

@@ -546,7 +546,7 @@ var ATB=[[5,"📅","Постоянство"],[15,"🛡️","Железная в�
 function hallPlaces(s){var r=[];(S.hall||[]).forEach(function(h){(h.w||[]).forEach(function(w,i){if(w.id?w.id===s.id:w.name===s.name)r.push(i)})});return r}
 function earned(s){return badges(s).filter(function(b){return b.ok})}
 var PH={},PHRE=/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+\/=]+$/;
-function phLoad(){if(!CLOUD||!G)return;var slug=G.slug;rpc("avatars_get",{p_slug:slug}).then(function(r){if(!G||G.slug!==slug)return;PH={};Object.keys(r||{}).forEach(function(k){if(PHRE.test(r[k]))PH[k]=r[k]});render()}).catch(function(){})}
+function phLoad(){if(!CLOUD||!G)return;var slug=G.slug;rpc("avatars_get",V_({p_slug:slug})).then(function(r){if(!G||G.slug!==slug)return;PH={};Object.keys(r||{}).forEach(function(k){if(PHRE.test(r[k]))PH[k]=r[k]});render()}).catch(function(){})}
 function avh(s,cls){var l=lvl(s),inner=PH[s.id]?'<img alt="" src="'+PH[s.id]+'">':AVM[s.av]?avSvg(avShown(s.av)):esc(s.av);return '<div class="av '+(cls||"")+'" style="--c:'+l[4]+'">'+inner+(cls==="s"?"":'<em>'+l[0]+'</em>')+'</div>'}
 function daysLeft(){return Math.ceil((new Date(S.season.end+"T23:59:59")-new Date())/864e5)}
 function seasonTotal(){return actS().reduce(function(a,s){return a+Math.max(0,tot(s))},0)}
@@ -636,12 +636,13 @@ function bumpH(s){var b=BUMP[s.id];return b?'<span class="bump'+(b<0?" neg":"")+
 function cacheGroup(g){try{store.set("cache_"+g.slug,{slug:g.slug,name:g.name,version:g.version,data:g.data,at:Date.now()})}catch(e){}}
 function poll(){
   pollAt=Date.now();
-  if(R.view!=="group"||!G||document.hidden)return;
+  if(R.view!=="group"||!G||!S||document.hidden)return;
   if(R.tab==="d"&&!UI.hwForm&&!UI.subm&&!HWbusy)hwLoad();
   if(Q.length||saving)return;
   var slug=G.slug;
-  rpc("group_get",{p_slug:slug}).then(function(r){
+  rpc("group_get",V_({p_slug:slug})).then(function(r){
     if(!G||G.slug!==slug||Q.length||saving)return;
+    if(r.closed){G=null;S=null;route();return}
     if(R.offline){R.offline=false;render()}
     if(r.version!==G.version){var old=S;S=migrate(r.data);G.version=r.version;G.name=r.name;bumpDiff(old,S);cacheGroup(r);render();checkCeleb();phLoad()}
   }).catch(function(x){if(x&&x.code==="network"&&!R.offline){R.offline=true;render()}});
@@ -654,18 +655,19 @@ var toastMsg="",toastTimer=null,celeb=null,shownSheet=null,celebShown=false,meSt
 function canEdit(){return !!(ME&&G&&(ME.is_admin||ME.groups.some(function(g){return g.slug===G.slug})))}
 var toastUndo=null;
 function flash(m,undo){if(replaying)return;toastMsg=m;toastUndo=undo||null;if(toastTimer)clearTimeout(toastTimer);toastTimer=setTimeout(function(){toastMsg="";toastUndo=null;render()},undo?6000:2800)}
-var TABS={r:"rating",d:"hw",s:"suras",h:"hall",p:"rules",t:"teacher"},TABN={rating:"r",hw:"d",suras:"s",hall:"h",rules:"p",teacher:"t"};
+var TABS={r:"rating",d:"hw",s:"suras",h:"hall",p:"rules",t:"teacher",m:"me"},TABN={rating:"r",hw:"d",suras:"s",hall:"h",rules:"p",teacher:"t",me:"m"};
 function parseHash(){var h=location.hash.replace(/^#\/?/,"").split("/");
   if(h[0]==="g"&&h[1])return h[2]==="chat"?{view:"group",slug:decodeURIComponent(h[1]).toLowerCase(),tab:"d",chat:true,chatSid:h[3]?decodeURIComponent(h[3]):null}:{view:"group",slug:decodeURIComponent(h[1]).toLowerCase(),tab:TABN[h[2]]||"r"};
   if(h[0]==="login")return{view:"login"};
   if(h[0]==="cab")return{view:"cab"};
+  if(h[0]==="parent")return{view:"parent"};
   return{view:"home"};
 }
 function go(h){if(location.hash===h)route();else location.hash=h}
 
 /* ================= экраны ================= */
-function topbar(left){
-  var right=ME?'<a class="lnk" href="#/cab">👤 '+esc(ME.name)+'</a>':'<a class="lnk" href="#/login">Вход для учителя</a>';
+function topbar(left,rt){
+  var right=rt?rt:ME?'<a class="lnk" href="#/cab">👤 '+esc(ME.name)+'</a>':'<a class="lnk" href="#/login">Вход для учителя</a>';
   return '<div class="topbar">'+(left||"<span></span>")+right+'</div>';
 }
 function brand(){return '<div class="brand"><i>✦</i>'+esc(APP)+'<i>✦</i></div>'}
@@ -679,6 +681,7 @@ function vHome(){
   h+='<div class="box"><h2>Открыть свою группу</h2><p class="mut sm" style="margin:-6px 0 10px">Код группы даёт учитель. Он же есть в ссылке, которую прислали в чат.</p>'+
     '<div class="btns" style="flex-wrap:nowrap"><input id="code" type="text" maxlength="12" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="k7m2qa" style="font-size:20px;letter-spacing:2px;text-transform:lowercase"><button class="btn pri" data-a="opencode">Открыть</button></div>'+
     (UI.formErr?'<p class="note err" style="margin-top:10px">'+esc(UI.formErr)+'</p>':"")+'</div>';
+  h+='<a class="box row" href="#/parent" style="display:flex"><span style="font-size:30px">👪</span><div class="mid"><b>Кабинет родителя</b><div class="sm mut">Баллы, посещения, задания и замечания учителя о вашем ребёнке</div></div><span class="mut">›</span></a>';
   var mine=store.get("recent",[]);
   if(mine.length)h+='<div class="box"><h2>Недавно открытые</h2>'+mine.map(function(g){return '<a class="row" href="#/g/'+encodeURIComponent(g.slug)+'"><span style="font-size:26px">🕌</span><div class="mid"><div style="font-weight:800">'+esc(g.name)+'</div></div><span class="mut">›</span></a>'}).join("")+'</div>';
   if(ME&&ME.groups.length)h+='<div class="box"><h2>Мои группы (учитель)</h2>'+ME.groups.map(function(g){return '<a class="row" href="#/g/'+encodeURIComponent(g.slug)+'/teacher"><span style="font-size:24px">🧑‍🏫</span><div class="mid"><div style="font-weight:800">'+esc(g.name)+'</div><div class="sm mut">код: '+esc(g.slug)+'</div></div><span class="mut">›</span></a>'}).join("")+'</div>';
@@ -698,7 +701,7 @@ function vLogin(){
   '<div class="field"><label for="li_login">Логин</label><input id="li_login" type="text" maxlength="32" autocapitalize="off" autocomplete="username"></div>'+
   '<div class="field"><label for="li_pass">Пароль</label><input id="li_pass" type="password" maxlength="72" autocomplete="current-password"></div>'+
   (UI.formErr?'<p class="note err" style="margin-bottom:10px">'+esc(UI.formErr)+'</p>':"")+
-  '<button class="btn pri wide" data-a="login">Войти</button><p class="mut sm" style="margin-top:10px">Логин и пароль выдаёт администратор. Ученикам и родителям входить не нужно.</p></div>';
+  '<button class="btn pri wide" data-a="login">Войти</button><p class="mut sm" style="margin-top:10px">Логин и пароль выдаёт администратор. Ученики и родители входят в группу по своим кодам.</p></div>';
 }
 function vCab(){
   if(!ME)return vLogin();
@@ -769,7 +772,8 @@ function teacherForm(t){
 
 /* ---- экраны группы ---- */
 function groupHeader(){
-  var h=topbar('<a class="lnk" href="#/">‹ Главная</a>')+'<header class="top">'+brand()+'<div class="gname">'+esc(G.name)+'</div></header>';
+  var ms=STOK&&by(STOK.sid),rt=ms?'<a class="lnk" href="#/g/'+encodeURIComponent(G.slug)+'/me">👤 '+esc(ms.name)+'</a>':isParent()?'<a class="lnk" href="#/parent">👪 Кабинет родителя</a>':null;
+  var h=topbar('<a class="lnk" href="#/">‹ Главная</a>',rt)+'<header class="top">'+brand()+'<div class="gname">'+esc(G.name)+'</div></header>';
   if(canEdit()){
     var st=saveErr&&saveErr!=="network"?'<span><span class="dot e"></span>'+esc(emsg({code:saveErr}))+'</span>':saving?'<span><span class="dot w"></span>Сохраняю…</span>':Q.length?'<span><span class="dot w"></span>'+(saveErr==="network"?"Нет связи — ждут сохранения: ":"Сохраню через секунду: ")+Q.length+'</span>':'<span><span class="dot"></span>Всё сохранено</span>';
     h+='<div class="savebar">'+st+(Q.length&&!saving?'<button class="btn sm pri" data-a="savenow">Сохранить</button>':"")+'</div>';
@@ -791,7 +795,7 @@ function vRating(){
     var p=function(s,i){return '<div data-a="open" data-id="'+s.id+'" role="button" tabindex="0">'+(i===0?'<div class="crown">👑</div>':"")+avh(s,i===0?"l":"")+'<div class="pn">'+esc(s.name)+'</div><div class="pp">'+tot(s)+bumpH(s)+'</div><div class="blk'+(i===0?" g1":"")+'" style="height:'+[96,74,56][i]+'px">'+medal(i)+'</div></div>'};
     h+='<div class="pod">'+p(L[1],1)+p(L[0],0)+p(L[2],2)+'</div>';
   }
-  if(!m)h+='<p class="cen mut sm" style="margin:-4px 0 12px">Нажми на своё имя и выбери «Это я» — сверху появится твой персонаж</p>';
+
   h+='<div class="box"><h2>Таблица лидеров <small>'+pn(L.length,"ученик","ученика","учеников")+'</small></h2>';
   L.forEach(function(s,i){var l=lvl(s),eb=earned(s);
     h+='<div class="row'+(s.id===meStudent?" me":"")+'" data-a="open" data-id="'+s.id+'" role="button" tabindex="0"><div class="rk">'+(tot(s)>0?medal(i):i+1)+'</div>'+avh(s)+'<div class="mid"><div class="nm">'+exName(s)+'</div><div class="lvl" style="color:'+l[4]+'">'+l[1]+" "+l[2]+'</div>'+tagsOf(s)+(eb.length>1?'<div class="bdg">'+eb.slice(-6).map(function(b){return b.e}).join(" ")+'</div>':"")+'</div><div class="sc">'+bumpH(s)+'<b>'+tot(s)+'</b><small>'+pl(tot(s),"балл","балла","баллов")+'</small></div></div>';
@@ -852,7 +856,7 @@ function vRules(){
   STK.forEach(function(b){h+='<div class="bd"><i>'+b[1]+'</i><b>'+b[2]+'</b><span>намаз в мечети каждую неделю</span></div>'});
   ATB.forEach(function(b){h+='<div class="bd"><i>'+b[1]+'</i><b>'+b[2]+'</b><span>'+pn(b[0],"урок","урока","уроков")+' в медресе</span></div>'});
   h+='<div class="bd"><i>🥉</i><b>В тройке</b><span>тройка лучших сезона</span></div><div class="bd"><i>👑</i><b>Чемпион сезона</b><span>1 место в сезоне</span></div>';
-  h+='</div></div><div class="box"><h2>👤 Мой персонаж</h2><p class="mut">Нажми на своё имя в таблице и выбери «Это я». Тогда сверху всегда будет твой персонаж, а когда получишь новое звание — увидишь праздник. Аватарку можно выбрать самому: войди в кабинет по PIN-коду, нажми на своё имя и выбери персонажа или загрузи свою картинку. Учитель тоже может её поменять.</p></div>';
+  h+='</div></div><div class="box"><h2>👤 Мой кабинет</h2><p class="mut">Войди в группу под своим именем и PIN-кодом — телефон запомнит тебя. Сверху в рейтинге всегда будет твой персонаж. Нажми 👤 со своим именем вверху справа: там твои значки, дела, задания и аватарка.</p></div>';
   h+=installBox();
   h+='<div class="box"><h2>Сезоны</h2><p class="mut">Рейтинг идёт до конца сезона. Потом учитель начинает новый сезон: таблица обнуляется, а десятка лучших попадает в Зал славы. Опыт, звание, значки и выученные суры остаются с тобой.</p></div>';
   return h;
@@ -947,12 +951,13 @@ function vTeacher(){
   L.forEach(function(s){h+='<div class="row" data-a="open" data-id="'+s.id+'" role="button" tabindex="0" style="padding:8px 12px">'+avh(s,"s")+'<div class="mid"><div style="font-weight:800">'+exName(s)+'</div><div class="sm mut">'+lvl(s)[2]+' · '+pn(tot(s),"балл","балла","баллов")+' · '+pn(surCount(s),"сура","суры","сур")+'</div></div><span class="mut">›</span></div>'});
   if(S.students.some(function(s){return s.ex}))h+='<button class="btn sm" data-a="clearex" style="margin-top:6px">Удалить все примеры</button>';
   h+='</div>';
+  h+=vPins();
   h+=vActivity(L);
   if(HID.length){h+='<div class="box"><h2>🙈 Скрытые <small>'+HID.length+'</small></h2><p class="mut sm" style="margin:-6px 0 8px">Ушедшие ребята. Их нет в рейтинге и списках, но баллы, суры и значки сохранены. Вернуть можно в любой момент.</p>';
     HID.forEach(function(s){h+='<div class="lst">'+avh(s,"s")+'<span class="mid nm">'+esc(s.name)+'<br><small class="mut">'+pn(tot(s),"балл","балла","баллов")+' · '+pn(surCount(s),"сура","суры","сур")+'</small></span><button class="btn sm" data-a="unhide" data-id="'+s.id+'">↩ Вернуть</button></div>'});h+='</div>'}
   return h}
   h+=vCatsBox();
-  h+='<div class="box"><h2>🏁 Сезон и общая цель</h2><div class="grid2"><div class="field"><label for="sname">Название сезона</label><input id="sname" type="text" maxlength="40" value="'+esc(S.season.name)+'"></div><div class="field"><label for="send">Последний день сезона</label><input id="send" type="date" value="'+esc(S.season.end)+'"></div><div class="field"><label for="gtarget">Общая цель, баллов (0 — без цели)</label><input id="gtarget" type="number" min="0" max="100000" value="'+(S.goal.target|0)+'"></div><div class="field"><label for="gprize">Приз за цель</label><input id="gprize" type="text" maxlength="60" value="'+esc(S.goal.prize)+'" placeholder="Например: поездка всей группой"></div></div><div class="btns"><button class="btn pri" data-a="saveseason">Применить</button>'+confirmBtn("season","🏁 Завершить сезон","endseason")+'</div><p class="mut sm" style="margin-top:8px">При завершении таблица обнулится, десятка лидеров попадёт в Зал славы. Опыт, звания и суры у ребят останутся.</p></div>';
+  h+='<div class="box"><h2>🏁 Сезон и общая цель</h2><div class="grid2"><div class="field"><label for="sname">Название сезона</label><input id="sname" type="text" maxlength="40" value="'+esc(S.season.name)+'"></div><div class="field"><label for="send">Последний день сезона</label><input id="send" type="date" value="'+esc(S.season.end)+'"></div><div class="field"><label for="gtarget">Общая цель, баллов (0 — без цели)</label><input id="gtarget" type="number" min="0" max="100000" value="'+(S.goal.target|0)+'"></div><div class="field"><label for="gprize">Приз за цель</label><input id="gprize" type="text" maxlength="60" value="'+esc(S.goal.prize)+'" placeholder="Например: поездка всей группой"></div></div><div class="btns"><button class="btn pri" data-a="saveseason">Применить</button><button class="btn" data-a="goalsug">💡 Предложить цель</button>'+confirmBtn("season","🏁 Завершить сезон","endseason")+'</div>'+vGoalSug()+'<p class="mut sm" style="margin-top:8px">При завершении таблица обнулится, десятка лидеров попадёт в Зал славы. Опыт, звания и суры у ребят останутся.</p></div>';
   h+='<div class="box"><h2>💬 Итоги недели для родителей</h2><p class="mut sm" style="margin:-6px 0 8px">Готовый текст за последние 7 дней — скопируйте и отправьте в чат.</p><textarea id="wtext" readonly>'+esc(weekText())+'</textarea><div class="btns" style="margin-top:8px"><button class="btn pri" data-a="copyweek">📋 Скопировать</button></div></div>';
   h+='<div class="box"><h2>💾 Резервная копия</h2><p class="mut sm" style="margin:-6px 0 10px">Скачивайте копию после каждого сезона. Из неё можно всё восстановить, в том числе из старых Савабиков.</p><div class="btns"><button class="btn" data-a="backup">⬇️ Скачать копию</button><button class="btn" data-a="restore">⬆️ Восстановить из файла</button></div><input id="rfile" type="file" accept=".json,application/json" hidden>';
   if(UI.restore)h+='<div style="margin-top:12px;padding:12px;border-radius:14px;background:var(--fbg)"><b>Заменить данные группы копией?</b><p class="sm" style="margin:4px 0 8px">В файле: '+pn(UI.restore.students.length,"ученик","ученика","учеников")+', '+pn(UI.restore.hall.length,"сезон","сезона","сезонов")+' в Зале славы. Текущие данные группы «'+esc(G.name)+'» будут заменены.</p><span class="btns"><button class="btn sm dng" data-a="dorestore">Да, заменить</button><button class="btn sm" data-a="norestore">Отмена</button></span></div>';
@@ -987,7 +992,7 @@ function vSheet(){
   h+='<div class="sm mut" style="display:flex;justify-content:space-between;margin-bottom:5px"><span>Опыт: <b style="color:var(--tx)">'+s.xp+'</b></span><span>'+(nx?"до «"+nx[2]+"» "+nx[1]+": "+(nx[3]-s.xp):"высшее звание")+'</span></div><div class="bar"><i style="width:'+pc+'%"></i></div>';
   h+='<div class="stats"><div class="st"><b style="color:var(--n)">'+s.n+'</b><span>🕌 Намаз</span></div><div class="st"><b style="color:var(--q)">'+s.q+'</b><span>📖 Коран</span></div><div class="st"><b style="color:var(--x)">'+s.x+'</b><span>⭐ Доп.</span></div><div class="st"><b style="color:var(--gold)">'+tot(s)+'</b><span>Всего'+(s.f?" (−"+s.f+")":"")+'</span></div></div>';
   var aS=attOf(s);if(aS.n)h+='<p class="sm mut" style="margin:-4px 0 10px">📅 На уроках: <b style="color:var(--tx)">'+aS.p+' из '+aS.n+'</b> ('+Math.round(aS.p/aS.n*100)+'%)</p>';
-  h+='<div class="btns">'+(meStudent===s.id?'<button class="btn sm" data-a="notme">Это не я</button>':'<button class="btn sm pri" data-a="isme" data-id="'+s.id+'">👤 Это я</button>')+'</div>';
+
   h+='<div class="sec">Значки · '+bs.filter(function(b){return b.ok}).length+' из '+bs.length+'</div><div class="bgrid">'+bs.map(function(b){return '<div class="bd'+(b.ok?"":" off")+'"><i>'+b.e+'</i><b>'+b.n+'</b><span>'+(b.ok?"получен":b.r)+'</span></div>'}).join("")+'</div>';
   h+='<div class="sec">Суры · '+surCount(s)+(s.sur.indexOf(AYAT)>-1?" + Аят аль-Курси":"")+'</div>'+(s.sur.length?'<div class="tags">'+s.sur.map(function(x){return '<span class="tg ts">'+esc(x)+'</span>'}).join("")+'</div>':'<p class="mut sm">Пока нет выученных сур</p>');
   h+='<div class="sec">Последние баллы</div>'+logList(S.log.filter(function(e){return e.s===s.id}).slice(0,8),false);
@@ -1034,7 +1039,7 @@ function hwRole(){return canEdit()?"teacher":(STOK&&HW&&HW.role==="student")?"st
 function hwLoad(){
   if(!CLOUD||!G)return Promise.resolve();
   var slug=G.slug;HWbusy=true;
-  return rpc("hw_list",A({p_slug:slug})).then(function(r){
+  return rpc("hw_list",V_({p_slug:slug})).then(function(r){
     if(!G||G.slug!==slug)return;
     HW=r;HWerr="";
     if(STOK&&!canEdit()&&r.role!=="student"){STOK=null;store.set("stok_"+slug,null)}
@@ -1153,7 +1158,6 @@ function vHw(){
   if(role==="teacher"){var wt=hwBadge0();if(wt)h+=say("asl","Ассаляму алейкум! "+pn(wt,"работа ждёт","работы ждут","работ ждут")+" проверки — нажмите «Ответы учеников» у задания.");h+=vHwForm(null)}
   if(!HW.items.length)h+='<div class="box cen"><div class="masbig">'+mas("asl",110)+'</div><h2>Заданий пока нет</h2><p class="mut">'+(role==="teacher"?"Создайте первое задание — кнопка выше.":"Учитель скоро добавит задания.")+'</p></div>';
   HW.items.forEach(function(x){h+=role==="teacher"?hwCardT(x):hwCardS(x,role)});
-  if(role==="teacher")h+=vPins();
   return h;
 }
 function hwHead(x){
@@ -1231,18 +1235,18 @@ function hwCardT(x){
   return h+'</div>';
 }
 function vPins(){
-  var h='<div class="box"><h2>🔑 PIN-коды учеников</h2><p class="mut sm" style="margin:-6px 0 10px">По PIN-коду ученик входит в свой кабинет и сдаёт задания. Раздайте коды лично или в личных сообщениях родителям — не в общий чат.</p>';
-  if(!UI.pins)return h+'<button class="btn" data-a="pins">Показать PIN-коды</button></div>';
-  var L=S.students.slice().sort(function(a,b){return a.name.localeCompare(b.name,"ru")});
-  L.forEach(function(s){h+='<div class="lg"><div class="lt">'+esc(s.name)+'</div><b class="pin">'+esc(UI.pins[s.id]||"—")+'</b>'+(UI.confirm==="pin"+s.id?'<span class="btns"><button class="btn sm dng" data-a="pinnew" data-id="'+s.id+'">Новый код</button><button class="btn sm" data-a="noconf">Отмена</button></span>':'<button class="btn sm" data-a="conf" data-k="pin'+s.id+'" aria-label="Выдать новый PIN">🔁</button>')+'</div>'});
-  return h+'<div class="btns" style="margin-top:10px"><button class="btn pri" data-a="pinscopy">📋 Скопировать список</button><button class="btn" data-a="pinshide">Скрыть</button></div></div>';
+  var h='<div class="box"><h2>🔑 Коды входа</h2><p class="mut sm" style="margin:-6px 0 10px">Без кода группу не открыть. <b>PIN ученика</b> (4 цифры) — ребёнку: он входит в группу, сдаёт задания и играет в уроки. <b>Код родителя</b> (6 цифр) — в кабинет родителя. Отправляйте каждой семье лично кнопкой 📋, не в общий чат.</p>';
+  if(!UI.pins)return h+'<button class="btn" data-a="pins">Показать коды</button></div>';
+  var L=actS().sort(function(a,b){return a.name.localeCompare(b.name,"ru")});
+  L.forEach(function(s){var c=UI.pins[s.id]||{};h+='<div class="lg" style="flex-wrap:wrap"><div class="lt">'+esc(s.name)+'</div><span class="sm mut">🧒</span><b class="pin">'+esc(c.c||"—")+'</b><span class="sm mut">👪</span><b class="pin">'+esc(c.p||"—")+'</b><button class="btn sm" data-a="pincopy1" data-id="'+s.id+'" aria-label="Скопировать сообщение для семьи">📋</button>'+(UI.confirm==="pin"+s.id?'<span class="btns"><button class="btn sm dng" data-a="pinnew" data-id="'+s.id+'">Новый PIN ученика</button><button class="btn sm dng" data-a="pinnewp" data-id="'+s.id+'">Новый код родителя</button><button class="btn sm" data-a="noconf">Отмена</button></span>':'<button class="btn sm" data-a="conf" data-k="pin'+s.id+'" aria-label="Выдать новый код">🔁</button>')+'</div>'});
+  return h+'<div class="btns" style="margin-top:10px"><button class="btn" data-a="pinshide">Скрыть</button></div></div>';
 }
-function pinsMap(list){var m={};(list||[]).forEach(function(k){m[k.student_id]=k.pin});return m}
+function pinsMap(list){var m={};(list||[]).forEach(function(k){m[k.student_id]={c:k.pin,p:k.ppin||""}});return m}
 function refreshGroup(){
   if(!G)return Promise.resolve();
   if(Q.length||saving){save();return Promise.resolve()}
   var slug=G.slug;
-  return rpc("group_get",{p_slug:slug}).then(function(r){if(!G||G.slug!==slug||Q.length||saving)return;S=migrate(r.data);G.version=r.version;G.name=r.name}).catch(function(){});
+  return rpc("group_get",V_({p_slug:slug})).then(function(r){if(!G||G.slug!==slug||Q.length||saving||r.closed)return;S=migrate(r.data);G.version=r.version;G.name=r.name}).catch(function(){});
 }
 function hwAct(a,b){
   var id=b.dataset.id,v=b.dataset.v,k=b.dataset.k,x=id&&HW?HW.items.filter(function(h){return h.id===id})[0]:null,F;
@@ -1284,7 +1288,7 @@ function hwAct(a,b){
         if(r&&r.ok){STOK={t:r.token,sid:r.student_id};store.set("stok_"+G.slug,STOK);UI.pinErr="";UI.dropKeep=true;meStudent=r.student_id;store.set("me_"+G.slug,meStudent);LP=null;var s=by(meStudent);if(s)store.set("seen_"+G.slug+"_"+s.id,seenOf(s));flash("Ассаляму алейкум"+(s?", "+s.name:"")+"!");return hwLoad()}
         UI.pinErr=emsg({code:r&&r.error});render()}).catch(function(e){UI.pinErr=emsg(e);render()});
       return true;
-    case"sout":if(STOK)rpc("student_logout",{p_stoken:STOK.t}).catch(function(){});STOK=null;store.set("stok_"+G.slug,null);UI.subm=null;hwLoad();break;
+    case"sout":studentOut();return true;
     case"subopen":if(x){UI.subm={hid:x.id,note:x.my?x.my.note:"",files:[]};UI.dropKeep=true}break;
     case"subclose":recStop();UI.subm=null;UI.dropKeep=true;break;
     case"subsend":
@@ -1306,12 +1310,12 @@ function hwAct(a,b){
         return (ok&&r.changed?refreshGroup():Promise.resolve()).then(hwLoad)}).catch(function(e){flash(emsg(e));render()});
       return true;
     case"pins":rpc("student_pins",{p_token:TOK,p_slug:G.slug,p_make:true}).then(function(r){UI.pins=pinsMap(r);render()}).catch(function(e){flash(emsg(e));render()});return true;
+    case"pinnewp":rpc("student_pins",{p_token:TOK,p_slug:G.slug,p_make:false,p_student:id,p_parent:true}).then(function(r){UI.pins=pinsMap(r);UI.confirm=null;flash("Выдан новый код родителя");render()}).catch(function(e){flash(emsg(e));render()});return true;
+    case"pincopy1":var pc1=UI.pins&&UI.pins[id]||{},st1=by(id);if(!st1)return true;
+      copy([APP+" · "+G.name,"Ассаляму алейкум! Ссылка на группу: "+groupLink(G.slug),"","🧒 Для ребёнка: «Я ученик» → "+st1.name+" → PIN "+(pc1.c||"—"),"👪 Для родителя: «Я родитель» → "+st1.name+" → код "+(pc1.p||"—"),"","Коды личные — не пересылайте их в общий чат."].join("\n"),"Сообщение для семьи скопировано");return true;
     case"pinnew":rpc("student_pins",{p_token:TOK,p_slug:G.slug,p_make:false,p_student:id}).then(function(r){UI.pins=pinsMap(r);UI.confirm=null;flash("Выдан новый PIN-код");render()}).catch(function(e){flash(emsg(e));render()});return true;
     case"pinshide":UI.pins=null;break;
-    case"pinscopy":
-      var lines=[APP+" · "+G.name+" — вход в кабинет ученика","Откройте: "+groupLink(G.slug)+"/hw","Выберите имя и введите PIN-код:",""];
-      S.students.slice().sort(function(p,q){return p.name.localeCompare(q.name,"ru")}).forEach(function(s){lines.push(s.name+" — "+(UI.pins[s.id]||"—"))});
-      copy(lines.join("\n"),"Список скопирован");return true;
+
     default:return false;
   }
   render();return true;
@@ -1571,7 +1575,7 @@ function chatAct(a,b){
 }
 
 function nav(){
-  var nb=hwBadge(),t=[["r","🏆","Рейтинг"],["d","📚","Задания"],["s","🎓","Уроки"]].concat(S&&S.hall&&S.hall.length?[["h","🏛️","Зал славы"]]:[]).concat([["p","❓","Правила"]]);
+  var nb=hwBadge(),t=[["r","🏆","Рейтинг"]].concat(isParent()?[]:[["d","📚","Задания"]]).concat([["s","🎓","Уроки"]]).concat(S&&S.hall&&S.hall.length?[["h","🏛️","Зал славы"]]:[]).concat([["p","❓","Правила"]]);
   if(canEdit())t.push(["t","🧑‍🏫","Учитель"]);
   return '<nav class="nav"><div>'+t.map(function(x){return '<button class="'+(R.tab===x[0]?"on":"")+'" data-a="tab" data-v="'+x[0]+'"><span>'+x[1]+'</span>'+x[2]+(x[0]==="d"&&nb?'<b>'+nb+'</b>':"")+'</button>'}).join("")+'</div></nav>';
 }
@@ -1581,9 +1585,11 @@ function vCeleb(){
   return '<div class="ov'+(celebShown?"":" anim")+'" data-a="closecel" style="align-items:center"><div class="sheet" style="border-radius:26px;max-width:420px;margin:16px"><div class="cel"><div style="display:flex;justify-content:center">'+avh(s,"xl")+'</div><h2>'+(celeb.lv?"Новое звание!":"Новый значок!")+'</h2><p style="font-size:18px">'+(celeb.lv?"Теперь ты <b style=\"color:"+l[4]+"\">"+l[2]+" "+l[1]+"</b>":"")+(celeb.b?'<br>'+celeb.b.map(function(b){return b.e+" "+b.n}).join(" · "):"")+'</p>'+say("sab","Машаллах! Так держать — я горжусь тобой!")+'<button class="btn pri" data-a="closecel" style="margin-top:16px">Ура!</button></div></div></div>';
 }
 function vGroup(){
+  if(!S&&GATE&&G)return vGate();
   if(!S)return topbar('<a class="lnk" href="#/">‹ Главная</a>')+'<div class="loading">'+(R.err?esc(R.err)+'<p style="margin-top:12px"><a class="btn" href="#/">К списку групп</a></p>':"Загрузка…")+'</div>';
   if(R.tab==="t"&&!canEdit())R.tab="r";
-  var body=({r:vRating,d:vHw,s:vSur,h:vHall,p:vRules,t:vTeacher}[R.tab]||vRating)();
+  if(R.tab==="d"&&isParent())R.tab="r";
+  var body=({r:vRating,d:vHw,s:vSur,h:vHall,p:vRules,t:vTeacher,m:vMe}[R.tab]||vRating)();
   return groupHeader()+body+'<input id="hwfile" type="file" multiple hidden><input id="avfile" type="file" accept="image/*" hidden>'+nav()+(UI.sheet?vSheet():"")+vCeleb();
 }
 
@@ -1597,7 +1603,7 @@ function render(){
   UI.dropKeep=false;
   var osh=app.querySelector(".sheet"),sy=osh?osh.scrollTop:0,same=shownSheet===UI.sheet;
   var kept={};app.querySelectorAll("[data-keep]").forEach(function(el){kept[el.dataset.keep]=el});
-  var html=R.view==="group"?vGroup():R.view==="login"?vLogin():R.view==="cab"?vCab():R.view==="home"?vHome():'<div class="loading">Загрузка…</div>';
+  var html=R.view==="group"?vGroup():R.view==="parent"?vParent():R.view==="login"?vLogin():R.view==="cab"?vCab():R.view==="home"?vHome():'<div class="loading">Загрузка…</div>';
   app.innerHTML=html+(toastMsg?'<div class="toast" role="status">'+esc(toastMsg)+(toastUndo?' <button class="btn sm" data-a="undog" data-v="'+esc(toastUndo)+'" style="margin-left:8px;padding:6px 12px">↩ Отменить</button>':"")+'</div>':"");
   Object.keys(keep).forEach(function(id){var el=document.getElementById(id);if(!el)return;if(el.type==="checkbox")el.checked=keep[id];else el.value=keep[id]});
   app.querySelectorAll("[data-keep]").forEach(function(el){var o=kept[el.dataset.keep];if(o&&o!==el)el.replaceWith(o)});
@@ -1791,12 +1797,12 @@ var QD=null,QDerr="",LP=null,LS=null,LA=null,LAerr=false;
 var LMOD={id:"q30",name:"Понимаю суры 30-го джуза",list:[1].concat((function(){var a=[];for(var i=114;i>=78;i--)a.push(i);return a})())};
 var SUBJ=[["q","📖","Коран",1],["a","🔤","Арабский",0],["f","🕌","Фикх",0],["k","💎","Акида",0],["x","🌸","Ахляк",0],["h","📜","Хадисы",0],["s","🐪","Сира",0]];
 function qdLoad(){if(QD||QDerr==="busy")return;QDerr="busy";fetch("q30.json").then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){QD=d;QDerr="";render()}).catch(function(){QDerr="Не удалось загрузить суры. Проверьте интернет.";render()})}
-function lsid(){return STOK?STOK.sid:meStudent}
+function lsid(){return STOK?STOK.sid:PTOK?PTOK.sid:null}
 function lpLoad(){
   if(!G)return;var slug=G.slug,sid=lsid(),loc=store.get("lp_"+slug,{});
   LP={};Object.keys(loc).forEach(function(k){LP[k]=loc[k]});
   if(!CLOUD||!sid||canEdit())return;
-  rpc("progress_get",{p_code:slug,p_student:sid}).then(function(r){if(!G||G.slug!==slug)return;(r||[]).forEach(function(x){if(x.course===LMOD.id)LP[x.lesson]=Math.max(LP[x.lesson]||0,x.best_stars)});render()}).catch(function(){});
+  rpc("progress_get",V_({p_code:slug,p_student:sid})).then(function(r){if(!G||G.slug!==slug)return;(r||[]).forEach(function(x){if(x.course===LMOD.id)LP[x.lesson]=Math.max(LP[x.lesson]||0,x.best_stars)});render()}).catch(function(){});
 }
 function ruT(t){return String(t||"").replace(/\s*\[\d+\]/g,"")}
 function arPlain(w){return String(w).replace(/[ً-ٰٟۖ-ۭـ]/g,"")}
@@ -1935,7 +1941,7 @@ function lessonAct(a,v){
 var actLast=0;
 function actPing(){
   if(!CLOUD||R.view!=="group"||!G||document.hidden||canEdit())return;
-  var sid=lsid();if(!sid)return;
+  if(!STOK)return;var sid=STOK.sid;
   var now=Date.now(),secs=actLast?Math.min(120,Math.round((now-actLast)/1000)):0;actLast=now;
   rpc("activity_ping",{p_slug:G.slug,p_stoken:STOK?STOK.t:null,p_student:STOK?null:sid,p_secs:secs}).catch(function(){});
 }
@@ -1952,6 +1958,95 @@ function vActivity(L){
   L.slice().sort(function(a,b){var x=ACTD[a.id]||{},y=ACTD[b.id]||{};return (y.s7||0)-(x.s7||0)||(y.s||0)-(x.s||0)}).forEach(function(s){var x=ACTD[s.id]||{};
     h+='<tr><td style="text-align:left;white-space:nowrap">'+esc(s.name)+'</td><td>'+(x.v7||"—")+'</td><td>'+dur(x.s7)+'</td><td>'+(x.v?x.v+" · "+dur(x.s):"—")+'</td><td>'+(x.last?rel(x.last):"не заходил")+'</td><td>'+(x.les?x.les+" · ⭐"+x.stars:"—")+'</td></tr>'});
   return h+'</table></div><button class="btn sm" data-a="actre" style="margin-top:8px">🔄 Обновить</button></div>';
+}
+
+/* ================= вход в группу, кабинет ребёнка, кабинет родителя ================= */
+var PTOK=null,GATE=null,PV={};
+function vtok(){var o={};if(TOK)o.p_token=TOK;if(STOK)o.p_stoken=STOK.t;if(PTOK)o.p_ptoken=PTOK.t;return o}
+function V_(o){var a=vtok();Object.keys(a).forEach(function(k){o[k]=a[k]});return o}
+function isParent(){return !!PTOK&&!STOK&&!canEdit()}
+function parentsList(){return store.get("parents",[])}
+function parentsAdd(p){var L=parentsList().filter(function(x){return!(x.slug===p.slug&&x.sid===p.sid)});L.push(p);store.set("parents",L)}
+function parentsDrop(slug,sid){store.set("parents",parentsList().filter(function(x){return!(x.slug===slug&&(!sid||x.sid===sid))}))}
+function vGate(){
+  var gm=UI.gmode==="p"?"p":"s",L=GATE.students||[];
+  var h=topbar('<a class="lnk" href="#/">‹ Главная</a>')+'<header class="top">'+brand()+'<div class="gname">'+esc(G.name)+'</div></header>';
+  h+=say("duo",gm==="s"?'Ассаляму алейкум! Выбери своё имя и введи <b style="color:var(--gold)">PIN-код</b> — его даёт учитель. Телефон запомнит тебя.':'Ассаляму алейкум! Выберите имя ребёнка и введите <b style="color:var(--gold)">код родителя</b> (6 цифр) — его даёт учитель.');
+  h+='<div class="box"><div class="seg wide2" style="margin-bottom:14px"><button class="'+(gm==="s"?"on":"")+'" data-a="gmode" data-v="s">🧒 Я ученик</button><button class="'+(gm==="p"?"on":"")+'" data-a="gmode" data-v="p">👪 Я родитель</button></div>';
+  if(!L.length)return h+'<p class="mut">В группе пока нет учеников.</p></div>';
+  h+='<div class="field"><label for="g_sid">'+(gm==="s"?"Твоё имя":"Имя ребёнка")+'</label><select id="g_sid"><option value="">— выбрать —</option>'+L.map(function(x){return '<option value="'+esc(x.id)+'"'+(UI.gSid===x.id?" selected":"")+'>'+esc(x.name)+'</option>'}).join("")+'</select></div>';
+  h+='<div class="field"><label for="g_pin">'+(gm==="s"?"PIN-код (4 цифры)":"Код родителя (6 цифр)")+'</label><input id="g_pin" type="password" inputmode="numeric" autocomplete="off" maxlength="'+(gm==="s"?4:6)+'" style="font-size:22px;letter-spacing:6px;text-align:center"></div>';
+  if(UI.gErr)h+='<p class="note err" style="margin-bottom:10px">'+esc(UI.gErr)+'</p>';
+  h+='<button class="btn pri wide" data-a="'+(gm==="s"?"gslogin":"gplogin")+'">Войти</button></div>';
+  return h+'<p class="cen sm mut" style="margin:6px 0 20px">Учитель? <a class="lnk" href="#/login">Войти как учитель</a></p>';
+}
+function gateLogin(parent){
+  var sid=val("g_sid")||UI.gSid||"",pin=val("g_pin").replace(/\D/g,""),slug=G.slug;UI.gSid=sid;
+  if(!sid){UI.gErr=parent?"Выберите имя ребёнка":"Выбери своё имя";render();return}
+  if(pin.length<(parent?6:4)){UI.gErr=parent?"Введите код родителя — 6 цифр":"Введи PIN-код — 4 цифры";render();return}
+  rpc(parent?"parent_login":"student_login",{p_slug:slug,p_student:sid,p_pin:pin}).then(function(r){
+    if(!r||!r.ok){UI.gErr=emsg({code:r&&r.error});render();return}
+    UI.gErr="";
+    if(parent){PTOK={t:r.token,sid:r.student_id};store.set("ptok_"+slug,PTOK);parentsAdd({slug:slug,sid:r.student_id,t:r.token,gname:r.group||G.name,name:r.name||""})}
+    else{STOK={t:r.token,sid:r.student_id};store.set("stok_"+slug,STOK)}
+    G=null;S=null;GATE=null;route();
+  }).catch(function(e){UI.gErr=emsg(e);render()});
+}
+function studentOut(){var slug=G&&G.slug;if(STOK)rpc("student_logout",{p_stoken:STOK.t}).catch(function(){});STOK=null;if(slug)store.set("stok_"+slug,null);meStudent=null;UI.subm=null;G=null;S=null;route()}
+// кабинет ребёнка
+function vMe(){
+  var s=STOK&&by(STOK.sid);if(!s)return vRating();
+  if(!LP)lpLoad();
+  var l=lvl(s),nx=nextLvl(s),pc=nx?Math.round((s.xp-l[3])/(nx[3]-l[3])*100):100,a=attOf(s),eb=badges(s),st=0;LMOD.list.forEach(function(n){st+=LP&&LP["s"+n]||0});
+  var done=0,wait=0,todo=0;(HW&&HW.items||[]).forEach(function(x){if(x.my&&x.my.status==="accepted")done++;else if(x.my&&x.my.status==="sent")wait++;else todo++});
+  var h='<div class="box me"><div class="mecard">'+avh(s,"xl")+'<div class="mid"><div class="sm mut">Мой кабинет</div><div class="nm" style="font-size:24px">'+esc(s.name)+'</div><div class="lvl" style="color:'+l[4]+'">'+l[1]+" "+l[2]+' · '+place(s)+' место</div><div class="bar"><i style="width:'+pc+'%"></i></div><div class="sm mut" style="margin-top:4px">'+(nx?"До звания «"+nx[2]+"» "+nx[1]+": "+pn(nx[3]-s.xp,"опыт","опыта","опыта"):"Высшее звание!")+'</div></div></div></div>';
+  h+='<div class="stats"><div class="st"><b style="color:var(--n)">'+s.n+'</b><span>🕌 Намаз</span></div><div class="st"><b style="color:var(--q)">'+s.q+'</b><span>📖 Коран</span></div><div class="st"><b style="color:var(--x)">'+s.x+'</b><span>⭐ Доп.</span></div><div class="st"><b style="color:var(--gold)">'+tot(s)+'</b><span>Всего</span></div></div>';
+  h+='<div class="box"><h2>📋 Мои дела</h2>';
+  h+='<a class="row" href="#/g/'+encodeURIComponent(G.slug)+'/hw" style="padding:10px 12px"><span style="font-size:24px">📚</span><div class="mid"><b>Задания</b><div class="sm mut">надо сделать: '+todo+' · на проверке: '+wait+' · принято: '+done+'</div></div><span class="mut">›</span></a>';
+  h+='<a class="row" href="#/g/'+encodeURIComponent(G.slug)+'/suras" style="padding:10px 12px"><span style="font-size:24px">🎓</span><div class="mid"><b>Уроки-игры</b><div class="sm mut">⭐ '+st+' из '+LMOD.list.length*3+' звёзд</div></div><span class="mut">›</span></a>';
+  h+='<div class="row" style="padding:10px 12px"><span style="font-size:24px">📅</span><div class="mid"><b>Уроки в медресе</b><div class="sm mut">'+(a.n?"был "+a.p+" из "+a.n:"ещё не отмечали")+'</div></div></div>';
+  h+='<div class="row" style="padding:10px 12px"><span style="font-size:24px">📜</span><div class="mid"><b>Суры наизусть</b><div class="sm mut">'+(s.sur.length?s.sur.map(esc).join(", "):"пока нет")+'</div></div></div></div>';
+  h+='<div class="box"><h2>🏅 Мои значки <small>'+eb.filter(function(b){return b.ok}).length+' из '+eb.length+'</small></h2><div class="bgrid">'+eb.map(function(b){return '<div class="bd'+(b.ok?"":" off")+'"><i>'+b.e+'</i><b>'+b.n+'</b><span>'+(b.ok?"получен":b.r)+'</span></div>'}).join("")+'</div></div>';
+  h+='<div class="box"><h2>🎨 Моя аватарка</h2><p class="mut sm" style="margin:-6px 0 8px">Выбери персонажа или загрузи свою картинку.</p>'+avPicker(s)+'</div>';
+  h+='<div class="box"><div class="btns" style="align-items:center;justify-content:space-between"><span class="sm mut">Телефоном пользуется брат или сестра? Выйди — и они войдут под своим именем.</span><button class="btn dng sm" data-a="sout2">🚪 Выйти</button></div></div>';
+  return h;
+}
+// кабинет родителя
+function pvKey(p){return p.slug+"|"+p.sid}
+function pvLoad(){parentsList().forEach(function(p){var k=pvKey(p);if(PV[k]&&PV[k].busy)return;PV[k]={busy:1};rpc("parent_view",{p_ptoken:p.t}).then(function(r){PV[k]=r}).catch(function(e){PV[k]={err:e.code==="pauth"?"Код больше не действует — учитель мог выдать новый. Войдите заново.":emsg(e),gone:e.code==="pauth"}}).then(render)})}
+function hwSt(x){if(x.status==="accepted")return '<span class="tg tn">✅ принято'+(x.got?" +"+x.got:"")+'</span>';if(x.status==="sent")return '<span class="tg tx">⏳ на проверке</span>';if(x.status==="returned")return '<span class="tg tf">↩ на доработке</span>';return '<span class="tg">⬜ не сдано'+(x.due?" · срок "+fdate(x.due+"T12:00:00"):"")+'</span>'}
+function vParent(){
+  var L=parentsList(),h=topbar('<a class="lnk" href="#/">‹ Главная</a>')+'<header class="top">'+brand()+'<div class="gname">👪 Кабинет родителя</div></header>';
+  if(!L.length)h+=say("duo",'Ассаляму алейкум! Здесь вы увидите успехи своего ребёнка: баллы, посещения, задания и замечания учителя. Код родителя (6 цифр) выдаёт учитель.');
+  L.forEach(function(p){var k=pvKey(p),d=PV[k];
+    h+='<div class="box">';
+    if(!d||d.busy){h+='<b>'+esc(p.name||"Ребёнок")+'</b><p class="mut">Загрузка…</p></div>';return}
+    if(d.err){h+='<b>'+esc(p.name||"Ребёнок")+'</b> · '+esc(p.gname||"")+'<p class="note err" style="margin:8px 0">'+esc(d.err)+'</p><div class="btns"><a class="btn sm" href="#/g/'+encodeURIComponent(p.slug)+'">Войти снова</a><button class="btn sm" data-a="pvout" data-k="'+esc(k)+'">Убрать</button></div></div>';return}
+    var S0=S;S=migrate(d.data);var s=by(d.student_id);
+    if(!s){S=S0;h+='<p class="mut">Ребёнка больше нет в группе.</p></div>';return}
+    var l=lvl(s),a=attOf(s),N=ranked().length,ac=d.act||{},le=d.les||{},av=d.img&&PHRE.test(d.img)?'<img alt="" src="'+d.img+'">':avSvg(avShown(s.av)),eb=earned(s);
+    h+='<div class="mecard"><div class="av xl" style="--c:'+l[4]+'">'+av+'<em>'+l[0]+'</em></div><div class="mid"><div class="nm" style="font-size:22px">'+esc(s.name)+'</div><div class="sm mut">'+esc(d.name)+'</div><div class="lvl" style="color:'+l[4]+'">'+l[1]+" "+l[2]+'</div><div class="sm">🏆 '+place(s)+' место из '+N+' · '+pn(tot(s),"балл","балла","баллов")+'</div></div></div>';
+    h+='<div class="stats" style="margin-top:10px"><div class="st"><b style="color:var(--n)">'+s.n+'</b><span>🕌 Намаз</span></div><div class="st"><b style="color:var(--q)">'+s.q+'</b><span>📖 Коран</span></div><div class="st"><b style="color:var(--x)">'+s.x+'</b><span>⭐ Доп.</span></div><div class="st"><b style="color:var(--f)">'+s.f+'</b><span>⚠️ Штраф</span></div></div>';
+    h+='<div class="tags" style="margin:8px 0">'+'<span class="tg tn">📅 Уроки: '+(a.n?a.p+" из "+a.n:"—")+'</span><span class="tg tq">📱 За неделю: '+(ac.v7||0)+' '+pl(ac.v7||0,"заход","захода","заходов")+', '+dur(ac.s7)+'</span><span class="tg tx">🎓 Игры: ⭐'+(le.stars||0)+'</span><span class="tg ts">📜 Суры: '+surCount(s)+'</span><span class="tg">🏅 Значки: '+eb.length+'</span></div>';
+    if(d.hw&&d.hw.length){h+='<div class="sec">📚 Задания</div>';d.hw.slice(0,8).forEach(function(x){h+='<div class="lg"><div class="lt">'+esc(x.title)+(x.teacher_note?'<small>💬 Учитель: '+esc(x.teacher_note)+'</small>':"")+'</div>'+hwSt(x)+'</div>'})}
+    var lg=S.log.filter(function(e){return e.s===s.id}).slice(0,6);if(lg.length)h+='<div class="sec">Последние баллы</div>'+logList(lg,false);
+    S=S0;
+    h+='<div class="btns" style="margin-top:12px"><a class="btn sm pri" href="#/g/'+encodeURIComponent(p.slug)+'">🏆 Рейтинг группы</a><button class="btn sm" data-a="pvout" data-k="'+esc(k)+'">Выйти</button></div></div>';
+  });
+  h+='<div class="box"><h2>➕ '+(L.length?"Добавить ещё ребёнка":"Войти")+'</h2><p class="mut sm" style="margin:-6px 0 10px">Введите код группы (он есть в ссылке от учителя), затем выберите «Я родитель».</p><div class="btns" style="flex-wrap:nowrap"><input id="pcode" type="text" maxlength="12" autocapitalize="off" autocomplete="off" placeholder="код группы" style="font-size:18px;letter-spacing:2px;text-transform:lowercase"><button class="btn pri" data-a="pcode">Дальше</button></div></div>';
+  return h;
+}
+// «Предложить цель»: средний темп группы за последние 4 недели × оставшиеся недели × 1,2
+function goalSuggest(){
+  var now=Date.now(),from=now-28*864e5,first=now,sum=0;
+  S.log.forEach(function(e){var t=+new Date(e.d);if(t<first)first=t;if(t>=from&&e.t!=="s")sum+=e.t==="f"?-e.v:e.v});
+  var span=Math.max(7,Math.min(28,(now-Math.max(from,first))/864e5)),wk=Math.max(0,sum)/(span/7),n=actS().length||1,wl=Math.max(1,Math.ceil(daysLeft()/7)),cur=seasonTotal();
+  return {wk:Math.round(wk),per:Math.round(wk/n*10)/10,wl:wl,cur:cur,n:n,goal:Math.max(10,Math.round((cur+wk*wl*1.2)/10)*10),thin:sum<=0}
+}
+function vGoalSug(){
+  if(!UI.goalSug)return "";var g=goalSuggest();
+  if(g.thin)return '<div class="note" style="margin-top:10px">Пока мало данных: поставьте баллы хотя бы 1–2 недели, и я посчитаю цель.</div>';
+  return '<div style="margin-top:10px;padding:12px;border-radius:14px;background:var(--xbg)"><b>💡 Предлагаю цель: '+g.goal+'</b><p class="sm" style="margin:6px 0 8px">Сейчас группа набирает около <b>'+g.wk+'</b> баллов в неделю (≈'+g.per+' на ученика, учеников: '+g.n+'). Уже набрано '+g.cur+'. До конца сезона '+pn(g.wl,"неделя","недели","недель")+'. Цель = набрано + темп × недели × 1,2 — нужно стараться на 20% больше обычного: заметно, но достижимо. В середине сезона проверьте: меньше 40% — подбодрите ребят, больше 60% — всё идёт хорошо.</p><span class="btns"><button class="btn sm pri" data-a="goalapply" data-v="'+g.goal+'">Поставить '+g.goal+'</button><button class="btn sm" data-a="goalno">Скрыть</button></span></div>';
 }
 
 /* ================= грамота ================= */
@@ -1995,6 +2090,15 @@ function act(a,b,e){
   if(/^l(open|quit|play|playall|start|next|ans|ord|pl|pr)$/.test(a)){if(a!=="lopen"&&!LS)return;var lr=lessonAct(a,v);if(lr)render();return}
   if(a==="lseg"){UI.lseg=v;if(v!=="l"){laStop();LS=null}window.scrollTo(0,0);render();return}
   if(a==="actre"){ACTD=null;render();return}
+  if(a==="gmode"){UI.gmode=v;UI.gErr="";render();return}
+  if(a==="gslogin"){gateLogin(false);return}
+  if(a==="gplogin"){gateLogin(true);return}
+  if(a==="sout2"){studentOut();return}
+  if(a==="pvout"){var pk=String(k||"").split("|"),pp=parentsList().filter(function(x){return x.slug===pk[0]&&x.sid===pk[1]})[0];if(pp)rpc("parent_logout",{p_ptoken:pp.t}).catch(function(){});var pt=store.get("ptok_"+pk[0],null);if(pt&&pt.sid===pk[1])store.set("ptok_"+pk[0],null);parentsDrop(pk[0],pk[1]);delete PV[k];render();return}
+  if(a==="pcode"){var pc=val("pcode").trim().toLowerCase();if(pc){UI.gmode="p";go("#/g/"+encodeURIComponent(pc))}return}
+  if(a==="goalsug"){UI.goalSug=1;UI.dropKeep=true;render();return}
+  if(a==="goalno"){UI.goalSug=0;render();return}
+  if(a==="goalapply"){var gv=parseInt(v,10)||0;mut(function(){S.goal.target=gv});var gi=document.getElementById("gtarget");if(gi)gi.value=gv;UI.goalSug=0;flash("Цель группы: "+gv);render();return}
   switch(a){
     /* ---- вход и кабинет ---- */
     case"install":if(deferredInstall){var di=deferredInstall;deferredInstall=null;try{di.prompt()}catch(x){}}break;
@@ -2117,10 +2221,13 @@ document.addEventListener("keydown",function(e){
   if(e.key==="Enter"&&t.id==="ch_text"){e.preventDefault();act("chsend",t,{target:t})}
   if(e.key==="Enter"&&t.id==="pin_code"){e.preventDefault();act("slogin",t,{target:t})}
   if(e.key==="Enter"&&t.id==="code"){e.preventDefault();act("opencode",t,{target:t})}
+  if(e.key==="Enter"&&t.id==="g_pin"){e.preventDefault();gateLogin(UI.gmode==="p")}
+  if(e.key==="Enter"&&t.id==="pcode"){e.preventDefault();act("pcode",t,{target:t})}
 });
 document.addEventListener("input",function(e){
   var t=e.target;
   if(t.id==="amt")UI.amt=t.value;
+  if(t.id==="g_sid")UI.gSid=t.value;
   if(t.id==="pday"){var pv=t.value;UI.pday=/^\d{4}-\d{2}-\d{2}$/.test(pv)&&pv<=ymd(new Date())?pv:"";render()}
   if(t.id==="surpts"&&canEdit()){var spv=parseInt(t.value,10)||0;mut(function(){S.surPts=spv});flash(spv?"За новую суру: +"+pn(spv,"балл","балла","баллов"):"За суры баллы в рейтинг не начисляются");render()}
   else if(t.id==="note")UI.note=t.value;
@@ -2170,11 +2277,18 @@ function route(){
     if(G&&G.slug===r.slug&&S){R=r;if(R.tab==="t"&&!canEdit())R.tab="r";render();window.scrollTo(0,0);if(R.tab==="d"||!HW)hwLoad();return}
     if(Q.length&&G)save();
     R=r;S=null;G=null;R.err="";UI.sel=[];UI.restore=null;UI.showAll=false;HW=null;HWerr="";STOK=null;PH={};CH=null;THR=null;LP=null;LS=null;ACTD=null;if(!r.chat){UI.seg="hw";UI.chat=null}UI.hwForm=null;UI.subm=null;UI.pins=null;UI.hwOpen=null;UI.pinErr="";UI.pinSid="";render();
-    rpc("group_get",{p_slug:r.slug}).then(function(g){
+    GATE=null;STOK=store.get("stok_"+r.slug,null);PTOK=store.get("ptok_"+r.slug,null);
+    rpc("group_get",V_({p_slug:r.slug})).then(function(g){
       if(R.view!=="group"||R.slug!==r.slug)return;
+      if(g.closed){
+        if(STOK){STOK=null;store.set("stok_"+g.slug,null)}
+        if(PTOK){PTOK=null;store.set("ptok_"+g.slug,null);parentsDrop(g.slug)}
+        G={slug:g.slug,name:g.name,version:0};S=null;GATE={students:g.students||[]};UI.gErr="";
+        document.title=g.name+" — "+APP;render();window.scrollTo(0,0);return}
       cacheGroup(g);R.offline=false;
-      G={slug:g.slug,name:g.name,version:g.version};S=migrate(g.data);meStudent=store.get("me_"+g.slug,null);if(meStudent&&!by(meStudent))meStudent=null;
-      STOK=store.get("stok_"+g.slug,null);if(STOK&&!by(STOK.sid))STOK=null;hwLoad();phLoad();if(!PUSHV)pushInfo();
+      G={slug:g.slug,name:g.name,version:g.version};S=migrate(g.data);
+      if(STOK&&!by(STOK.sid))STOK=null;if(PTOK&&!by(PTOK.sid))PTOK=null;meStudent=STOK?STOK.sid:PTOK?PTOK.sid:null;
+      if(R.tab==="m"&&!STOK)R.tab="r";hwLoad();phLoad();if(!PUSHV)pushInfo();
       var rc=store.get("recent",[]).filter(function(x){return x.slug!==g.slug});rc.unshift({slug:g.slug,name:g.name});store.set("recent",rc.slice(0,5));
       var pend=store.get("pending_"+g.slug,null);
       if(pend&&canEdit()){
@@ -2192,6 +2306,7 @@ function route(){
   document.title=APP;
   if(r.view==="login"&&ME){go("#/cab");return}
   if(r.view==="cab"&&!ME){UI.afterLogin="#/cab";R={view:"login"};render();return}
+  if(r.view==="parent"){R=r;PV={};render();window.scrollTo(0,0);pvLoad();return}
   R=r;render();window.scrollTo(0,0);
   if(r.view==="login")rpc("app_info",{}).then(function(i){INFO=i;if(!i.has_admin&&R.view==="login")go("#/")}).catch(function(){});
   if(r.view==="home")rpc("app_info",{}).then(function(i){INFO=i;render()}).catch(function(x){INFO={has_admin:true,groups:[]};flash(emsg(x));render()});
