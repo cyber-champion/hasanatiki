@@ -474,11 +474,12 @@ html[data-theme=dark] .lmapbg{background:url("data:image/svg+xml,%3Csvg%20xmlns%
 .bee b{position:absolute;left:50%;bottom:100%;transform:translateX(-50%) scale(0);background:#fff;color:#1F2340;font-size:12px;font-weight:900;padding:4px 8px;border-radius:12px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.18);transition:transform .2s;pointer-events:none}
 .bee.say b{transform:translateX(-50%) scale(1)}
 
-.hive{position:absolute;left:10px;top:150px;z-index:4;width:84px;height:84px;cursor:pointer;filter:drop-shadow(0 4px 6px rgba(0,0,0,.15))}
+.hive{position:absolute;left:10px;top:150px;z-index:4;width:84px;height:84px;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;filter:drop-shadow(0 4px 6px rgba(0,0,0,.15))}
 .hive .zz{position:absolute;left:54px;top:-6px;font:900 13px var(--font);color:#6B7290;opacity:0;letter-spacing:2px;transition:opacity .3s}
 html[data-theme=dark] .hive .zz{color:#C7CCF0}
 .hive.on .zz{opacity:1;animation:zz 2s ease-in-out infinite}@keyframes zz{50%{transform:translate(4px,-4px)}}
 .bee.home i{transform:scale(.62)!important}.bee.home i svg{animation:none}
+.hive.drag{cursor:grabbing;transform:scale(1.08)}
 </style>
 <script>(function(){var t="light";try{t=JSON.parse(localStorage.getItem("theme"))||"light"}catch(e){}document.documentElement.setAttribute("data-theme",t==="dark"?"dark":"light")})()</script>
 </head>
@@ -2362,6 +2363,7 @@ function vAbMap(){
 
 /* ---- пчёлка Асаль летает над картой уроков: её можно поймать и потаскать ---- */
 var BEE={x:40,y:60,tx:200,ty:120,vx:0,dir:1,drag:null,t:0,happy:0,home:!!store.get("beehome",0)};
+var HIVE=store.get("hivepos",null)||{x:10,y:150};HIVE.drag=null;
 var BEESAY=["Ж-ж-ж!","Поймал!","Хи-хи!","Учись дальше!","Машаллах!","Отпусти, я полечу!"];
 function beeTarget(el){var par=el.parentNode,r=par.getBoundingClientRect(),W=par.clientWidth,H=par.clientHeight;
   var y0=Math.max(10,-r.top+80),y1=Math.min(H-70,-r.top+innerHeight-160);if(y1<y0){y0=10;y1=Math.max(20,H-70)}
@@ -2370,8 +2372,9 @@ function beeTick(){
   var el=document.querySelector(".bee");
   if(el&&el.isConnected&&!document.hidden){
     var par=el.parentNode,W=par.clientWidth,H=par.clientHeight;BEE.t+=1;
-    var hv=par.querySelector(".hive");el.classList.toggle("home",BEE.home&&!BEE.drag);if(hv)hv.classList.toggle("on",BEE.home&&!BEE.drag);
-    if(BEE.home&&!BEE.drag&&hv){BEE.x=hv.offsetLeft+18;BEE.y=hv.offsetTop+30;BEE.dir=1}
+    var hv=par.querySelector(".hive");if(hv){HIVE.x=Math.max(0,Math.min(W-84,HIVE.x));HIVE.y=Math.max(0,Math.min(H-84,HIVE.y));hv.style.left=HIVE.x+"px";hv.style.top=HIVE.y+"px";hv.classList.toggle("drag",!!HIVE.drag)}
+    el.classList.toggle("home",BEE.home&&!BEE.drag);if(hv)hv.classList.toggle("on",BEE.home&&!BEE.drag);
+    if(BEE.home&&!BEE.drag&&hv){BEE.x=HIVE.x+18;BEE.y=HIVE.y+30;BEE.dir=1}
     else if(!BEE.drag){var dx=BEE.tx-BEE.x,dy=BEE.ty-BEE.y;if(dx*dx+dy*dy<400||BEE.t%600===0)beeTarget(el);
       BEE.x+=dx*.012+Math.sin(BEE.t/9)*.6;BEE.y+=dy*.012+Math.cos(BEE.t/7)*.8;if(Math.abs(dx)>4)BEE.dir=dx>0?1:-1}
     BEE.x=Math.max(-10,Math.min(W-46,BEE.x));BEE.y=Math.max(-10,Math.min(H-46,BEE.y));
@@ -2381,11 +2384,14 @@ function beeTick(){
   requestAnimationFrame(beeTick);
 }
 requestAnimationFrame(beeTick);
-document.addEventListener("pointerdown",function(e){var el=e.target.closest&&e.target.closest(".bee");if(!el)return;e.preventDefault();
+document.addEventListener("pointerdown",function(e){var hv=e.target.closest&&!e.target.closest(".bee")&&e.target.closest(".hive");
+  if(hv){e.preventDefault();var pr=hv.parentNode.getBoundingClientRect();HIVE.drag={ox:e.clientX-pr.left-HIVE.x,oy:e.clientY-pr.top-HIVE.y,sx:e.clientX,sy:e.clientY};try{hv.setPointerCapture(e.pointerId)}catch(x){}return}
+  var el=e.target.closest&&e.target.closest(".bee");if(!el)return;e.preventDefault();
   var r=el.parentNode.getBoundingClientRect();BEE.drag={ox:e.clientX-r.left-BEE.x,oy:e.clientY-r.top-BEE.y,id:e.pointerId};
   BEE.wasHome=BEE.home;BEE.sx=e.clientX;BEE.sy=e.clientY;if(BEE.home){BEE.home=false;store.set("beehome",0)}
   el.classList.add("caught","say");el.querySelector("b").textContent=BEESAY[Math.floor(Math.random()*BEESAY.length)];BEE.happy=0;try{el.setPointerCapture(e.pointerId)}catch(x){}});
-document.addEventListener("pointermove",function(e){if(!BEE.drag)return;var el=document.querySelector(".bee");if(!el)return;var r=el.parentNode.getBoundingClientRect();
+document.addEventListener("pointermove",function(e){if(HIVE.drag){var hv=document.querySelector(".hive");if(hv){var pr=hv.parentNode.getBoundingClientRect();HIVE.x=e.clientX-pr.left-HIVE.drag.ox;HIVE.y=e.clientY-pr.top-HIVE.drag.oy}return}
+  if(!BEE.drag)return;var el=document.querySelector(".bee");if(!el)return;var r=el.parentNode.getBoundingClientRect();
   var nx=e.clientX-r.left-BEE.drag.ox;if(Math.abs(nx-BEE.x)>1)BEE.dir=nx>BEE.x?1:-1;BEE.x=nx;BEE.y=e.clientY-r.top-BEE.drag.oy});
 function beeDrop(e){if(!BEE.drag)return;BEE.drag=null;var el=document.querySelector(".bee");if(!el)return;el.classList.remove("caught");BEE.happy=Date.now()+1400;
   if(BEE.wasHome&&e&&Math.abs(e.clientX-BEE.sx)+Math.abs(e.clientY-BEE.sy)<10){BEE.wasHome=false;el.querySelector("b").textContent="Ура, полетели!";el.classList.add("say");beeTarget(el);return}
@@ -2393,7 +2399,9 @@ function beeDrop(e){if(!BEE.drag)return;BEE.drag=null;var el=document.querySelec
   if(hv){var a=el.getBoundingClientRect(),b=hv.getBoundingClientRect(),cx=a.left+a.width/2,cy=a.top+a.height/2;
     if(cx>b.left-10&&cx<b.right+10&&cy>b.top-10&&cy<b.bottom+10){BEE.home=true;store.set("beehome",1);el.querySelector("b").textContent="Я дома! Спасибо 🍯";el.classList.add("say");return}}
   beeTarget(el)}
-document.addEventListener("click",function(e){var hv=e.target.closest&&e.target.closest(".hive");if(!hv||!BEE.home)return;BEE.home=false;store.set("beehome",0);var el=document.querySelector(".bee");if(el){el.querySelector("b").textContent="Ура, полетели!";el.classList.add("say");BEE.happy=Date.now()+1400;beeTarget(el)}});
+function hiveDrop(e){if(!HIVE.drag)return;var moved=e?Math.abs(e.clientX-HIVE.drag.sx)+Math.abs(e.clientY-HIVE.drag.sy):99;HIVE.drag=null;store.set("hivepos",{x:Math.round(HIVE.x),y:Math.round(HIVE.y)});
+  if(moved<10&&BEE.home){BEE.home=false;store.set("beehome",0);var el=document.querySelector(".bee");if(el){el.querySelector("b").textContent="Ура, полетели!";el.classList.add("say");BEE.happy=Date.now()+1400;beeTarget(el)}}}
+document.addEventListener("pointerup",hiveDrop);document.addEventListener("pointercancel",hiveDrop);
 document.addEventListener("pointerup",beeDrop);document.addEventListener("pointercancel",beeDrop);
 
 /* ================= грамота ================= */
