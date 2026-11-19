@@ -524,6 +524,24 @@ html[data-theme=dark] .c0{--abc:#4A2235;--abt:#FFB3C6}html[data-theme=dark] .c1{
 .abf.big{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;direction:rtl}.abf.big button{--abc:inherit}
 .abx2{background:var(--abc);color:var(--abt);border-radius:14px;padding:8px 10px;font-size:14px;font-weight:800;margin:8px 0 0;animation:popin .3s}
 .abex{margin-top:10px}.abex small{color:var(--mut)}.abex .ar{font-size:36px!important;line-height:1.9!important;text-align:center}.abex em{font-style:normal;color:var(--abt);background:var(--abc);border-radius:8px}
+.wchip{display:inline-flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:5px 10px;font-weight:900;font-size:14px;color:var(--tx);text-decoration:none;box-shadow:0 2px 0 rgba(0,0,0,.05)}.wchip span{color:#0891B2}html[data-theme=dark] .wchip span{color:#67E8F9}.wchip b{animation:wob 1.4s ease infinite}
+.rwrow{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:10px 0}.rwd{background:#FEF3C7;color:#92400E;border-radius:999px;padding:6px 14px;font-weight:900;font-size:18px;animation:popin .5s cubic-bezier(.2,1.5,.4,1)}.rwd.p{background:#CFFAFE;color:#0E7490}.rwd.c{background:#FDE68A;color:#78350F}
+html[data-theme=dark] .rwd{background:#4A3A18;color:#FFD27A}html[data-theme=dark] .rwd.p{background:#123F4A;color:#67E8F9}html[data-theme=dark] .rwd.c{background:#5a4718;color:#FDE68A}
+.oas{--tsk1:#BFE6FF;--tsk2:#FFF4DA}html[data-theme=dark] .oas{--tsk1:#1B2150;--tsk2:#3B3270}
+.oashead{display:flex;gap:8px;align-items:center}.oashead>div:last-child{flex:1;min-width:0}.oassab{width:110px;height:110px;flex-shrink:0;background:radial-gradient(circle,#FFF7E0,transparent 70%);border-radius:50%;animation:sabbreath 3.2s ease-in-out infinite;transform-origin:50% 90%}html[data-theme=dark] .oassab{background:radial-gradient(circle,#3B3270,transparent 70%)}
+.oasbal{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.oasbal span{display:flex;flex-direction:column;align-items:center;background:var(--soft);border-radius:14px;padding:4px 2px;font-size:16px}.oasbal b{font-size:19px}.oasbal small{font-size:10px;color:var(--mut);font-weight:800}
+.oastabs{margin:6px 0 10px}.oastabs button{font-size:13px;padding-left:4px;padding-right:4px}
+.oash{margin:14px 0 6px;font-size:16px}
+.chests{display:flex;justify-content:center;gap:6px;margin:10px 0;flex-wrap:wrap}.chest{animation:wob 2s ease-in-out infinite}.chest.off{filter:grayscale(1);opacity:.45;animation:none}
+.btn.big{font-size:18px;padding:12px 22px}
+.offers{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.offer{border:0;font:inherit;cursor:pointer;background:var(--soft);border-radius:18px;padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--tx);animation:popin .45s cubic-bezier(.2,1.5,.4,1) both;box-shadow:0 3px 0 rgba(0,0,0,.08)}.offer:nth-child(2){animation-delay:.12s}.offer:nth-child(3){animation-delay:.24s}.offer:active{transform:scale(.94)}.offer .ofic{font-size:38px;line-height:1.1;min-height:70px;display:flex;align-items:center}.offer b{font-size:13px;text-align:center}.offer small{color:var(--brand);font-weight:900}
+.chgot{display:flex;flex-direction:column;align-items:center;gap:8px;margin:10px 0}.chgot .offer{width:160px;animation:wob .8s ease}
+.shop{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.shopit{border:0;font:inherit;cursor:pointer;background:var(--soft);border-radius:16px;padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--tx);transition:transform .15s}.shopit:active{transform:scale(.93)}.shopit.on{box-shadow:0 0 0 3px var(--brand)}.shopit.try{box-shadow:0 0 0 3px #F59E0B}.shopit b{font-size:12px;text-align:center;line-height:1.2}.shopit small{font-size:12px;font-weight:900;color:var(--mut)}.shopit small.ok{color:var(--ok)}.shpv{font-size:30px;height:58px;display:flex;align-items:center}
+.trybar{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:8px;background:#FEF3C7;color:#78350F;border-radius:14px;padding:8px 10px;font-weight:800;font-size:13px;animation:popin .3s}html[data-theme=dark] .trybar{background:#4A3A18;color:#FFD27A}
+.tent{width:100%;height:auto;border-radius:18px;display:block;margin:6px 0}
+.mqlist{display:grid;gap:6px}.mq{display:flex;align-items:center;gap:10px;background:var(--soft);border-radius:14px;padding:8px 12px}.mq b{flex:1}.mq small{color:var(--mut);font-weight:800}.mq.done{opacity:.75}.mq.next{box-shadow:0 0 0 2px var(--brand)}
+.guests{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}.guest{border:0;font:inherit;cursor:pointer;background:var(--soft);border-radius:14px;padding:6px 8px;display:flex;flex-direction:column;align-items:center;min-width:76px;color:var(--tx)}.guest.on{box-shadow:0 0 0 3px var(--brand)}.guest b{font-size:12px}.guest small{font-size:11px;color:var(--mut)}
+.gview{margin-top:8px;animation:popin .3s}
 </style>
 <script>(function(){var t="light";try{t=JSON.parse(localStorage.getItem("theme"))||"light"}catch(e){}document.documentElement.setAttribute("data-theme",t==="dark"?"dark":"light")})()</script>
 </head>
@@ -565,7 +583,7 @@ var OLD_EMOJI={"🦁":"b-lion","🐯":"b-tiger","🐺":"b-wolf","🐻":"b-bear",
 var MASC={"sab": "<ellipse cx=\"118\" cy=\"128\" rx=\"46\" ry=\"34\" fill=\"#e0a868\"/><path d=\"M96 104Q118 62 142 104Z\" fill=\"#e0a868\"/><path d=\"M106 140Q125 152 152 141L152 146Q126 157 106 146Z\" fill=\"#c98d4b\" opacity=\".55\"/><path d=\"M110 142Q112 158 118 160Q131 162 140 156Q146 150 146 142\" stroke=\"#7a4a1f\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M103 112Q106 99 112 90Q122 77 134 89Q141 97 149 113Q152 126 152 141Q146 147 139 143Q132 150 125 144Q118 150 111 143Q106 146 104 140Q101 126 103 112Z\" fill=\"#9B1C31\"/><path d=\"M111 96Q122 83 133 93Q124 88 113 99Z\" fill=\"#C2334F\" opacity=\".7\"/><path d=\"M113 100Q110 120 111 143\" stroke=\"#6E0F22\" stroke-width=\"2.4\" fill=\"none\" opacity=\".45\" stroke-linecap=\"round\"/><path d=\"M140 100Q144 122 139 143\" stroke=\"#6E0F22\" stroke-width=\"2.4\" fill=\"none\" opacity=\".45\" stroke-linecap=\"round\"/><path d=\"M126 96Q124 121 125 144\" stroke=\"#C2334F\" stroke-width=\"1.6\" fill=\"none\" opacity=\".35\" stroke-linecap=\"round\"/><path d=\"M103 112Q106 99 112 90Q122 77 134 89Q141 97 149 113\" stroke=\"#F5C542\" stroke-width=\"2.6\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M104 136Q106 141 111 139Q118 146 125 140Q132 146 139 139Q146 143 152 137\" stroke=\"#F5C542\" stroke-width=\"1.6\" fill=\"none\" stroke-dasharray=\"2 2\"/><path d=\"M152 141Q146 147 139 143Q132 150 125 144Q118 150 111 143Q106 146 104 140\" stroke=\"#F5C542\" stroke-width=\"2.4\" fill=\"none\" stroke-linejoin=\"round\"/><path d=\"M111 143v4\" stroke=\"#C9971F\" stroke-width=\"1.4\"/><path d=\"M109.2 147h3.6l1 5h-5.6Z\" fill=\"#F5C542\"/><path d=\"M125 144v4\" stroke=\"#C9971F\" stroke-width=\"1.4\"/><path d=\"M123.2 148h3.6l1 5h-5.6Z\" fill=\"#F5C542\"/><path d=\"M139 143v4\" stroke=\"#C9971F\" stroke-width=\"1.4\"/><path d=\"M137.2 147h3.6l1 5h-5.6Z\" fill=\"#F5C542\"/><text x=\"127\" y=\"124\" font-size=\"9.5\" text-anchor=\"middle\" fill=\"#F5C542\" style=\"font-family:Ruqaa,'Aref Ruqaa',serif;font-weight:700\">عِلْمٌ نَافِعٌ<\/text><rect x=\"88\" y=\"150\" width=\"13\" height=\"36\" rx=\"6\" fill=\"#d39a58\"/><rect x=\"108\" y=\"152\" width=\"13\" height=\"34\" rx=\"6\" fill=\"#e0a868\"/><rect x=\"132\" y=\"152\" width=\"13\" height=\"34\" rx=\"6\" fill=\"#d39a58\"/><rect x=\"150\" y=\"148\" width=\"13\" height=\"38\" rx=\"6\" fill=\"#e0a868\"/><path d=\"M160 120q16 4 14 22\" stroke=\"#c98d4b\" stroke-width=\"6\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M64 86Q56 112 80 138L104 128Q88 110 90 86Z\" fill=\"#e0a868\"/><ellipse cx=\"44\" cy=\"52\" rx=\"9\" ry=\"14\" transform=\"rotate(-28 44 52)\" fill=\"#e0a868\"/><ellipse cx=\"45\" cy=\"53\" rx=\"4.5\" ry=\"8.5\" transform=\"rotate(-28 45 53)\" fill=\"#f7c9a0\"/><ellipse cx=\"100\" cy=\"52\" rx=\"9\" ry=\"14\" transform=\"rotate(28 100 52)\" fill=\"#e0a868\"/><ellipse cx=\"99\" cy=\"53\" rx=\"4.5\" ry=\"8.5\" transform=\"rotate(28 99 53)\" fill=\"#f7c9a0\"/><ellipse cx=\"72\" cy=\"70\" rx=\"31\" ry=\"29\" fill=\"#e0a868\"/><ellipse cx=\"72\" cy=\"88\" rx=\"23\" ry=\"17\" fill=\"#f3d3a9\"/><circle cx=\"60\" cy=\"66\" r=\"7.5\" fill=\"#2a1a12\"/><circle cx=\"62.4\" cy=\"63.3\" r=\"2.6999999999999997\" fill=\"#fff\"/><circle cx=\"57.375\" cy=\"68.625\" r=\"1.2\" fill=\"#fff\" opacity=\".8\"/><circle cx=\"84\" cy=\"66\" r=\"7.5\" fill=\"#2a1a12\"/><circle cx=\"86.4\" cy=\"63.3\" r=\"2.6999999999999997\" fill=\"#fff\"/><circle cx=\"81.375\" cy=\"68.625\" r=\"1.2\" fill=\"#fff\" opacity=\".8\"/><ellipse cx=\"46\" cy=\"80\" rx=\"8\" ry=\"5\" fill=\"#fb7185\" opacity=\".45\"/><ellipse cx=\"98\" cy=\"80\" rx=\"8\" ry=\"5\" fill=\"#fb7185\" opacity=\".45\"/><ellipse cx=\"66\" cy=\"84\" rx=\"2.4\" ry=\"3.4\" fill=\"#7a5230\"/><ellipse cx=\"78\" cy=\"84\" rx=\"2.4\" ry=\"3.4\" fill=\"#7a5230\"/><path d=\"M62 94q10 9 20 0\" stroke=\"#7a5230\" stroke-width=\"2.6\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M50 48Q72 36 94 48L93 41Q72 31 51 41Z\" fill=\"#111827\"/><path d=\"M72 18L110 32L72 46L34 32Z\" fill=\"#1f2937\"/><path d=\"M72 18L110 32L72 46L34 32Z\" fill=\"none\" stroke=\"#0b1220\" stroke-width=\"1.5\"/><circle cx=\"72\" cy=\"32\" r=\"2.6\" fill=\"#fbbf24\"/><path d=\"M72 32L102 37L102 52\" stroke=\"#fbbf24\" stroke-width=\"2.2\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M99 50h6l1.5 9h-9Z\" fill=\"#fbbf24\"/>", "asl": "<ellipse cx=\"58\" cy=\"96\" rx=\"30\" ry=\"20\" transform=\"rotate(-28 58 96)\" fill=\"#bfe3ff\" opacity=\".9\"/><ellipse cx=\"142\" cy=\"96\" rx=\"30\" ry=\"20\" transform=\"rotate(28 142 96)\" fill=\"#bfe3ff\" opacity=\".9\"/><ellipse cx=\"62\" cy=\"100\" rx=\"18\" ry=\"11\" transform=\"rotate(-28 62 100)\" fill=\"#e6f4ff\"/><ellipse cx=\"138\" cy=\"100\" rx=\"18\" ry=\"11\" transform=\"rotate(28 138 100)\" fill=\"#e6f4ff\"/><defs><clipPath id=\"ms-bb\"><ellipse cx=\"100\" cy=\"138\" rx=\"38\" ry=\"44\"/><\/clipPath><\/defs><ellipse cx=\"100\" cy=\"138\" rx=\"38\" ry=\"44\" fill=\"#fbbf24\"/><g clip-path=\"url(#ms-bb)\"><rect x=\"50\" y=\"128\" width=\"100\" height=\"13\" fill=\"#5b3a1a\"/><rect x=\"50\" y=\"152\" width=\"100\" height=\"13\" fill=\"#5b3a1a\"/><\/g><path d=\"M90 180l-3 9M110 180l3 9\" stroke=\"#5b3a1a\" stroke-width=\"4\" stroke-linecap=\"round\"/><path d=\"M64 130q-14 4 -16 16M136 130q14 4 16 16\" stroke=\"#5b3a1a\" stroke-width=\"5\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M84 48Q76 26 66 22M116 48Q124 26 134 22\" stroke=\"#5b3a1a\" stroke-width=\"4\" fill=\"none\" stroke-linecap=\"round\"/><circle cx=\"66\" cy=\"22\" r=\"6\" fill=\"#fbbf24\"/><circle cx=\"134\" cy=\"22\" r=\"6\" fill=\"#fbbf24\"/><circle cx=\"100\" cy=\"80\" r=\"38\" fill=\"#fcd34d\"/><circle cx=\"85\" cy=\"78\" r=\"9\" fill=\"#2a1a12\"/><circle cx=\"87.88\" cy=\"74.76\" r=\"3.2399999999999998\" fill=\"#fff\"/><circle cx=\"81.85\" cy=\"81.15\" r=\"1.44\" fill=\"#fff\" opacity=\".8\"/><circle cx=\"115\" cy=\"78\" r=\"9\" fill=\"#2a1a12\"/><circle cx=\"117.88\" cy=\"74.76\" r=\"3.2399999999999998\" fill=\"#fff\"/><circle cx=\"111.85\" cy=\"81.15\" r=\"1.44\" fill=\"#fff\" opacity=\".8\"/><ellipse cx=\"68\" cy=\"94\" rx=\"8\" ry=\"5\" fill=\"#fb7185\" opacity=\".45\"/><ellipse cx=\"132\" cy=\"94\" rx=\"8\" ry=\"5\" fill=\"#fb7185\" opacity=\".45\"/><path d=\"M90 96q10 10 20 0\" stroke=\"#5b3a1a\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/>"};
 (function(){var d=document.createElement("div");d.setAttribute("aria-hidden","true");d.style.cssText="position:absolute;width:0;height:0;overflow:hidden";
   d.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0">'+Object.keys(MASC).map(function(k){return '<symbol id="ms-'+k+'" viewBox="0 0 200 200">'+MASC[k]+'</symbol>'}).join("")+'</svg>';document.body.appendChild(d)})();
-function mas(k,w,cls){return '<svg'+(cls?' class="'+cls+'"':"")+' viewBox="0 0 200 200" width="'+w+'" height="'+w+'" aria-hidden="true"><use href="#ms-'+k+'"/></svg>'}
+function mas(k,w,cls){if(k==="sab"&&typeof sabMe==="function"&&sabMe()){sabSync();k="sabme"}return '<svg'+(cls?' class="'+cls+'"':"")+' viewBox="0 0 200 200" width="'+w+'" height="'+w+'" aria-hidden="true"><use href="#ms-'+k+'"/></svg>'}
 function sayS(k,html){return '<div class="say sm3"><div class="who">'+mas(k,64)+'</div><p>'+html+'</p></div>'}
 var PRAISE=["Машаллах! Верно 🌟","Баракаллаху фик! Так держать","Отлично! Ты молодец","Верно! Ещё шаг к цели","Альхамдулиллах, правильно!"];
 function praise(){return PRAISE[rnd(PRAISE.length)]}
@@ -855,7 +873,7 @@ var toastMsg="",toastTimer=null,celeb=null,shownSheet=null,celebShown=false,meSt
 function canEdit(){return !!(ME&&G&&(ME.is_admin||ME.groups.some(function(g){return g.slug===G.slug})))}
 var toastUndo=null;
 function flash(m,undo){if(replaying)return;toastMsg=m;toastUndo=undo||null;if(toastTimer)clearTimeout(toastTimer);toastTimer=setTimeout(function(){toastMsg="";toastUndo=null;render()},undo?6000:2800)}
-var TABS={r:"rating",d:"hw",s:"suras",h:"hall",p:"rules",t:"teacher",m:"me",c:"pchat",o:"home"},TABN={rating:"r",hw:"d",suras:"s",hall:"h",rules:"p",teacher:"t",me:"m",pchat:"c",home:"o"};
+var TABS={r:"rating",d:"hw",s:"suras",h:"hall",p:"rules",t:"teacher",m:"me",c:"pchat",o:"home",w:"oasis"},TABN={rating:"r",hw:"d",suras:"s",hall:"h",rules:"p",teacher:"t",me:"m",pchat:"c",home:"o",oasis:"w"};
 function parseHash(){var h=location.hash.replace(/^#\/?/,"").split("/");
   if(h[0]==="g"&&h[1])return h[2]==="chat"?{view:"group",slug:decodeURIComponent(h[1]).toLowerCase(),tab:"d",chat:true,chatSid:h[3]?decodeURIComponent(h[3]):null}:{view:"group",slug:decodeURIComponent(h[1]).toLowerCase(),tab:TABN[h[2]]||"r",ex:!!h[2]};
   if(h[0]==="login")return{view:"login"};
@@ -975,7 +993,7 @@ function teacherForm(t){
 
 /* ---- экраны группы ---- */
 function groupHeader(){
-  var ms=STOK&&by(STOK.sid),rt=ms?'<a class="lnk" href="#/g/'+encodeURIComponent(G.slug)+'/me">👤 '+esc(ms.name)+'</a>':isParent()?'<a class="lnk" href="#/parent">👪 Кабинет родителя</a>':null;
+  var ms=STOK&&by(STOK.sid),rt=ms?(canEdit()?"":walChip())+'<a class="lnk" href="#/g/'+encodeURIComponent(G.slug)+'/me">👤 '+esc(ms.name)+'</a>':isParent()?'<a class="lnk" href="#/parent">👪 Кабинет родителя</a>':null;
   var h=topbar('<a class="lnk" href="#/">‹ Главная</a>',rt)+'<header class="top">'+brand()+'<div class="gname">'+esc(G.name)+'</div></header>';
   if(canEdit()){
     var st=saveErr&&saveErr!=="network"?'<span><span class="dot e"></span>'+esc(emsg({code:saveErr}))+'</span>':saving?'<span><span class="dot w"></span>Сохраняю…</span>':Q.length?'<span><span class="dot w"></span>'+(saveErr==="network"?"Нет связи — ждут сохранения: ":"Сохраню через секунду: ")+Q.length+'</span>':'<span><span class="dot"></span>Всё сохранено</span>';
@@ -1804,7 +1822,8 @@ function vGroup(){
   if(R.tab==="t"&&!canEdit())R.tab="r";
   if(R.tab==="d"&&isParent())R.tab="r";
   if(R.tab==="c"&&!isParent())R.tab="r";
-  var body=({r:vRating,d:vHw,s:vSur,h:vHall,p:vRules,t:vTeacher,m:vMe,c:vChat,o:vHome2}[R.tab]||vRating)();
+  if(R.tab==="w"&&!isKid())R.tab="r";
+  var body=({r:vRating,d:vHw,s:vSur,h:vHall,p:vRules,t:vTeacher,m:vMe,c:vChat,o:vHome2,w:vOasis}[R.tab]||vRating)();
   return groupHeader()+body+'<input id="hwfile" type="file" multiple hidden><input id="avfile" type="file" accept="image/*" hidden>'+nav()+(UI.sheet?vSheet():"")+vCeleb();
 }
 
@@ -2081,7 +2100,7 @@ function lsNext(){
   var stars=LS.err===0?3:LS.err<=2?2:1;LS.step="res";LS.res={stars:stars,pts:null};
   var isAb=LS.ab!=null,slug=G.slug,key=isAb?"a"+(LS.ab+1):"s"+LS.n,loc=store.get("lp_"+slug,{});loc[key]=Math.max(loc[key]||0,stars);store.set("lp_"+slug,loc);if(LP)LP[key]=Math.max(LP[key]||0,stars);
   if(CLOUD&&STOK&&!canEdit()){var R0=LS.res;rpc("lesson_done",{p_slug:slug,p_stoken:STOK.t,p_course:isAb?"ab":LMOD.id,p_lesson:key,p_title:isAb?"Алифба: "+ABLES[LS.ab].t:"Сура «"+NAMES[LS.n]+"»",p_stars:stars,p_correct:LS.ok,p_total:LS.ok+LS.err})
-    .then(function(r){R0.pts=r&&r.points||0;if(R0.pts)refreshGroup().then(render);else render()}).catch(function(e){R0.pts=-1;R0.err=emsg(e);render()})}
+    .then(function(r){R0.pts=r&&r.points||0;R0.rw=r&&r.reward||null;if(R0.rw&&R0.rw.wallet){WAL=R0.rw.wallet;WAL._k=slug+":"+STOK.sid;sabSync()}if(R0.pts)refreshGroup().then(render);else render()}).catch(function(e){R0.pts=-1;R0.err=emsg(e);render()})}
 }
 function vLessons(){
   qdLoad();if(!LP)lpLoad();
@@ -2102,7 +2121,7 @@ function vLessons(){
 }
 function vLessonRes(){var r=LS.res;
     var h='<div class="cen" style="padding:10px 0"><div style="font-size:44px;letter-spacing:4px">'+[1,2,3].map(function(k){return k<=r.stars?"⭐":"☆"}).join("")+'</div><h2 style="margin:8px 0">'+(r.stars===3?"Машаллах, без ошибок!":r.stars===2?"Хорошо! Почти без ошибок":"Урок пройден!")+'</h2>'+(r.stars<3?sayS("sab","Пройди ещё раз — получится лучше! Каждый повтор помогает запомнить."):sayS("asl","Ты собрал все звёзды! Возьмёмся за следующую суру?"))+'<p class="mut">Верно: '+LS.ok+' · ошибок: '+LS.err+'</p>';
-    if(STOK&&!canEdit())h+='<p style="margin-top:8px;font-weight:800">'+(r.pts===null?"Сохраняю…":r.pts>0?"+"+pn(r.pts,"балл","балла","баллов")+" в рейтинг 🎉":r.pts<0?esc(r.err||"Не удалось сохранить"):"Баллы за этот урок уже получены — можно улучшить звёзды")+'</p>';
+    if(STOK&&!canEdit())h+='<p style="margin-top:8px;font-weight:800">'+(r.pts===null?"Сохраняю…":r.pts>0?"+"+pn(r.pts,"балл","балла","баллов")+" в рейтинг 🎉":r.pts<0?esc(r.err||"Не удалось сохранить"):"Баллы за этот урок уже получены — можно улучшить звёзды")+'</p>'+rewardHtml(r.rw);
     return h+'<div class="btns" style="justify-content:center;margin-top:12px"><button class="btn pri" data-a="lstart">🔁 Ещё раз</button><button class="btn" data-a="lquit">К списку уроков</button></div></div>';
 }
 function vLesson(){
@@ -2478,6 +2497,133 @@ document.addEventListener("pointerup",hiveDrop);document.addEventListener("point
 document.addEventListener("pointerup",beeDrop);document.addEventListener("pointercancel",beeDrop);
 
 
+/* ================= Оазис: финики, жемчужины, сундуки, наряды Сабура, шатёр, мечеть ================= */
+var WAL=null,WALbusy=false,WALerr="",PEEK=null;
+var SHOP=[
+  {id:"h_tub",slot:"hat",n:"Тюбетейка зелёная",c:"d",p:40},{id:"h_tub2",slot:"hat",n:"Тюбетейка синяя",c:"d",p:50},{id:"h_kuf",slot:"hat",n:"Белая чалма",c:"d",p:70},{id:"h_gold",slot:"hat",n:"Золотая тюбетейка",c:"p",p:2},
+  {id:"sc_red",slot:"sc",n:"Красный шарф",c:"d",p:25},{id:"sc_grn",slot:"sc",n:"Зелёный шарф",c:"d",p:25},{id:"sc_str",slot:"sc",n:"Полосатый шарф",c:"d",p:45},
+  {id:"bl_tur",slot:"bl",n:"Бирюзовая попона",c:"d",p:50},{id:"bl_blu",slot:"bl",n:"Синяя попона",c:"d",p:70},{id:"bl_grn",slot:"bl",n:"Зелёная попона",c:"d",p:70},{id:"bl_gold",slot:"bl",n:"Золотая попона",c:"p",p:3},
+  {id:"t_rug",slot:"tent",n:"Ковёр",c:"d",p:40},{id:"t_pil",slot:"tent",n:"Подушки",c:"d",p:25},{id:"t_lamp",slot:"tent",n:"Фонарь",c:"d",p:30},{id:"t_shelf",slot:"tent",n:"Полка с книгами",c:"d",p:60},
+  {id:"t_rehal",slot:"tent",n:"Рехяль для Корана",c:"d",p:50},{id:"t_palm",slot:"tent",n:"Финиковая пальма",c:"d",p:45},{id:"t_jug",slot:"tent",n:"Кувшин с водой",c:"d",p:20},{id:"t_fanus",slot:"tent",n:"Фанус (светильник)",c:"p",p:2}];
+var SLOTN={hat:"🎩 Шапки",sc:"🧣 Шарфы",bl:"🟥 Попоны",tent:"⛺ Для шатра"};
+var TENTIC={t_rug:"🟥",t_pil:"🛋️",t_lamp:"🏮",t_shelf:"📚",t_rehal:"📖",t_palm:"🌴",t_jug:"🏺",t_fanus:"🪔"};
+var MOSQ=[["Фундамент",30,0],["Стены",50,0],["Дверь и окна",70,0],["Крыша",90,0],["Купол",110,1],["Минарет",140,1],["Место для омовения",170,2]];
+function shopItem(id){for(var i=0;i<SHOP.length;i++)if(SHOP[i].id===id)return SHOP[i];return null}
+function cur(c,n){return c==="p"?n+" 💎":n+" 🌴"}
+function isKid(){return !!(STOK&&!canEdit()&&by(STOK.sid))}
+
+/* --- одежда Сабура --- */
+var HATS={
+  h_tub:'<path d="M47 50Q47 29 72 27Q97 29 97 50Q72 43 47 50Z" fill="#15803D"/><path d="M47.5 49.5Q72 42 96.5 49.5L96.5 44.5Q72 37 47.5 44.5Z" fill="#FBBF24"/><g fill="#FDE68A"><circle cx="60" cy="36" r="2"/><circle cx="72" cy="33" r="2"/><circle cx="84" cy="36" r="2"/></g>',
+  h_tub2:'<path d="M47 50Q47 29 72 27Q97 29 97 50Q72 43 47 50Z" fill="#1D4ED8"/><path d="M47.5 49.5Q72 42 96.5 49.5L96.5 44.5Q72 37 47.5 44.5Z" fill="#F8FAFC"/><g fill="#93C5FD"><circle cx="60" cy="36" r="2"/><circle cx="72" cy="33" r="2"/><circle cx="84" cy="36" r="2"/></g>',
+  h_gold:'<path d="M47 50Q47 29 72 27Q97 29 97 50Q72 43 47 50Z" fill="#D4A017"/><path d="M47.5 49.5Q72 42 96.5 49.5L96.5 44.5Q72 37 47.5 44.5Z" fill="#9B1C31"/><g fill="#9B1C31"><path d="M60 33l2 3-2 3-2-3Z"/><path d="M72 30l2 3-2 3-2-3Z"/><path d="M84 33l2 3-2 3-2-3Z"/></g><path d="M52 40Q72 30 92 40" stroke="#FFF3B0" stroke-width="1.2" fill="none" opacity=".7"/>',
+  h_kuf:'<path d="M46 52Q44 30 72 26Q100 30 98 52Q72 44 46 52Z" fill="#F8FAFC"/><g stroke="#CBD5E1" stroke-width="1.6" fill="none"><path d="M47 46Q72 36 97 46"/><path d="M50 39Q72 30 94 39"/><path d="M56 32Q72 26 88 32"/></g><path d="M46 52Q72 44 98 52" stroke="#94A3B8" stroke-width="1.6" fill="none"/>'};
+var SCARF={sc_red:["#DC2626","#991B1B"],sc_grn:["#16A34A","#166534"],sc_str:["#2563EB","#F8FAFC"]};
+var BLAN={bl_tur:["#0F9488","#2DD4BF","#0B5F58"],bl_blu:["#1E3A8A","#3B82F6","#172554"],bl_grn:["#166534","#22C55E","#0F3D1F"],bl_gold:["#B8860B","#F2C94C","#7A5A00"]};
+function sabSvg(eq){eq=eq||{};var s=MASC.sab,i=s.indexOf('<path d="M50 48Q72 36 94 48');
+  var body=i>0?s.slice(0,i):s,cap=i>0?s.slice(i):"";
+  if(eq.bl&&BLAN[eq.bl]){var b=BLAN[eq.bl];body=body.split("#9B1C31").join(b[0]).split("#C2334F").join(b[1]).split("#6E0F22").join(b[2])}
+  if(eq.sc&&SCARF[eq.sc]){var c=SCARF[eq.sc],neck='<path d="M64 86Q56 112 80 138L104 128Q88 110 90 86Z" fill="#e0a868"/>';
+    var sc='<path d="M58 98Q76 110 95 97L97 107Q76 121 57 108Z" fill="'+c[0]+'"/><path d="M86 106l7 24-9-2-4-19Z" fill="'+c[0]+'"/>'+(eq.sc==="sc_str"?'<g stroke="'+c[1]+'" stroke-width="2.4"><path d="M64 103l2 9M72 106l1 9M80 106l0 9M88 103l-1 9"/><path d="M85 114l7-1M87 121l7-1"/></g>':'<path d="M58 103Q76 114 96 102" stroke="'+c[1]+'" stroke-width="1.6" fill="none" opacity=".6"/>');
+    body=body.replace(neck,neck+"__SC__");body=body.replace("__SC__","");
+    var hd=body.indexOf('<ellipse cx="44" cy="52"');body=hd>0?body.slice(0,hd)+sc+body.slice(hd):body+sc}
+  if(eq.hat&&HATS[eq.hat])cap=HATS[eq.hat];
+  return body+cap}
+function sabMe(){return isKid()&&WAL&&WAL.equip&&(WAL.equip.hat||WAL.equip.sc||WAL.equip.bl)}
+function sabSync(){var el=document.getElementById("ms-sabme");if(!sabMe()){return}var html=sabSvg(WAL.equip);
+  if(!el){var d=document.querySelector("#ms-sab");if(!d)return;var sym=document.createElementNS("http://www.w3.org/2000/svg","symbol");sym.setAttribute("id","ms-sabme");sym.setAttribute("viewBox","0 0 200 200");d.parentNode.appendChild(sym);el=sym}
+  if(el.getAttribute("data-eq")!==JSON.stringify(WAL.equip)){el.innerHTML=html;el.setAttribute("data-eq",JSON.stringify(WAL.equip))}}
+function sabInline(eq,w){return '<svg viewBox="0 0 200 200" width="'+w+'" height="'+w+'" aria-hidden="true">'+sabSvg(eq)+'</svg>'}
+
+/* --- загрузка и действия --- */
+function walLoad(force){if(!isKid()||!CLOUD||WALbusy||(WAL&&!force))return;WALbusy=true;
+  rpc("wallet_get",{p_slug:G.slug,p_stoken:STOK.t}).then(function(w){WAL=w;WAL._k=G.slug+":"+STOK.sid;WALerr="";WALbusy=false;sabSync();render()}).catch(function(e){WALbusy=false;WALerr=emsg(e);render()})}
+function walDo(fn,args,ok){if(UI.wbusy)return;UI.wbusy=true;args.p_slug=G.slug;args.p_stoken=STOK.t;render();
+  rpc(fn,args).then(function(w){UI.wbusy=false;WAL=w;WAL._k=G.slug+":"+STOK.sid;sabSync();if(ok)ok(w);render()}).catch(function(e){UI.wbusy=false;var c=e&&(e.message||e.code)||"";flash(/poor/.test(c)?"Пока не хватает — пройди ещё уроки 🌴":/owned/.test(c)?"Это у тебя уже есть":"Не получилось: "+emsg(e));render()})}
+function peekLoad(){if(PEEK&&PEEK.slug===G.slug&&Date.now()-PEEK.at<60000)return;PEEK={slug:G.slug,at:Date.now(),d:PEEK&&PEEK.slug===G.slug?PEEK.d:null};
+  rpc("wallet_peek",{p_slug:G.slug,p_token:canEdit()?TOK:null,p_stoken:STOK?STOK.t:null,p_ptoken:PTOK?PTOK.t:null}).then(function(d){PEEK.d=d||{};render()}).catch(function(){PEEK.d=PEEK.d||{}})}
+function oasisAct(a,v,k){
+  if(a==="wtab"){UI.wtab=v;UI.wtry=null;return true}
+  if(a==="wopen"){walDo("chest_open",{});return false}
+  if(a==="wpick"){var o=WAL&&WAL.offer&&WAL.offer[+v];walDo("chest_pick",{p_idx:+v},function(){if(o)UI.wgot=o;setTimeout(function(){UI.wgot=null;render()},2600)});return false}
+  if(a==="wtry"){UI.wtry=UI.wtry===v?null:v;return true}
+  if(a==="wbuy"){var it=shopItem(v);if(!it)return false;walDo("shop_buy",{p_item:v},function(){UI.wtry=null;flash("🎉 "+it.n+" — твоё!")});return false}
+  if(a==="weq"){var it2=shopItem(v);walDo("shop_equip",{p_slot:k,p_item:v||""});return false}
+  if(a==="wbuild"){walDo("mosque_build",{},function(w){flash("🕌 Построено: "+MOSQ[w.mosque-1][0]+"!")});return false}
+  if(a==="wguest"){UI.wguest=UI.wguest===v?null:v;return true}
+  return false}
+
+/* --- экраны --- */
+function walOwn(){if(WAL&&WAL._k!==G.slug+":"+STOK.sid)WAL=null}
+function walChip(){if(!isKid())return "";walOwn();if(!WAL){walLoad();return ""}
+  return '<a class="wchip" href="#/g/'+encodeURIComponent(G.slug)+'/oasis" aria-label="Мой оазис">🌴 '+WAL.dates+' <span>💎 '+WAL.pearls+'</span>'+(WAL.chests||WAL.offer?' <b>🎁</b>':"")+'</a>'}
+function rewardHtml(rw){if(!rw)return "";var p=[];if(rw.dates)p.push('<span class="rwd">+'+rw.dates+' 🌴</span>');if(rw.pearls)p.push('<span class="rwd p">+'+rw.pearls+' 💎</span>');if(rw.chest)p.push('<span class="rwd c">🎁 Сундук!</span>');
+  return p.length?'<div class="rwrow">'+p.join("")+'</div>'+(rw.chest?'<a class="btn pri" href="#/g/'+encodeURIComponent(G.slug)+'/oasis">🎁 Открыть сундук</a>':""):""}
+function tentSvg(items,eq){var has=function(x){return items.indexOf(x)>-1};
+  var s='<svg viewBox="0 0 360 230" class="tent" aria-hidden="true"><defs><linearGradient id="tsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--tsk1)"/><stop offset="1" stop-color="var(--tsk2)"/></linearGradient></defs><rect width="360" height="230" fill="url(#tsky)"/><path d="M0 190Q90 176 180 186T360 182V230H0Z" fill="#F2C98A"/>';
+  if(has("t_palm"))s+='<g transform="translate(318 186)"><path d="M0 0Q-4-40 2-80" stroke="#8B5A2B" stroke-width="7" fill="none"/><g fill="#3FA557"><path d="M2-80q-30-6-44 10q22-14 44-6Z"/><path d="M2-80q30-8 42 8q-20-12-42-4Z"/><path d="M2-80q-10-24-34-24q22 6 34 24Z"/><path d="M2-80q14-24 36-20q-22 4-36 20Z"/></g><circle cx="-2" cy="-74" r="4" fill="#9A3412"/><circle cx="6" cy="-73" r="4" fill="#9A3412"/></g>';
+  s+='<path d="M40 192L180 44L320 192Z" fill="#F5E6C8"/><path d="M180 44L110 192H250Z" fill="#E9D3A8"/><g stroke="#C9A36A" stroke-width="3" opacity=".6"><path d="M180 44L75 192"/><path d="M180 44L285 192"/></g><path d="M180 44v-14" stroke="#8B5A2B" stroke-width="4"/><path d="M180 30l14 6-14 6Z" fill="#16A34A"/><path d="M140 192Q180 120 220 192Z" fill="#6B4423"/>';
+  if(has("t_rug"))s+='<g><ellipse cx="180" cy="200" rx="92" ry="14" fill="#9B1C31"/><ellipse cx="180" cy="200" rx="78" ry="9" fill="none" stroke="#F5C542" stroke-width="2" stroke-dasharray="6 4"/></g>';
+  if(has("t_pil"))s+='<g><ellipse cx="112" cy="192" rx="18" ry="9" fill="#2563EB"/><ellipse cx="132" cy="196" rx="16" ry="8" fill="#F59E0B"/></g>';
+  if(has("t_shelf"))s+='<g transform="translate(236 140)"><rect width="46" height="50" rx="3" fill="#8B5A2B"/><rect x="4" y="22" width="38" height="3" fill="#6B4423"/><g><rect x="6" y="6" width="6" height="15" fill="#16A34A"/><rect x="13" y="8" width="5" height="13" fill="#DC2626"/><rect x="19" y="5" width="7" height="16" fill="#2563EB"/><rect x="27" y="9" width="5" height="12" fill="#F59E0B"/><rect x="6" y="29" width="7" height="16" fill="#7C3AED"/><rect x="14" y="31" width="5" height="14" fill="#0F9488"/><rect x="20" y="28" width="8" height="17" fill="#B45309"/></g></g>';
+  if(has("t_rehal"))s+='<g transform="translate(180 196)"><path d="M-14 0L14-22M14 0L-14-22" stroke="#8B5A2B" stroke-width="4" stroke-linecap="round"/><path d="M-18-22Q-9-28 0-22Q9-28 18-22L16-18Q9-23 0-18Q-9-23-16-18Z" fill="#166534"/><path d="M-15-22Q-8-26 0-21Q8-26 15-22" stroke="#F5C542" stroke-width="1.4" fill="none"/></g>';
+  if(has("t_jug"))s+='<g transform="translate(292 196)"><path d="M-9 0Q-14-14-6-20V-26H6V-20Q14-14 9 0Z" fill="#C2410C"/><path d="M6-22q8 0 6 10" stroke="#C2410C" stroke-width="2.4" fill="none"/></g>';
+  if(has("t_lamp"))s+='<g transform="translate(150 70)"><path d="M0 0v18" stroke="#8B5A2B" stroke-width="1.6"/><path d="M-7 18h14l-2 16h-10Z" fill="#F59E0B"/><circle cx="0" cy="26" r="9" fill="#FDE68A" opacity=".35"/></g>';
+  if(has("t_fanus"))s+='<g transform="translate(212 66)"><path d="M0 0v14" stroke="#B8860B" stroke-width="1.6"/><path d="M0 14l9 8v14l-9 8-9-8V22Z" fill="#D4A017"/><path d="M0 18l5 6v10l-5 6-5-6V24Z" fill="#FFF3B0"/><circle cx="0" cy="30" r="18" fill="#FDE68A" opacity=".25"/></g>';
+  s+='<g transform="translate(14 112) scale(.48)">'+sabSvg(eq)+'</g></svg>';return s}
+function mosqueSvg(n){var s='<svg viewBox="0 0 360 240" class="tent" aria-hidden="true"><defs><linearGradient id="msky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--tsk1)"/><stop offset="1" stop-color="var(--tsk2)"/></linearGradient></defs><rect width="360" height="240" fill="url(#msky)"/><path d="M0 206Q120 196 240 204T360 200V240H0Z" fill="#E9C896"/>';
+  if(n<1)s+='<rect x="90" y="190" width="180" height="14" rx="2" fill="none" stroke="#B08850" stroke-width="2" stroke-dasharray="6 5"/><text x="180" y="150" text-anchor="middle" font-size="14" fill="#8A6A3A" font-weight="800">Здесь будет твоя мечеть</text>';
+  if(n>=1)s+='<rect x="84" y="192" width="192" height="14" rx="2" fill="#A8A29E"/><g stroke="#78716C" stroke-width="1"><path d="M110 192v14M140 192v14M170 192v14M200 192v14M230 192v14M260 192v14"/></g>';
+  if(n>=2)s+='<rect x="96" y="120" width="168" height="72" fill="#F5EBDD"/><g stroke="#E2D2B8" stroke-width="1"><path d="M96 138h168M96 156h168M96 174h168"/></g>';
+  if(n>=3)s+='<path d="M166 192v-30q14-16 28 0v30Z" fill="#7C4A1E"/><path d="M116 166v-18q9-10 18 0v18Z" fill="#7DD3FC"/><path d="M226 166v-18q9-10 18 0v18Z" fill="#7DD3FC"/>';
+  if(n>=4)s+='<rect x="90" y="112" width="180" height="10" rx="2" fill="#D6C3A3"/>';
+  if(n>=5)s+='<path d="M136 112Q136 68 180 62Q224 68 224 112Z" fill="#E7E5E4"/><path d="M180 62v-10" stroke="#A8A29E" stroke-width="3"/>';
+  if(n>=6)s+='<rect x="286" y="84" width="22" height="122" fill="#F5EBDD"/><rect x="282" y="120" width="30" height="6" fill="#D6C3A3"/><path d="M286 84L297 56L308 84Z" fill="#E7E5E4"/>';
+  if(n>=7)s+='<g transform="translate(40 206)"><rect x="-26" y="-22" width="52" height="22" rx="3" fill="#E7E5E4"/><g fill="#38BDF8"><circle cx="-14" cy="-26" r="3"/><circle cx="0" cy="-28" r="3"/><circle cx="14" cy="-26" r="3"/></g><path d="M-14-22v-6M0-22v-8M14-22v-6" stroke="#94A3B8" stroke-width="2"/></g>';
+  return s+'</svg>'}
+function vOasis(){
+  if(isKid())walOwn();
+  if(!isKid())return '<div class="box cen mut">Оазис есть у каждого ученика в его кабинете.</div>';
+  if(!WAL){walLoad();return '<div class="box cen mut">'+(WALerr?esc(WALerr):"Загрузка оазиса…")+'</div>'}
+  var w=WAL,tab=UI.wtab||(w.chests||w.offer?"c":"s"),eq=w.equip||{},items=w.items||[];
+  var h='<div class="box oas"><div class="oashead"><div class="oassab">'+sabInline(UI.wtry&&shopItem(UI.wtry)&&shopItem(UI.wtry).slot!=="tent"?(function(){var e=JSON.parse(JSON.stringify(eq));e[shopItem(UI.wtry).slot]=UI.wtry;return e})():eq,110)+'</div><div><h2 style="margin:0 0 6px">Мой оазис</h2><div class="oasbal"><span>🌴 <b>'+w.dates+'</b><small>финики</small></span><span>💎 <b>'+w.pearls+'</b><small>жемчужины</small></span><span>🔥 <b>'+(w.streak||0)+'</b><small>дней подряд</small></span></div></div></div>';
+  h+='<p class="sm mut" style="margin:8px 0">🌴 Финики — за каждый верный ответ в уроках. 💎 Жемчужины — за каждые 5 уроков и каждые 3 дня подряд. 🎁 Сундук — за каждые 3 урока.</p>';
+  h+='<div class="seg wide2 oastabs">'+[["c","🎁 Сундуки"],["s","🐪 Сабур"],["t","⛺ Шатёр"],["m","🕌 Мечеть"]].map(function(x){return '<button class="'+(tab===x[0]?"on":"")+'" data-a="wtab" data-v="'+x[0]+'">'+x[1]+'</button>'}).join("")+'</div>';
+  if(tab==="c"){
+    if(UI.wgot)h+='<div class="chgot">'+offerCard(UI.wgot,-1)+'<b>Это твоё! 🎉</b></div>';
+    else if(w.offer){h+='<h3 class="cen">Выбери один подарок</h3><div class="offers">'+w.offer.map(function(o,i){return offerCard(o,i)}).join("")+'</div>'}
+    else{h+='<div class="chests">'+(w.chests?Array.apply(null,Array(Math.min(w.chests,5))).map(function(){return '<div class="chest">'+chestSvg()+'</div>'}).join(""):'<div class="chest off">'+chestSvg()+'</div>')+'</div>';
+      h+=w.chests?'<div class="cen"><button class="btn pri big" data-a="wopen"'+(UI.wbusy?" disabled":"")+'>🎁 Открыть сундук'+(w.chests>1?" ("+w.chests+")":"")+'</button></div>':'<p class="cen mut">До следующего сундука: '+pn(3-(w.lessons%3),"урок","урока","уроков")+'</p>'}
+  }else if(tab==="s"){
+    h+='<p class="sm mut">Нажми на вещь — Сабур её примерит.</p>';
+    ["hat","sc","bl"].forEach(function(sl){h+='<h3 class="oash">'+SLOTN[sl]+'</h3><div class="shop">'+'<button class="shopit'+(!eq[sl]?" on":"")+'" data-a="weq" data-k="'+sl+'" data-v=""><span class="shpv">'+(sl==="hat"?"🎓":sl==="sc"?"—":"🟥")+'</span><b>'+(sl==="hat"?"Шапочка учёного":sl==="sc"?"Без шарфа":"Бордовая попона")+'</b><small>'+(!eq[sl]?"надето":"надеть")+'</small></button>'+SHOP.filter(function(x){return x.slot===sl}).map(function(x){return shopCard(x,items,eq)}).join("")+'</div>'});
+  }else if(tab==="t"){
+    h+=tentSvg(items,eq)+'<h3 class="oash">'+SLOTN.tent+'</h3><div class="shop">'+SHOP.filter(function(x){return x.slot==="tent"}).map(function(x){return shopCard(x,items,eq)}).join("")+'</div>';
+    h+=guestsHtml();
+  }else{
+    h+=mosqueSvg(w.mosque||0)+'<p class="sm mut cen" style="margin:8px 0">Мечеть строится по частям. Она простая и скромная — в мечети главное не украшения, а намаз и знания.</p>';
+    h+='<div class="mqlist">'+MOSQ.map(function(m,i){var done=i<w.mosque,next=i===w.mosque;return '<div class="mq'+(done?" done":next?" next":"")+'"><span>'+(done?"✅":next?"🔨":"🔒")+'</span><b>'+m[0]+'</b><small>'+(done?"построено":m[1]+" 🌴"+(m[2]?" + "+m[2]+" 💎":""))+'</small></div>'}).join("")+'</div>';
+    if(w.mosque<7){var m=MOSQ[w.mosque],can=w.dates>=m[1]&&w.pearls>=m[2];h+='<div class="cen" style="margin-top:10px"><button class="btn pri big" data-a="wbuild"'+(!can||UI.wbusy?" disabled":"")+'>🔨 Построить: '+m[0]+'</button>'+(can?"":'<p class="sm mut">Нужно '+m[1]+' 🌴'+(m[2]?" и "+m[2]+" 💎":"")+'</p>')+'</div>'}
+    else h+='<p class="cen" style="font-weight:900">Машаллах! Твоя мечеть построена 🕌</p>';
+  }
+  return h+'</div>'}
+function chestSvg(){return '<svg viewBox="0 0 100 80" width="86" height="70"><rect x="10" y="34" width="80" height="40" rx="6" fill="#B45309"/><path d="M10 38Q10 12 50 12Q90 12 90 38Z" fill="#D97706"/><rect x="10" y="34" width="80" height="7" fill="#92400E"/><g fill="#FBBF24"><rect x="44" y="30" width="12" height="16" rx="2"/><rect x="18" y="14" width="6" height="58" rx="2" opacity=".85"/><rect x="76" y="14" width="6" height="58" rx="2" opacity=".85"/></g><circle cx="50" cy="40" r="2.4" fill="#92400E"/></svg>'}
+function offerCard(o,i){var ic,t;if(o.k==="d"){ic="🌴";t=o.n+" фиников"}else if(o.k==="p"){ic="💎";t=o.n+" жемчужина"}else{var it=shopItem(o.id);ic=it&&it.slot!=="tent"?'<span class="ofsab">'+sabInline((function(){var e={};e[it.slot]=it.id;return e})(),70)+'</span>':(TENTIC[o.id]||"⛺");t=it?it.n:o.id}
+  return i<0?'<div class="offer on"><span class="ofic">'+ic+'</span><b>'+t+'</b></div>':'<button class="offer" data-a="wpick" data-v="'+i+'"'+(UI.wbusy?" disabled":"")+'><span class="ofic">'+ic+'</span><b>'+t+'</b><small>Выбрать</small></button>'}
+function shopCard(x,items,eq){var own=items.indexOf(x.id)>-1,on=eq[x.slot]===x.id,poor=x.c==="p"?WAL.pearls<x.p:WAL.dates<x.p,tr=UI.wtry===x.id;
+  var pv=x.slot==="tent"?'<span class="shpv">'+(TENTIC[x.id]||"⛺")+'</span>':'<span class="shpv sv">'+sabInline((function(){var e={};e[x.slot]=x.id;return e})(),58)+'</span>';
+  var btn=own?(x.slot==="tent"?'<small class="ok">есть в шатре ✓</small>':on?'<small class="ok">надето ✓</small>':'<small>нажми — надеть</small>'):'<small>'+cur(x.c,x.p)+'</small>';
+  var act=own?(x.slot==="tent"?"":' data-a="weq" data-k="'+x.slot+'" data-v="'+x.id+'"'):' data-a="wtry" data-v="'+x.id+'"';
+  var h='<button class="shopit'+(on?" on":"")+(tr?" try":"")+(own?" own":"")+'"'+act+'>'+pv+'<b>'+x.n+'</b>'+btn+'</button>';
+  if(tr&&!own)h+='<div class="trybar"><span>'+(x.slot==="tent"?"":"Сабур примерил: ")+x.n+' — '+cur(x.c,x.p)+'</span><button class="btn pri sm" data-a="wbuy" data-v="'+x.id+'"'+(poor||UI.wbusy?" disabled":"")+'>'+(poor?"Не хватает":"Купить")+'</button></div>';
+  return h}
+function guestsHtml(){peekLoad();var d=PEEK&&PEEK.d;if(!d)return "";var me=STOK&&STOK.sid;
+  var list=S.students.filter(function(s){return s.id!==me&&d[s.id]&&((d[s.id].items||[]).length||d[s.id].mosque)});
+  if(!list.length)return '<p class="sm mut" style="margin-top:12px">Скоро здесь появятся шатры одноклассников — сможешь заглянуть в гости.</p>';
+  var h='<h3 class="oash">🏕 В гости к друзьям</h3><div class="guests">'+list.map(function(s){var x=d[s.id];return '<button class="guest'+(UI.wguest===s.id?" on":"")+'" data-a="wguest" data-v="'+s.id+'">'+sabInline(x.equip||{},48)+'<b>'+esc(s.name)+'</b><small>🕌 '+(x.mosque||0)+'/7</small></button>'}).join("")+'</div>';
+  if(UI.wguest&&d[UI.wguest]){var g=d[UI.wguest];h+='<div class="gview">'+tentSvg(g.items||[],g.equip||{})+(g.mosque?mosqueSvg(g.mosque):"")+'</div>'}
+  return h}
+
 /* ---- Сабура на карте тоже можно таскать ---- */
 setInterval(function(){var el=document.querySelector(".lsab");if(!el||Math.random()<.45)return;el.classList.add("blink");setTimeout(function(){el.classList.remove("blink")},170)},2600);
 var SABD=null,SABSAY=["Иду, иду!","Вперёд, к знаниям!","Терпение — и всё получится!","Бисмиллях!","Ещё один урок?","Машаллах!"];
@@ -2527,6 +2673,7 @@ function setTab(t){R.tab=t;var h="#/g/"+encodeURIComponent(G.slug)+(t==="r"?"":"
 var skipRoute=false;
 function act(a,b,e){
   var id=b.dataset.id,s=id&&S?by(id):null,k=b.dataset.k,v=b.dataset.v;
+  if(/^w(tab|open|pick|try|buy|eq|build|guest)$/.test(a)){if(oasisAct(a,v,k))render();return}
   if(a==="pl"){if(PL&&PL.k===v&&!PL.hw)plToggle();else plStart(v);return}
   if(a==="plhw"){var hx=HW&&HW.items?HW.items.filter(function(q){return q.id===id})[0]:null,hk=hx&&plFind(hx.sura||hx.title);
     if(hk){var left=hx.listen?Math.max(1,hx.listen-(hx.my_listens||0)):1;plStart(hk,{times:left,hw:hx.id})}return}
