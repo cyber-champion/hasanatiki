@@ -1,0 +1,45 @@
+# Рисованные иконки вместо смайликов: Microsoft Fluent Emoji (Flat), лицензия MIT.
+# Берёт список из em/list.json и кладёт SVG в em/<коды>.svg (например em/1f4d6.svg).
+name: Иконки
+on:
+  workflow_dispatch:
+  push:
+    paths: [".github/workflows/emoji.yml", "em/list.json"]
+permissions:
+  contents: write
+concurrency: { group: emoji, cancel-in-progress: true }
+jobs:
+  icons:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Скачать Fluent Emoji
+        run: |
+          git clone -q --depth 1 --filter=blob:none --no-checkout https://github.com/microsoft/fluentui-emoji fe
+          cd fe && git sparse-checkout set --no-cone '/assets/*/metadata.json' '/assets/*/Flat/*' '/assets/*/Default/Flat/*' '/LICENSE' && git checkout -q && cd ..
+          python3 - <<'PY'
+          import json,glob,os,shutil
+          want=json.load(open('em/list.json'))
+          key=lambda e:'-'.join('%x'%ord(c) for c in e if ord(c)!=0xfe0f)
+          idx={}
+          for mf in glob.glob('fe/assets/*/metadata.json'):
+              d=os.path.dirname(mf);m=json.load(open(mf))
+              u=m.get('unicode','').replace(' ','-').lower()
+              k='-'.join(x for x in u.split('-') if x!='fe0f')
+              svg=glob.glob(d+'/Flat/*.svg')+glob.glob(d+'/Default/Flat/*.svg')
+              if svg: idx[k]=svg[0]
+          miss=[]
+          for e in want:
+              k=key(e)
+              if k in idx: shutil.copy(idx[k],'em/'+k+'.svg')
+              else: miss.append(e)
+          print('ok',len(want)-len(miss),'miss',miss)
+          json.dump(sorted(f[:-4] for f in os.listdir('em') if f.endswith('.svg')),open('em/have.json','w'))
+          PY
+          cp fe/LICENSE em/LICENSE-fluentui-emoji.txt; du -sh em; ls em | wc -l
+      - name: Сохранить
+        run: |
+          git config user.name "hasanatiki-bot"; git config user.email "actions@users.noreply.github.com"
+          git add em; git diff --cached --quiet && exit 0
+          git commit -qm "Иконки: Fluent Emoji (MIT)"
+          for i in 1 2 3 4 5; do git pull --rebase -q origin main && git push && exit 0; sleep 5; done; exit 1
