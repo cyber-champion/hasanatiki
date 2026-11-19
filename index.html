@@ -557,6 +557,10 @@ html[data-theme=dark] .rwd{background:#4A3A18;color:#FFD27A}html[data-theme=dark
 @media(min-width:760px){#app,.nav div,.sheet{max-width:860px}body{font-size:16px}.abtiles{grid-template-columns:repeat(7,1fr)}.shop{grid-template-columns:repeat(5,1fr)}.tgrid{grid-template-columns:repeat(3,1fr)}.ar{font-size:36px}.lsnbox .ar{font-size:38px}.gccards{grid-template-columns:repeat(3,1fr)}.gcopts{grid-template-columns:1fr 1fr}}
 @media(min-width:1100px){#app,.nav div,.sheet{max-width:1000px}}
 @media(orientation:landscape) and (max-height:500px){.nav{padding-bottom:2px}.nav button{padding:4px 0}}
+.rper{margin-bottom:12px;display:flex}.rper button{flex:1;font-size:13px;padding-left:2px;padding-right:2px}
+.gap1{background:linear-gradient(90deg,#FFF1C7,#FFE3EC);color:#7A2E0E;border-radius:16px;padding:10px 14px;font-weight:800;margin-bottom:12px;animation:popin .4s}html[data-theme=dark] .gap1{background:linear-gradient(90deg,#4A3A18,#4A2235);color:#FFD9A8}
+.row .pts{display:flex;flex-direction:column;align-items:flex-end}.row .pts b{font-size:20px}.row .pts small{font-size:11px;color:var(--mut)}
+.shoas{display:flex;gap:10px;align-items:center;background:var(--soft);border-radius:16px;padding:6px 12px;margin:0 0 10px}.shoas b{display:block}.shoas small{color:var(--mut);font-weight:800}
 </style>
 <script>(function(){var t="light";try{t=JSON.parse(localStorage.getItem("theme"))||"light"}catch(e){}document.documentElement.setAttribute("data-theme",t==="dark"?"dark":"light")})()</script>
 </head>
@@ -1020,6 +1024,8 @@ function tagsOf(s){return '<div class="tags"><span class="tg tn">🕌 Намаз
 function vRating(){
   var L=ranked(),dl=daysLeft(),h=(R.offline?'<div class="box sm" style="border-color:rgba(251,191,36,.45);padding:10px 14px">📴 Нет интернета — показан последний загруженный рейтинг'+(R.offline>1?" ("+rel(new Date(R.offline).toISOString())+", "+new Date(R.offline).toLocaleTimeString("ru",{hour:"2-digit",minute:"2-digit"})+")":"")+'</div>':"")+'<div class="chips"><span class="chip">🏁 '+esc(S.season.name)+' · до '+fdate(S.season.end+"T12:00:00")+'</span><span class="chip g">'+(dl>0?"осталось "+pn(dl,"день","дня","дней"):"сезон закончился")+'</span></div>';
   if(canEdit()&&S.students.some(function(s){return s.ex}))h+='<div class="box" style="border-color:rgba(251,191,36,.4)"><b>Сейчас в группе примеры учеников.</b><p class="mut sm" style="margin:4px 0 10px">Удалите их и добавьте своих ребят во вкладке «Учитель».</p><button class="btn sm pri" data-a="clearex">Удалить примеры</button></div>';
+  var rp=UI.rper||"s";h+='<div class="seg wide2 rper">'+[["s","🏁 Сезон"],["w","📅 Неделя"],["d","☀️ Сегодня"],["l","🧠 Уроки"]].map(function(x){return '<button class="'+(rp===x[0]?"on":"")+'" data-a="rper" data-v="'+x[0]+'">'+x[1]+'</button>'}).join("")+'</div>';
+  if(rp!=="s"&&L.length)return h+vRatingPer(rp);
   if(!L.length)return h+'<div class="box cen"><div class="masbig">'+mas("sab",120)+'</div><h2>Пока нет учеников</h2><p class="mut">'+(canEdit()?"Добавьте ребят во вкладке «Учитель».":"Учитель скоро добавит ребят.")+'</p></div>';
   var m=meStudent&&by(meStudent);
   if(S.hall&&S.hall.length&&STOK&&!canEdit())h+='<div class="btns" style="justify-content:center;margin:-6px 0 12px"><button class="btn sm" data-a="tab" data-v="h">🏛️ Зал славы</button></div>';
@@ -1028,6 +1034,7 @@ function vRating(){
   var tg=S.goal.target|0;
   if(tg>0){var sum=seasonTotal(),gp=Math.min(100,Math.round(sum/tg*100));
     h+='<div class="box goal"><div class="gh"><b>🎯 Общая цель группы</b><span>'+sum+' / '+tg+'</span></div><div class="bar"><i style="width:'+gp+'%"></i></div><p class="gs mut sm">'+(sum>=tg?"Цель достигнута! Машаллах 🎉 ":"Каждый балл любого ученика идёт в общую копилку. ")+(S.goal.prize?"Приз: <b style=\"color:var(--tx)\">"+esc(S.goal.prize)+"</b>":"")+'</p></div>';}
+  if(m)h+=nextGap(L,tot,m);
   if(L.length>=3&&tot(L[2])>0){
     var p=function(s,i){return '<div data-a="open" data-id="'+s.id+'" role="button" tabindex="0">'+(i===0?'<div class="crown">👑</div>':"")+avh(s,i===0?"l":"")+'<div class="pn">'+esc(s.name)+'</div><div class="pp">'+tot(s)+bumpH(s)+'</div><div class="blk'+(i===0?" g1":"")+'" style="height:'+[96,74,56][i]+'px">'+medal(i)+'</div></div>'};
     h+='<div class="pod">'+p(L[1],1)+p(L[0],0)+p(L[2],2)+'</div>';
@@ -1039,6 +1046,24 @@ function vRating(){
   });
   return h+'</div><div class="box"><h2>Последние баллы</h2>'+logList(S.log.slice(0,8),false)+'</div>';
 }
+
+/* ---- рейтинг как на Учи.ру: неделя / сегодня / финики за уроки ---- */
+function perStart(k){var d=new Date();d.setHours(0,0,0,0);if(k==="w"){var wd=(d.getDay()+6)%7;d.setDate(d.getDate()-wd)}return d.getTime()}
+function perScores(k){var m={};actS().forEach(function(s){m[s.id]=0});
+  if(k==="l"){peekLoad();var d=PEEK&&PEEK.d||{};actS().forEach(function(s){m[s.id]=d[s.id]&&d[s.id].earned||0});return m}
+  var t0=perStart(k);(S.log||[]).forEach(function(e){if(!(e.s in m)||new Date(e.d).getTime()<t0)return;m[e.s]+=e.t==="f"?-e.v:e.v});return m}
+function perUnit(k,n){return k==="l"?n+" <i class=dt></i>":pn(n,"балл","балла","баллов")}
+function nextGap(L,sc,me){var i=L.indexOf(me);if(i<0)return "";var v=sc(me);
+  if(i===0)return v>0?'<div class="gap1">👑 Ты на 1-м месте! Удержи его — не останавливайся.</div>':"";
+  var up=L[i-1],d=sc(up)-v+1;return '<div class="gap1">🚀 До '+i+'-го места — <b>'+d+'</b>. Обгони '+esc(up.name)+'!</div>'}
+function vRatingPer(k){var sc=perScores(k),f=function(s){return sc[s.id]||0},L=actS().slice().sort(function(a,b){return f(b)-f(a)||a.name.localeCompare(b.name,"ru")});
+  var h="",m=meStudent&&by(meStudent);
+  if(k!=="l"&&L.every(function(s){return !f(s)}))return '<div class="box cen mut">'+(k==="w"?"На этой неделе ещё нет баллов. Кто будет первым?":"Сегодня ещё нет баллов. Кто будет первым?")+'</div>';
+  if(m)h+=nextGap(L,f,m);
+  if(L.length>=3&&f(L[2])>0){var p=function(s,i){return '<div data-a="open" data-id="'+s.id+'" role="button" tabindex="0">'+(i===0?'<div class="crown">👑</div>':"")+avh(s,i===0?"l":"")+'<div class="pn">'+esc(s.name)+'</div><div class="pp">'+f(s)+'</div><div class="blk'+(i===0?" g1":"")+'" style="height:'+[96,74,56][i]+'px">'+medal(i)+'</div></div>'};h+='<div class="pod">'+p(L[1],1)+p(L[0],0)+p(L[2],2)+'</div>'}
+  h+='<div class="box"><h2>'+({w:"Лидеры недели",d:"Лидеры дня",l:"Кто больше учится в приложении"})[k]+'</h2>'+(k==="l"?'<p class="sm mut" style="margin:-6px 0 8px">Финики за верные ответы в уроках — за всё время.</p>':k==="w"?'<p class="sm mut" style="margin:-6px 0 8px">С понедельника. Каждую неделю — новая гонка!</p>':"");
+  L.forEach(function(s,i){h+='<div class="row'+(s.id===meStudent?" me":"")+'" data-a="open" data-id="'+s.id+'" role="button" tabindex="0"><div class="rk">'+(f(s)>0?medal(i):i+1)+'</div>'+avh(s)+'<div class="mid"><div class="nm">'+exName(s)+'</div></div><div class="pts"><b>'+(k==="l"?f(s):(f(s)>0?"+":"")+f(s))+'</b><small>'+(k==="l"?"<i class=dt></i>":"баллов")+'</small></div></div>'});
+  return h+'</div>'}
 function logList(list,del){
   if(!list.length)return '<p class="mut">Пока ничего нет</p>';
   return list.map(function(e){var s=by(e.s),c=CAT[e.t];if(!s||!c)return"";
@@ -1228,6 +1253,7 @@ function vSheet(){
   var h='<div class="ov'+(shownSheet===UI.sheet?"":" anim")+'" data-a="closebg"><div class="sheet" role="dialog" aria-modal="true" aria-label="'+esc(s.name)+'"><div class="grab"></div><div class="shd">'+avh(s,"xl")+'<div class="mid"><div class="nm" style="font-size:24px">'+exName(s)+'</div><div class="lvl" style="color:'+l[4]+';font-size:17px">'+l[1]+" "+l[2]+'</div><div class="sm mut">'+place(s)+' место в сезоне'+(st?" · 🔥 "+pn(st,"неделя","недели","недель")+" подряд":"")+'</div></div><button class="close" data-a="close" aria-label="Закрыть">✕</button></div>';
   h+='<div class="sm mut" style="display:flex;justify-content:space-between;margin-bottom:5px"><span>Опыт: <b style="color:var(--tx)">'+s.xp+'</b></span><span>'+(nx?"до «"+nx[2]+"» "+nx[1]+": "+(nx[3]-s.xp):"высшее звание")+'</span></div><div class="bar"><i style="width:'+pc+'%"></i></div>';
   h+='<div class="stats"><div class="st"><b style="color:var(--n)">'+s.n+'</b><span>🕌 Намаз</span></div><div class="st"><b style="color:var(--q)">'+s.q+'</b><span>📖 Коран</span></div><div class="st"><b style="color:var(--x)">'+s.x+'</b><span>⭐ Доп.</span></div><div class="st"><b style="color:var(--gold)">'+tot(s)+'</b><span>Всего'+(s.f?" (−"+s.f+")":"")+'</span></div></div>';
+  if(CLOUD&&(isKid()||canEdit()||isParent())){peekLoad();var ow=PEEK&&PEEK.d&&PEEK.d[s.id];if(ow&&((ow.items||[]).length||ow.mosque||ow.earned))h+='<div class="shoas">'+sabInline(ow.equip||{},64)+'<div><b>Оазис '+esc(s.name)+'</b><small><i class=dt></i> '+(ow.earned||0)+' за уроки · 🕌 '+(ow.mosque||0)+'/7 · ⛺ '+(ow.items||[]).filter(function(x){return x[0]==="t"}).length+' вещей'+(ow.streak?' · 🔥 '+ow.streak:'')+'</small></div></div>'}
   var aS=attOf(s);if(aS.n)h+='<p class="sm mut" style="margin:-4px 0 10px">📅 На уроках: <b style="color:var(--tx)">'+aS.p+' из '+aS.n+'</b> ('+Math.round(aS.p/aS.n*100)+'%)</p>';
 
   h+='<div class="sec">Значки · '+bs.filter(function(b){return b.ok}).length+' из '+bs.length+'</div><div class="bgrid">'+bs.map(function(b){return '<div class="bd'+(b.ok?"":" off")+'"><i>'+b.e+'</i><b>'+b.n+'</b><span>'+(b.ok?"получен":b.r)+'</span></div>'}).join("")+'</div>';
@@ -2859,6 +2885,7 @@ function setTab(t){R.tab=t;var h="#/g/"+encodeURIComponent(G.slug)+(t==="r"?"":"
 var skipRoute=false;
 function act(a,b,e){
   var id=b.dataset.id,s=id&&S?by(id):null,k=b.dataset.k,v=b.dataset.v;
+  if(a==="rper"){UI.rper=v;render();return}
   if(/^(sj(on|x|all|l)|gcflip)$/.test(a)){if(subjAct(a,v,k))render();return}
   if(/^w(tab|open|pick|try|buy|eq|build|guest)$/.test(a)){if(oasisAct(a,v,k))render();return}
   if(a==="pl"){if(PL&&PL.k===v&&!PL.hw)plToggle();else plStart(v);return}
