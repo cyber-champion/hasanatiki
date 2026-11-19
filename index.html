@@ -944,7 +944,7 @@ function theme(){return document.documentElement.getAttribute("data-theme")==="d
 function setTheme(t){document.documentElement.setAttribute("data-theme",t);store.set("theme",t);var m=document.querySelector('meta[name=theme-color]');if(m)m.setAttribute("content",t==="dark"?"#11162B":"#F4F7FF")}
 function thBtn(){return '<button class="thbtn" data-a="theme" aria-label="'+(theme()==="dark"?"Светлая тема":"Тёмная тема")+'">'+(theme()==="dark"?"☀️":"🌙")+'</button>'}
 function topbar(left,rt){
-  var right=rt?rt:ME?'<a class="lnk" href="#/cab">👤 '+esc(ME.name)+'</a>':'<a class="lnk" href="#/login">Вход для учителя</a>';
+  var right=rt?rt:ME?'<a class="lnk" href="#/cab">'+esc(ME.name)+'</a>':'<a class="lnk" href="#/login">Вход для учителя</a>';
   return '<div class="topbar">'+(left||"<span></span>")+'<span style="display:flex;gap:8px;align-items:center">'+right+thBtn()+'</span></div>';
 }
 function brand(){return '<div class="brand"><i>✦</i>'+esc(APP)+'<i>✦</i></div>'}
@@ -1049,7 +1049,7 @@ function teacherForm(t){
 
 /* ---- экраны группы ---- */
 function groupHeader(){
-  var ms=STOK&&by(STOK.sid),rt=ms?(canEdit()?"":walChip())+'<a class="lnk" href="#/g/'+encodeURIComponent(G.slug)+'/me">😊 '+esc(ms.name)+'</a>':isParent()?'<a class="lnk" href="#/parent">👪 Кабинет родителя</a>':null;
+  var ms=!canEdit()&&STOK&&by(STOK.sid),rt=ms?walChip()+'<a class="lnk" href="#/g/'+encodeURIComponent(G.slug)+'/me">'+esc(ms.name)+'</a>':isParent()?'<a class="lnk" href="#/parent">👪 Кабинет родителя</a>':null;
   var h=topbar('<a class="lnk" href="#/">‹ Главная</a>',rt)+'<header class="top">'+brand()+'<div class="gname">'+esc(G.name)+'</div></header>';
   if(canEdit()){
     var st=saveErr&&saveErr!=="network"?'<span><span class="dot e"></span>'+esc(emsg({code:saveErr}))+'</span>':saving?'<span><span class="dot w"></span>Сохраняю…</span>':Q.length?'<span><span class="dot w"></span>'+(saveErr==="network"?"Нет связи — ждут сохранения: ":"Сохраню через секунду: ")+Q.length+'</span>':'<span><span class="dot"></span>Всё сохранено</span>';
