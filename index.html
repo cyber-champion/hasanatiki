@@ -587,6 +587,8 @@ html.teen{--brand:#7C3AED;--pri:#7C3AED}html.teen .say .who,html.teen .lsab,html
 html.teen .say p{margin-left:0}html.teen .say{padding-left:0}html.teen .say p::before{content:"💡 ";}
 html.teen .box,html.teen .gcl,html.teen .lopt,html.teen .btn{border-radius:14px}html.teen[data-theme=light] body{background:linear-gradient(180deg,#F5F3FF,#EEF2FF 400px,#F8FAFC)}html.teen body::before,html.teen body::after{display:none}
 html.teen .brand i{display:none}html.teen .rwrow,html.teen .rwrow+.btn{display:none}
+.dutm{font-weight:900;color:var(--mut);margin-bottom:6px}.durow{display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--line)}.durow b{flex:0 1 auto}.durow small{flex:1;color:var(--mut);font-weight:800;text-align:right}.durow span{flex:1}.durow.inc{background:color-mix(in srgb,var(--brand) 8%,transparent);border-radius:12px;padding:8px 10px;flex-wrap:wrap}
+.duban{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
 </style>
 <script>(function(){var t="light";try{t=JSON.parse(localStorage.getItem("theme"))||"light"}catch(e){}document.documentElement.setAttribute("data-theme",t==="dark"?"dark":"light")})()</script>
 </head>
@@ -1051,7 +1053,8 @@ function vRating(){
   var L=ranked(),dl=daysLeft(),h=(R.offline?'<div class="box sm" style="border-color:rgba(251,191,36,.45);padding:10px 14px">📴 Нет интернета — показан последний загруженный рейтинг'+(R.offline>1?" ("+rel(new Date(R.offline).toISOString())+", "+new Date(R.offline).toLocaleTimeString("ru",{hour:"2-digit",minute:"2-digit"})+")":"")+'</div>':"")+'<div class="chips"><span class="chip">🏁 '+esc(S.season.name)+' · до '+fdate(S.season.end+"T12:00:00")+'</span><span class="chip g">'+(dl>0?"осталось "+pn(dl,"день","дня","дней"):"сезон закончился")+'</span></div>';
   if(canEdit()&&S.students.some(function(s){return s.ex}))h+='<div class="box" style="border-color:rgba(251,191,36,.4)"><b>Сейчас в группе примеры учеников.</b><p class="mut sm" style="margin:4px 0 10px">Удалите их и добавьте своих ребят во вкладке «Учитель».</p><button class="btn sm pri" data-a="clearex">Удалить примеры</button></div>';
   var rp=UI.rper||(isTeen()?"w":"s");if(isTeen()&&m0w())h+=leagueCard(perScores("w")[meStudent]||0);h+='<div class="seg wide2 rper">'+[["s","🏁 Сезон"],["w","📅 Неделя"],["d","☀️ Сегодня"],["l","🧠 Уроки"]].map(function(x){return '<button class="'+(rp===x[0]?"on":"")+'" data-a="rper" data-v="'+x[0]+'">'+x[1]+'</button>'}).join("")+'</div>';
-  if(rp!=="s"&&L.length)return h+vRatingPer(rp);
+  if(isKid()){duLoad();var dd=duOk(),inc=dd&&dd.list.filter(function(x){return x.b===STOK.sid&&x.b_score==null})[0];if(inc){var io=by(inc.a);h+='<div class="gap1 duban">⚔️ '+esc(io?io.name:"")+' вызывает тебя на дуэль! <button class="btn pri sm" data-a="duplay" data-v="'+inc.id+'">Принять</button></div>'}}
+  if(rp!=="s"&&L.length)return h+vRatingPerX(rp);
   if(!L.length)return h+'<div class="box cen"><div class="masbig">'+mas("sab",120)+'</div><h2>Пока нет учеников</h2><p class="mut">'+(canEdit()?"Добавьте ребят во вкладке «Учитель».":"Учитель скоро добавит ребят.")+'</p></div>';
   var m=meStudent&&by(meStudent);
   if(S.hall&&S.hall.length&&STOK&&!canEdit())h+='<div class="btns" style="justify-content:center;margin:-6px 0 12px"><button class="btn sm" data-a="tab" data-v="h">🏛️ Зал славы</button></div>';
@@ -1070,7 +1073,7 @@ function vRating(){
   L.forEach(function(s,i){var l=lvl(s),eb=earned(s);
     h+='<div class="row'+(s.id===meStudent?" me":"")+'" data-a="open" data-id="'+s.id+'" role="button" tabindex="0"><div class="rk">'+(tot(s)>0?medal(i):i+1)+'</div>'+avh(s)+'<div class="mid"><div class="nm">'+exName(s)+'</div><div class="lvl" style="color:'+l[4]+'">'+l[1]+" "+l[2]+'</div>'+tagsOf(s)+(eb.length>1?'<div class="bdg">'+eb.slice(-6).map(function(b){return b.e}).join(" ")+'</div>':"")+'</div><div class="sc">'+bumpH(s)+'<b>'+tot(s)+'</b><small>'+pl(tot(s),"балл","балла","баллов")+'</small></div></div>';
   });
-  return h+'</div><div class="box"><h2>Последние баллы</h2>'+logList(S.log.slice(0,8),false)+'</div>';
+  return h+'</div>'+vDuels()+'<div class="box"><h2>Последние баллы</h2>'+logList(S.log.slice(0,8),false)+'</div>'+vDuelPick();
 }
 
 
@@ -1161,6 +1164,7 @@ function nextGap(L,sc,me){var i=L.indexOf(me);if(i<0)return "";var v=sc(me);
   if(i===0)return v>0?'<div class="gap1">👑 Ты на 1-м месте! Удержи его — не останавливайся.</div>':"";
   var up=L[i-1],d=sc(up)-v+1;return '<div class="gap1">🚀 До '+i+'-го места — <b>'+d+'</b>. Обгони '+esc(up.name)+'!</div>'}
 function m0w(){return meStudent&&by(meStudent)}
+function vRatingPerX(k){return vRatingPer(k)+vDuels()+vDuelPick()}
 function vRatingPer(k){var sc=perScores(k),f=function(s){return sc[s.id]||0},L=actS().slice().sort(function(a,b){return f(b)-f(a)||a.name.localeCompare(b.name,"ru")});
   var h="",m=meStudent&&by(meStudent);
   if(k!=="l"&&L.every(function(s){return !f(s)}))return '<div class="box cen mut">'+(k==="w"?"На этой неделе ещё нет баллов. Кто будет первым?":"Сегодня ещё нет баллов. Кто будет первым?")+'</div>';
@@ -1360,6 +1364,7 @@ function vSheet(){
   h+='<div class="sm mut" style="display:flex;justify-content:space-between;margin-bottom:5px"><span>Опыт: <b style="color:var(--tx)">'+s.xp+'</b></span><span>'+(nx?"до «"+nx[2]+"» "+nx[1]+": "+(nx[3]-s.xp):"высшее звание")+'</span></div><div class="bar"><i style="width:'+pc+'%"></i></div>';
   h+='<div class="stats"><div class="st"><b style="color:var(--n)">'+s.n+'</b><span>🕌 Намаз</span></div><div class="st"><b style="color:var(--q)">'+s.q+'</b><span>📖 Коран</span></div><div class="st"><b style="color:var(--x)">'+s.x+'</b><span>⭐ Доп.</span></div><div class="st"><b style="color:var(--gold)">'+tot(s)+'</b><span>Всего'+(s.f?" (−"+s.f+")":"")+'</span></div></div>';
   if(CLOUD&&(isKid()||canEdit()||isParent())){peekLoad();var ow=PEEK&&PEEK.d&&PEEK.d[s.id];if(ow&&((ow.items||[]).length||ow.mosque||ow.earned))h+='<div class="shoas">'+sabInline(ow.equip||{},64)+'<div><b>Оазис '+esc(s.name)+'</b><small><i class=dt></i> '+(ow.earned||0)+' за уроки · 🕌 мечетей: '+(ow.mosques||0)+' · ⛺ '+(ow.items||[]).filter(function(x){return x[0]==="t"}).length+' вещей'+(ow.streak?' · 🔥 '+ow.streak:'')+'</small></div></div>'}
+  if(isKid()&&s.id!==STOK.sid&&!s.hid)h+='<div class="btns" style="margin:0 0 10px"><button class="btn pri" data-a="duel" data-v="'+s.id+'">⚔️ Вызвать на дуэль</button></div>';
   var aS=attOf(s);if(aS.n)h+='<p class="sm mut" style="margin:-4px 0 10px">📅 На уроках: <b style="color:var(--tx)">'+aS.p+' из '+aS.n+'</b> ('+Math.round(aS.p/aS.n*100)+'%)</p>';
 
   h+='<div class="sec">Значки · '+bs.filter(function(b){return b.ok}).length+' из '+bs.length+'</div><div class="bgrid">'+bs.map(function(b){return '<div class="bd'+(b.ok?"":" off")+'"><i>'+b.e+'</i><b>'+b.n+'</b><span>'+(b.ok?"получен":b.r)+'</span></div>'}).join("")+'</div>';
@@ -2244,7 +2249,7 @@ document.addEventListener("pointerup",ordEnd);document.addEventListener("pointer
 document.addEventListener("click",function(e){if(window.__ordNoClick&&Date.now()-window.__ordNoClick<400&&e.target.closest&&e.target.closest(".ordc")){e.stopPropagation();e.preventDefault()}},true);
 function lsCur(){return LS&&LS.tasks?LS.tasks[LS.k]:null}
 // ошибка → подсказка и вторая попытка; после второй ошибки показываем ответ
-function lsAnswer(ok,val){var t=lsCur();if(!t||LS.fb)return;
+function lsAnswer(ok,val){var t=lsCur();if(!t||LS.fb)return;if(LS.du){if(ok)LS.ok++;else LS.err++;LS.fb={ok:ok,pick:val};return}
   if(ok){if(!t.miss)LS.ok++;LS.fb={ok:true,pick:val};return}
   LS.err++;t.miss=(t.miss||[]).concat([val]);
   if(t.miss.length<2){if(LS.ab==null&&LS.gc==null){t.hint=lsHint(t);if(t.t==="lis"||t.t==="gap")laPlay(LS.n,t.i+1)}return}
@@ -2257,6 +2262,7 @@ function lsHint(t){
   return "Попробуй ещё раз!"}
 function lsNext(){
   laStop();LS.fb=null;LS.k++;
+  if(LS.du&&LS.k>=LS.tasks.length){duFinish();return}
   if(LS.k<LS.tasks.length){var t=lsCur();if(t.t==="lis")setTimeout(function(){if(lsCur()===t)laPlay(LS.n,t.i+1)},250);return}
   var stars=LS.err===0?3:LS.err<=2?2:1;LS.step="res";limAdd("l",1);LS.res={stars:stars,pts:null};
   var isAb=LS.ab!=null,isGc=LS.gc!=null,slug=G.slug,key=isGc?LS.gc+(LS.i+1):isAb?"a"+(LS.ab+1):"s"+LS.n,loc=store.get("lp_"+slug,{});loc[key]=Math.max(loc[key]||0,stars);store.set("lp_"+slug,loc);if(LP)LP[key]=Math.max(LP[key]||0,stars);
@@ -2289,6 +2295,7 @@ function vLessonRes(){var r=LS.res;
     return h+'<div class="btns" style="justify-content:center;margin-top:12px"><button class="btn pri" data-a="lstart">🔁 Ещё раз</button><button class="btn" data-a="lquit">К списку уроков</button></div></div>';
 }
 function vLesson(){
+  if(LS.du)return vDuel();
   if(LS.gc!=null)return vGc();
   if(LS.ab!=null)return vAb();
   var n=LS.n,D=QD[n],A=D.ar,T=D.ru.map(ruT),N=A.length;
@@ -2348,7 +2355,7 @@ function lessonAct(a,v,k){
     case"lstart":LS.tasks=LS.gc!=null?gcBuild(LS.gc,LS.i):LS.ab!=null?abBuild(LS.ab):lsBuild(LS.n);LS.k=0;LS.err=0;LS.ok=0;LS.fb=null;LS.step="game";window.scrollTo(0,0);var t0=LS.tasks[0];if(t0&&t0.t==="lis")laPlay(LS.n,t0.i+1);return true;
     case"lnext":lsNext();window.scrollTo(0,0);return true;
     case"lans":if(!t||LS.fb)return false;var val=parseInt(v,10);
-      var good=LS.ab!=null||LS.gc!=null?val===t.good:t.t==="gap"?t.opts[val]===t.w:t.t==="sur"?val===t.n:val===t.i;lsAnswer(good,val);return true;
+      var good=LS.ab!=null||LS.gc!=null||LS.du?val===t.good:t.t==="gap"?t.opts[val]===t.w:t.t==="sur"?val===t.n:val===t.i;lsAnswer(good,val);return true;
     case"lord":var i=parseInt(v,10);if(!t)return false;var ek=t.slot.indexOf(null);return ordPlace(t,i,ek);
     case"lpl":if(t)t.sel=parseInt(v,10);return true;
     case"lpr":if(!t||t.sel==null)return false;var r=parseInt(v,10);
@@ -2937,6 +2944,48 @@ function league(p){var l=LEAGUES[0];LEAGUES.forEach(function(x){if(p>=x[0])l=x})
 function leagueCard(p){var l=league(p),i=LEAGUES.indexOf(l),nx=LEAGUES[i+1];return '<div class="lgcard" style="--lc:'+l[3]+'"><span class="lgi">'+l[2]+'</span><div><b>'+l[1]+' лига</b><small>'+(nx?"До лиги «"+nx[1]+"»: "+(nx[0]-p)+" баллов на этой неделе":"Высшая лига! Удержись до конца недели")+'</small><div class="bar"><i style="width:'+(nx?Math.round((p-l[0])/(nx[0]-l[0])*100):100)+'%"></i></div></div></div>'}
 function teenSync(){document.documentElement.classList.toggle("teen",R.view==="group"&&isTeen())}
 
+
+/* ================= Дуэли ================= */
+var DU=null,DUbusy=false;
+function duLoad(f){if(!isKid()||!CLOUD||DUbusy||(DU&&!f&&Date.now()-DU.at<30000))return;DUbusy=true;rpc("duel_list",{p_slug:G.slug,p_stoken:STOK.t}).then(function(r){DUbusy=false;DU={at:Date.now(),list:r||[],k:G.slug+":"+STOK.sid};render()}).catch(function(){DUbusy=false})}
+function duOk(){if(DU&&DU.k!==G.slug+":"+STOK.sid)DU=null;return DU}
+function duCourses(){return ["hd","ax","aq","fq","tj"].filter(function(c){return GC[c]&&subjOn(c)&&GC[c].les.some(function(_,i){return lsOk(c,i)})})}
+function duBuild(c){var L=GC[c].les.map(function(_,i){return i}).filter(function(i){return lsOk(c,i)}),qs=[];shuf(L).forEach(function(i){if(qs.length<6)qs=qs.concat(gcBuild(c,i).slice(0,3))});
+  return shuf(qs).slice(0,6).map(function(t){var o={q:t.q,opts:t.opts,good:t.good};if(t.arh){o.arh=t.arh;o.src=t.src}return o})}
+function duStart(du){LS={du:du,tasks:du.qs.map(function(q){var x=JSON.parse(JSON.stringify(q));x.t="gq";return x}),k:0,err:0,ok:0,fb:null,step:"game",res:null};du.start=Date.now();window.scrollTo(0,0)}
+function duFinish(){var du=LS.du,ms=Date.now()-du.start,sc=LS.ok;LS.step="res";LS.res={busy:true,ms:ms,sc:sc};var R0=LS.res;
+  var pr=du.id?rpc("duel_play",{p_slug:G.slug,p_stoken:STOK.t,p_id:du.id,p_score:sc,p_ms:ms}):rpc("duel_create",{p_slug:G.slug,p_stoken:STOK.t,p_opp:du.opp,p_course:du.course,p_qs:du.qs,p_score:sc,p_ms:ms});
+  pr.then(function(r){R0.busy=false;R0.r=r;duLoad(true);if(r&&r.winner===STOK.sid){WAL=null;walLoad()}render()}).catch(function(e){R0.busy=false;R0.err=emsg(e);render()})}
+function secs(ms){return Math.round(ms/1000)+" с"}
+function vDuel(){var du=LS.du,op=by(du.opp),on=op?op.name:"соперник",C=GC[du.course];
+  var h='<div class="box gcbox duel" style="--gcc:'+C.col+'"><div class="btns" style="align-items:center;justify-content:space-between;flex-wrap:nowrap"><b style="font-size:18px">⚔️ Дуэль · соперник: '+esc(on)+'</b><button class="btn sm" data-a="lquit">✕ Выйти</button></div><p class="sm mut" style="margin:2px 0 8px">'+C.ic+' '+C.n+' · одна попытка на вопрос · считается и время</p>';
+  if(LS.step==="res"){var r=LS.res;h+='<div class="cen" style="padding:8px 0"><div style="font-size:52px">⚔️</div><h2>'+r.sc+' из '+LS.tasks.length+' за '+secs(r.ms)+'</h2>';
+    if(r.busy)h+='<p class="mut">Сохраняю…</p>';else if(r.err)h+='<p style="color:var(--err)">'+esc(r.err)+'</p>';
+    else if(!du.id)h+='<p>Вызов отправлен! Теперь '+esc(on)+' ответит на те же вопросы. Результат появится в рейтинге, в разделе «Дуэли».</p>';
+    else{var w=r.r&&r.r.winner;h+=w==="draw"?'<h3>🤝 Ничья!</h3>':w===STOK.sid?'<h3>🏆 Победа! +10 <i class=dt></i></h3>':'<h3>Победил '+esc(on)+'. Попробуй взять реванш!</h3>';h+='<p class="mut">'+esc(on)+': '+r.r.a_score+' за '+secs(r.r.a_ms)+'</p>'}
+    return h+'<div class="btns" style="justify-content:center"><button class="btn pri" data-a="lquit">Готово</button></div></div></div>'}
+  var t=lsCur(),L=LS.tasks.length;
+  h+='<div class="bar" style="height:8px;margin:4px 0 12px"><i style="width:'+Math.round(LS.k/L*100)+'%"></i></div><div class="dutm">⏱ <span class="dutime">'+secs(Date.now()-du.start)+'</span> · вопрос '+(LS.k+1)+' из '+L+'</div><h3>'+esc(t.q)+'</h3>'+(t.arh?'<div class="ar gcar">'+t.arh+'</div><p class="sm mut" style="margin:-4px 0 10px;text-align:right">'+esc(t.src||"")+'</p>':"")+'<div class="gcopts">';
+  h+=t.opts.map(function(o,v){var cls="lopt";if(LS.fb){if(v===t.good)cls+=" ok";else if(LS.fb.pick===v)cls+=" bad"}return '<button class="'+cls+'" data-a="lans" data-v="'+v+'"'+(LS.fb?" disabled":"")+'>'+esc(o)+'</button>'}).join("")+'</div>';
+  if(LS.fb)h+='<div class="btns" style="margin-top:10px"><button class="btn pri" data-a="lnext">'+(LS.k+1<L?"Дальше ›":"Завершить")+'</button></div>';
+  return h+'</div>'}
+setInterval(function(){var e=document.querySelector(".dutime");if(e&&LS&&LS.du&&LS.step!=="res")e.textContent=secs(Date.now()-LS.du.start)},1000);
+function vDuels(){if(!isKid()||!CLOUD)return "";duLoad();var d=duOk();if(!d)return "";var me=STOK.sid,L=d.list;
+  var inc=L.filter(function(x){return x.b===me&&x.b_score==null}),sent=L.filter(function(x){return x.a===me&&x.b_score==null}),fin=L.filter(function(x){return x.b_score!=null}).slice(0,5);
+  var h='<div class="box"><h2>⚔️ Дуэли</h2>';
+  if(inc.length)h+=inc.map(function(x){var o=by(x.a);return '<div class="durow inc"><b>'+esc(o?o.name:"?")+' вызывает тебя!</b><small>'+(GC[x.course]?GC[x.course].ic+" "+GC[x.course].n:"")+' · '+x.total+' вопросов</small><button class="btn pri sm" data-a="duplay" data-v="'+x.id+'">Принять</button></div>'}).join("");
+  if(sent.length)h+=sent.map(function(x){var o=by(x.b);return '<div class="durow"><span>⏳ Ждём ответа: <b>'+esc(o?o.name:"?")+'</b></span><small>ты: '+x.a_score+'/'+x.total+'</small></div>'}).join("");
+  if(fin.length)h+=fin.map(function(x){var mine=x.a===me,o=by(mine?x.b:x.a),my=mine?x.a_score:x.b_score,th=mine?x.b_score:x.a_score,w=x.winner;return '<div class="durow"><span>'+(w==="draw"?"🤝":w===me?"🏆":"🙂")+' '+esc(o?o.name:"?")+'</span><small>'+my+' : '+th+'</small></div>'}).join("");
+  if(!L.length)h+='<p class="sm mut">Открой карточку одноклассника в рейтинге и нажми «⚔️ Вызвать на дуэль».</p>';
+  return h+'</div>'}
+function vDuelPick(){if(!UI.dupick)return "";var o=by(UI.dupick),cs=duCourses();return '<div class="abov" data-a="duclose"><div class="abpop c3" data-a="abnop"><button class="abx" data-a="duclose">✕</button><h2 style="margin-top:4px">⚔️ Вызов: '+esc(o?o.name:"")+'</h2><p class="sm mut">Выбери предмет. 6 вопросов, одна попытка, считается время. Победителю +10 <i class=dt></i></p><div class="gcopts">'+(cs.length?cs.map(function(c){return '<button class="lopt" data-a="duelgo" data-v="'+c+'">'+GC[c].ic+' '+GC[c].n+'</button>'}).join(""):'<p class="mut">Учитель ещё не открыл предметы для дуэлей.</p>')+'</div></div></div>'}
+function duelAct(a,v){
+  if(a==="duel"){if(limBlock()){flash("⏱ На сегодня занятия закончились");return true}UI.dupick=v;UI.sheet=null;return true}
+  if(a==="duclose"){UI.dupick=null;return true}
+  if(a==="duelgo"){var c=v;if(!QD&&c==="tj"){qdLoad();flash("Загружаю аяты, нажми ещё раз");return true}var qs=duBuild(c);if(qs.length<3){flash("Мало вопросов — учитель открыл мало уроков");return true}duStart({opp:UI.dupick,course:c,qs:qs,id:null});UI.dupick=null;go("#/g/"+encodeURIComponent(G.slug)+"/suras");return true}
+  if(a==="duplay"){if(limBlock()){flash("⏱ На сегодня занятия закончились");return true}var d=duOk(),x=d&&d.list.filter(function(y){return y.id==v})[0];if(!x||!x.qs)return false;duStart({opp:x.a,course:x.course,qs:x.qs,id:x.id});go("#/g/"+encodeURIComponent(G.slug)+"/suras");return true}
+  return false}
+
 /* ================= Оазис: финики, жемчужины, сундуки, наряды Сабура, шатёр, мечеть ================= */
 var WAL=null,WALbusy=false,WALerr="",PEEK=null;
 var SHOP=[
@@ -3118,6 +3167,7 @@ function setTab(t){R.tab=t;var h="#/g/"+encodeURIComponent(G.slug)+(t==="r"?"":"
 var skipRoute=false;
 function act(a,b,e){
   var id=b.dataset.id,s=id&&S?by(id):null,k=b.dataset.k,v=b.dataset.v;
+  if(/^(duel|duclose|duelgo|duplay)$/.test(a)){if(duelAct(a,v))render();return}
   if(a==="rper"){UI.rper=v;render();return}
   if(a==="tapd"){UI.tapd=+v;render();return}
   if(/^(sj(on|x|all|l)|gcflip|limset|teenon)$/.test(a)){if(subjAct(a,v,k))render();return}
