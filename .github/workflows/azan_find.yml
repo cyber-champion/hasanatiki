@@ -11,10 +11,10 @@ jobs:
       - name: Викисклад
         run: |
           python3 - <<'PY'
-          import json,urllib.request,urllib.parse
+          import json,urllib.request,urllib.parse,time
           A="https://commons.wikimedia.org/w/api.php?"
           def q(p):
-              p.update(format="json")
+              p.update(format="json");time.sleep(2)
               r=urllib.request.Request(A+urllib.parse.urlencode(p),headers={"User-Agent":"hasanatiki-bot/1.0 (education app)"})
               return json.load(urllib.request.urlopen(r,timeout=30))
           seen=set()
@@ -23,15 +23,15 @@ jobs:
                   d=q(dict(action="query",list="categorymembers",cmtitle=cat,cmtype="file|subcat",cmlimit="200"))
                   for m in d["query"]["categorymembers"]: seen.add(m["title"])
               except Exception as e: print("ERR",cat,e)
-          for term in ["adhan","azan","athan","iqama","iqamah","ezan","call to prayer","أذان","إقامة"]:
+          for term in ["adhan","azan","iqama","ezan","أذان"]:
               try:
                   d=q(dict(action="query",list="search",srsearch=term+" filetype:audio",srnamespace="6",srlimit="50"))
                   for m in d["query"]["search"]: seen.add(m["title"])
-              except Exception as e: print("ERR",term,e)
+              except Exception as e: print("ERR",term,e);time.sleep(10)
           files=sorted(t for t in seen if t.startswith("File:"))
           print("files",len(files))
           for i in range(0,len(files),40):
-              d=q(dict(action="query",titles="|".join(files[i:i+40]),prop="imageinfo",iiprop="url|size|mime|extmetadata"))
+              time.sleep(3);d=q(dict(action="query",titles="|".join(files[i:i+40]),prop="imageinfo",iiprop="url|size|mime|extmetadata"))
               for p in d["query"]["pages"].values():
                   ii=(p.get("imageinfo") or [{}])[0];m=ii.get("extmetadata",{})
                   if not str(ii.get("mime","")).startswith(("audio","application/ogg","video")): continue
