@@ -16,7 +16,7 @@ jobs:
       - name: Скачать Fluent Emoji
         run: |
           git clone -q --depth 1 --filter=blob:none --no-checkout https://github.com/microsoft/fluentui-emoji fe
-          cd fe && git sparse-checkout set --no-cone '/assets/*/metadata.json' '/assets/*/Flat/*' '/assets/*/Default/Flat/*' '/LICENSE' && git checkout -q && cd ..
+          cd fe && git sparse-checkout set --no-cone '/assets/*/metadata.json' '/assets/*/Flat/*' '/assets/*/*/Flat/*' '/LICENSE' && git checkout -q && cd ..
           python3 - <<'PY'
           import json,glob,os,shutil
           want=json.load(open('em/list.json'))
@@ -25,8 +25,8 @@ jobs:
           for mf in glob.glob('fe/assets/*/metadata.json'):
               d=os.path.dirname(mf);m=json.load(open(mf))
               u=m.get('unicode','').replace(' ','-').lower()
-              k='-'.join(x for x in u.split('-') if x!='fe0f')
-              svg=glob.glob(d+'/Flat/*.svg')+glob.glob(d+'/Default/Flat/*.svg')
+              k='-'.join(x.lstrip('0') or '0' for x in u.split('-') if x and x!='fe0f')
+              svg=glob.glob(d+'/Flat/*.svg')+glob.glob(d+'/Default/Flat/*.svg')+glob.glob(d+'/*/Flat/*.svg')
               if svg: idx[k]=svg[0]
           miss=[]
           for e in want:
