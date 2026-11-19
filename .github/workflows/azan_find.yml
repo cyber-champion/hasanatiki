@@ -1,0 +1,40 @@
+# Разовый поиск записей азана со свободной лицензией (Викисклад) — только вывод в лог.
+name: Поиск азана
+on:
+  workflow_dispatch:
+  push:
+    paths: [".github/workflows/azan_find.yml"]
+jobs:
+  find:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Викисклад
+        run: |
+          python3 - <<'PY'
+          import json,urllib.request,urllib.parse
+          A="https://commons.wikimedia.org/w/api.php?"
+          def q(p):
+              p.update(format="json")
+              r=urllib.request.Request(A+urllib.parse.urlencode(p),headers={"User-Agent":"hasanatiki-bot/1.0 (education app)"})
+              return json.load(urllib.request.urlopen(r,timeout=30))
+          seen=set()
+          for cat in ["Category:Adhan","Category:Adhan audio","Category:Audio files of adhan","Category:Call to prayer","Category:Iqama","Category:Ezan"]:
+              try:
+                  d=q(dict(action="query",list="categorymembers",cmtitle=cat,cmtype="file|subcat",cmlimit="200"))
+                  for m in d["query"]["categorymembers"]: seen.add(m["title"])
+              except Exception as e: print("ERR",cat,e)
+          for term in ["adhan","azan","athan","iqama","iqamah","ezan","call to prayer","أذان","إقامة"]:
+              try:
+                  d=q(dict(action="query",list="search",srsearch=term+" filetype:audio",srnamespace="6",srlimit="50"))
+                  for m in d["query"]["search"]: seen.add(m["title"])
+              except Exception as e: print("ERR",term,e)
+          files=sorted(t for t in seen if t.startswith("File:"))
+          print("files",len(files))
+          for i in range(0,len(files),40):
+              d=q(dict(action="query",titles="|".join(files[i:i+40]),prop="imageinfo",iiprop="url|size|mime|extmetadata"))
+              for p in d["query"]["pages"].values():
+                  ii=(p.get("imageinfo") or [{}])[0];m=ii.get("extmetadata",{})
+                  if not str(ii.get("mime","")).startswith(("audio","application/ogg","video")): continue
+                  g=lambda k:(m.get(k,{}).get("value","") or "")[:120].replace("\n"," ")
+                  print("##",p["title"],"|",ii.get("mime"),"|",ii.get("size"),"|",g("LicenseShortName"),"|",g("Artist"),"|",g("ImageDescription"),"|",ii.get("url"))
+          PY
