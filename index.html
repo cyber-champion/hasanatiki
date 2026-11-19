@@ -542,6 +542,21 @@ html[data-theme=dark] .rwd{background:#4A3A18;color:#FFD27A}html[data-theme=dark
 .mqlist{display:grid;gap:6px}.mq{display:flex;align-items:center;gap:10px;background:var(--soft);border-radius:14px;padding:8px 12px}.mq b{flex:1}.mq small{color:var(--mut);font-weight:800}.mq.done{opacity:.75}.mq.next{box-shadow:0 0 0 2px var(--brand)}
 .guests{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}.guest{border:0;font:inherit;cursor:pointer;background:var(--soft);border-radius:14px;padding:6px 8px;display:flex;flex-direction:column;align-items:center;min-width:76px;color:var(--tx)}.guest.on{box-shadow:0 0 0 3px var(--brand)}.guest b{font-size:12px}.guest small{font-size:11px;color:var(--mut)}
 .gview{margin-top:8px;animation:popin .3s}
+.dt{display:inline-block;width:1.05em;height:1.05em;vertical-align:-.15em;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M13.5 4.5l2.5-2.2' stroke='%236B8E23' stroke-width='1.8' stroke-linecap='round'/%3E%3Cellipse cx='12' cy='13.5' rx='6' ry='9' transform='rotate(22 12 13.5)' fill='%238B3A0E'/%3E%3Cellipse cx='10.3' cy='11' rx='1.8' ry='4.6' transform='rotate(22 10.3 11)' fill='%23C2662D' opacity='.75'/%3E%3Cpath d='M9 19.5q3 1.5 6-1' stroke='%235E2507' stroke-width='1' fill='none' opacity='.6'/%3E%3C/svg%3E") center/contain no-repeat;font-style:normal}
+.lnode.lock{filter:grayscale(1);opacity:.55}.lnode.lock .ln::after{content:"🔒";position:absolute;font-size:16px;right:-6px;top:-6px}
+.gcpath{display:grid;gap:10px}.gcl{border:0;font:inherit;cursor:pointer;display:flex;align-items:center;gap:12px;text-align:left;background:var(--soft);color:var(--tx);border-radius:20px;padding:10px 12px;position:relative;box-shadow:0 3px 0 rgba(0,0,0,.06);transition:transform .15s}.gcl:active{transform:scale(.97)}
+.gcl .gci{width:52px;height:52px;flex-shrink:0;border-radius:50%;background:var(--gcc);display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:inset 0 -4px 0 rgba(0,0,0,.15)}.gcl .gct{flex:1;display:flex;flex-direction:column}.gcl small{color:var(--mut);font-weight:800}
+.gcl.done .gci{background:var(--ok)}.gcl.cur{box-shadow:0 0 0 3px var(--gcc)}.gcl.lock{opacity:.55}.gcl.lock .gci{background:var(--line)}.gcs{position:absolute;right:6px;top:-18px;animation:sabbreath 3.2s ease-in-out infinite}
+.gccards{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:10px}.gcc{border:0;font:inherit;cursor:pointer;text-align:left;background:var(--abc);color:var(--tx);border-radius:18px;padding:12px;display:flex;flex-direction:column;gap:4px;box-shadow:0 3px 0 rgba(0,0,0,.07);transition:transform .2s;animation:popin .4s cubic-bezier(.2,1.5,.4,1) both}.gcc:nth-child(2){animation-delay:.07s}.gcc:nth-child(3){animation-delay:.14s}.gcc:nth-child(4){animation-delay:.21s}.gcc:nth-child(5){animation-delay:.28s}.gcc:nth-child(6){animation-delay:.35s}
+.gcc .gce{font-size:30px}.gcc b{color:var(--abt);font-size:15px}.gcc p{margin:0;font-size:13.5px;line-height:1.4}.gcc.on{transform:scale(1.04);box-shadow:0 0 0 3px var(--abt)}
+.gcopts{display:grid;gap:8px}
+.sjrow{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}.sjrow b{flex:1}
+.sw{border:0;width:46px;height:28px;border-radius:999px;background:var(--line);position:relative;cursor:pointer;flex-shrink:0;transition:background .2s}.sw i{position:absolute;left:3px;top:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.25)}.sw.on{background:var(--ok)}.sw.on i{left:21px}
+.sjl{display:flex;flex-wrap:wrap;gap:6px;padding:4px 0 10px}.sjl .tg{border:0;font:inherit;cursor:pointer;font-size:13px;padding:5px 10px;border-radius:999px;background:var(--soft);color:var(--mut)}.sjl .tg.on{background:var(--nbg,#DDF7E3);color:var(--tx)}
+.seg.subj{display:flex;flex-wrap:wrap}.seg.subj button{flex:1 1 40%}
+@media(min-width:760px){#app,.nav div,.sheet{max-width:860px}body{font-size:16px}.abtiles{grid-template-columns:repeat(7,1fr)}.shop{grid-template-columns:repeat(5,1fr)}.tgrid{grid-template-columns:repeat(3,1fr)}.ar{font-size:36px}.lsnbox .ar{font-size:38px}.gccards{grid-template-columns:repeat(3,1fr)}.gcopts{grid-template-columns:1fr 1fr}}
+@media(min-width:1100px){#app,.nav div,.sheet{max-width:1000px}}
+@media(orientation:landscape) and (max-height:500px){.nav{padding-bottom:2px}.nav button{padding:4px 0}}
 </style>
 <script>(function(){var t="light";try{t=JSON.parse(localStorage.getItem("theme"))||"light"}catch(e){}document.documentElement.setAttribute("data-theme",t==="dark"?"dark":"light")})()</script>
 </head>
@@ -2039,7 +2054,7 @@ function lpLoad(){
   if(!G)return;var slug=G.slug,sid=lsid(),loc=store.get("lp_"+slug,{});
   LP={};Object.keys(loc).forEach(function(k){LP[k]=loc[k]});
   if(!CLOUD||!sid||canEdit())return;
-  rpc("progress_get",V_({p_code:slug,p_student:sid})).then(function(r){if(!G||G.slug!==slug)return;(r||[]).forEach(function(x){if(x.course===LMOD.id||x.course==="ab")LP[x.lesson]=Math.max(LP[x.lesson]||0,x.best_stars)});render()}).catch(function(){});
+  rpc("progress_get",V_({p_code:slug,p_student:sid})).then(function(r){if(!G||G.slug!==slug)return;(r||[]).forEach(function(x){if(x.course===LMOD.id||x.course==="ab"||GC[x.course])LP[x.lesson]=Math.max(LP[x.lesson]||0,x.best_stars)});render()}).catch(function(){});
 }
 function arn(n){return String(n).replace(/\d/g,function(d){return "٠١٢٣٤٥٦٧٨٩"[d]})}
 function ruT(t){return String(t||"").replace(/\s*\[\d+\]/g,"")}
@@ -2086,7 +2101,7 @@ function lsCur(){return LS&&LS.tasks?LS.tasks[LS.k]:null}
 function lsAnswer(ok,val){var t=lsCur();if(!t||LS.fb)return;
   if(ok){if(!t.miss)LS.ok++;LS.fb={ok:true,pick:val};return}
   LS.err++;t.miss=(t.miss||[]).concat([val]);
-  if(t.miss.length<2){if(LS.ab==null){t.hint=lsHint(t);if(t.t==="lis"||t.t==="gap")laPlay(LS.n,t.i+1)}return}
+  if(t.miss.length<2){if(LS.ab==null&&LS.gc==null){t.hint=lsHint(t);if(t.t==="lis"||t.t==="gap")laPlay(LS.n,t.i+1)}return}
   LS.fb={ok:false,pick:val}}
 function lsHint(t){
   if(t.t==="lis")return "Послушай ещё раз внимательно — особенно начало аята. Я включил его снова 🔊";
@@ -2098,17 +2113,19 @@ function lsNext(){
   laStop();LS.fb=null;LS.k++;
   if(LS.k<LS.tasks.length){var t=lsCur();if(t.t==="lis")setTimeout(function(){if(lsCur()===t)laPlay(LS.n,t.i+1)},250);return}
   var stars=LS.err===0?3:LS.err<=2?2:1;LS.step="res";LS.res={stars:stars,pts:null};
-  var isAb=LS.ab!=null,slug=G.slug,key=isAb?"a"+(LS.ab+1):"s"+LS.n,loc=store.get("lp_"+slug,{});loc[key]=Math.max(loc[key]||0,stars);store.set("lp_"+slug,loc);if(LP)LP[key]=Math.max(LP[key]||0,stars);
-  if(CLOUD&&STOK&&!canEdit()){var R0=LS.res;rpc("lesson_done",{p_slug:slug,p_stoken:STOK.t,p_course:isAb?"ab":LMOD.id,p_lesson:key,p_title:isAb?"Алифба: "+ABLES[LS.ab].t:"Сура «"+NAMES[LS.n]+"»",p_stars:stars,p_correct:LS.ok,p_total:LS.ok+LS.err})
+  var isAb=LS.ab!=null,isGc=LS.gc!=null,slug=G.slug,key=isGc?LS.gc+(LS.i+1):isAb?"a"+(LS.ab+1):"s"+LS.n,loc=store.get("lp_"+slug,{});loc[key]=Math.max(loc[key]||0,stars);store.set("lp_"+slug,loc);if(LP)LP[key]=Math.max(LP[key]||0,stars);
+  if(CLOUD&&STOK&&!canEdit()){var R0=LS.res;rpc("lesson_done",{p_slug:slug,p_stoken:STOK.t,p_course:isGc?LS.gc:isAb?"ab":LMOD.id,p_lesson:key,p_title:isGc?GC[LS.gc].n+": "+GC[LS.gc].les[LS.i].t:isAb?"Алифба: "+ABLES[LS.ab].t:"Сура «"+NAMES[LS.n]+"»",p_stars:stars,p_correct:LS.ok,p_total:LS.ok+LS.err})
     .then(function(r){R0.pts=r&&r.points||0;R0.rw=r&&r.reward||null;if(R0.rw&&R0.rw.wallet){WAL=R0.rw.wallet;WAL._k=slug+":"+STOK.sid;sabSync()}if(R0.pts)refreshGroup().then(render);else render()}).catch(function(e){R0.pts=-1;R0.err=emsg(e);render()})}
 }
 function vLessons(){
   qdLoad();if(!LP)lpLoad();
   if(LS)return vLesson();
-  var h=STOK&&!canEdit()?"":'<div class="tgrid">'+TILES.map(function(t){var on=(UI.course==="ab")===(t[0]==="a");return '<button class="tile'+(t[5]?"":" soon")+'" style="--tc:'+t[3]+(t[5]&&!on?";opacity:.8":"")+(t[5]&&on?";outline:4px solid var(--brand);outline-offset:2px":"")+'"'+(t[5]?' data-a="course" data-v="'+(t[0]==="a"?"ab":"q")+'"':' data-a="soon"')+'><b>'+t[1]+'</b><small>'+(t[5]?t[2]:"скоро")+'</small><i>'+t[4]+'</i></button>'}).join("")+'</div>';
+  var h=STOK&&!canEdit()?"":'<div class="tgrid">'+TILES.map(function(t){var on=(UI.course||"q")===TCM[t[0]];return '<button class="tile'+(t[5]?"":" soon")+'" style="--tc:'+t[3]+(t[5]&&!on?";opacity:.8":"")+(t[5]&&on?";outline:4px solid var(--brand);outline-offset:2px":"")+'"'+(t[5]?' data-a="course" data-v="'+TCM[t[0]]+'"':' data-a="soon"')+'><b>'+t[1]+'</b><small>'+(t[5]?t[2]:"скоро")+'</small><i>'+t[4]+'</i></button>'}).join("")+'</div>';
   if(!QD)return h+'<div class="box cen mut">'+(QDerr&&QDerr!=="busy"?esc(QDerr):"Загрузка…")+'</div>';
-  var cs=UI.course==="ab"?"ab":"q";
-  if(STOK&&!canEdit())h+='<div class="seg wide2" style="margin-bottom:12px"><button class="'+(cs==="q"?"on":"")+'" data-a="course" data-v="q">📖 Суры</button><button class="'+(cs==="ab"?"on":"")+'" data-a="course" data-v="ab">'+abIco(24)+' Алифба</button></div>';
+  var en=SUBJ.filter(function(x){return canEdit()||subjOn(x[0])}).map(function(x){return x[0]}),cs=en.indexOf(UI.course)>-1?UI.course:en[0]||"q";if(canEdit())h+=vSubjCfg();
+  if(STOK&&!canEdit()&&en.length>1)h+='<div class="seg wide2 subj" style="margin-bottom:12px">'+en.map(function(c){return '<button class="'+(cs===c?"on":"")+'" data-a="course" data-v="'+c+'">'+(c==="q"?"📖 Суры":c==="ab"?abIco(22)+" Алифба":GC[c].ic+" "+GC[c].n)+'</button>'}).join("")+'</div>';
+  if(STOK&&!canEdit()&&!en.length)return h+'<div class="box cen mut">Учитель пока не открыл уроки.</div>';
+  if(GC[cs])return h+gcMap(cs);
   if(cs==="ab"){var at=0;ABLES.forEach(function(x,i){at+=LP&&LP["a"+(i+1)]||0});
     return h+'<div class="box"><h2>'+abIco(34)+' Алифба — буквы и чтение</h2><p class="mut sm" style="margin:-6px 0 8px">Узнаём все 28 букв, их формы в начале, середине и конце слова, огласовки и собираем слова из Корана. За каждую звезду — +1 балл в рейтинг.</p><div class="sm" style="margin-bottom:10px">⭐ '+at+' из '+ABLES.length*3+'</div>'+'<div class="lmapbg">'+'<div class="hive" aria-hidden="true"><svg viewBox="0 0 100 100" width="84" height="84"><path d="M50 4v10" stroke="#8B5A2B" stroke-width="3"/><path d="M20 18Q50 8 80 18" stroke="#6B8E23" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M50 14C30 14 22 28 22 34C14 38 12 50 16 56C10 62 12 74 20 80L80 80C88 74 90 62 84 56C88 50 86 38 78 34C78 28 70 14 50 14Z" fill="#F7B733"/><g stroke="#D98E04" stroke-width="3" fill="none" stroke-linecap="round"><path d="M28 34Q50 28 72 34"/><path d="M19 47Q50 40 81 47"/><path d="M17 60Q50 53 83 60"/><path d="M20 72Q50 66 80 72"/></g><path d="M38 80Q38 64 50 64Q62 64 62 80Z" fill="#5B3410"/><rect x="12" y="78" width="76" height="8" rx="4" fill="#A0522D"/><circle cx="84" cy="88" r="4" fill="#F472B6"/><circle cx="84" cy="88" r="1.6" fill="#FDE68A"/><circle cx="14" cy="90" r="3.4" fill="#FB923C"/><circle cx="14" cy="90" r="1.3" fill="#FDE68A"/></svg><b class="zz">Z z z</b></div><div class="fbee" data-keep="bee" aria-hidden="true"><i>'+mas("asl",44)+'<svg class="lids" viewBox="0 0 200 200"><circle cx="85" cy="78" r="11" fill="#fcd34d"/><circle cx="115" cy="78" r="11" fill="#fcd34d"/><path d="M76 78q9 8 18 0M106 78q9 8 18 0" stroke="#5b3a1a" stroke-width="3.6" fill="none" stroke-linecap="round"/></svg></i><b>Ж-ж-ж!</b></div>'+vAbMap()+'</div>'+'<p class="mut sm" style="margin-top:10px;font-size:12px">Буквы показаны шрифтом мединского мусхафа — такими же их увидишь в Коране.</p></div>'}
   var sid=lsid(),tot=0;LMOD.list.forEach(function(n){tot+=LP&&LP["s"+n]||0});
@@ -2125,6 +2142,7 @@ function vLessonRes(){var r=LS.res;
     return h+'<div class="btns" style="justify-content:center;margin-top:12px"><button class="btn pri" data-a="lstart">🔁 Ещё раз</button><button class="btn" data-a="lquit">К списку уроков</button></div></div>';
 }
 function vLesson(){
+  if(LS.gc!=null)return vGc();
   if(LS.ab!=null)return vAb();
   var n=LS.n,D=QD[n],A=D.ar,T=D.ru.map(ruT),N=A.length;
   var h='<div class="box lsnbox"><div class="btns" style="align-items:center;justify-content:space-between;flex-wrap:nowrap"><b style="font-size:18px">Сура «'+esc(NAMES[n])+'»</b><button class="btn sm" data-a="lquit">✕ Выйти</button></div>';
@@ -2167,11 +2185,11 @@ function vLesson(){
 function lessonAct(a,v,k){
   var t=lsCur();
   switch(a){
-    case"lopen":if(k==="ab")abOpen(parseInt(v,10));else lsOpen(parseInt(v,10));return true;
+    case"lopen":var lc=k==="ab"?"ab":k&&GC[k]?k:"q";if(!lsOk(lc,v)){flash("🔒 Учитель ещё не открыл этот урок");return true}if(k==="ab")abOpen(parseInt(v,10));else if(k&&GC[k])gcOpen(k,parseInt(v,10));else lsOpen(parseInt(v,10));return true;
     case"lbld":if(!t)return false;var bk=parseInt(v,10),bm=t.mix[bk];if(!bm||t.got.indexOf(bk)>-1)return false;
       if(bm.c===t.seq[t.got.length]){t.got.push(bk);LS.fb=null;if(t.got.length===t.seq.length)LS.ok++}else{LS.err++;LS.fb={wrong:bk}}return true;
     case"lquit":laStop();LS=null;window.scrollTo(0,0);return true;
-    case"lplay":if(LS.ab!=null)return false;var pn_=parseInt(v,10);laPlay(LS.step==="intro"||!t||t.t!=="sur"?LS.n:t.n,pn_);return false;
+    case"lplay":if(LS.ab!=null||LS.gc!=null)return false;var pn_=parseInt(v,10);laPlay(LS.step==="intro"||!t||t.t!=="sur"?LS.n:t.n,pn_);return false;
     case"abpop":UI.abpop=v;UI.abk=k!=null&&k!==""?+k:null;return true;
     case"abclose":UI.abpop=null;return true;
     case"abnop":return false;
@@ -2179,10 +2197,10 @@ function lessonAct(a,v,k){
     case"tjtog":store.set("tajweed",store.get("tajweed",1)===0?1:0);return true;
     case"tjr":flash("🐪 "+TJN[+v]);return true;
     case"lplayall":laStop();plStart(String(LS.n),{});return true;
-    case"lstart":LS.tasks=LS.ab!=null?abBuild(LS.ab):lsBuild(LS.n);LS.k=0;LS.err=0;LS.ok=0;LS.fb=null;LS.step="game";window.scrollTo(0,0);var t0=LS.tasks[0];if(t0&&t0.t==="lis")laPlay(LS.n,t0.i+1);return true;
+    case"lstart":LS.tasks=LS.gc!=null?gcBuild(LS.gc,LS.i):LS.ab!=null?abBuild(LS.ab):lsBuild(LS.n);LS.k=0;LS.err=0;LS.ok=0;LS.fb=null;LS.step="game";window.scrollTo(0,0);var t0=LS.tasks[0];if(t0&&t0.t==="lis")laPlay(LS.n,t0.i+1);return true;
     case"lnext":lsNext();window.scrollTo(0,0);return true;
     case"lans":if(!t||LS.fb)return false;var val=parseInt(v,10);
-      var good=LS.ab!=null?val===t.good:t.t==="gap"?t.opts[val]===t.w:t.t==="sur"?val===t.n:val===t.i;lsAnswer(good,val);return true;
+      var good=LS.ab!=null||LS.gc!=null?val===t.good:t.t==="gap"?t.opts[val]===t.w:t.t==="sur"?val===t.n:val===t.i;lsAnswer(good,val);return true;
     case"lord":var i=parseInt(v,10);if(!t)return false;var need=t.ids[t.got.length];
       if(i===need){t.got.push(i);LS.fb=null}else{LS.err++;LS.fb={wrong:i}}
       if(t.got.length===t.ids.length)LS.ok++;return true;
@@ -2312,7 +2330,8 @@ function navStudent(){
   var nb=hwBadge(),t=[["o","🏠","Главная"],["s","🎓","Уроки"],["r","🏆","Рейтинг"],["d","📚","Задания"],["m","👤","Я"]];
   return '<nav class="nav"><div>'+t.map(function(x){return '<button class="'+(R.tab===x[0]||(x[0]==="m"&&R.tab==="p")?"on":"")+'" data-a="tab" data-v="'+x[0]+'"><span>'+x[1]+'</span>'+x[2]+(x[0]==="d"&&nb?'<b>'+nb+'</b>':"")+'</button>'}).join("")+'</div></nav>';
 }
-var TILES=[["q","Коран","суры 30-го джуза","#22C55E","📖",1],["a","Алифба","буквы и чтение","#3B6CF6",'<svg viewBox="0 0 120 100" width="78" height="65" aria-hidden="true"><g transform="rotate(-8 30 70)"><rect x="8" y="48" width="44" height="44" rx="10" fill="#FFC93C"/><rect x="8" y="48" width="44" height="8" rx="4" fill="#fff" opacity=".35"/><text x="30" y="82" font-size="34" text-anchor="middle" fill="#7A4A06" style="font-family:Hafs,Sch,serif">ب</text></g><g transform="rotate(7 84 72)"><rect x="62" y="50" width="44" height="44" rx="10" fill="#FF6B9A"/><rect x="62" y="50" width="44" height="8" rx="4" fill="#fff" opacity=".35"/><text x="84" y="84" font-size="34" text-anchor="middle" fill="#fff" style="font-family:Hafs,Sch,serif">ت</text></g><g transform="rotate(-3 58 28)"><rect x="36" y="6" width="44" height="44" rx="10" fill="#22C55E"/><rect x="36" y="6" width="44" height="8" rx="4" fill="#fff" opacity=".35"/><text x="58" y="42" font-size="36" text-anchor="middle" fill="#fff" style="font-family:Hafs,Sch,serif">ا</text></g><path d="M102 12l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2Z" fill="#fff"/></svg>',1],["f","Фикх","намаз и омовение","#FF8A00","🕌",0],["k","Акида","во что мы верим","#A855F7","💎",0],["x","Ахляк","красивый нрав","#EC4899","🌸",0],["s","Сира","жизнь Пророка ﷺ","#06B6D4","🐪",0]];
+var TCM={q:"q",a:"ab",f:"fq",k:"aq"};
+var TILES=[["q","Коран","суры 30-го джуза","#22C55E","📖",1],["a","Алифба","буквы и чтение","#3B6CF6",'<svg viewBox="0 0 120 100" width="78" height="65" aria-hidden="true"><g transform="rotate(-8 30 70)"><rect x="8" y="48" width="44" height="44" rx="10" fill="#FFC93C"/><rect x="8" y="48" width="44" height="8" rx="4" fill="#fff" opacity=".35"/><text x="30" y="82" font-size="34" text-anchor="middle" fill="#7A4A06" style="font-family:Hafs,Sch,serif">ب</text></g><g transform="rotate(7 84 72)"><rect x="62" y="50" width="44" height="44" rx="10" fill="#FF6B9A"/><rect x="62" y="50" width="44" height="8" rx="4" fill="#fff" opacity=".35"/><text x="84" y="84" font-size="34" text-anchor="middle" fill="#fff" style="font-family:Hafs,Sch,serif">ت</text></g><g transform="rotate(-3 58 28)"><rect x="36" y="6" width="44" height="44" rx="10" fill="#22C55E"/><rect x="36" y="6" width="44" height="8" rx="4" fill="#fff" opacity=".35"/><text x="58" y="42" font-size="36" text-anchor="middle" fill="#fff" style="font-family:Hafs,Sch,serif">ا</text></g><path d="M102 12l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2Z" fill="#fff"/></svg>',1],["f","Фикх","намаз и омовение","#FF8A00","🕌",1],["k","Акыда","во что мы верим","#A855F7","💎",1],["x","Ахляк","красивый нрав","#EC4899","🌸",0],["s","Сира","жизнь Пророка ﷺ","#06B6D4","🐪",0]];
 function vHome2(){
   var s=STOK&&by(STOK.sid);if(!s)return vRating();
   qdLoad();if(!LP)lpLoad();
@@ -2320,8 +2339,8 @@ function vHome2(){
   LMOD.list.forEach(function(n){var b=LP&&LP["s"+n]||0;st+=b;if(!next&&b<3)next=n});
   var line=[];if(todo)line.push("заданий: "+todo);if(next)line.push("урок по суре «"+NAMES[next]+"»");
   var h='<div class="hello">'+mas("sab",92)+'<p><b>Ассаляму алейкум, '+esc(s.name)+'!</b>'+(line.length?"Сегодня: "+line.join(" и ")+". Вперёд!":"Всё сделано — машаллах! Повтори суры или поиграй ещё.")+'</p></div>';
-  h+='<div class="tgrid">'+TILES.map(function(t){var at2=0;ABLES.forEach(function(x,i){at2+=LP&&LP["a"+(i+1)]||0});var pr=t[0]==="q"?Math.round(st/(LMOD.list.length*3)*100):t[0]==="a"?Math.round(at2/(ABLES.length*3)*100):0;
-    return '<button class="tile'+(t[5]?"":" soon")+'" style="--tc:'+t[3]+'"'+(t[5]?' data-a="course" data-v="'+(t[0]==="a"?"ab":"q")+'"':' data-a="soon"')+'><b>'+t[1]+'</b><small>'+(t[5]?t[2]:"скоро")+'</small>'+(t[5]?'<span class="tpr"><u style="width:'+Math.max(4,pr)+'%"></u></span>':"")+'<i>'+t[4]+'</i></button>'}).join("")+'</div>';
+  h+='<div class="tgrid">'+TILES.map(function(t){var at2=0;ABLES.forEach(function(x,i){at2+=LP&&LP["a"+(i+1)]||0});var pr=t[0]==="q"?Math.round(st/(LMOD.list.length*3)*100):t[0]==="a"?Math.round(at2/(ABLES.length*3)*100):GC[TCM[t[0]]]?(function(c){var z=0;GC[c].les.forEach(function(_,i){z+=LP&&LP[c+(i+1)]||0});return Math.round(z/(GC[c].les.length*3)*100)})(TCM[t[0]]):0,av=t[5]&&(!TCM[t[0]]||subjOn(TCM[t[0]]));
+    return '<button class="tile'+(av?"":" soon")+'" style="--tc:'+t[3]+'"'+(av?' data-a="course" data-v="'+TCM[t[0]]+'"':' data-a="soon"')+'><b>'+t[1]+'</b><small>'+(av?t[2]:t[5]?"закрыто":"скоро")+'</small>'+(av?'<span class="tpr"><u style="width:'+Math.max(4,pr)+'%"></u></span>':"")+'<i>'+t[4]+'</i></button>'}).join("")+'</div>';
   var L=ranked();h+='<div class="qrow"><button class="qc" data-a="tab" data-v="r"><i>🏆</i><b>'+place(s)+' место</b><small>из '+L.length+' · '+pn(tot(s),"балл","балла","баллов")+'</small></button><button class="qc" data-a="tab" data-v="d"><i>📚</i><b>'+(todo?pn(todo,"задание","задания","заданий"):"Задания")+'</b><small>'+(todo?"ждут тебя":"все сданы")+'</small></button></div>';
   return h;
 }
@@ -2330,7 +2349,7 @@ function vMap(){
   var XS=[50,78,50,22],STEP=112,H=L.length*STEP+30,pts=L.map(function(n,i){return XS[i%4]+","+(i*STEP+44)}).join(" ");
   var h='<div class="lmap" style="height:'+H+'px"><svg viewBox="0 0 100 '+H+'" preserveAspectRatio="none" aria-hidden="true"><polyline points="'+pts+'" fill="none" stroke="var(--soft-sh)" stroke-width="10" stroke-linecap="round" stroke-dasharray="1 20" vector-effect="non-scaling-stroke"/></svg>';
   L.forEach(function(n,i){var b=LP&&LP["s"+n]||0,c=n===cur?"cur":b?"done":"",x=XS[i%4],y=i*STEP;
-    h+='<button class="lnode '+c+'" style="left:'+x+'%;top:'+y+'px;--nc:'+MAPC[i%MAPC.length]+'" data-a="lopen" data-v="'+n+'"><span class="ln">'+(b?"✓":n===1?"1":n)+'</span><span class="lt">'+esc(NAMES[n])+'</span><span class="ls">'+(b?[1,2,3].map(function(k){return k<=b?"⭐":"☆"}).join(""):"")+'</span></button>';
+    h+='<button class="lnode '+c+(lsOk("q",n)?"":" lock")+'" style="left:'+x+'%;top:'+y+'px;--nc:'+MAPC[i%MAPC.length]+'" data-a="lopen" data-v="'+n+'"><span class="ln">'+(b?"✓":n===1?"1":n)+'</span><span class="lt">'+esc(NAMES[n])+'</span><span class="ls">'+(b?[1,2,3].map(function(k){return k<=b?"⭐":"☆"}).join(""):"")+'</span></button>';
     if(n===cur)h+='<div class="lsab" style="left:'+(x>50?x-42:x+14)+'%;top:'+(y-22)+'px"><span class="sabw">'+mas("sab",90)+'<svg class="slids" viewBox="0 0 200 200"><circle cx="60" cy="66" r="9" fill="#e0a868"/><circle cx="84" cy="66" r="9" fill="#e0a868"/><path d="M52 66q8 6 16 0M76 66q8 6 16 0" stroke="#2a1a12" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg></span><b>Иду!</b></div>'});
   return h+'</div>';
 }
@@ -2446,7 +2465,7 @@ function vAbMap(){
   var XS=[50,76,50,24],STEP=132,H=ABLES.length*STEP+40,pts=ABLES.map(function(x,i){return XS[i%4]+","+(i*STEP+48)}).join(" ");
   var h='<div class="lmap" style="height:'+H+'px"><svg viewBox="0 0 100 '+H+'" preserveAspectRatio="none" aria-hidden="true"><polyline points="'+pts+'" fill="none" stroke="var(--soft-sh)" stroke-width="10" stroke-linecap="round" stroke-dasharray="1 20" vector-effect="non-scaling-stroke"/></svg>';
   ABLES.forEach(function(x,i){var b=LP&&LP["a"+(i+1)]||0,c=i===cur?"cur":b?"done":"",X=XS[i%4],y=i*STEP,lab=x.L?x.L.split("").join("\u2009"):x.H?"بَ بِ بُ":"ا ي",fs=!x.L?20:x.L.length<=3?24:x.L.length===4?16:14,col=MAPC[i%MAPC.length];
-    h+='<button class="lnode big '+c+'" style="left:'+X+'%;top:'+y+'px;--nc:'+col+'" data-a="lopen" data-k="ab" data-v="'+i+'"><span class="ln ar"><em style="font-size:'+fs+'px">'+lab+'</em><u>'+(b?"✓":i+1)+'</u></span><span class="lt">'+(x.L?"Урок "+(i+1):x.H?"Огласовки":"Повторение")+'</span><span class="ls">'+(b?[1,2,3].map(function(k){return k<=b?"⭐":"☆"}).join(""):"")+'</span></button>';
+    h+='<button class="lnode big '+c+(lsOk("ab",i)?"":" lock")+'" style="left:'+X+'%;top:'+y+'px;--nc:'+col+'" data-a="lopen" data-k="ab" data-v="'+i+'"><span class="ln ar"><em style="font-size:'+fs+'px">'+lab+'</em><u>'+(b?"✓":i+1)+'</u></span><span class="lt">'+(x.L?"Урок "+(i+1):x.H?"Огласовки":"Повторение")+'</span><span class="ls">'+(b?[1,2,3].map(function(k){return k<=b?"⭐":"☆"}).join(""):"")+'</span></button>';
     h+='<svg class="lspark" style="left:'+(X>50?X-30:X+24)+'%;top:'+(y+40)+'px" viewBox="0 0 20 20" width="24" height="24"><path d="M10 0Q10 10 20 10Q10 10 10 20Q10 10 0 10Q10 10 10 0Z" fill="'+col+'"/></svg>';
     if(i===cur)h+='<div class="lsab" style="left:'+(X>50?X-44:X+16)+'%;top:'+(y-22)+'px"><span class="sabw">'+mas("sab",90)+'<svg class="slids" viewBox="0 0 200 200"><circle cx="60" cy="66" r="9" fill="#e0a868"/><circle cx="84" cy="66" r="9" fill="#e0a868"/><path d="M52 66q8 6 16 0M76 66q8 6 16 0" stroke="#2a1a12" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg></span><b>Иду!</b></div>'});
   return h+'</div>';
@@ -2497,6 +2516,173 @@ document.addEventListener("pointerup",hiveDrop);document.addEventListener("point
 document.addEventListener("pointerup",beeDrop);document.addEventListener("pointercancel",beeDrop);
 
 
+/* ================= Предметы: Фикх и Акыда (уроки-карточки + вопросы) ================= */
+// урок: {t: название, ic: значок, tip: слово Сабура, c: [[значок, заголовок, текст]...], q: [[вопрос, [варианты], № верного, подсказка]...]}
+var GC={
+ aq:{n:"Акыда",sub:"во что мы верим",ic:"💎",col:"#A855F7",les:[
+  {t:"Аллах — Единый Творец",ic:"☝️",tip:"Начнём с самого главного — с того, Кому мы поклоняемся.",c:[
+    ["☝️","Аллах Един","У Аллаха нет сотоварищей, нет детей и родителей. Об этом сура «Аль-Ихлас»: «Скажи: Он — Аллах Единый»."],
+    ["🌍","Аллах — Творец","Аллах создал небо и землю, солнце и луну, людей, животных и всё, что существует."],
+    ["♾️","Вечный","У Аллаха нет начала и нет конца. Он был всегда и будет всегда."],
+    ["👁","Всё слышит и видит","Аллах знает всё: и то, что мы делаем открыто, и то, что прячем в сердце. Он ни на что не похож."]],
+   q:[["Сколько у нас Творцов?",["Один — Аллах","Два","Много"],0,"Вспомни суру «Аль-Ихлас»: «Скажи: Он — Аллах …»"],
+      ["Кто создал небо, землю и людей?",["Аллах","Люди сами","Никто"],0,"Всё, что существует, создал один Творец."],
+      ["Есть ли у Аллаха начало и конец?",["Нет, Он Вечный","Да, есть","Есть только начало"],0,"Аллах был всегда и будет всегда."],
+      ["Знает ли Аллах то, что у нас в сердце?",["Да, Аллах знает всё","Нет","Только иногда"],0,"Аллах — Всезнающий."],
+      ["На кого похож Аллах?",["Ни на что не похож","На человека","На солнце"],0,"Аллах не похож ни на одно из Своих творений."]]},
+  {t:"Шахада",ic:"📜",tip:"Шахада — это ключ ислама. Её надо знать наизусть и понимать.",c:[
+    ["📜","Слова шахады","«Ашхаду ан ля иляха илляЛлах, ва ашхаду анна Мухаммадан расулюЛлах»."],
+    ["☝️","Первая часть","«Ля иляха илляЛлах» — нет божества, достойного поклонения, кроме Аллаха."],
+    ["🕋","Вторая часть","«Мухаммадун расулюЛлах» — Мухаммад ﷺ — посланник Аллаха."],
+    ["🔑","Ключ ислама","Кто от сердца произносит шахаду и верит в неё — тот мусульманин."]],
+   q:[["Что означает «Ля иляха илляЛлах»?",["Нет божества, достойного поклонения, кроме Аллаха","Аллах Велик","Слава Аллаху"],0,"«Ля иляха» — «нет божества»…"],
+      ["«Мухаммадун расулюЛлах» означает:",["Мухаммад ﷺ — посланник Аллаха","Мухаммад ﷺ — ангел","Хвала Аллаху"],0,"«Расуль» — это посланник."],
+      ["Шахада — это…",["Ключ ислама","Название намаза","Имя ангела"],0,"С неё начинается ислам человека."],
+      ["Сколько частей в шахаде?",["Две","Одна","Пять"],0,"Про Аллаха и про Пророка ﷺ."]]},
+  {t:"6 столпов имана",ic:"🏛",tip:"Иман — это вера. У неё шесть столпов, как у дома шесть опор.",c:[
+    ["☝️","1. Вера в Аллаха","Аллах Един, Он — Творец всего."],
+    ["✨","2. Вера в ангелов","Ангелы созданы из света и всегда слушаются Аллаха."],
+    ["📚","3. Вера в Писания","Аллах ниспослал Писания пророкам: Таурат, Забур, Инджиль и Коран."],
+    ["🌟","4. Вера в пророков","Аллах посылал пророков, чтобы учить людей. Последний — Мухаммад ﷺ."],
+    ["⚖️","5. Вера в Судный день","Все люди оживут, и каждый увидит свои дела."],
+    ["🎯","6. Вера в предопределение","Всё — и хорошее, и плохое — происходит по воле и знанию Аллаха."]],
+   q:[["Сколько столпов имана?",["Шесть","Пять","Три"],0,"Как шесть опор у дома."],
+      ["Что НЕ является столпом имана?",["Вера в звёзды-гороскопы","Вера в ангелов","Вера в Судный день"],0,"Столпы: Аллах, ангелы, Писания, пророки, Судный день, предопределение."],
+      ["Из чего созданы ангелы?",["Из света","Из глины","Из огня"],0,"Люди — из глины, джинны — из огня, а ангелы…"],
+      ["Кто последний пророк?",["Мухаммад ﷺ","Иса","Муса"],0,"После него пророков больше не будет."],
+      ["Всё происходит по воле Аллаха — это вера в…",["Предопределение (кадар)","Писания","Ангелов"],0,"Шестой столп."]]},
+  {t:"Ангелы",ic:"✨",tip:"Ангелы рядом с нами, хотя мы их не видим. У каждого своё дело.",c:[
+    ["🕊","Джибриль","Приносил пророкам откровение от Аллаха. Он принёс Коран Пророку ﷺ."],
+    ["🌧","Микаиль","По велению Аллаха управляет дождём и пропитанием."],
+    ["📯","Исрафиль","Подует в Рог (Сур) перед Судным днём."],
+    ["🌙","Азраиль","Ангел смерти: забирает души, когда приходит срок."],
+    ["✍️","Кираман Катибин","Два ангела на плечах записывают наши хорошие и плохие дела."]],
+   q:[["Кто принёс Коран Пророку ﷺ?",["Джибриль","Микаиль","Исрафиль"],0,"Он приносил откровение всем пророкам."],
+      ["Кто подует в Рог (Сур)?",["Исрафиль","Азраиль","Джибриль"],0,"Это будет перед Судным днём."],
+      ["Кто управляет дождём по велению Аллаха?",["Микаиль","Джибриль","Азраиль"],0,"Дождь и пропитание."],
+      ["Что делают ангелы Кираман Катибин?",["Записывают наши дела","Приносят дождь","Охраняют рай"],0,"Они на наших плечах."],
+      ["Ангелы всегда…",["слушаются Аллаха","ошибаются","спят"],0,"Они не ослушиваются Аллаха."]]},
+  {t:"Писания и пророки",ic:"📚",tip:"Аллах не оставил людей без знаний — Он посылал пророков и Писания.",c:[
+    ["📜","Таурат","Ниспослан пророку Мусе (мир ему)."],
+    ["🎵","Забур","Ниспослан пророку Дауду (мир ему)."],
+    ["📗","Инджиль","Ниспослан пророку Исе (мир ему)."],
+    ["📖","Коран","Последнее Писание, ниспослан Мухаммаду ﷺ. Аллах хранит Коран от изменений."],
+    ["👣","Пророки","Первый пророк — Адам. В Коране названы 25 пророков. Последний — Мухаммад ﷺ."]],
+   q:[["Кому был ниспослан Коран?",["Мухаммаду ﷺ","Мусе","Исе"],0,"Последнее Писание — последнему пророку."],
+      ["Таурат был ниспослан…",["Мусе","Дауду","Исе"],0,"Пророку, который говорил с Аллахом."],
+      ["Забур был ниспослан…",["Дауду","Мусе","Нуху"],0,"Пророк-царь, у него был прекрасный голос."],
+      ["Кто первый пророк?",["Адам","Ибрахим","Нух"],0,"Он же — первый человек."],
+      ["Сколько пророков названо в Коране?",["25","5","100"],0,"Двадцать с чем-то…"],
+      ["Кто построил ковчег?",["Нух","Ибрахим","Юсуф"],0,"Спасся с верующими во время потопа."]]},
+  {t:"5 столпов ислама",ic:"🕌",tip:"Ислам держится на пяти столпах — это то, что мусульманин делает.",c:[
+    ["📜","1. Шахада","Свидетельство: нет божества, кроме Аллаха, и Мухаммад ﷺ — Его посланник."],
+    ["🧎","2. Намаз","Пять раз в день мы молимся Аллаху."],
+    ["💰","3. Закят","Богатые отдают часть имущества бедным."],
+    ["🌙","4. Пост (ураза)","В месяц Рамадан мы постимся от рассвета до заката."],
+    ["🕋","5. Хадж","Паломничество в Мекку — раз в жизни, если есть силы и средства."]],
+   q:[["Сколько столпов ислама?",["Пять","Шесть","Три"],0,"Шесть — это столпы имана, а ислама…"],
+      ["Сколько раз в день мусульмане совершают намаз?",["5","3","7"],0,"Фаджр, Зухр, Аср, Магриб, Иша."],
+      ["В какой месяц держат пост?",["Рамадан","Шаввал","Мухаррам"],0,"В этот месяц начал ниспосылаться Коран."],
+      ["Куда совершают хадж?",["В Мекку","В Медину","В Казань"],0,"Там находится Кааба."],
+      ["Закят — это…",["часть имущества для бедных","вид намаза","праздник"],0,"Помощь нуждающимся."]]}
+ ]},
+ fq:{n:"Фикх",sub:"омовение и намаз",ic:"🕌",col:"#FF8A00",les:[
+  {t:"Чистота и вода",ic:"💧",tip:"Аллах любит чистых. Ислам начинается с чистоты!",c:[
+    ["💧","Тахарат","Тахарат — это чистота. Без неё намаз не принимается."],
+    ["🌧","Какой водой можно","Чистой природной водой: дождевой, речной, морской, колодезной, водой из-под крана."],
+    ["🧃","Какой нельзя","Соком, чаем, компотом, молоком и грязной водой омовение не делают."],
+    ["🧼","Наджаса","Наджаса — нечистоты. Их нужно смыть с тела, одежды и места для намаза."]],
+   q:[["Каким словом называют чистоту в исламе?",["Тахарат","Закят","Хадж"],0,"«Та-ха-…»"],
+      ["Можно ли сделать омовение дождевой водой?",["Да","Нет"],0,"Это чистая природная вода."],
+      ["Можно ли сделать омовение соком?",["Нет","Да"],0,"Для омовения нужна вода, а не напиток."],
+      ["Наджаса — это…",["нечистоты","молитва","омовение"],0,"Их надо смыть перед намазом."]]},
+  {t:"Фарды омовения",ic:"🚿",tip:"В омовении (вуду) есть 4 обязательных действия. Без них омовения нет!",c:[
+    ["😊","1. Лицо","Умыть всё лицо: от волос на лбу до подбородка и от уха до уха."],
+    ["🙌","2. Руки","Вымыть руки вместе с локтями."],
+    ["🖐","3. Голова","Протереть мокрой рукой (масх) хотя бы четверть головы."],
+    ["🦶","4. Ноги","Вымыть ноги вместе со щиколотками."],
+    ["⭐","Сунны омовения","Начать с «Бисмиллях», вымыть кисти, прополоскать рот и нос, всё по 3 раза, начинать с правой стороны."]],
+   q:[["Сколько фардов в омовении?",["4","3","6"],0,"Лицо, руки, голова, ноги."],
+      ["Руки моют…",["вместе с локтями","до запястий","до плеч"],0,"Локти тоже надо вымыть."],
+      ["Какую часть головы протирают обязательно?",["Хотя бы четверть","Только лоб","Ничего"],0,"Это минимальный масх."],
+      ["Ноги моют…",["вместе со щиколотками","только пальцы","до колен"],0,"Щиколотки — косточки по бокам стопы."],
+      ["С чего лучше начать омовение?",["С «Бисмиллях»","С ног","С головы"],0,"С имени Аллаха начинаем всё хорошее."]]},
+  {t:"Что нарушает омовение",ic:"⛔",tip:"Важно знать, когда омовение нужно обновить.",c:[
+    ["🚽","Туалет","Всё, что выходит из двух мест (малая и большая нужда, газы), нарушает омовение."],
+    ["🩸","Кровь","Кровь или гной, которые вытекли из ранки, нарушают омовение."],
+    ["😴","Сон","Сон лёжа или облокотившись нарушает омовение."],
+    ["🤮","Рвота","Рвота полным ртом нарушает омовение."],
+    ["😆","Смех в намазе","Если засмеяться вслух во время намаза — нарушаются и намаз, и омовение."]],
+   q:[["Нарушает ли омовение сон лёжа?",["Да","Нет"],0,"Сон лёжа или облокотившись."],
+      ["Нарушает ли омовение поход в туалет?",["Да","Нет"],0,"Всё, что выходит из двух мест."],
+      ["Если из ранки вытекла кровь, омовение…",["нарушается","не нарушается"],0,"Кровь, которая вытекла, — нарушает."],
+      ["Нарушает ли омовение еда?",["Нет","Да"],0,"Можно поесть и молиться с тем же омовением."],
+      ["Громкий смех во время намаза нарушает…",["и намаз, и омовение","ничего","только намаз"],0,"Так учит ханафитский мазхаб."]]},
+  {t:"Пять намазов",ic:"🧎",tip:"Пять намазов — это пять встреч с Аллахом каждый день.",c:[
+    ["🌅","Фаджр (утренний)","2 ракаата фарда. Время — от рассвета до восхода солнца."],
+    ["☀️","Зухр (обеденный)","4 ракаата фарда. После того как солнце прошло зенит."],
+    ["🌤","Аср (послеобеденный)","4 ракаата фарда."],
+    ["🌇","Магриб (вечерний)","3 ракаата фарда. Сразу после захода солнца."],
+    ["🌙","Иша (ночной)","4 ракаата фарда. После него — Витр, 3 ракаата (ваджиб)."]],
+   q:[["Сколько ракаатов в фарде утреннего намаза (Фаджр)?",["2","4","3"],0,"Самый короткий фард."],
+      ["Сколько ракаатов в фарде Магриба?",["3","2","4"],0,"Единственный фард с нечётным числом ракаатов."],
+      ["Какой намаз совершают сразу после захода солнца?",["Магриб","Аср","Иша"],0,"«Магриб» — запад, туда заходит солнце."],
+      ["Сколько ракаатов в фарде Зухра?",["4","2","3"],0,"Как у Асра и Иша."],
+      ["Сколько всего ракаатов фарда в день?",["17","10","20"],0,"2 + 4 + 4 + 3 + 4."],
+      ["Какой намаз совершают после Иша?",["Витр","Фаджр","Зухр"],0,"Ваджиб, 3 ракаата."]]},
+  {t:"Условия и столпы намаза",ic:"🕋",tip:"Чтобы намаз был правильным, нужны условия и столпы — по шесть.",c:[
+    ["🧼","Условия (до намаза)","1) чистота тела — омовение; 2) чистота одежды и места; 3) закрыть аурат; 4) повернуться к Кибле; 5) наступило время; 6) намерение (ният)."],
+    ["🤲","Столпы (в намазе)","1) начальный такбир «Аллаху акбар»; 2) стояние (кыям); 3) чтение Корана (кыраат); 4) поясной поклон (руку); 5) два земных поклона (суджуд); 6) последнее сидение."],
+    ["🧭","Кибла","Кибла — направление на Каабу в Мекке. Из Можги — примерно на юг, чуть к западу."],
+    ["❤️","Ният","Намерение делается сердцем: «Совершаю ради Аллаха такой-то намаз»."]],
+   q:[["Куда поворачиваются во время намаза?",["К Кибле (Каабе)","На восток","Куда удобно"],0,"Направление на Мекку."],
+      ["С каких слов начинается намаз?",["«Аллаху акбар»","«Бисмиллях»","«Ассаляму алейкум»"],0,"Начальный такбир."],
+      ["Сколько земных поклонов (суджудов) в каждом ракаате?",["2","1","3"],0,"Два земных поклона."],
+      ["Ният (намерение) делается…",["сердцем","ногами","только вслух громко"],0,"Главное — намерение в сердце."],
+      ["Можно ли молиться без омовения?",["Нет","Да"],0,"Это первое условие намаза."]]}
+ ]}};
+function gcOpen(c,i){if(PL&&PL.playing)plToggle(false);LS={gc:c,i:i,step:"intro",tasks:null,k:0,err:0,ok:0,fb:null,res:null};window.scrollTo(0,0)}
+function gcBuild(c,i){var L=GC[c].les[i];return shuf(L.q.map(function(x){var idx=x[1].map(function(_,k){return k}),mix=shuf(idx.slice());
+  return {t:"gq",q:x[0],opts:mix.map(function(k){return x[1][k]}),good:mix.indexOf(x[2]),hint:x[3]}}))}
+function shuf(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
+function gcMap(c){var C=GC[c],L=C.les,cur=null;L.forEach(function(_,i){if(cur==null&&!(LP&&LP[c+(i+1)])&&lsOk(c,i))cur=i});
+  var h='<div class="box gcbox" style="--gcc:'+C.col+'"><h2>'+C.ic+' '+C.n+' <small class="mut" style="font-size:14px">— '+C.sub+'</small></h2>';
+  var tot=0;L.forEach(function(_,i){tot+=LP&&LP[c+(i+1)]||0});h+='<div class="sm" style="margin-bottom:10px">⭐ '+tot+' из '+L.length*3+'</div><div class="gcpath">';
+  L.forEach(function(x,i){var b=LP&&LP[c+(i+1)]||0,ok=lsOk(c,i);h+='<button class="gcl'+(i===cur?" cur":b?" done":"")+(ok?"":" lock")+'" data-a="lopen" data-k="'+c+'" data-v="'+i+'"><span class="gci">'+(ok?x.ic:"🔒")+'</span><span class="gct"><b>'+(i+1)+'. '+esc(x.t)+'</b><small>'+(ok?(b?[1,2,3].map(function(k){return k<=b?"⭐":"☆"}).join(""):i===cur?"Начни отсюда!":"Новый урок"):"Учитель ещё не открыл")+'</small></span>'+(i===cur?'<span class="gcs">'+mas("sab",52)+'</span>':"")+'</button>'});
+  return h+'</div><p class="mut sm" style="margin-top:10px;font-size:12px">Фикх — по ханафитскому мазхабу, акыда — по учению ахлю-с-сунна валь-джамаа. Проверено учителем медресе.</p></div>'}
+function vGc(){var c=LS.gc,C=GC[c],x=C.les[LS.i];
+  var h='<div class="box gcbox" style="--gcc:'+C.col+'"><div class="btns" style="align-items:center;justify-content:space-between;flex-wrap:nowrap"><b style="font-size:18px">'+x.ic+' '+esc(x.t)+'</b><button class="btn sm" data-a="lquit">✕ Выйти</button></div>';
+  if(LS.step==="intro"){h+=sayS("sab",x.tip)+'<div class="gccards">'+x.c.map(function(k,j){return '<button class="gcc c'+(j%8)+(UI.gcf===j?" on":"")+'" data-a="gcflip" data-v="'+j+'"><span class="gce">'+k[0]+'</span><b>'+esc(k[1])+'</b><p>'+esc(k[2])+'</p></button>'}).join("")+'</div>';
+    return h+'<div class="btns" style="margin-top:12px"><button class="btn pri" data-a="lstart">🎮 Проверь себя</button></div></div>'}
+  if(LS.step==="res")return h+vLessonRes()+'</div>';
+  var t=lsCur(),L=LS.tasks.length;
+  h+='<div class="bar" style="height:8px;margin:8px 0 14px"><i style="width:'+Math.round(LS.k/L*100)+'%"></i></div><h3>'+esc(t.q)+'</h3><div class="gcopts">';
+  h+=t.opts.map(function(o,v){var cls="lopt",miss=t.miss&&t.miss.indexOf(v)>-1;if(LS.fb){if(v===t.good)cls+=" ok";else if(LS.fb.pick===v||miss)cls+=" bad"}else if(miss)cls+=" bad off";return '<button class="'+cls+'" data-a="lans" data-v="'+v+'"'+(LS.fb||miss?" disabled":"")+'>'+esc(o)+'</button>'}).join("")+'</div>';
+  if(!LS.fb&&t.miss)h+=sayS("sab","Подумай ещё: "+esc(t.hint));
+  if(LS.fb)h+=(LS.fb.ok?sayS("asl",t.miss?"Верно, со второй попытки! Молодец 👍":praise()):sayS("sab","Ничего страшного! Правильный ответ отмечен зелёным — запомни его."))+'<button class="btn pri" data-a="lnext">Дальше ›</button>';
+  return h+'</div>'}
+
+/* ---- что видят ученики: предметы и открытые уроки (выбирает учитель) ---- */
+var SUBJ=[["q","📖","Коран (суры)"],["ab","🔤","Алифба"],["aq","💎","Акыда"],["fq","🕌","Фикх"]];
+function lsCfg(){return S&&S.lsn||{}}
+function subjOn(c){var o=lsCfg().on;return !o||o[c]!==false}
+function lsOk(c,id){if(canEdit())return true;var op=lsCfg().open;op=op&&op[c];return !op||op.indexOf(String(id))>-1}
+function subjLessons(c){if(c==="q")return LMOD.list.map(function(n){return [String(n),n+". "+NAMES[n]]});if(c==="ab")return ABLES.map(function(x,i){return [String(i),(i+1)+". "+x.t]});return GC[c].les.map(function(x,i){return [String(i),(i+1)+". "+x.t]})}
+function vSubjCfg(){var cf=lsCfg(),h='<div class="box"><h3 style="margin-top:0">👀 Что видят ученики</h3><p class="sm mut" style="margin:-4px 0 8px">Включите предметы и откройте нужные уроки. Закрытые уроки ученики видят с замочком 🔒.</p>';
+  SUBJ.forEach(function(x){var c=x[0],on=subjOn(c),op=cf.open&&cf.open[c],L=subjLessons(c),n=op?op.length:L.length;
+    h+='<div class="sjrow"><button class="sw'+(on?" on":"")+'" data-a="sjon" data-v="'+c+'" aria-label="Показывать предмет"><i></i></button><b>'+x[1]+' '+x[2]+'</b><button class="btn sm" data-a="sjx" data-v="'+c+'"'+(on?"":" disabled")+'>Открыто: '+(op?n+" из "+L.length:"все")+' ▾</button></div>';
+    if(on&&UI.sjx===c){h+='<div class="sjl"><div class="btns" style="margin-bottom:6px"><button class="btn sm" data-a="sjall" data-v="'+c+'" data-k="all">Открыть все</button><button class="btn sm" data-a="sjall" data-v="'+c+'" data-k="none">Закрыть все</button></div>'+L.map(function(l){var o=!op||op.indexOf(l[0])>-1;return '<button class="tg'+(o?" on":"")+'" data-a="sjl" data-v="'+c+'" data-k="'+l[0]+'">'+(o?"✅ ":"🔒 ")+esc(l[1])+'</button>'}).join("")+'</div>'}});
+  return h+'</div>'}
+function subjAct(a,v,k){
+  if(a==="sjx"){UI.sjx=UI.sjx===v?null:v;return true}
+  if(a==="gcflip"){UI.gcf=UI.gcf===+v?null:+v;return true}
+  if(!canEdit())return false;
+  mut(function(){if(!S.lsn)S.lsn={};if(!S.lsn.on)S.lsn.on={};if(!S.lsn.open)S.lsn.open={};var L=subjLessons(v).map(function(l){return l[0]});
+    if(a==="sjon")S.lsn.on[v]=!subjOn(v);
+    else if(a==="sjall")S.lsn.open[v]=k==="all"?null:[];
+    else if(a==="sjl"){var op=S.lsn.open[v]||L.slice(),i=op.indexOf(k);if(i>-1)op.splice(i,1);else op.push(k);S.lsn.open[v]=op.length===L.length?null:op}});
+  return true}
+
 /* ================= Оазис: финики, жемчужины, сундуки, наряды Сабура, шатёр, мечеть ================= */
 var WAL=null,WALbusy=false,WALerr="",PEEK=null;
 var SHOP=[
@@ -2509,7 +2695,7 @@ var SLOTN={hat:"🎩 Шапки",sc:"🧣 Шарфы",bl:"🟥 Попоны",ten
 var TENTIC={t_rug:"🟥",t_pil:"🛋️",t_lamp:"🏮",t_shelf:"📚",t_rehal:"📖",t_palm:"🌴",t_jug:"🏺",t_fanus:"🪔"};
 var MOSQ=[["Фундамент",30,0],["Стены",50,0],["Дверь и окна",70,0],["Крыша",90,0],["Купол",110,1],["Минарет",140,1],["Место для омовения",170,2]];
 function shopItem(id){for(var i=0;i<SHOP.length;i++)if(SHOP[i].id===id)return SHOP[i];return null}
-function cur(c,n){return c==="p"?n+" 💎":n+" 🌴"}
+function cur(c,n){return c==="p"?n+" 💎":n+" <i class=dt></i>"}
 function isKid(){return !!(STOK&&!canEdit()&&by(STOK.sid))}
 
 /* --- одежда Сабура --- */
@@ -2539,7 +2725,7 @@ function sabInline(eq,w){return '<svg viewBox="0 0 200 200" width="'+w+'" height
 function walLoad(force){if(!isKid()||!CLOUD||WALbusy||(WAL&&!force))return;WALbusy=true;
   rpc("wallet_get",{p_slug:G.slug,p_stoken:STOK.t}).then(function(w){WAL=w;WAL._k=G.slug+":"+STOK.sid;WALerr="";WALbusy=false;sabSync();render()}).catch(function(e){WALbusy=false;WALerr=emsg(e);render()})}
 function walDo(fn,args,ok){if(UI.wbusy)return;UI.wbusy=true;args.p_slug=G.slug;args.p_stoken=STOK.t;render();
-  rpc(fn,args).then(function(w){UI.wbusy=false;WAL=w;WAL._k=G.slug+":"+STOK.sid;sabSync();if(ok)ok(w);render()}).catch(function(e){UI.wbusy=false;var c=e&&(e.message||e.code)||"";flash(/poor/.test(c)?"Пока не хватает — пройди ещё уроки 🌴":/owned/.test(c)?"Это у тебя уже есть":"Не получилось: "+emsg(e));render()})}
+  rpc(fn,args).then(function(w){UI.wbusy=false;WAL=w;WAL._k=G.slug+":"+STOK.sid;sabSync();if(ok)ok(w);render()}).catch(function(e){UI.wbusy=false;var c=e&&(e.message||e.code)||"";flash(/poor/.test(c)?"Пока не хватает — пройди ещё уроки":/owned/.test(c)?"Это у тебя уже есть":"Не получилось: "+emsg(e));render()})}
 function peekLoad(){if(PEEK&&PEEK.slug===G.slug&&Date.now()-PEEK.at<60000)return;PEEK={slug:G.slug,at:Date.now(),d:PEEK&&PEEK.slug===G.slug?PEEK.d:null};
   rpc("wallet_peek",{p_slug:G.slug,p_token:canEdit()?TOK:null,p_stoken:STOK?STOK.t:null,p_ptoken:PTOK?PTOK.t:null}).then(function(d){PEEK.d=d||{};render()}).catch(function(){PEEK.d=PEEK.d||{}})}
 function oasisAct(a,v,k){
@@ -2556,8 +2742,8 @@ function oasisAct(a,v,k){
 /* --- экраны --- */
 function walOwn(){if(WAL&&WAL._k!==G.slug+":"+STOK.sid)WAL=null}
 function walChip(){if(!isKid())return "";walOwn();if(!WAL){walLoad();return ""}
-  return '<a class="wchip" href="#/g/'+encodeURIComponent(G.slug)+'/oasis" aria-label="Мой оазис">🌴 '+WAL.dates+' <span>💎 '+WAL.pearls+'</span>'+(WAL.chests||WAL.offer?' <b>🎁</b>':"")+'</a>'}
-function rewardHtml(rw){if(!rw)return "";var p=[];if(rw.dates)p.push('<span class="rwd">+'+rw.dates+' 🌴</span>');if(rw.pearls)p.push('<span class="rwd p">+'+rw.pearls+' 💎</span>');if(rw.chest)p.push('<span class="rwd c">🎁 Сундук!</span>');
+  return '<a class="wchip" href="#/g/'+encodeURIComponent(G.slug)+'/oasis" aria-label="Мой оазис"><i class=dt></i> '+WAL.dates+' <span>💎 '+WAL.pearls+'</span>'+(WAL.chests||WAL.offer?' <b>🎁</b>':"")+'</a>'}
+function rewardHtml(rw){if(!rw)return "";var p=[];if(rw.dates)p.push('<span class="rwd">+'+rw.dates+' <i class=dt></i></span>');if(rw.pearls)p.push('<span class="rwd p">+'+rw.pearls+' 💎</span>');if(rw.chest)p.push('<span class="rwd c">🎁 Сундук!</span>');
   return p.length?'<div class="rwrow">'+p.join("")+'</div>'+(rw.chest?'<a class="btn pri" href="#/g/'+encodeURIComponent(G.slug)+'/oasis">🎁 Открыть сундук</a>':""):""}
 function tentSvg(items,eq){var has=function(x){return items.indexOf(x)>-1};
   var s='<svg viewBox="0 0 360 230" class="tent" aria-hidden="true"><defs><linearGradient id="tsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--tsk1)"/><stop offset="1" stop-color="var(--tsk2)"/></linearGradient></defs><rect width="360" height="230" fill="url(#tsky)"/><path d="M0 190Q90 176 180 186T360 182V230H0Z" fill="#F2C98A"/>';
@@ -2586,8 +2772,8 @@ function vOasis(){
   if(!isKid())return '<div class="box cen mut">Оазис есть у каждого ученика в его кабинете.</div>';
   if(!WAL){walLoad();return '<div class="box cen mut">'+(WALerr?esc(WALerr):"Загрузка оазиса…")+'</div>'}
   var w=WAL,tab=UI.wtab||(w.chests||w.offer?"c":"s"),eq=w.equip||{},items=w.items||[];
-  var h='<div class="box oas"><div class="oashead"><div class="oassab">'+sabInline(UI.wtry&&shopItem(UI.wtry)&&shopItem(UI.wtry).slot!=="tent"?(function(){var e=JSON.parse(JSON.stringify(eq));e[shopItem(UI.wtry).slot]=UI.wtry;return e})():eq,110)+'</div><div><h2 style="margin:0 0 6px">Мой оазис</h2><div class="oasbal"><span>🌴 <b>'+w.dates+'</b><small>финики</small></span><span>💎 <b>'+w.pearls+'</b><small>жемчужины</small></span><span>🔥 <b>'+(w.streak||0)+'</b><small>дней подряд</small></span></div></div></div>';
-  h+='<p class="sm mut" style="margin:8px 0">🌴 Финики — за каждый верный ответ в уроках. 💎 Жемчужины — за каждые 5 уроков и каждые 3 дня подряд. 🎁 Сундук — за каждые 3 урока.</p>';
+  var h='<div class="box oas"><div class="oashead"><div class="oassab">'+sabInline(UI.wtry&&shopItem(UI.wtry)&&shopItem(UI.wtry).slot!=="tent"?(function(){var e=JSON.parse(JSON.stringify(eq));e[shopItem(UI.wtry).slot]=UI.wtry;return e})():eq,110)+'</div><div><h2 style="margin:0 0 6px">Мой оазис</h2><div class="oasbal"><span><i class=dt></i> <b>'+w.dates+'</b><small>финики</small></span><span>💎 <b>'+w.pearls+'</b><small>жемчужины</small></span><span>🔥 <b>'+(w.streak||0)+'</b><small>дней подряд</small></span></div></div></div>';
+  h+='<p class="sm mut" style="margin:8px 0"><i class=dt></i> Финики — за каждый верный ответ в уроках. 💎 Жемчужины — за каждые 5 уроков и каждые 3 дня подряд. 🎁 Сундук — за каждые 3 урока.</p>';
   h+='<div class="seg wide2 oastabs">'+[["c","🎁 Сундуки"],["s","🐪 Сабур"],["t","⛺ Шатёр"],["m","🕌 Мечеть"]].map(function(x){return '<button class="'+(tab===x[0]?"on":"")+'" data-a="wtab" data-v="'+x[0]+'">'+x[1]+'</button>'}).join("")+'</div>';
   if(tab==="c"){
     if(UI.wgot)h+='<div class="chgot">'+offerCard(UI.wgot,-1)+'<b>Это твоё! 🎉</b></div>';
@@ -2602,13 +2788,13 @@ function vOasis(){
     h+=guestsHtml();
   }else{
     h+=mosqueSvg(w.mosque||0)+'<p class="sm mut cen" style="margin:8px 0">Мечеть строится по частям. Она простая и скромная — в мечети главное не украшения, а намаз и знания.</p>';
-    h+='<div class="mqlist">'+MOSQ.map(function(m,i){var done=i<w.mosque,next=i===w.mosque;return '<div class="mq'+(done?" done":next?" next":"")+'"><span>'+(done?"✅":next?"🔨":"🔒")+'</span><b>'+m[0]+'</b><small>'+(done?"построено":m[1]+" 🌴"+(m[2]?" + "+m[2]+" 💎":""))+'</small></div>'}).join("")+'</div>';
-    if(w.mosque<7){var m=MOSQ[w.mosque],can=w.dates>=m[1]&&w.pearls>=m[2];h+='<div class="cen" style="margin-top:10px"><button class="btn pri big" data-a="wbuild"'+(!can||UI.wbusy?" disabled":"")+'>🔨 Построить: '+m[0]+'</button>'+(can?"":'<p class="sm mut">Нужно '+m[1]+' 🌴'+(m[2]?" и "+m[2]+" 💎":"")+'</p>')+'</div>'}
+    h+='<div class="mqlist">'+MOSQ.map(function(m,i){var done=i<w.mosque,next=i===w.mosque;return '<div class="mq'+(done?" done":next?" next":"")+'"><span>'+(done?"✅":next?"🔨":"🔒")+'</span><b>'+m[0]+'</b><small>'+(done?"построено":m[1]+" <i class=dt></i>"+(m[2]?" + "+m[2]+" 💎":""))+'</small></div>'}).join("")+'</div>';
+    if(w.mosque<7){var m=MOSQ[w.mosque],can=w.dates>=m[1]&&w.pearls>=m[2];h+='<div class="cen" style="margin-top:10px"><button class="btn pri big" data-a="wbuild"'+(!can||UI.wbusy?" disabled":"")+'>🔨 Построить: '+m[0]+'</button>'+(can?"":'<p class="sm mut">Нужно '+m[1]+' <i class=dt></i>'+(m[2]?" и "+m[2]+" 💎":"")+'</p>')+'</div>'}
     else h+='<p class="cen" style="font-weight:900">Машаллах! Твоя мечеть построена 🕌</p>';
   }
   return h+'</div>'}
 function chestSvg(){return '<svg viewBox="0 0 100 80" width="86" height="70"><rect x="10" y="34" width="80" height="40" rx="6" fill="#B45309"/><path d="M10 38Q10 12 50 12Q90 12 90 38Z" fill="#D97706"/><rect x="10" y="34" width="80" height="7" fill="#92400E"/><g fill="#FBBF24"><rect x="44" y="30" width="12" height="16" rx="2"/><rect x="18" y="14" width="6" height="58" rx="2" opacity=".85"/><rect x="76" y="14" width="6" height="58" rx="2" opacity=".85"/></g><circle cx="50" cy="40" r="2.4" fill="#92400E"/></svg>'}
-function offerCard(o,i){var ic,t;if(o.k==="d"){ic="🌴";t=o.n+" фиников"}else if(o.k==="p"){ic="💎";t=o.n+" жемчужина"}else{var it=shopItem(o.id);ic=it&&it.slot!=="tent"?'<span class="ofsab">'+sabInline((function(){var e={};e[it.slot]=it.id;return e})(),70)+'</span>':(TENTIC[o.id]||"⛺");t=it?it.n:o.id}
+function offerCard(o,i){var ic,t;if(o.k==="d"){ic="<i class=dt></i>";t=o.n+" фиников"}else if(o.k==="p"){ic="💎";t=o.n+" жемчужина"}else{var it=shopItem(o.id);ic=it&&it.slot!=="tent"?'<span class="ofsab">'+sabInline((function(){var e={};e[it.slot]=it.id;return e})(),70)+'</span>':(TENTIC[o.id]||"⛺");t=it?it.n:o.id}
   return i<0?'<div class="offer on"><span class="ofic">'+ic+'</span><b>'+t+'</b></div>':'<button class="offer" data-a="wpick" data-v="'+i+'"'+(UI.wbusy?" disabled":"")+'><span class="ofic">'+ic+'</span><b>'+t+'</b><small>Выбрать</small></button>'}
 function shopCard(x,items,eq){var own=items.indexOf(x.id)>-1,on=eq[x.slot]===x.id,poor=x.c==="p"?WAL.pearls<x.p:WAL.dates<x.p,tr=UI.wtry===x.id;
   var pv=x.slot==="tent"?'<span class="shpv">'+(TENTIC[x.id]||"⛺")+'</span>':'<span class="shpv sv">'+sabInline((function(){var e={};e[x.slot]=x.id;return e})(),58)+'</span>';
@@ -2673,6 +2859,7 @@ function setTab(t){R.tab=t;var h="#/g/"+encodeURIComponent(G.slug)+(t==="r"?"":"
 var skipRoute=false;
 function act(a,b,e){
   var id=b.dataset.id,s=id&&S?by(id):null,k=b.dataset.k,v=b.dataset.v;
+  if(/^(sj(on|x|all|l)|gcflip)$/.test(a)){if(subjAct(a,v,k))render();return}
   if(/^w(tab|open|pick|try|buy|eq|build|guest)$/.test(a)){if(oasisAct(a,v,k))render();return}
   if(a==="pl"){if(PL&&PL.k===v&&!PL.hw)plToggle();else plStart(v);return}
   if(a==="plhw"){var hx=HW&&HW.items?HW.items.filter(function(q){return q.id===id})[0]:null,hk=hx&&plFind(hx.sura||hx.title);
