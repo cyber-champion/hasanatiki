@@ -2549,18 +2549,12 @@ function abFN(F,k){return F.length===2?["одна","в конце"][k]:["одн�
 var ABFX=["Так буква пишется отдельно — сама по себе.","В начале слова буква соединяется только со следующей буквой (слева от неё).","В середине слова буква соединяется с обеих сторон: и справа, и слева.","В конце слова буква соединяется только с предыдущей буквой (справа) и часто получает «хвостик»."];
 function abWord(c){if(typeof QD==="undefined"||!QD)return null;var best=null;Object.keys(QD).some(function(n){QD[n].ar.some(function(a){a.split(" ").forEach(function(w){var b=w.replace(/[\u064B-\u065F\u0670\u06D6-\u06ED\u0640]/g,"").replace(/[أإآٱ]/g,"ا").replace(/ى/g,"ي").replace(/ة/g,"ه");if(b.indexOf(c)>-1&&b.length>=3&&b.length<=5&&(!best||b.length<best.b.length))best={w:w,b:b}})})});return best?best.w:null}
 function abHi(w,c){var h="",norm=function(ch){return ch.replace(/[أإآٱ]/,"ا").replace("ى","ي").replace("ة","ه")};var i=0;while(i<w.length){var j=i+1;while(j<w.length&&/[\u064B-\u065F\u0670\u06D6-\u06ED]/.test(w[j]))j++;var seg=w.slice(i,j);h+=norm(w[i])===c?'<em>'+esc(seg)+'</em>':esc(seg);i=j}return h}
-var abAu=null;
-function abHex(c){var h=c.charCodeAt(0).toString(16).toUpperCase();while(h.length<4)h="0"+h;return h}
-function abTts(c){try{var u=new SpeechSynthesisUtterance(ABAR[c]||c);u.lang="ar-SA";u.rate=.8;var v=speechSynthesis.getVoices().filter(function(x){return /^ar/i.test(x.lang)})[0];if(v)u.voice=v;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
-// Озвучка названия буквы: файл audio/ab/<код>.mp3 (Piper, голос Kareem), если нет — голос телефона
-function abSpeak(c){if(!ABAR[c])return abTts(c);try{if(abAu){abAu.pause()}speechSynthesis&&speechSynthesis.cancel()}catch(e){}
-  try{abAu=new Audio("audio/ab/"+abHex(c)+".mp3");var done=false,fb=function(){if(!done){done=true;abTts(c)}};abAu.onerror=fb;var pr=abAu.play();if(pr&&pr.catch)pr.catch(function(e){if(e&&e.name!=="NotAllowedError")fb()})}catch(e){abTts(c)}}
-function abSpeakOld(c){try{var u=new SpeechSynthesisUtterance(ABAR[c]||c);u.lang="ar-SA";u.rate=.8;var v=speechSynthesis.getVoices().filter(function(x){return /^ar/i.test(x.lang)})[0];if(v)u.voice=v;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
+function abSpeak(c){try{var u=new SpeechSynthesisUtterance(ABAR[c]||c);u.lang="ar-SA";u.rate=.8;var v=speechSynthesis.getVoices().filter(function(x){return /^ar/i.test(x.lang)})[0];if(v)u.voice=v;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
 function abHasVoice(){try{return speechSynthesis.getVoices().some(function(x){return /^ar/i.test(x.lang)})}catch(e){return false}}
 function vAbPop(){if(!QD)qdLoad();var c=UI.abpop,k=UI.abk==null?-1:UI.abk;if(!c||!ABL[c])return "";var F=abForms(c),j=ABL[c][2],ci=ABALL.indexOf(c)%8,w=abWord(c);
   var h='<div class="abov" data-a="abclose"><div class="abpop c'+ci+'" data-a="abnop"><button class="abx" data-a="abclose" aria-label="Закрыть">✕</button>';
   h+='<div class="abbig ar">'+(k>=0?F[k]:c)+'</div><div class="abnm">'+esc(abName(c))+' <span class="ar">'+(ABAR[c]||"")+'</span></div>';
-  h+='<button class="btn sm" data-a="absay" data-v="'+c+'">🔊 Послушать</button><div class="mut" style="font-size:11px;margin-top:4px">Голос: синтез речи Piper («Kareem»)</div>';
+  if(abHasVoice())h+='<button class="btn sm" data-a="absay" data-v="'+c+'">🔊 Послушать</button>';
   h+='<div class="abinfo"><div>🗣 <b>Звук:</b> '+esc(ABL[c][1])+'</div><div>⚫ <b>Точки:</b> '+(ABDOT[c]||"без точек")+'</div>'+(j?'':'<div>✋ <b>Не соединяется</b> со следующей буквой — после неё в слове разрыв.</div>')+'</div>';
   h+='<div class="abf big">'+F.map(function(f,q){return '<button class="'+(q===k?"on":"")+'" data-a="abpop" data-v="'+c+'" data-k="'+q+'"><i class="ar">'+f+'</i><small>'+abFN(F,q)+'</small></button>'}).join("")+'</div>';
   if(k>=0)h+='<p class="abx2">'+(F.length===2&&k===1?ABFX[3]:ABFX[k])+'</p>';
