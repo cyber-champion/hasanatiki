@@ -13,11 +13,13 @@ create table if not exists wallets (
   earned     int  not null default 0,          -- всего заработано фиников (для рейтинга)
   items      jsonb not null default '[]',      -- купленные вещи
   equip      jsonb not null default '{}',      -- что надето: hat / sc / bl
-  mosque     int  not null default 0,          -- построено частей мечети (0..7)
+  mosque     int  not null default 0,          -- построено частей текущей мечети (0..6)
+  mosques    int  not null default 0,          -- сколько мечетей построено целиком
   offer      jsonb,                            -- 3 подарка в открытом сундуке
   updated_at timestamptz not null default now(),
   primary key (group_id, student_id)
 );
+alter table wallets add column if not exists mosques int not null default 0;
 alter table wallets enable row level security;
 revoke all on wallets from anon, authenticated;
 
@@ -59,7 +61,7 @@ end $$;
 create or replace function _wjson(w wallets) returns json language sql stable as $$
   select json_build_object('dates', w.dates, 'pearls', w.pearls, 'chests', w.chests, 'lessons', w.lessons,
     'streak', case when w.last_day >= _today() - 1 then w.streak else 0 end, 'earned', w.earned,
-    'items', w.items, 'equip', w.equip, 'mosque', w.mosque, 'offer', w.offer)
+    'items', w.items, 'equip', w.equip, 'mosque', w.mosque, 'mosques', w.mosques, 'offer', w.offer)
 $$;
 
 -- Начисление за урок (вызывается из lesson_done)
@@ -231,12 +233,14 @@ language plpgsql security definer set search_path = public, extensions as $$
 declare s student_sessions; w wallets; cd int[] := array[30,50,70,90,110,140,170]; cp int[] := array[0,0,0,0,1,1,2];
 begin
   s := _wauth(p_slug, p_stoken); w := _wallet(s.group_id, s.student_id);
-  if w.mosque >= 7 then raise exception 'done'; end if;
+  if w.mosque >= 7 then w.mosque := 0; end if;
   if w.dates < cd[w.mosque + 1] or w.pearls < cp[w.mosque + 1] then raise exception 'poor'; end if;
-  update wallets set dates = dates - cd[w.mosque + 1], pearls = pearls - cp[w.mosque + 1], mosque = mosque + 1, updated_at = now()
+  update wallets set dates = dates - cd[w.mosque + 1], pearls = pearls - cp[w.mosque + 1],
+         mosques = mosques + case when w.mosque + 1 = 7 then 1 else 0 end,
+         mosque = case when w.mosque + 1 = 7 then 0 else w.mosque + 1 end, updated_at = now()
    where group_id = s.group_id and student_id = s.student_id returning * into w;
   insert into wallet_log (group_id, student_id, kind, dates, pearls, note)
-    values (s.group_id, s.student_id, 'mosque', -cd[w.mosque], -cp[w.mosque], 'часть ' || w.mosque);
+    values (s.group_id, s.student_id, 'mosque', 0, 0, 'мечеть ' || (w.mosques + 1) || ', часть ' || w.mosque);
   return _wjson(w);
 end $$;
 
@@ -249,7 +253,7 @@ begin
   if not found then raise exception 'not_found'; end if;
   v := _viewer(g, p_token, p_stoken, p_ptoken);
   if v is null then raise exception 'auth'; end if;
-  return coalesce((select json_object_agg(student_id, json_build_object('items', items, 'equip', equip, 'mosque', mosque, 'earned', earned,
+  return coalesce((select json_object_agg(student_id, json_build_object('items', items, 'equip', equip, 'mosque', mosque, 'mosques', mosques, 'earned', earned,
                     'streak', case when last_day >= _today() - 1 then streak else 0 end))
                      from wallets where group_id = g.id), '{}'::json);
 end $$;

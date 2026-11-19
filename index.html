@@ -567,6 +567,17 @@ html[data-theme=dark] .rwd{background:#4A3A18;color:#FFD27A}html[data-theme=dark
 .ordpool{display:grid;gap:8px}.ordc{touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
 .ordg{position:fixed;z-index:300;pointer-events:none;transform:rotate(-2deg) scale(1.03);box-shadow:0 14px 30px rgba(0,0,0,.25);opacity:.95}
 @keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.tentbtn{border:0;padding:0;background:none;width:100%;cursor:pointer;position:relative;display:block}.tentbtn span{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);background:rgba(255,255,255,.92);color:#1F2340;font-weight:900;border-radius:999px;padding:6px 14px;box-shadow:0 3px 10px rgba(0,0,0,.15);animation:wob 2s ease-in-out infinite;white-space:nowrap}
+.tinov{position:fixed;inset:0;z-index:250;background:#151A36;display:flex;flex-direction:column;padding:max(10px,env(safe-area-inset-top)) 0 10px;animation:fadein .25s}
+.tinhd{display:flex;justify-content:space-between;align-items:center;color:#fff;padding:0 14px 8px;font-size:18px}
+.tinsc{flex:1;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch}.troom{height:100%;aspect-ratio:2/1;display:block;max-height:640px;margin:0 auto;animation:popin .4s}
+.tinhint{color:#E5E7EB;font-size:13px;text-align:center;margin:8px 14px 0}
+.troom .ti{cursor:pointer}.troom .ti:hover{filter:brightness(1.08)}.troom .ghost{opacity:.18;filter:grayscale(1)}
+.troom .tsab.walk .tsabf>g{animation:twalk .35s ease-in-out infinite alternate}@keyframes twalk{from{transform:scale(.9)}to{transform:scale(.9) translateY(-8px) rotate(2deg)}}
+.troom .tsay{transition:opacity .25s}
+.tinsay{display:flex;align-items:center;gap:8px;margin:8px 14px 0;background:#fff;color:#1F2340;border-radius:16px;padding:6px 12px;font-weight:800;animation:popin .3s}.tinsay[hidden]{display:none}
+.mqcount{background:var(--soft);border-radius:16px;padding:10px 12px;margin-bottom:8px}.mqrow{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;align-items:center}.mqrow span{animation:popin .4s both}
+.mqdone{text-align:center;animation:popin .5s}.mqdone h3{margin:10px 0}
 </style>
 <script>(function(){var t="light";try{t=JSON.parse(localStorage.getItem("theme"))||"light"}catch(e){}document.documentElement.setAttribute("data-theme",t==="dark"?"dark":"light")})()</script>
 </head>
@@ -1084,6 +1095,38 @@ function vTaps(){if(!CLOUD)return "";var h='<div class="box"><h2>📊 Куда �
   var Ls=TAPR.r.lessons||[];if(Ls.length)h+='<h3 class="oash">Трудные уроки</h3><p class="sm mut" style="margin:-4px 0 6px">Меньше всего звёзд в среднем — стоит разобрать на занятии.</p>'+Ls.slice(0,6).map(function(x){return '<div class="tpb"><span>'+esc(lesLab(x.course,x.lesson))+'</span><small class="mut">'+x.kids+' уч. · попыток '+x.tries+' · ошибок '+x.errs+'</small><b>⭐ '+x.stars+'</b></div>'}).join("");
   return h+'</div>'}
 
+/* ---- шатёр изнутри: можно зайти, листать комнату пальцем, Сабур ходит, вещи «разговаривают» ---- */
+var TSAY={t_rug:"Мягкий ковёр — здесь мы садимся заниматься.",t_pil:"Подушки, чтобы отдохнуть после урока.",t_lamp:"Фонарь светит, когда темнеет.",t_shelf:"Книги — сокровище знаний!",t_rehal:"На рехяле лежит Мусхаф. Читаем Коран с уважением.",t_palm:"Финиковая пальма — отсюда наши финики!",t_jug:"Вода в кувшине — для омовения.",t_fanus:"Фанус — красивый светильник из Медины.",door:"Это вход. Ассаляму алейкум, гости!"};
+var TPOS={t_palm:140,t_pil:330,t_lamp:470,t_rug:600,t_rehal:640,t_fanus:770,t_shelf:930,t_jug:1080};
+function tentRoom(items,eq,title,own){var has=function(x){return items.indexOf(x)>-1},sh=function(x,svg,lab){if(has(x))return '<g class="ti" data-it="'+x+'">'+svg+'</g>';return own?'<g class="ti ghost" data-it="'+x+'" data-ghost="1"><title>'+lab+'</title>'+svg+'</g>':""};
+  var s='<svg class="troom" viewBox="0 0 1200 600" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="trw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F7E7C6"/><stop offset="1" stop-color="#EFD5A4"/></linearGradient><linearGradient id="trf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E7C08A"/><stop offset="1" stop-color="#D9A86A"/></linearGradient><radialGradient id="trl" cx=".5" cy=".3" r=".7"><stop offset="0" stop-color="#FFF6D8" stop-opacity=".9"/><stop offset="1" stop-color="#FFF6D8" stop-opacity="0"/></radialGradient></defs>';
+  s+='<rect width="1200" height="600" fill="url(#trw)"/>';
+  for(var i=0;i<12;i++)s+='<path d="M'+(i*100)+' 0Q'+(i*100+50)+' 40 '+(i*100+100)+' 0V470H'+(i*100)+'Z" fill="'+(i%2?"#F2DDB4":"#EBCB93")+'" opacity=".55"/>';
+  s+='<path d="M0 0H1200V70Q600 150 0 70Z" fill="#C9934F" opacity=".35"/><g stroke="#B88445" stroke-width="3" opacity=".5">'+[150,350,600,850,1050].map(function(x){return '<path d="M600 -10L'+x+' 470"/>'}).join("")+'</g>';
+  s+='<rect x="590" y="0" width="20" height="470" rx="6" fill="#8B5A2B"/><ellipse cx="600" cy="230" rx="420" ry="260" fill="url(#trl)"/>';
+  s+='<path d="M0 470H1200V600H0Z" fill="url(#trf)"/><g stroke="#C79558" stroke-width="2" opacity=".5"><path d="M0 500H1200M0 540H1200M0 580H1200"/></g>';
+  s+='<g class="ti" data-it="door"><path d="M10 470V210Q60 160 110 210V470Z" fill="#7C4A1E"/><path d="M20 470V220Q60 180 100 220V470Z" fill="#BFE6FF"/><path d="M30 470L60 300L90 470Z" fill="#F2C98A" opacity=".8"/></g>';
+  s+=sh("t_palm",'<g transform="translate(200 470)"><path d="M-26 0L-20-46H20L26 0Z" fill="#C2410C"/><path d="M0-46Q-4-120 4-200" stroke="#8B5A2B" stroke-width="10" fill="none"/><g fill="#3FA557"><path d="M4-200q-60-10-90 18q44-26 90-12Z"/><path d="M4-200q60-12 86 16q-42-24-86-10Z"/><path d="M4-200q-20-46-70-48q46 12 70 48Z"/><path d="M4-200q28-46 74-40q-46 8-74 40Z"/></g><g fill="#9A3412"><circle cx="-4" cy="-188" r="7"/><circle cx="10" cy="-186" r="7"/><circle cx="3" cy="-178" r="7"/></g></g>',"Пальма");
+  s+=sh("t_rug",'<g><ellipse cx="640" cy="525" rx="300" ry="50" fill="#9B1C31"/><ellipse cx="640" cy="525" rx="262" ry="38" fill="none" stroke="#F5C542" stroke-width="4" stroke-dasharray="14 8"/><ellipse cx="640" cy="525" rx="120" ry="16" fill="#C2334F"/></g>',"Ковёр");
+  s+=sh("t_pil",'<g><ellipse cx="300" cy="505" rx="58" ry="26" fill="#2563EB"/><ellipse cx="300" cy="498" rx="40" ry="12" fill="#60A5FA" opacity=".6"/><ellipse cx="372" cy="515" rx="50" ry="22" fill="#F59E0B"/><ellipse cx="372" cy="509" rx="34" ry="10" fill="#FCD34D" opacity=".6"/></g>',"Подушки");
+  s+=sh("t_rehal",'<g transform="translate(660 520)"><path d="M-40 0L40-62M40 0L-40-62" stroke="#8B5A2B" stroke-width="9" stroke-linecap="round"/><path d="M-52-62Q-26-80 0-62Q26-80 52-62L46-50Q24-66 0-50Q-24-66-46-50Z" fill="#166534"/><path d="M-44-62Q-22-74 0-60Q22-74 44-62" stroke="#F5C542" stroke-width="3" fill="none"/></g>',"Рехяль");
+  s+=sh("t_shelf",'<g transform="translate(870 300)"><rect width="130" height="170" rx="6" fill="#8B5A2B"/><rect x="8" y="80" width="114" height="8" fill="#6B4423"/><g><rect x="14" y="14" width="18" height="62" fill="#16A34A"/><rect x="34" y="22" width="14" height="54" fill="#DC2626"/><rect x="50" y="10" width="20" height="66" fill="#2563EB"/><rect x="72" y="24" width="14" height="52" fill="#F59E0B"/><rect x="88" y="16" width="22" height="60" fill="#7C3AED"/><rect x="14" y="96" width="20" height="66" fill="#0F9488"/><rect x="36" y="104" width="14" height="58" fill="#B45309"/><rect x="52" y="98" width="24" height="64" fill="#DB2777"/><rect x="78" y="110" width="16" height="52" fill="#1D4ED8"/></g></g>',"Полка с книгами");
+  s+=sh("t_lamp",'<g transform="translate(470 40)"><path d="M0 0v90" stroke="#8B5A2B" stroke-width="3"/><path d="M-22 90h44l-6 50h-32Z" fill="#F59E0B"/><rect x="-16" y="96" width="32" height="36" rx="4" fill="#FDE68A"/><circle cx="0" cy="115" r="60" fill="#FDE68A" opacity=".22"/></g>',"Фонарь");
+  s+=sh("t_fanus",'<g transform="translate(770 30)"><path d="M0 0v70" stroke="#B8860B" stroke-width="3"/><path d="M0 70l26 24v44l-26 24-26-24V94Z" fill="#D4A017"/><path d="M0 82l15 16v36l-15 16-15-16V98Z" fill="#FFF3B0"/><circle cx="0" cy="116" r="70" fill="#FDE68A" opacity=".2"/></g>',"Фанус");
+  s+=sh("t_jug",'<g transform="translate(1080 520)"><path d="M-26 0Q-40-40-18-58V-74H18V-58Q40-40 26 0Z" fill="#C2410C"/><path d="M18-62q24 0 18 30" stroke="#C2410C" stroke-width="6" fill="none"/><ellipse cx="0" cy="-74" rx="18" ry="5" fill="#9A3412"/></g>',"Кувшин");
+  s+='<g class="tsab" style="transform:translate(180px,330px)"><g class="tsabf"><g transform="scale(.9)">'+sabSvg(eq)+'</g></g><g class="tsay" opacity="0"><rect x="-10" y="-46" width="320" height="40" rx="14" fill="#fff" stroke="#E5E7EB"/><text x="150" y="-20" text-anchor="middle" font-size="17" font-weight="800" fill="#1F2340" style="font-family:Nunito,sans-serif"></text></g></g>';
+  s+='</svg>';
+  return '<div class="tinov"><div class="tinhd"><b>⛺ '+esc(title)+'</b><button class="btn sm" data-a="wtin" data-v="">✕ Выйти</button></div><div class="tinsc">'+s+'</div><div class="tinsay" hidden></div><p class="tinhint">👆 Нажми на пол — Сабур пойдёт туда. Нажми на вещь — Сабур расскажет о ней. Листай комнату пальцем.</p></div>'}
+var TSX=180;
+document.addEventListener("click",function(e){if(!UI.wtry)return;var t=e.target;if(t.closest&&(t.closest(".shopit")||t.closest(".trybar")||t.closest(".oassab")))return;UI.wtry=null;render()});
+function tsabGo(svg,x,txt){var g=svg.querySelector(".tsab"),f=svg.querySelector(".tsabf");if(!g)return;x=Math.max(60,Math.min(1080,x));
+  var dir=x<TSX?-1:1;f.style.transform=dir<0?"translate(180px,0) scale(-1,1)":"";var dist=Math.abs(x-TSX);TSX=x;
+  g.style.transition="transform "+Math.max(.4,Math.min(2.2,dist/380))+"s ease-in-out";g.style.transform="translate("+(x-90)+"px,330px)";g.classList.add("walk");
+  clearTimeout(tsabGo.t);var sc=svg.parentNode,k=svg.getBoundingClientRect().width/1200;if(sc)sc.scrollTo({left:Math.max(0,x*k-sc.clientWidth/2),behavior:"smooth"});
+  tsabGo.t=setTimeout(function(){g.classList.remove("walk");var hb=document.querySelector(".tinsay");if(txt&&hb){hb.hidden=false;hb.innerHTML=mas("sab",40)+"<span>"+esc(txt)+"</span>";clearTimeout(tsabGo.h);tsabGo.h=setTimeout(function(){hb.hidden=true},4000)}var say=null;if(txt&&say){var tx=say.querySelector("text"),rc=say.querySelector("rect");tx.textContent=txt;var w=Math.min(560,txt.length*8.6+30);rc.setAttribute("width",w);rc.setAttribute("x",90-w/2);tx.setAttribute("x",90);say.setAttribute("opacity","1");clearTimeout(tsabGo.s);tsabGo.s=setTimeout(function(){say.setAttribute("opacity","0")},3200)}},Math.max(400,Math.min(2200,dist/380*1000)))}
+document.addEventListener("click",function(e){var svg=e.target.closest&&e.target.closest(".troom");if(!svg)return;var it=e.target.closest(".ti"),pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;var p=pt.matrixTransform(svg.getScreenCTM().inverse());
+  if(it){var id=it.dataset.it,x=TPOS[id]!=null?TPOS[id]+(TPOS[id]>600?-120:120):id==="door"?160:p.x;tsabGo(svg,x,it.dataset.ghost?"Этого пока нет — можно купить за финики!":TSAY[id]||"")}else tsabGo(svg,p.x,"")});
+
 /* ---- рейтинг как на Учи.ру: неделя / сегодня / финики за уроки ---- */
 function perStart(k){var d=new Date();d.setHours(0,0,0,0);if(k==="w"){var wd=(d.getDay()+6)%7;d.setDate(d.getDate()-wd)}return d.getTime()}
 function perScores(k){var m={};actS().forEach(function(s){m[s.id]=0});
@@ -1291,7 +1334,7 @@ function vSheet(){
   var h='<div class="ov'+(shownSheet===UI.sheet?"":" anim")+'" data-a="closebg"><div class="sheet" role="dialog" aria-modal="true" aria-label="'+esc(s.name)+'"><div class="grab"></div><div class="shd">'+avh(s,"xl")+'<div class="mid"><div class="nm" style="font-size:24px">'+exName(s)+'</div><div class="lvl" style="color:'+l[4]+';font-size:17px">'+l[1]+" "+l[2]+'</div><div class="sm mut">'+place(s)+' место в сезоне'+(st?" · 🔥 "+pn(st,"неделя","недели","недель")+" подряд":"")+'</div></div><button class="close" data-a="close" aria-label="Закрыть">✕</button></div>';
   h+='<div class="sm mut" style="display:flex;justify-content:space-between;margin-bottom:5px"><span>Опыт: <b style="color:var(--tx)">'+s.xp+'</b></span><span>'+(nx?"до «"+nx[2]+"» "+nx[1]+": "+(nx[3]-s.xp):"высшее звание")+'</span></div><div class="bar"><i style="width:'+pc+'%"></i></div>';
   h+='<div class="stats"><div class="st"><b style="color:var(--n)">'+s.n+'</b><span>🕌 Намаз</span></div><div class="st"><b style="color:var(--q)">'+s.q+'</b><span>📖 Коран</span></div><div class="st"><b style="color:var(--x)">'+s.x+'</b><span>⭐ Доп.</span></div><div class="st"><b style="color:var(--gold)">'+tot(s)+'</b><span>Всего'+(s.f?" (−"+s.f+")":"")+'</span></div></div>';
-  if(CLOUD&&(isKid()||canEdit()||isParent())){peekLoad();var ow=PEEK&&PEEK.d&&PEEK.d[s.id];if(ow&&((ow.items||[]).length||ow.mosque||ow.earned))h+='<div class="shoas">'+sabInline(ow.equip||{},64)+'<div><b>Оазис '+esc(s.name)+'</b><small><i class=dt></i> '+(ow.earned||0)+' за уроки · 🕌 '+(ow.mosque||0)+'/7 · ⛺ '+(ow.items||[]).filter(function(x){return x[0]==="t"}).length+' вещей'+(ow.streak?' · 🔥 '+ow.streak:'')+'</small></div></div>'}
+  if(CLOUD&&(isKid()||canEdit()||isParent())){peekLoad();var ow=PEEK&&PEEK.d&&PEEK.d[s.id];if(ow&&((ow.items||[]).length||ow.mosque||ow.earned))h+='<div class="shoas">'+sabInline(ow.equip||{},64)+'<div><b>Оазис '+esc(s.name)+'</b><small><i class=dt></i> '+(ow.earned||0)+' за уроки · 🕌 мечетей: '+(ow.mosques||0)+' · ⛺ '+(ow.items||[]).filter(function(x){return x[0]==="t"}).length+' вещей'+(ow.streak?' · 🔥 '+ow.streak:'')+'</small></div></div>'}
   var aS=attOf(s);if(aS.n)h+='<p class="sm mut" style="margin:-4px 0 10px">📅 На уроках: <b style="color:var(--tx)">'+aS.p+' из '+aS.n+'</b> ('+Math.round(aS.p/aS.n*100)+'%)</p>';
 
   h+='<div class="sec">Значки · '+bs.filter(function(b){return b.ok}).length+' из '+bs.length+'</div><div class="bgrid">'+bs.map(function(b){return '<div class="bd'+(b.ok?"":" off")+'"><i>'+b.e+'</i><b>'+b.n+'</b><span>'+(b.ok?"получен":b.r)+'</span></div>'}).join("")+'</div>';
@@ -2810,8 +2853,10 @@ function oasisAct(a,v,k){
   if(a==="wtry"){UI.wtry=UI.wtry===v?null:v;return true}
   if(a==="wbuy"){var it=shopItem(v);if(!it)return false;walDo("shop_buy",{p_item:v},function(){UI.wtry=null;flash("🎉 "+it.n+" — твоё!")});return false}
   if(a==="weq"){var it2=shopItem(v);walDo("shop_equip",{p_slot:k,p_item:v||""});return false}
-  if(a==="wbuild"){walDo("mosque_build",{},function(w){flash("🕌 Построено: "+MOSQ[w.mosque-1][0]+"!")});return false}
+  if(a==="wbuild"){var m0=WAL.mosques||0;walDo("mosque_build",{},function(w){if((w.mosques||0)>m0){UI.mqdone=w.mosques;flash("🕌 Машаллах! Мечеть № "+w.mosques+" построена!")}else flash("🕌 Построено: "+MOSQ[w.mosque-1][0]+"!")});return false}
+  if(a==="wmqnext"){UI.mqdone=null;return true}
   if(a==="wguest"){UI.wguest=UI.wguest===v?null:v;return true}
+  if(a==="wtin"){UI.tin=v||null;TSX=180;return true}
   return false}
 
 /* --- экраны --- */
@@ -2859,15 +2904,18 @@ function vOasis(){
     h+='<p class="sm mut">Нажми на вещь — Сабур её примерит.</p>';
     ["hat","sc","bl"].forEach(function(sl){h+='<h3 class="oash">'+SLOTN[sl]+'</h3><div class="shop">'+'<button class="shopit'+(!eq[sl]?" on":"")+'" data-a="weq" data-k="'+sl+'" data-v=""><span class="shpv">'+(sl==="hat"?"🎓":sl==="sc"?"—":"🟥")+'</span><b>'+(sl==="hat"?"Шапочка учёного":sl==="sc"?"Без шарфа":"Бордовая попона")+'</b><small>'+(!eq[sl]?"надето":"надеть")+'</small></button>'+SHOP.filter(function(x){return x.slot===sl}).map(function(x){return shopCard(x,items,eq)}).join("")+'</div>'});
   }else if(tab==="t"){
-    h+=tentSvg(items,eq)+'<h3 class="oash">'+SLOTN.tent+'</h3><div class="shop">'+SHOP.filter(function(x){return x.slot==="tent"}).map(function(x){return shopCard(x,items,eq)}).join("")+'</div>';
+    h+='<button class="tentbtn" data-a="wtin" data-v="me">'+tentSvg(items,eq)+'<span>👆 Зайти в шатёр</span></button><h3 class="oash">'+SLOTN.tent+'</h3><div class="shop">'+SHOP.filter(function(x){return x.slot==="tent"}).map(function(x){return shopCard(x,items,eq)}).join("")+'</div>';
     h+=guestsHtml();
   }else{
-    h+=mosqueSvg(w.mosque||0)+'<p class="sm mut cen" style="margin:8px 0">Мечеть строится по частям. Она простая и скромная — в мечети главное не украшения, а намаз и знания.</p>';
+    var mq=w.mosques||0;h+='<div class="mqcount"><b>🕌 Построено мечетей: '+mq+'</b><div class="mqrow">'+(mq?Array.apply(null,Array(Math.min(mq,30))).map(function(_,i){return '<span title="Мечеть № '+(i+1)+'">'+mosqueMini()+'</span>'}).join("")+(mq>30?'<i>+'+(mq-30)+'</i>':""):'<small class="mut">Построй первую — по частям, за финики и жемчужины.</small>')+'</div></div>';
+    if(UI.mqdone){h+='<div class="mqdone">'+mosqueSvg(7)+'<h3>Машаллах! Мечеть № '+UI.mqdone+' построена 🎉</h3><button class="btn pri big" data-a="wmqnext">🔨 Строить мечеть № '+(UI.mqdone+1)+'</button></div>';return h+'</div>'}
+    h+='<h3 class="oash">Строим мечеть № '+(mq+1)+'</h3>'+mosqueSvg(w.mosque||0)+'<p class="sm mut cen" style="margin:8px 0">Мечеть строится по частям. Она простая и скромная — в мечети главное не украшения, а намаз и знания. Построишь — начнёшь следующую!</p>';
     h+='<div class="mqlist">'+MOSQ.map(function(m,i){var done=i<w.mosque,next=i===w.mosque;return '<div class="mq'+(done?" done":next?" next":"")+'"><span>'+(done?"✅":next?"🔨":"🔒")+'</span><b>'+m[0]+'</b><small>'+(done?"построено":m[1]+" <i class=dt></i>"+(m[2]?" + "+m[2]+" 💎":""))+'</small></div>'}).join("")+'</div>';
-    if(w.mosque<7){var m=MOSQ[w.mosque],can=w.dates>=m[1]&&w.pearls>=m[2];h+='<div class="cen" style="margin-top:10px"><button class="btn pri big" data-a="wbuild"'+(!can||UI.wbusy?" disabled":"")+'>🔨 Построить: '+m[0]+'</button>'+(can?"":'<p class="sm mut">Нужно '+m[1]+' <i class=dt></i>'+(m[2]?" и "+m[2]+" 💎":"")+'</p>')+'</div>'}
-    else h+='<p class="cen" style="font-weight:900">Машаллах! Твоя мечеть построена 🕌</p>';
+    var m=MOSQ[w.mosque],can=w.dates>=m[1]&&w.pearls>=m[2];h+='<div class="cen" style="margin-top:10px"><button class="btn pri big" data-a="wbuild"'+(!can||UI.wbusy?" disabled":"")+'>🔨 Построить: '+m[0]+'</button>'+(can?"":'<p class="sm mut">Нужно '+m[1]+' <i class=dt></i>'+(m[2]?" и "+m[2]+" 💎":"")+'</p>')+'</div>';
   }
+  if(UI.tin){if(UI.tin==="me")h+=tentRoom(items,eq,"Мой шатёр",true);else{var gd=PEEK&&PEEK.d&&PEEK.d[UI.tin],gs=by(UI.tin);if(gd)h+=tentRoom(gd.items||[],gd.equip||{},"В гостях у "+(gs?gs.name:""),false)}}
   return h+'</div>'}
+function mosqueMini(){return '<svg viewBox="0 0 40 36" width="30" height="27"><rect x="6" y="18" width="24" height="16" fill="#F5EBDD"/><path d="M10 18Q10 8 18 7Q26 8 26 18Z" fill="#E7E5E4"/><rect x="31" y="10" width="5" height="24" fill="#F5EBDD"/><path d="M31 10l2.5-6 2.5 6Z" fill="#E7E5E4"/><path d="M15 34v-7q3-4 6 0v7Z" fill="#7C4A1E"/><rect x="4" y="33" width="34" height="3" fill="#A8A29E"/></svg>'}
 function chestSvg(){return '<svg viewBox="0 0 100 80" width="86" height="70"><rect x="10" y="34" width="80" height="40" rx="6" fill="#B45309"/><path d="M10 38Q10 12 50 12Q90 12 90 38Z" fill="#D97706"/><rect x="10" y="34" width="80" height="7" fill="#92400E"/><g fill="#FBBF24"><rect x="44" y="30" width="12" height="16" rx="2"/><rect x="18" y="14" width="6" height="58" rx="2" opacity=".85"/><rect x="76" y="14" width="6" height="58" rx="2" opacity=".85"/></g><circle cx="50" cy="40" r="2.4" fill="#92400E"/></svg>'}
 function offerCard(o,i){var ic,t;if(o.k==="d"){ic="<i class=dt></i>";t=o.n+" фиников"}else if(o.k==="p"){ic="💎";t=o.n+" жемчужина"}else{var it=shopItem(o.id);ic=it&&it.slot!=="tent"?'<span class="ofsab">'+sabInline((function(){var e={};e[it.slot]=it.id;return e})(),70)+'</span>':(TENTIC[o.id]||"⛺");t=it?it.n:o.id}
   return i<0?'<div class="offer on"><span class="ofic">'+ic+'</span><b>'+t+'</b></div>':'<button class="offer" data-a="wpick" data-v="'+i+'"'+(UI.wbusy?" disabled":"")+'><span class="ofic">'+ic+'</span><b>'+t+'</b><small>Выбрать</small></button>'}
@@ -2879,10 +2927,10 @@ function shopCard(x,items,eq){var own=items.indexOf(x.id)>-1,on=eq[x.slot]===x.i
   if(tr&&!own)h+='<div class="trybar"><span>'+(x.slot==="tent"?"":"Сабур примерил: ")+x.n+' — '+cur(x.c,x.p)+'</span><button class="btn pri sm" data-a="wbuy" data-v="'+x.id+'"'+(poor||UI.wbusy?" disabled":"")+'>'+(poor?"Не хватает":"Купить")+'</button></div>';
   return h}
 function guestsHtml(){peekLoad();var d=PEEK&&PEEK.d;if(!d)return "";var me=STOK&&STOK.sid;
-  var list=S.students.filter(function(s){return s.id!==me&&d[s.id]&&((d[s.id].items||[]).length||d[s.id].mosque)});
+  var list=S.students.filter(function(s){return s.id!==me&&d[s.id]&&((d[s.id].items||[]).length||d[s.id].mosque||d[s.id].mosques)});
   if(!list.length)return '<p class="sm mut" style="margin-top:12px">Скоро здесь появятся шатры одноклассников — сможешь заглянуть в гости.</p>';
-  var h='<h3 class="oash">🏕 В гости к друзьям</h3><div class="guests">'+list.map(function(s){var x=d[s.id];return '<button class="guest'+(UI.wguest===s.id?" on":"")+'" data-a="wguest" data-v="'+s.id+'">'+sabInline(x.equip||{},48)+'<b>'+esc(s.name)+'</b><small>🕌 '+(x.mosque||0)+'/7</small></button>'}).join("")+'</div>';
-  if(UI.wguest&&d[UI.wguest]){var g=d[UI.wguest];h+='<div class="gview">'+tentSvg(g.items||[],g.equip||{})+(g.mosque?mosqueSvg(g.mosque):"")+'</div>'}
+  var h='<h3 class="oash">🏕 В гости к друзьям</h3><div class="guests">'+list.map(function(s){var x=d[s.id];return '<button class="guest'+(UI.wguest===s.id?" on":"")+'" data-a="wguest" data-v="'+s.id+'">'+sabInline(x.equip||{},48)+'<b>'+esc(s.name)+'</b><small>🕌 '+(x.mosques||0)+' · '+(x.mosque||0)+'/7</small></button>'}).join("")+'</div>';
+  if(UI.wguest&&d[UI.wguest]){var g=d[UI.wguest];if(g.mosques)h+='<p class="sm cen" style="margin:6px 0">🕌 Построено мечетей: <b>'+g.mosques+'</b></p>';h+='<div class="gview"><button class="tentbtn" data-a="wtin" data-v="'+UI.wguest+'">'+tentSvg(g.items||[],g.equip||{})+'<span>👆 Зайти в гости</span></button>'+(g.mosque?mosqueSvg(g.mosque):"")+'</div>'}
   return h}
 
 /* ---- Сабура на карте тоже можно таскать ---- */
@@ -2937,7 +2985,7 @@ function act(a,b,e){
   if(a==="rper"){UI.rper=v;render();return}
   if(a==="tapd"){UI.tapd=+v;render();return}
   if(/^(sj(on|x|all|l)|gcflip)$/.test(a)){if(subjAct(a,v,k))render();return}
-  if(/^w(tab|open|pick|try|buy|eq|build|guest)$/.test(a)){if(oasisAct(a,v,k))render();return}
+  if(/^w(tab|open|pick|try|buy|eq|build|guest|tin|mqnext)$/.test(a)){if(oasisAct(a,v,k))render();return}
   if(a==="pl"){if(PL&&PL.k===v&&!PL.hw)plToggle();else plStart(v);return}
   if(a==="plhw"){var hx=HW&&HW.items?HW.items.filter(function(q){return q.id===id})[0]:null,hk=hx&&plFind(hx.sura||hx.title);
     if(hk){var left=hx.listen?Math.max(1,hx.listen-(hx.my_listens||0)):1;plStart(hk,{times:left,hw:hx.id})}return}
