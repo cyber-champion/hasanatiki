@@ -581,6 +581,12 @@ html[data-theme=dark] .rwd{background:#4A3A18;color:#FFD27A}html[data-theme=dark
 .limbox{text-align:center;background:linear-gradient(160deg,#EEF2FF,#FFF7E0)}html[data-theme=dark] .limbox{background:linear-gradient(160deg,#1F2650,#2A2448)}.limbox h2{margin:6px 0}.limbox p{max-width:44ch;margin:6px auto}
 .limbar{background:var(--soft);border-radius:12px;padding:6px 12px;font-size:13px;font-weight:800;color:var(--mut);margin-bottom:10px;text-align:center}
 .limrow{display:flex;align-items:center;gap:8px;padding:6px 0}.limrow span{flex:1}.limrow b{min-width:110px;text-align:center}
+.gcar{font-size:30px;line-height:2;text-align:right;background:var(--card2,var(--soft));border-radius:14px;padding:6px 12px;margin:6px 0}.gcar mark.tjq{background:#FDE68A;color:inherit;border-radius:6px;padding:0 2px;box-shadow:0 0 0 2px #F59E0B}html[data-theme=dark] .gcar mark.tjq{background:#5a4718}
+.lgcard{display:flex;gap:12px;align-items:center;background:var(--card);border:2px solid var(--lc);border-radius:18px;padding:10px 14px;margin-bottom:12px}.lgcard .lgi{font-size:40px}.lgcard>div{flex:1}.lgcard b{display:block;color:var(--lc);font-size:17px}.lgcard small{color:var(--mut);font-weight:800}.lgcard .bar{margin-top:6px}.lgcard .bar i{background:var(--lc)}
+html.teen{--brand:#7C3AED;--pri:#7C3AED}html.teen .say .who,html.teen .lsab,html.teen .fbee,html.teen .hive,html.teen .gcs,html.teen .hello svg{display:none!important}
+html.teen .say p{margin-left:0}html.teen .say{padding-left:0}html.teen .say p::before{content:"💡 ";}
+html.teen .box,html.teen .gcl,html.teen .lopt,html.teen .btn{border-radius:14px}html.teen[data-theme=light] body{background:linear-gradient(180deg,#F5F3FF,#EEF2FF 400px,#F8FAFC)}html.teen body::before,html.teen body::after{display:none}
+html.teen .brand i{display:none}html.teen .rwrow,html.teen .rwrow+.btn{display:none}
 </style>
 <script>(function(){var t="light";try{t=JSON.parse(localStorage.getItem("theme"))||"light"}catch(e){}document.documentElement.setAttribute("data-theme",t==="dark"?"dark":"light")})()</script>
 </head>
@@ -1044,7 +1050,7 @@ function tagsOf(s){return '<div class="tags"><span class="tg tn">🕌 Намаз
 function vRating(){
   var L=ranked(),dl=daysLeft(),h=(R.offline?'<div class="box sm" style="border-color:rgba(251,191,36,.45);padding:10px 14px">📴 Нет интернета — показан последний загруженный рейтинг'+(R.offline>1?" ("+rel(new Date(R.offline).toISOString())+", "+new Date(R.offline).toLocaleTimeString("ru",{hour:"2-digit",minute:"2-digit"})+")":"")+'</div>':"")+'<div class="chips"><span class="chip">🏁 '+esc(S.season.name)+' · до '+fdate(S.season.end+"T12:00:00")+'</span><span class="chip g">'+(dl>0?"осталось "+pn(dl,"день","дня","дней"):"сезон закончился")+'</span></div>';
   if(canEdit()&&S.students.some(function(s){return s.ex}))h+='<div class="box" style="border-color:rgba(251,191,36,.4)"><b>Сейчас в группе примеры учеников.</b><p class="mut sm" style="margin:4px 0 10px">Удалите их и добавьте своих ребят во вкладке «Учитель».</p><button class="btn sm pri" data-a="clearex">Удалить примеры</button></div>';
-  var rp=UI.rper||"s";h+='<div class="seg wide2 rper">'+[["s","🏁 Сезон"],["w","📅 Неделя"],["d","☀️ Сегодня"],["l","🧠 Уроки"]].map(function(x){return '<button class="'+(rp===x[0]?"on":"")+'" data-a="rper" data-v="'+x[0]+'">'+x[1]+'</button>'}).join("")+'</div>';
+  var rp=UI.rper||(isTeen()?"w":"s");if(isTeen()&&m0w())h+=leagueCard(perScores("w")[meStudent]||0);h+='<div class="seg wide2 rper">'+[["s","🏁 Сезон"],["w","📅 Неделя"],["d","☀️ Сегодня"],["l","🧠 Уроки"]].map(function(x){return '<button class="'+(rp===x[0]?"on":"")+'" data-a="rper" data-v="'+x[0]+'">'+x[1]+'</button>'}).join("")+'</div>';
   if(rp!=="s"&&L.length)return h+vRatingPer(rp);
   if(!L.length)return h+'<div class="box cen"><div class="masbig">'+mas("sab",120)+'</div><h2>Пока нет учеников</h2><p class="mut">'+(canEdit()?"Добавьте ребят во вкладке «Учитель».":"Учитель скоро добавит ребят.")+'</p></div>';
   var m=meStudent&&by(meStudent);
@@ -1154,13 +1160,14 @@ function perUnit(k,n){return k==="l"?n+" <i class=dt></i>":pn(n,"балл","ба
 function nextGap(L,sc,me){var i=L.indexOf(me);if(i<0)return "";var v=sc(me);
   if(i===0)return v>0?'<div class="gap1">👑 Ты на 1-м месте! Удержи его — не останавливайся.</div>':"";
   var up=L[i-1],d=sc(up)-v+1;return '<div class="gap1">🚀 До '+i+'-го места — <b>'+d+'</b>. Обгони '+esc(up.name)+'!</div>'}
+function m0w(){return meStudent&&by(meStudent)}
 function vRatingPer(k){var sc=perScores(k),f=function(s){return sc[s.id]||0},L=actS().slice().sort(function(a,b){return f(b)-f(a)||a.name.localeCompare(b.name,"ru")});
   var h="",m=meStudent&&by(meStudent);
   if(k!=="l"&&L.every(function(s){return !f(s)}))return '<div class="box cen mut">'+(k==="w"?"На этой неделе ещё нет баллов. Кто будет первым?":"Сегодня ещё нет баллов. Кто будет первым?")+'</div>';
   if(m)h+=nextGap(L,f,m);
   if(L.length>=3&&f(L[2])>0){var p=function(s,i){return '<div data-a="open" data-id="'+s.id+'" role="button" tabindex="0">'+(i===0?'<div class="crown">👑</div>':"")+avh(s,i===0?"l":"")+'<div class="pn">'+esc(s.name)+'</div><div class="pp">'+f(s)+'</div><div class="blk'+(i===0?" g1":"")+'" style="height:'+[96,74,56][i]+'px">'+medal(i)+'</div></div>'};h+='<div class="pod">'+p(L[1],1)+p(L[0],0)+p(L[2],2)+'</div>'}
   h+='<div class="box"><h2>'+({w:"Лидеры недели",d:"Лидеры дня",l:"Кто больше учится в приложении"})[k]+'</h2>'+(k==="l"?'<p class="sm mut" style="margin:-6px 0 8px">Финики за верные ответы в уроках — за всё время.</p>':k==="w"?'<p class="sm mut" style="margin:-6px 0 8px">С понедельника. Каждую неделю — новая гонка!</p>':"");
-  L.forEach(function(s,i){h+='<div class="row'+(s.id===meStudent?" me":"")+'" data-a="open" data-id="'+s.id+'" role="button" tabindex="0"><div class="rk">'+(f(s)>0?medal(i):i+1)+'</div>'+avh(s)+'<div class="mid"><div class="nm">'+exName(s)+'</div></div><div class="pts"><b>'+(k==="l"?f(s):(f(s)>0?"+":"")+f(s))+'</b><small>'+(k==="l"?"<i class=dt></i>":"баллов")+'</small></div></div>'});
+  L.forEach(function(s,i){h+='<div class="row'+(s.id===meStudent?" me":"")+'" data-a="open" data-id="'+s.id+'" role="button" tabindex="0"><div class="rk">'+(f(s)>0?medal(i):i+1)+'</div>'+avh(s)+'<div class="mid"><div class="nm">'+exName(s)+'</div>'+(isTeen()&&k==="w"?'<div class="lvl" style="color:'+league(f(s))[3]+'">'+league(f(s))[2]+" "+league(f(s))[1]+' лига</div>':"")+'</div><div class="pts"><b>'+(k==="l"?f(s):(f(s)>0?"+":"")+f(s))+'</b><small>'+(k==="l"?"<i class=dt></i>":"баллов")+'</small></div></div>'});
   return h+'</div>'}
 function logList(list,del){
   if(!list.length)return '<p class="mut">Пока ничего нет</p>';
@@ -1977,6 +1984,7 @@ function render(){
   UI.dropKeep=false;
   var osh=app.querySelector(".sheet"),sy=osh?osh.scrollTop:0,same=shownSheet===UI.sheet;
   var kept={};app.querySelectorAll("[data-keep]").forEach(function(el){kept[el.dataset.keep]=el});
+  teenSync();
   var html=R.view==="group"?vGroup():R.view==="parent"?vParent():R.view==="login"?vLogin():R.view==="cab"?vCab():R.view==="home"?vHome():'<div class="loading">Загрузка…</div>';
   app.innerHTML=html+(toastMsg?'<div class="toast" role="status">'+esc(toastMsg)+(toastUndo?' <button class="btn sm" data-a="undog" data-v="'+esc(toastUndo)+'" style="margin-left:8px;padding:6px 12px">↩ Отменить</button>':"")+'</div>':"");
   Object.keys(keep).forEach(function(id){var el=document.getElementById(id);if(!el)return;if(el.type==="checkbox")el.checked=keep[id];else el.value=keep[id]});
@@ -2468,8 +2476,8 @@ function navStudent(){
   var nb=hwBadge(),t=[["o","🏠","Главная"],["s","🎓","Уроки"],["r","🏆","Рейтинг"],["d","📚","Задания"],["m","👤","Я"]];
   return '<nav class="nav"><div>'+t.map(function(x){return '<button class="'+(R.tab===x[0]||(x[0]==="m"&&R.tab==="p")?"on":"")+'" data-a="tab" data-v="'+x[0]+'"><span>'+x[1]+'</span>'+x[2]+(x[0]==="d"&&nb?'<b>'+nb+'</b>':"")+'</button>'}).join("")+'</div></nav>';
 }
-var TCM={q:"q",a:"ab",f:"fq",k:"aq"};
-var TILES=[["q","Коран","суры 30-го джуза","#22C55E","📖",1],["a","Алифба","буквы и чтение","#3B6CF6",'<svg viewBox="0 0 120 100" width="78" height="65" aria-hidden="true"><g transform="rotate(-8 30 70)"><rect x="8" y="48" width="44" height="44" rx="10" fill="#FFC93C"/><rect x="8" y="48" width="44" height="8" rx="4" fill="#fff" opacity=".35"/><text x="30" y="82" font-size="34" text-anchor="middle" fill="#7A4A06" style="font-family:Hafs,Sch,serif">ب</text></g><g transform="rotate(7 84 72)"><rect x="62" y="50" width="44" height="44" rx="10" fill="#FF6B9A"/><rect x="62" y="50" width="44" height="8" rx="4" fill="#fff" opacity=".35"/><text x="84" y="84" font-size="34" text-anchor="middle" fill="#fff" style="font-family:Hafs,Sch,serif">ت</text></g><g transform="rotate(-3 58 28)"><rect x="36" y="6" width="44" height="44" rx="10" fill="#22C55E"/><rect x="36" y="6" width="44" height="8" rx="4" fill="#fff" opacity=".35"/><text x="58" y="42" font-size="36" text-anchor="middle" fill="#fff" style="font-family:Hafs,Sch,serif">ا</text></g><path d="M102 12l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2Z" fill="#fff"/></svg>',1],["f","Фикх","намаз и омовение","#FF8A00","🕌",1],["k","Акыда","во что мы верим","#A855F7","💎",1],["x","Ахляк","красивый нрав","#EC4899","🌸",0],["s","Сира","жизнь Пророка ﷺ","#06B6D4","🐪",0]];
+var TCM={q:"q",a:"ab",f:"fq",k:"aq",x:"ax",h:"hd",t:"tj"};
+var TILES=[["q","Коран","суры 30-го джуза","#22C55E","📖",1],["a","Алифба","буквы и чтение","#3B6CF6",'<svg viewBox="0 0 120 100" width="78" height="65" aria-hidden="true"><g transform="rotate(-8 30 70)"><rect x="8" y="48" width="44" height="44" rx="10" fill="#FFC93C"/><rect x="8" y="48" width="44" height="8" rx="4" fill="#fff" opacity=".35"/><text x="30" y="82" font-size="34" text-anchor="middle" fill="#7A4A06" style="font-family:Hafs,Sch,serif">ب</text></g><g transform="rotate(7 84 72)"><rect x="62" y="50" width="44" height="44" rx="10" fill="#FF6B9A"/><rect x="62" y="50" width="44" height="8" rx="4" fill="#fff" opacity=".35"/><text x="84" y="84" font-size="34" text-anchor="middle" fill="#fff" style="font-family:Hafs,Sch,serif">ت</text></g><g transform="rotate(-3 58 28)"><rect x="36" y="6" width="44" height="44" rx="10" fill="#22C55E"/><rect x="36" y="6" width="44" height="8" rx="4" fill="#fff" opacity=".35"/><text x="58" y="42" font-size="36" text-anchor="middle" fill="#fff" style="font-family:Hafs,Sch,serif">ا</text></g><path d="M102 12l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2Z" fill="#fff"/></svg>',1],["f","Фикх","намаз и омовение","#FF8A00","🕌",1],["k","Акыда","во что мы верим","#A855F7","💎",1],["x","Ахляк","как поступить правильно","#EC4899","🌸",1],["h","Хадисы","40 хадисов ан-Навави","#0EA5E9","📜",1],["t","Таджвид","тренажёр правил","#10B981","🎨",1],["s","Сира","жизнь Пророка ﷺ","#06B6D4","🐪",0]];
 function vHome2(){
   var s=STOK&&by(STOK.sid);if(!s)return vRating();
   qdLoad();if(!LP)lpLoad();
@@ -2780,7 +2788,7 @@ var GC={
       ["Можно ли молиться без омовения?",["Нет","Да"],0,"Это первое условие намаза."]]}
  ]}};
 function gcOpen(c,i){if(PL&&PL.playing)plToggle(false);LS={gc:c,i:i,step:"intro",tasks:null,k:0,err:0,ok:0,fb:null,res:null};window.scrollTo(0,0)}
-function gcBuild(c,i){var L=GC[c].les[i];return shuf(L.q.map(function(x){var idx=x[1].map(function(_,k){return k}),mix=shuf(idx.slice());
+function gcBuild(c,i){var L=GC[c].les[i];if(L.gen)return tjGen(L.gen,i===GC[c].les.length-1?10:8);return shuf(L.q.map(function(x){var idx=x[1].map(function(_,k){return k}),mix=shuf(idx.slice());
   return {t:"gq",q:x[0],opts:mix.map(function(k){return x[1][k]}),good:mix.indexOf(x[2]),hint:x[3]}}))}
 function gcMap(c){var C=GC[c],L=C.les,cur=null;L.forEach(function(_,i){if(cur==null&&!(LP&&LP[c+(i+1)])&&lsOk(c,i))cur=i});
   var h='<div class="box gcbox" style="--gcc:'+C.col+'"><h2>'+C.ic+' '+C.n+' <small class="mut" style="font-size:14px">— '+C.sub+'</small></h2>';
@@ -2789,23 +2797,24 @@ function gcMap(c){var C=GC[c],L=C.les,cur=null;L.forEach(function(_,i){if(cur==n
   return h+'</div><p class="mut sm" style="margin-top:10px;font-size:12px">Фикх — по ханафитскому мазхабу, акыда — по учению ахлю-с-сунна валь-джамаа.</p></div>'}
 function vGc(){var c=LS.gc,C=GC[c],x=C.les[LS.i];
   var h='<div class="box gcbox" style="--gcc:'+C.col+'"><div class="btns" style="align-items:center;justify-content:space-between;flex-wrap:nowrap"><b style="font-size:18px">'+x.ic+' '+esc(x.t)+'</b><button class="btn sm" data-a="lquit">✕ Выйти</button></div>';
+  if(LS.step==="intro"&&x.gen&&!QD){qdLoad();return h+'<p class="mut">Загрузка аятов…</p></div>'}
   if(LS.step==="intro"){h+=sayS("sab",x.tip)+'<div class="gccards">'+x.c.map(function(k,j){return '<button class="gcc c'+(j%8)+(UI.gcf===j?" on":"")+'" data-a="gcflip" data-v="'+j+'"><span class="gce">'+k[0]+'</span><b>'+esc(k[1])+'</b><p>'+esc(k[2])+'</p></button>'}).join("")+'</div>';
     return h+'<div class="btns" style="margin-top:12px"><button class="btn pri" data-a="lstart">🎮 Проверь себя</button></div></div>'}
   if(LS.step==="res")return h+vLessonRes()+'</div>';
   var t=lsCur(),L=LS.tasks.length;
-  h+='<div class="bar" style="height:8px;margin:8px 0 14px"><i style="width:'+Math.round(LS.k/L*100)+'%"></i></div><h3>'+esc(t.q)+'</h3><div class="gcopts">';
+  h+='<div class="bar" style="height:8px;margin:8px 0 14px"><i style="width:'+Math.round(LS.k/L*100)+'%"></i></div><h3>'+esc(t.q)+'</h3>'+(t.arh?'<div class="ar gcar">'+t.arh+'</div><p class="sm mut" style="margin:-4px 0 10px;text-align:right">'+esc(t.src)+'</p>':"")+'<div class="gcopts">';
   h+=t.opts.map(function(o,v){var cls="lopt",miss=t.miss&&t.miss.indexOf(v)>-1;if(LS.fb){if(v===t.good)cls+=" ok";else if(LS.fb.pick===v||miss)cls+=" bad"}else if(miss)cls+=" bad off";return '<button class="'+cls+'" data-a="lans" data-v="'+v+'"'+(LS.fb||miss?" disabled":"")+'>'+esc(o)+'</button>'}).join("")+'</div>';
   if(!LS.fb&&t.miss)h+=sayS("sab","Подумай ещё: "+esc(t.hint));
   if(LS.fb)h+=(LS.fb.ok?sayS("asl",t.miss?"Верно, со второй попытки! Молодец 👍":praise()):sayS("sab","Ничего страшного! Правильный ответ отмечен зелёным — запомни его."))+'<button class="btn pri" data-a="lnext">Дальше ›</button>';
   return h+'</div>'}
 
 /* ---- что видят ученики: предметы и открытые уроки (выбирает учитель) ---- */
-var SUBJ=[["q","📖","Коран (суры)"],["ab","🔤","Алифба"],["aq","💎","Акыда"],["fq","🕌","Фикх"]];
+var SUBJ=[["q","📖","Коран (суры)"],["ab","🔤","Алифба"],["aq","💎","Акыда"],["fq","🕌","Фикх"],["tj","🎨","Таджвид (тренажёр)"],["hd","📜","Хадисы"],["ax","🌸","Ахляк"]];
 function lsCfg(){return S&&S.lsn||{}}
 function subjOn(c){var o=lsCfg().on;return !o||o[c]!==false}
 function lsOk(c,id){if(canEdit())return true;var lk=c==="q"?"s"+id:c==="ab"?"a"+(+id+1):c+(+id+1);if(LP&&LP[lk])return true;var op=lsCfg().open;op=op&&op[c];return !op||op.indexOf(String(id))>-1}
 function subjLessons(c){if(c==="q")return LMOD.list.map(function(n){return [String(n),n+". "+NAMES[n]]});if(c==="ab")return ABLES.map(function(x,i){return [String(i),(i+1)+". "+x.t]});return GC[c].les.map(function(x,i){return [String(i),(i+1)+". "+x.t]})}
-function vSubjCfg(){var cf=lsCfg(),h='<div class="box"><h3 style="margin-top:0">👀 Что видят ученики</h3><p class="sm mut" style="margin:-4px 0 8px">Включите предметы и откройте нужные уроки. Закрытые уроки ученики видят с замочком 🔒. Уже пройденные уроки остаются открытыми — их можно повторять.</p>';
+function vSubjCfg(){var cf=lsCfg(),h='<div class="box"><div class="sjrow" style="border:0;padding-top:0"><button class="sw'+(isTeen()?" on":"")+'" data-a="teenon" aria-label="Подростковый режим"><i></i></button><b>🧑 Группа подростков (13–15)<small class="mut" style="display:block;font-weight:600">Взрослый стиль без мультяшек, недельные лиги</small></b></div><h3 style="margin-top:8px">👀 Что видят ученики</h3><p class="sm mut" style="margin:-4px 0 8px">Включите предметы и откройте нужные уроки. Закрытые уроки ученики видят с замочком 🔒. Уже пройденные уроки остаются открытыми — их можно повторять.</p>';
   SUBJ.forEach(function(x){var c=x[0],on=subjOn(c),op=cf.open&&cf.open[c],L=subjLessons(c),n=op?op.length:L.length;
     h+='<div class="sjrow"><button class="sw'+(on?" on":"")+'" data-a="sjon" data-v="'+c+'" aria-label="Показывать предмет"><i></i></button><b>'+x[1]+' '+x[2]+'</b><button class="btn sm" data-a="sjx" data-v="'+c+'"'+(on?"":" disabled")+'>Открыто: '+(op?n+" из "+L.length:"все")+' ▾</button></div>';
     if(on&&UI.sjx===c){h+='<div class="sjl"><div class="btns" style="margin-bottom:6px"><button class="btn sm" data-a="sjall" data-v="'+c+'" data-k="all">Открыть все</button><button class="btn sm" data-a="sjall" data-v="'+c+'" data-k="none">Закрыть все</button></div>'+L.map(function(l){var o=!op||op.indexOf(l[0])>-1;return '<button class="tg'+(o?" on":"")+'" data-a="sjl" data-v="'+c+'" data-k="'+l[0]+'">'+(o?"✅ ":"🔒 ")+esc(l[1])+'</button>'}).join("")+'</div>'}});
@@ -2814,6 +2823,7 @@ function subjAct(a,v,k){
   if(a==="sjx"){UI.sjx=UI.sjx===v?null:v;return true}
   if(a==="gcflip"){UI.gcf=UI.gcf===+v?null:+v;return true}
   if(!canEdit())return false;
+  if(a==="teenon"){mut(function(){S.teen=!S.teen});return true}
   if(a==="limset"){mut(function(){var c=limCfg(),d=+v;if(!S.lim)S.lim={};var x=c[k]+d;
       if(k==="night"){x=c.night?c.night+d:(d>0?18:23);if(x<18||x>23)x=0}else x=Math.max(0,Math.min(k==="les"?20:180,x));S.lim[k]=x});return true}
   mut(function(){if(!S.lsn)S.lsn={};if(!S.lsn.on)S.lsn.on={};if(!S.lsn.open)S.lsn.open={};var L=subjLessons(v).map(function(l){return l[0]});
@@ -2821,6 +2831,111 @@ function subjAct(a,v,k){
     else if(a==="sjall")S.lsn.open[v]=k==="all"?null:[];
     else if(a==="sjl"){var op=S.lsn.open[v]||L.slice(),i=op.indexOf(k);if(i>-1)op.splice(i,1);else op.push(k);S.lsn.open[v]=op.length===L.length?null:op}});
   return true}
+
+/* ================= Новые предметы: Хадисы, Ахляк, Тренажёр таджвида ================= */
+GC.hd={n:"Хадисы",sub:"40 хадисов ан-Навави",ic:"📜",col:"#0EA5E9",les:[
+ {t:"Намерение и столпы",ic:"🎯",tip:"Первые хадисы сборника ан-Навави — основа всей религии.",c:[
+   ["🎯","Хадис № 1","«Поистине, дела оцениваются только по намерениям, и каждому человеку — то, что он намеревался». (аль-Бухари, Муслим)"],
+   ["💡","Смысл","Одно и то же дело может быть поклонением или ничем — всё решает намерение. Учёба ради Аллаха — награда, учёба ради похвалы — нет."],
+   ["🕌","Хадис № 3","«Ислам построен на пяти: свидетельстве, что нет божества, кроме Аллаха, и что Мухаммад — посланник Аллаха, совершении намаза, выплате закята, хадже к Дому и посте в Рамадан». (аль-Бухари, Муслим)"],
+   ["🏛","Смысл","Пять столпов — как опоры дома. Убери одну — и дом шатается."]],
+  q:[["Чем оцениваются дела, согласно хадису № 1?",["Намерениями","Количеством","Тем, кто их видел"],0,"«Поистине, дела оцениваются только по…»"],
+     ["Ты учишь суру, чтобы тебя похвалили. Что важно исправить?",["Намерение — учить ради Аллаха","Ничего","Учить быстрее"],0,"Вспомни первый хадис."],
+     ["На скольких столпах построен ислам?",["На пяти","На трёх","На шести"],0,"Хадис № 3."],
+     ["Какой из столпов НЕ назван в хадисе № 3?",["Чтение Корана наизусть","Намаз","Пост в Рамадан"],0,"Шахада, намаз, закят, хадж, пост."]]},
+ {t:"Ихсан и искренность",ic:"💎",tip:"Высшая ступень веры — ихсан. А религия — это искренность.",c:[
+   ["👁","Хадис № 2 (часть)","Джибриль спросил Пророка ﷺ об ихсане. Он ответил: «Чтобы ты поклонялся Аллаху так, будто видишь Его, а если ты Его не видишь, то ведь Он видит тебя». (Муслим)"],
+   ["💡","Смысл","Ихсан — делать всё как можно лучше, помня, что Аллах видит. Даже когда никто из людей не смотрит."],
+   ["🤝","Хадис № 7","«Религия — это искренность (насыха)». Спросили: «По отношению к кому?» Он ответил: «К Аллаху, Его Книге, Его посланнику, к руководителям мусульман и ко всем мусульманам». (Муслим)"],
+   ["💡","Смысл","Насыха — желать добра от чистого сердца: честно советовать, не обманывать, не лицемерить."]],
+  q:[["Что такое ихсан?",["Поклоняться Аллаху так, будто видишь Его","Читать громко","Молиться только в мечети"],0,"«…будто видишь Его, а если не видишь, то Он видит тебя»."],
+     ["Кто задавал Пророку ﷺ вопросы об исламе, имане и ихсане?",["Джибриль","Абу Бакр","Умар"],0,"Ангел, пришедший в образе человека."],
+     ["«Религия — это…»",["искренность (насыха)","строгость","традиция"],0,"Хадис № 7."],
+     ["Друг просит честно сказать, хорошо ли он читает. Как поступить по хадису № 7?",["Мягко и честно подсказать ошибки","Сказать «отлично», чтобы не обиделся","Посмеяться"],0,"Насыха — честный добрый совет."]]},
+ {t:"Брат и язык",ic:"🗣",tip:"Как вести себя с людьми — об этом очень много хадисов.",c:[
+   ["❤️","Хадис № 13","«Не уверует никто из вас по-настоящему, пока не будет желать своему брату того же, чего желает себе». (аль-Бухари, Муслим)"],
+   ["🗣","Хадис № 15","«Кто верует в Аллаха и в Последний день, пусть говорит благое или молчит. Кто верует в Аллаха и в Последний день, пусть оказывает уважение соседу и гостю». (аль-Бухари, Муслим)"],
+   ["🔇","Хадис № 12","«Из совершенства ислама человека — оставление того, что его не касается». (ат-Тирмизи)"]],
+  q:[["Чего должен желать верующий своему брату?",["Того же, что и себе","Меньшего, чем себе","Ничего"],0,"Хадис № 13."],
+     ["Нечего сказать хорошего. Что советует хадис № 15?",["Промолчать","Сказать всё равно","Пошутить над кем-то"],0,"«…пусть говорит благое или молчит»."],
+     ["В чате обсуждают чужие секреты. Как поступить по хадису № 12?",["Не участвовать — это меня не касается","Расспросить подробнее","Переслать друзьям"],0,"Оставлять то, что не касается."],
+     ["Кому хадис № 15 велит оказывать уважение?",["Соседу и гостю","Только старшим","Только родным"],0,"Вторая часть хадиса."]]},
+ {t:"Гнев и вред",ic:"🌊",tip:"Сила — не в кулаках, а в умении сдержаться.",c:[
+   ["🌊","Хадис № 16","Человек попросил: «Дай мне совет». Пророк ﷺ сказал: «Не гневайся». Тот повторил просьбу несколько раз, и каждый раз он отвечал: «Не гневайся». (аль-Бухари)"],
+   ["💪","Ещё хадис","«Силён не тот, кто побеждает в борьбе, а силён тот, кто владеет собой в гневе». (аль-Бухари, Муслим)"],
+   ["🚫","Хадис № 32","«Не причиняй вреда и не отвечай вредом». (Ибн Маджа)"]],
+  q:[["Какой совет Пророк ﷺ повторил несколько раз?",["«Не гневайся»","«Молчи»","«Спеши»"],0,"Хадис № 16."],
+     ["Кто по-настоящему силён?",["Тот, кто владеет собой в гневе","Кто всех побеждает в драке","Кто громче кричит"],0,"Сила — в самоконтроле."],
+     ["Тебя толкнули специально. Что ближе к хадису № 32?",["Не мстить, спокойно сказать или позвать взрослого","Толкнуть сильнее","Обидеть словами"],0,"«…и не отвечай вредом»."]]},
+ {t:"Богобоязненность",ic:"🛡",tip:"Короткие хадисы — а помогают на всю жизнь.",c:[
+   ["🛡","Хадис № 18","«Бойся Аллаха, где бы ты ни был. Вслед за плохим поступком соверши хороший — он сотрёт его. И относись к людям с хорошим нравом». (ат-Тирмизи)"],
+   ["🤲","Хадис № 19 (часть)","«Береги Аллаха — и Он сбережёт тебя. Береги Аллаха — и найдёшь Его перед собой. Если просишь — проси Аллаха, если ищешь помощи — ищи её у Аллаха». (ат-Тирмизи)"],
+   ["💡","Смысл","«Беречь Аллаха» — соблюдать Его веления и запреты. Тогда Аллах помогает и защищает."]],
+  q:[["Что делать после плохого поступка (хадис № 18)?",["Совершить хороший — он сотрёт плохой","Ничего","Скрыть его ото всех"],0,"«Вслед за плохим поступком соверши хороший…»"],
+     ["«Береги Аллаха — и…»",["Он сбережёт тебя","ты разбогатеешь","тебя похвалят"],0,"Хадис № 19."],
+     ["У кого просить помощи прежде всего?",["У Аллаха","Только у друзей","Ни у кого"],0,"«Если ищешь помощи — ищи её у Аллаха»."],
+     ["Где нужно бояться Аллаха?",["Где бы ты ни был","Только в мечети","Только при людях"],0,"Хадис № 18."]]}
+]};
+GC.ax={n:"Ахляк",sub:"как поступить правильно",ic:"🌸",col:"#EC4899",les:[
+ {t:"Родители",ic:"👪",tip:"Довольство Аллаха — в довольстве родителей.",c:[
+   ["📖","Коран","«Твой Господь повелел вам не поклоняться никому, кроме Него, и делать добро родителям… не говори им: “Уф!”» (сура 17, аят 23)"],
+   ["👩","Мать","Человек спросил: «Кто больше всех достоин моего хорошего отношения?» Пророк ﷺ трижды ответил: «Твоя мать», а затем: «Твой отец». (аль-Бухари, Муслим)"],
+   ["🤲","Дуа","«Рабби-рхамхума кама раббаяни сагыра» — «Господи, помилуй их, как они растили меня маленьким»."]],
+  q:[["Мама просит помочь, а ты играешь. Как лучше?",["Сразу помочь с улыбкой","Сказать «потом» и играть","Сделать вид, что не слышишь"],0,"Даже «уф» говорить нельзя."],
+     ["Кого Пророк ﷺ назвал трижды, отвечая, кто больше всех достоин хорошего отношения?",["Мать","Друга","Учителя"],0,"Затем — отца."],
+     ["Папа устал после работы. Что можно сделать?",["Принести воды, не шуметь, помочь","Попросить купить игру","Включить музыку погромче"],0,"Делать добро родителям."]]},
+ {t:"Честность",ic:"✅",tip:"Правдивость ведёт к добру, а добро — в Рай.",c:[
+   ["✅","Хадис","«Правдивость ведёт к благочестию, а благочестие ведёт в Рай… Ложь ведёт к греху, а грех ведёт в Огонь». (аль-Бухари, Муслим)"],
+   ["📝","Обман","«Кто обманывает нас, тот не из нас». (Муслим)"],
+   ["💡","В жизни","Не списывать, не врать «чуть-чуть», возвращать чужое, держать слово."]],
+  q:[["На контрольной друг предлагает списать. Как поступить?",["Отказаться и решать самому","Списать, раз никто не видит","Списать половину"],0,"Аллах видит всегда."],
+     ["Ты разбил чашку. Что ответить, когда спросят?",["Честно признаться","Сказать, что это кошка","Промолчать и спрятать"],0,"Правдивость ведёт к добру."],
+     ["Нашёл в мечети чужой телефон. Что делать?",["Отдать имаму или учителю","Оставить себе","Положить в другое место"],0,"Возвращать чужое — честность."]]},
+ {t:"Язык",ic:"🗣",tip:"Слово может и ранить, и вылечить.",c:[
+   ["🚫","Гыйба (сплетня)","Сплетня — говорить о брате за спиной то, что ему неприятно. В Коране это сравнивается с поеданием мяса умершего брата (сура 49, аят 12)."],
+   ["😂","Насмешки","«Пусть одни люди не насмехаются над другими: быть может, те лучше них» (сура 49, аят 11)."],
+   ["🌹","Доброе слово","«Доброе слово — это садака (милостыня)». (аль-Бухари, Муслим)"]],
+  q:[["Одноклассники смеются над новеньким. Как поступить?",["Не смеяться и поддержать его","Посмеяться со всеми","Снять на видео"],0,"«Быть может, те лучше них»."],
+     ["Что такое гыйба?",["Говорить о человеке за спиной неприятное ему","Читать Коран","Давать садака"],0,"Сура «Аль-Худжурат»."],
+     ["Доброе слово — это…",["садака","пустяк","слабость"],0,"Хадис аль-Бухари и Муслима."]]},
+ {t:"Терпение и гнев",ic:"🌊",tip:"Терпение — свет. Сдержанность — сила.",c:[
+   ["🌊","Совет при гневе","Если гневаешься стоя — сядь, если сидя — приляг. Скажи: «Аузу билляхи мина-ш-шайтани-р-раджим». Сделай омовение."],
+   ["⏳","Сабр","Терпение бывает в поклонении, в отказе от греха и при трудностях. «Поистине, Аллах — с терпеливыми» (сура 2, аят 153)."],
+   ["🤐","Промолчи","Если злишься — лучше промолчать, чем сказать то, о чём пожалеешь."]],
+  q:[["Ты очень разозлился на брата. Что посоветовал Пророк ﷺ?",["Сесть, попросить защиты у Аллаха, сделать омовение","Накричать","Хлопнуть дверью"],0,"Изменить положение, сказать «Аузу билляхи…»"],
+     ["«Поистине, Аллах — с…»",["терпеливыми","сильными","богатыми"],0,"Сура «Аль-Бакара», аят 153."],
+     ["Не получается выучить суру. Как поступить?",["Терпеливо повторять и просить помощи у Аллаха","Бросить","Злиться на учителя"],0,"Это и есть сабр."]]},
+ {t:"Соседи, старшие, гости",ic:"🏡",tip:"Мусульманина узнают по тому, как он относится к людям.",c:[
+   ["🏡","Сосед","«Джибриль так много советовал мне хорошо относиться к соседу, что я подумал: он сделает его наследником». (аль-Бухари, Муслим)"],
+   ["👴","Старшие и младшие","«Не из нас тот, кто не милосерден к нашим младшим и не уважает наших старших». (ат-Тирмизи)"],
+   ["👋","Салям","Первым приветствовать «Ассаляму алейкум» — сунна. Младший приветствует старшего, идущий — сидящего."]],
+  q:[["Пожилая соседка несёт тяжёлые сумки. Что делать?",["Предложить помочь донести","Пройти мимо","Сфотографировать"],0,"Хорошо относиться к соседу."],
+     ["Кто приветствует первым?",["Младший старшего, идущий сидящего","Всегда старший","Никто"],0,"Сунна салама."],
+     ["«Не из нас тот, кто не милосерден к младшим и не…»",["уважает старших","читает Коран","ходит в мечеть"],0,"Хадис ат-Тирмизи."]]}
+]};
+/* Тренажёр таджвида: вопросы строятся из настоящих аятов с разметкой правил */
+var TJS=["Мадд лязим","Мадд муттасыль","Мадд мунфасыль","Мадд ʿарид","Мадд табиъи","Гунна","Идгам с гунной","Ихфа","Ихфа шафави","Иклаб","Идгам шафави","Калькаля","Идгам без гунны","Идгам","Хамзат-уль-васль","Лям шамсия","Не читается"];
+GC.tj={n:"Таджвид",sub:"тренажёр правил",ic:"🎨",col:"#10B981",les:[
+ {t:"Калькаля и гунна",ic:"🔔",gen:[11,5],tip:"Найди правило в настоящем аяте. Подсвеченная буква — подсказка.",c:[["🔔","Калькаля","Буквы ق ط ب ج د с сукуном (или в конце аята) произносятся с лёгким «отскоком»."],["👃","Гунна","Нун и мим с шаддой — носовой звук длиной 2 хараката."]]},
+ {t:"Нун сакин и танвин",ic:"🟢",gen:[7,6,9,12],tip:"Четыре правила нуна: изхар, идгам, иклаб, ихфа.",c:[["🟢","Ихфа","Нун/танвин перед 15 буквами — «скрываем», читаем в нос."],["🔗","Идгам","Перед ي ن م و — сливаем с гунной, перед ل ر — без гунны."],["🔄","Иклаб","Перед ب нун превращается в мим (маленькая م над буквой)."]]},
+ {t:"Мадды",ic:"〰️",gen:[1,2,3,4,0],tip:"Мадд — тянем гласный звук. Сколько — зависит от правила.",c:[["2️⃣","Табиъи","Естественный мадд — 2 хараката."],["4️⃣","Муттасыль","Хамза после мадда в том же слове — 4–5 харакатов."],["↔️","Мунфасыль","Хамза в следующем слове — 2, 4 или 5."],["⏹","ʿАрид","Перед остановкой в конце аята — 2, 4 или 6."],["6️⃣","Лязим","Шадда или сукун после мадда — всегда 6."]]},
+ {t:"Что не читается",ic:"🔇",gen:[14,15,13,16],tip:"Серые буквы в мусхафе с таджвидом не произносятся.",c:[["🔇","Хамзат-уль-васль","Читается только в начале чтения, при слитном — пропускается."],["☀️","Лям шамсия","Перед «солнечными» буквами лям не читается, следующая буква удваивается: ٱلشَّمۡس — аш-шамс."]]},
+ {t:"Всё вместе",ic:"🏆",gen:[11,5,7,6,9,1,2,3,4,14,15],tip:"Экзамен: правила вперемешку из всех сур 30-го джуза.",c:[["🏆","Экзамен","10 вопросов по всем правилам. Удачи!"]]}
+]};
+function tjGen(rules,cnt){var out=[],seen={},tries=0;if(!QD)return out;var ks=Object.keys(QD);
+  while(out.length<cnt&&tries<400){tries++;var n=ks[Math.floor(Math.random()*ks.length)],D=QD[n];if(!D.tj)continue;var i=Math.floor(Math.random()*D.ar.length),r=(D.tj[i]||[]).filter(function(x){return rules.indexOf(x[2])>-1});if(!r.length)continue;
+    var x=r[Math.floor(Math.random()*r.length)],key=n+":"+i+":"+x[2];if(seen[key])continue;seen[key]=1;var a=D.ar[i],good=TJS[x[2]];
+    var pool=rules.map(function(k){return TJS[k]}).filter(function(v,j,arr){return v!==good&&arr.indexOf(v)===j});if(pool.length<2)pool=pool.concat(["Калькаля","Ихфа","Гунна","Мадд табиъи"].filter(function(v){return v!==good&&pool.indexOf(v)<0}));
+    var opts=shuf([good].concat(shuf(pool).slice(0,2)));
+    out.push({t:"gq",q:"Какое правило у выделенной буквы?",arh:esc(a.slice(0,x[0]))+'<mark class="tjq">'+esc(a.slice(x[0],x[1]))+'</mark>'+esc(a.slice(x[1]))+' '+arn(i+1),src:"Сура «"+NAMES[n]+"», аят "+(i+1),opts:opts,good:opts.indexOf(good),hint:TJN[x[2]]})}
+  return out}
+
+/* ================= Подростковый режим ================= */
+function isTeen(){return !!(S&&S.teen)}
+var LEAGUES=[[0,"Бронзовая","🥉","#B45309"],[20,"Серебряная","🥈","#64748B"],[50,"Золотая","🥇","#CA8A04"],[100,"Алмазная","💎","#0EA5E9"],[180,"Лига хафизов","👑","#7C3AED"]];
+function league(p){var l=LEAGUES[0];LEAGUES.forEach(function(x){if(p>=x[0])l=x});return l}
+function leagueCard(p){var l=league(p),i=LEAGUES.indexOf(l),nx=LEAGUES[i+1];return '<div class="lgcard" style="--lc:'+l[3]+'"><span class="lgi">'+l[2]+'</span><div><b>'+l[1]+' лига</b><small>'+(nx?"До лиги «"+nx[1]+"»: "+(nx[0]-p)+" баллов на этой неделе":"Высшая лига! Удержись до конца недели")+'</small><div class="bar"><i style="width:'+(nx?Math.round((p-l[0])/(nx[0]-l[0])*100):100)+'%"></i></div></div></div>'}
+function teenSync(){document.documentElement.classList.toggle("teen",R.view==="group"&&isTeen())}
 
 /* ================= Оазис: финики, жемчужины, сундуки, наряды Сабура, шатёр, мечеть ================= */
 var WAL=null,WALbusy=false,WALerr="",PEEK=null;
@@ -2882,7 +2997,7 @@ function oasisAct(a,v,k){
 
 /* --- экраны --- */
 function walOwn(){if(WAL&&WAL._k!==G.slug+":"+STOK.sid)WAL=null}
-function walChip(){if(!isKid())return "";walOwn();if(!WAL){walLoad();return ""}
+function walChip(){if(!isKid()||isTeen())return "";walOwn();if(!WAL){walLoad();return ""}
   return '<a class="wchip" href="#/g/'+encodeURIComponent(G.slug)+'/oasis" aria-label="Мой оазис"><i class=dt></i> '+WAL.dates+' <span>💎 '+WAL.pearls+'</span>'+(WAL.chests||WAL.offer?' <b>🎁</b>':"")+'</a>'}
 function rewardHtml(rw){if(!rw)return "";var p=[];if(rw.dates)p.push('<span class="rwd">+'+rw.dates+' <i class=dt></i></span>');if(rw.pearls)p.push('<span class="rwd p">+'+rw.pearls+' 💎</span>');if(rw.chest)p.push('<span class="rwd c">🎁 Сундук!</span>');
   return p.length?'<div class="rwrow">'+p.join("")+'</div>'+(rw.chest?'<a class="btn pri" href="#/g/'+encodeURIComponent(G.slug)+'/oasis">🎁 Открыть сундук</a>':""):""}
@@ -3005,7 +3120,7 @@ function act(a,b,e){
   var id=b.dataset.id,s=id&&S?by(id):null,k=b.dataset.k,v=b.dataset.v;
   if(a==="rper"){UI.rper=v;render();return}
   if(a==="tapd"){UI.tapd=+v;render();return}
-  if(/^(sj(on|x|all|l)|gcflip|limset)$/.test(a)){if(subjAct(a,v,k))render();return}
+  if(/^(sj(on|x|all|l)|gcflip|limset|teenon)$/.test(a)){if(subjAct(a,v,k))render();return}
   if(/^w(tab|open|pick|try|buy|eq|build|guest|tin|mqnext)$/.test(a)){if(oasisAct(a,v,k))render();return}
   if(a==="pl"){if(PL&&PL.k===v&&!PL.hw)plToggle();else plStart(v);return}
   if(a==="plhw"){var hx=HW&&HW.items?HW.items.filter(function(q){return q.id===id})[0]:null,hk=hx&&plFind(hx.sura||hx.title);
