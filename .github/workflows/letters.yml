@@ -1,0 +1,77 @@
+# Озвучка названий 28 арабских букв синтезом речи Piper (голос ar_JO «Kareem», rhasspy/piper-voices).
+# Голос разрешён только для некоммерческого использования — при платной версии заменить своей записью.
+# Кладёт файлы в audio/ab/<код буквы>.mp3 (например 0628.mp3 — «باء»), рядом MODEL_CARD с лицензией голоса.
+# Запускается сам при изменении этого файла, или вручную: Actions → «Озвучка букв» → Run workflow.
+name: Озвучка букв
+on:
+  workflow_dispatch:
+  push:
+    paths: [".github/workflows/letters.yml"]
+permissions:
+  contents: write
+concurrency:
+  group: letters
+  cancel-in-progress: true
+jobs:
+  letters:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - name: Сгенерировать
+        run: |
+          set -e
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg > /dev/null
+          pip install -q "piper-tts==1.2.0"
+          V=https://huggingface.co/rhasspy/piper-voices/resolve/main/ar/ar_JO/kareem
+          Q=medium
+          curl -sSfL -o v.onnx "$V/$Q/ar_JO-kareem-$Q.onnx" || { Q=low; curl -sSfL -o v.onnx "$V/$Q/ar_JO-kareem-$Q.onnx"; }
+          curl -sSfL -o v.onnx.json "$V/$Q/ar_JO-kareem-$Q.onnx.json"
+          mkdir -p audio/ab tmp
+          curl -sSfL -o audio/ab/MODEL_CARD.txt "$V/$Q/MODEL_CARD" || true
+          echo "== MODEL_CARD ($Q) =="; cat audio/ab/MODEL_CARD.txt || true
+          while read hex txt; do
+            echo "$txt" | piper -m v.onnx --length_scale 1.25 --output_file tmp/$hex.wav
+            ffmpeg -loglevel error -y -i tmp/$hex.wav \
+              -af "silenceremove=start_periods=1:start_threshold=-45dB,areverse,silenceremove=start_periods=1:start_threshold=-45dB,areverse,adelay=120,apad=pad_dur=0.15,loudnorm=I=-16" \
+              -ac 1 -ar 44100 -b:a 64k audio/ab/$hex.mp3
+          done <<'EOF'
+          0627 أَلِفْ
+          0628 بَاءْ
+          062A تَاءْ
+          062B ثَاءْ
+          062C جِيمْ
+          062D حَاءْ
+          062E خَاءْ
+          062F دَالْ
+          0630 ذَالْ
+          0631 رَاءْ
+          0632 زَايْ
+          0633 سِينْ
+          0634 شِينْ
+          0635 صَادْ
+          0636 ضَادْ
+          0637 طَاءْ
+          0638 ظَاءْ
+          0639 عَيْنْ
+          063A غَيْنْ
+          0641 فَاءْ
+          0642 قَافْ
+          0643 كَافْ
+          0644 لَامْ
+          0645 مِيمْ
+          0646 نُونْ
+          0647 هَاءْ
+          0648 وَاوْ
+          064A يَاءْ
+          EOF
+          rm -rf tmp; ls -la audio/ab; du -sh audio/ab
+      - name: Сохранить в репозиторий
+        run: |
+          git config user.name "hasanatiki-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add audio/ab
+          git diff --cached --quiet && echo "Нечего сохранять" && exit 0
+          git commit -m "Озвучка букв: Piper, голос Kareem (некоммерческое использование)"
+          for i in 1 2 3 4 5; do git pull --rebase -q origin main && git push && exit 0; sleep 5; done; exit 1
