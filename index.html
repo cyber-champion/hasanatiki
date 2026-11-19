@@ -2666,9 +2666,9 @@ function vGc(){var c=LS.gc,C=GC[c],x=C.les[LS.i];
 var SUBJ=[["q","📖","Коран (суры)"],["ab","🔤","Алифба"],["aq","💎","Акыда"],["fq","🕌","Фикх"]];
 function lsCfg(){return S&&S.lsn||{}}
 function subjOn(c){var o=lsCfg().on;return !o||o[c]!==false}
-function lsOk(c,id){if(canEdit())return true;var op=lsCfg().open;op=op&&op[c];return !op||op.indexOf(String(id))>-1}
+function lsOk(c,id){if(canEdit())return true;var lk=c==="q"?"s"+id:c==="ab"?"a"+(+id+1):c+(+id+1);if(LP&&LP[lk])return true;var op=lsCfg().open;op=op&&op[c];return !op||op.indexOf(String(id))>-1}
 function subjLessons(c){if(c==="q")return LMOD.list.map(function(n){return [String(n),n+". "+NAMES[n]]});if(c==="ab")return ABLES.map(function(x,i){return [String(i),(i+1)+". "+x.t]});return GC[c].les.map(function(x,i){return [String(i),(i+1)+". "+x.t]})}
-function vSubjCfg(){var cf=lsCfg(),h='<div class="box"><h3 style="margin-top:0">👀 Что видят ученики</h3><p class="sm mut" style="margin:-4px 0 8px">Включите предметы и откройте нужные уроки. Закрытые уроки ученики видят с замочком 🔒.</p>';
+function vSubjCfg(){var cf=lsCfg(),h='<div class="box"><h3 style="margin-top:0">👀 Что видят ученики</h3><p class="sm mut" style="margin:-4px 0 8px">Включите предметы и откройте нужные уроки. Закрытые уроки ученики видят с замочком 🔒. Уже пройденные уроки остаются открытыми — их можно повторять.</p>';
   SUBJ.forEach(function(x){var c=x[0],on=subjOn(c),op=cf.open&&cf.open[c],L=subjLessons(c),n=op?op.length:L.length;
     h+='<div class="sjrow"><button class="sw'+(on?" on":"")+'" data-a="sjon" data-v="'+c+'" aria-label="Показывать предмет"><i></i></button><b>'+x[1]+' '+x[2]+'</b><button class="btn sm" data-a="sjx" data-v="'+c+'"'+(on?"":" disabled")+'>Открыто: '+(op?n+" из "+L.length:"все")+' ▾</button></div>';
     if(on&&UI.sjx===c){h+='<div class="sjl"><div class="btns" style="margin-bottom:6px"><button class="btn sm" data-a="sjall" data-v="'+c+'" data-k="all">Открыть все</button><button class="btn sm" data-a="sjall" data-v="'+c+'" data-k="none">Закрыть все</button></div>'+L.map(function(l){var o=!op||op.indexOf(l[0])>-1;return '<button class="tg'+(o?" on":"")+'" data-a="sjl" data-v="'+c+'" data-k="'+l[0]+'">'+(o?"✅ ":"🔒 ")+esc(l[1])+'</button>'}).join("")+'</div>'}});
