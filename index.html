@@ -591,6 +591,7 @@ html.teen .brand i{display:none}html.teen .rwrow,html.teen .rwrow+.btn{display:n
 .duban{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
 html.teen .limbox>svg{display:none}
 .priv h3{margin:14px 0 4px}.priv ul{margin:4px 0;padding-left:20px}.priv li{margin:3px 0}
+.vj{display:grid;grid-template-columns:24px 1fr auto auto;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--line);font-size:14px}.vj small{color:var(--mut)}.vj i{font-style:normal;font-weight:800;min-width:56px;text-align:right}
 </style>
 <script>(function(){var t="light";try{t=JSON.parse(localStorage.getItem("theme"))||"light"}catch(e){}document.documentElement.setAttribute("data-theme",t==="dark"?"dark":"light")})()</script>
 </head>
@@ -1328,7 +1329,7 @@ function vTeacher(){
   if(S.students.some(function(s){return s.ex}))h+='<button class="btn sm" data-a="clearex" style="margin-top:6px">Удалить все примеры</button>';
   h+='</div>';
   h+=vPins();
-  h+=vActivity(L);
+  h+=vActivity(L)+vJournal();
   if(HID.length){h+='<div class="box"><h2>🙈 Скрытые <small>'+HID.length+'</small></h2><p class="mut sm" style="margin:-6px 0 8px">Ушедшие ребята. Их нет в рейтинге и списках, но баллы, суры и значки сохранены. Вернуть можно в любой момент.</p>';
     HID.forEach(function(s){h+='<div class="lst">'+avh(s,"s")+'<span class="mid nm">'+esc(s.name)+'<br><small class="mut">'+pn(tot(s),"балл","балла","баллов")+' · '+pn(surCount(s),"сура","суры","сур")+'</small></span><button class="btn sm" data-a="unhide" data-id="'+s.id+'">↩ Вернуть</button></div>'});h+='</div>'}
   return h}
@@ -2373,20 +2374,31 @@ function lessonAct(a,v,k){
 }
 
 /* ---- активность учеников: раз в минуту, пока приложение открыто ---- */
-var actLast=0;
+var actLast=0,actLastP=0;
 function actPing(){
-  if(!CLOUD||R.view!=="group"||!G||document.hidden||canEdit())return;
-  if(!STOK)return;var sid=STOK.sid;
+  if(!CLOUD||document.hidden)return;
+  if(R.view==="parent"){var nw=Date.now(),ps=actLastP?Math.min(120,Math.round((nw-actLastP)/1000)):0;actLastP=nw;parentsList().forEach(function(p){rpc("parent_ping",{p_slug:p.slug,p_ptoken:p.t,p_secs:ps}).catch(function(){})});return}
+  if(R.view!=="group"||!G||canEdit())return;
+  if(!STOK&&isParent()&&PTOK){var nw2=Date.now(),ps2=actLastP?Math.min(120,Math.round((nw2-actLastP)/1000)):0;actLastP=nw2;rpc("parent_ping",{p_slug:G.slug,p_ptoken:PTOK.t,p_secs:ps2}).catch(function(){});return}
+  var sid=STOK?STOK.sid:meStudent;if(!sid)return;
   var now=Date.now(),secs=actLast?Math.min(120,Math.round((now-actLast)/1000)):0;actLast=now;
   rpc("activity_ping",{p_slug:G.slug,p_stoken:STOK?STOK.t:null,p_student:STOK?null:sid,p_secs:secs}).catch(function(){});
 }
 setInterval(actPing,60000);
-document.addEventListener("visibilitychange",function(){if(document.hidden){actPing();actLast=0}else setTimeout(actPing,1500)});
+document.addEventListener("visibilitychange",function(){if(document.hidden){actPing();actLast=0;actLastP=0}else setTimeout(actPing,1500)});
+setTimeout(actPing,4000);
 var ACTD=null,ACTslug="";
-function actLoad(){if(!CLOUD||!G||!canEdit())return;var slug=G.slug;rpc("activity_group",{p_token:TOK,p_slug:slug}).then(function(r){if(G&&G.slug===slug){ACTD=r||{};ACTslug=slug;render()}}).catch(function(){})}
+function actLoad(){if(!CLOUD||!G||!canEdit())return;var slug=G.slug;rpc("activity_group",{p_token:TOK,p_slug:slug}).then(function(r){if(G&&G.slug===slug){ACTD=r||{};ACTslug=slug;render()}}).catch(function(e){if(G&&G.slug===slug){ACTD={_err:emsg(e)};ACTslug=slug;render()}});
+  rpc("visit_journal",{p_token:TOK,p_slug:slug}).then(function(r){VJ={slug:slug,list:r||[]};render()}).catch(function(e){VJ={slug:slug,err:emsg(e)};render()})}
+var VJ=null;
+function whenRu(d){var t=new Date(d),n=new Date(),y=new Date(n.getTime()-864e5),hm=t.toLocaleTimeString("ru",{hour:"2-digit",minute:"2-digit"});return (t.toDateString()===n.toDateString()?"сегодня":t.toDateString()===y.toDateString()?"вчера":t.toLocaleDateString("ru",{day:"numeric",month:"short"}))+" "+hm}
+function vJournal(){if(!VJ||VJ.slug!==G.slug)return "";var h='<div class="box"><h2>📒 Журнал входов</h2><p class="mut sm" style="margin:-6px 0 8px">Каждый заход: кто, когда и сколько был в приложении. Новый заход — после перерыва больше 30 минут. 👦 — ученик, 👪 — родитель.</p>';
+  if(VJ.err)return h+'<p style="color:var(--err)">'+esc(VJ.err)+'</p></div>';if(!VJ.list.length)return h+'<p class="mut">Пока никто не заходил. Записи появятся, когда ученики или родители откроют приложение.</p></div>';
+  return h+'<div class="vjl">'+VJ.list.slice(0,60).map(function(x){var st=by(x.s);return '<div class="vj"><span>'+(x.r==="p"?"👪":"👦")+'</span><b>'+esc(st?st.name:"?")+(x.r==="p"?' <small class="mut">родитель</small>':"")+'</b><small>'+whenRu(x.a)+'</small><i>'+dur(x.secs)+'</i></div>'}).join("")+'</div></div>'}
 function dur(s){s=s|0;if(s<60)return s?"<1 мин":"—";var m=Math.round(s/60);return m<60?m+" мин":Math.floor(m/60)+" ч "+String(m%60).padStart(2,"0")+" мин"}
 function vActivity(L){
   if(!CLOUD)return"";
+  if(ACTD&&ACTD._err&&ACTslug===G.slug)return '<div class="box"><h2>📊 Активность</h2><p style="color:var(--err)">Не удалось загрузить: '+esc(ACTD._err)+'</p><button class="btn sm" data-a="actre">Повторить</button></div>';
   if(!ACTD||ACTslug!==G.slug){if(!UI.actBusy){UI.actBusy=1;setTimeout(function(){UI.actBusy=0;actLoad()},10)}return '<div class="box"><h2>📊 Активность</h2><p class="mut">Загрузка…</p></div>'}
   var h='<div class="box"><h2>📊 Активность учеников</h2><p class="mut sm" style="margin:-6px 0 8px">Сколько раз и сколько времени ребёнок провёл в приложении. Считаются ученики, которые вошли по PIN-коду или выбрали «Это я». Новый заход — после перерыва больше 30 минут.</p>';
   h+='<div style="overflow-x:auto"><table class="atab"><tr><th style="text-align:left">Ученик</th><th>Заходов<br><small>7 дней</small></th><th>Время<br><small>7 дней</small></th><th>Всего</th><th>Был</th><th>🎓 Уроки</th></tr>';
