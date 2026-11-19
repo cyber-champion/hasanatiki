@@ -589,6 +589,8 @@ html.teen .box,html.teen .gcl,html.teen .lopt,html.teen .btn{border-radius:14px}
 html.teen .brand i{display:none}html.teen .rwrow,html.teen .rwrow+.btn{display:none}
 .dutm{font-weight:900;color:var(--mut);margin-bottom:6px}.durow{display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--line)}.durow b{flex:0 1 auto}.durow small{flex:1;color:var(--mut);font-weight:800;text-align:right}.durow span{flex:1}.durow.inc{background:color-mix(in srgb,var(--brand) 8%,transparent);border-radius:12px;padding:8px 10px;flex-wrap:wrap}
 .duban{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+html.teen .limbox>svg{display:none}
+.priv h3{margin:14px 0 4px}.priv ul{margin:4px 0;padding-left:20px}.priv li{margin:3px 0}
 </style>
 <script>(function(){var t="light";try{t=JSON.parse(localStorage.getItem("theme"))||"light"}catch(e){}document.documentElement.setAttribute("data-theme",t==="dark"?"dark":"light")})()</script>
 </head>
@@ -926,6 +928,7 @@ function parseHash(){var h=location.hash.replace(/^#\/?/,"").split("/");
   if(h[0]==="login")return{view:"login"};
   if(h[0]==="cab")return{view:"cab"};
   if(h[0]==="parent")return{view:"parent"};
+  if(h[0]==="privacy")return{view:"privacy"};
   return{view:"home"};
 }
 function go(h){if(location.hash===h)route();else location.hash=h}
@@ -953,7 +956,7 @@ function vHome(){
   var mine=store.get("recent",[]);
   if(mine.length)h+='<div class="box"><h2>Недавно открытые</h2>'+mine.map(function(g){return '<a class="row" href="#/g/'+encodeURIComponent(g.slug)+'"><span style="font-size:26px">🕌</span><div class="mid"><div style="font-weight:800">'+esc(g.name)+'</div></div><span class="mut">›</span></a>'}).join("")+'</div>';
   if(ME&&ME.groups.length)h+='<div class="box"><h2>Мои группы (учитель)</h2>'+ME.groups.map(function(g){return '<a class="row" href="#/g/'+encodeURIComponent(g.slug)+'/teacher"><span style="font-size:24px">🧑‍🏫</span><div class="mid"><div style="font-weight:800">'+esc(g.name)+'</div><div class="sm mut">код: '+esc(g.slug)+'</div></div><span class="mut">›</span></a>'}).join("")+'</div>';
-  return h+installBox();
+  return h+installBox()+'<p class="cen sm" style="margin:18px 0"><a class="lnk" href="#/privacy">🔒 Конфиденциальность и данные детей</a></p>';
 }
 function vSetup(){
   return '<div class="box"><h2>Первый запуск</h2><p class="mut" style="margin:-4px 0 12px">Создайте аккаунт администратора. Это можно сделать только один раз — дальше учителей добавляете вы в кабинете.</p>'+
@@ -1145,7 +1148,7 @@ function limTeacher(){var d={les:4,min:30,night:21};var l=S&&S.lim||{};return {l
 function limCfg(){var c=limTeacher();if(!isKid())return c;if(!WAL)walLoad();var p=WAL&&WAL.plim;if(!p)return c;var mn=function(a,b){return !a?b:!b?a:Math.min(a,b)};return {les:mn(c.les,p.les),min:mn(c.min,p.min),night:mn(c.night,p.night),par:!!(p.les||p.min||p.night)}}
 function limDay(){var d=new Date();return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()}
 function limKey(){return "lim_"+(G?G.slug:"")+"_"+(STOK?STOK.sid:"")+"_"+limDay()}
-function limGet(){return store.get(limKey(),{l:0,s:0})}
+function limGet(){var o=store.get(limKey(),{l:0,s:0}),t=WAL&&WAL.today&&WAL._day===limDay()?WAL.today:null;if(t)o={l:Math.max(o.l||0,t.l||0),s:o.s||0};return o}
 function limAdd(k,n){if(!isKid())return;var o=limGet();o[k]=(o[k]||0)+n;store.set(limKey(),o)}
 function limBlock(){if(!isKid())return null;var c=limCfg(),o=limGet(),h=new Date().getHours();
   if(c.night&&(h>=c.night||h<6))return "night";if(c.les&&o.l>=c.les)return "les";if(c.min&&o.s>=c.min*60)return "min";return null}
@@ -1991,7 +1994,7 @@ function render(){
   var osh=app.querySelector(".sheet"),sy=osh?osh.scrollTop:0,same=shownSheet===UI.sheet;
   var kept={};app.querySelectorAll("[data-keep]").forEach(function(el){kept[el.dataset.keep]=el});
   teenSync();
-  var html=R.view==="group"?vGroup():R.view==="parent"?vParent():R.view==="login"?vLogin():R.view==="cab"?vCab():R.view==="home"?vHome():'<div class="loading">Загрузка…</div>';
+  var html=R.view==="group"?vGroup():R.view==="privacy"?vPrivacy():R.view==="parent"?vParent():R.view==="login"?vLogin():R.view==="cab"?vCab():R.view==="home"?vHome():'<div class="loading">Загрузка…</div>';
   app.innerHTML=html+(toastMsg?'<div class="toast" role="status">'+esc(toastMsg)+(toastUndo?' <button class="btn sm" data-a="undog" data-v="'+esc(toastUndo)+'" style="margin-left:8px;padding:6px 12px">↩ Отменить</button>':"")+'</div>':"");
   Object.keys(keep).forEach(function(id){var el=document.getElementById(id);if(!el)return;if(el.type==="checkbox")el.checked=keep[id];else el.value=keep[id]});
   app.querySelectorAll("[data-keep]").forEach(function(el){var o=kept[el.dataset.keep];if(o&&o!==el)el.replaceWith(o)});
@@ -2268,7 +2271,7 @@ function lsNext(){
   var stars=LS.err===0?3:LS.err<=2?2:1;LS.step="res";limAdd("l",1);LS.res={stars:stars,pts:null};
   var isAb=LS.ab!=null,isGc=LS.gc!=null,slug=G.slug,key=isGc?LS.gc+(LS.i+1):isAb?"a"+(LS.ab+1):"s"+LS.n,loc=store.get("lp_"+slug,{});loc[key]=Math.max(loc[key]||0,stars);store.set("lp_"+slug,loc);if(LP)LP[key]=Math.max(LP[key]||0,stars);
   if(CLOUD&&STOK&&!canEdit()){var R0=LS.res;rpc("lesson_done",{p_slug:slug,p_stoken:STOK.t,p_course:isGc?LS.gc:isAb?"ab":LMOD.id,p_lesson:key,p_title:isGc?GC[LS.gc].n+": "+GC[LS.gc].les[LS.i].t:isAb?"Алифба: "+ABLES[LS.ab].t:"Сура «"+NAMES[LS.n]+"»",p_stars:stars,p_correct:LS.ok,p_total:LS.ok+LS.err})
-    .then(function(r){R0.pts=r&&r.points||0;R0.rw=r&&r.reward||null;if(R0.rw&&R0.rw.wallet){if(WAL&&WAL.plim)R0.rw.wallet.plim=WAL.plim;WAL=R0.rw.wallet;WAL._k=slug+":"+STOK.sid;sabSync()}if(R0.pts)refreshGroup().then(render);else render()}).catch(function(e){R0.pts=-1;R0.err=emsg(e);render()})}
+    .then(function(r){R0.pts=r&&r.points||0;R0.rw=r&&r.reward||null;if(R0.rw&&R0.rw.wallet){if(WAL&&WAL.plim)R0.rw.wallet.plim=WAL.plim;R0.rw.wallet._at=0;WAL=R0.rw.wallet;WAL._k=slug+":"+STOK.sid;sabSync()}if(R0.pts)refreshGroup().then(render);else render()}).catch(function(e){R0.pts=-1;R0.err=emsg(e);render()})}
 }
 function vLessons(){
   qdLoad();if(!LP)lpLoad();
@@ -2278,6 +2281,7 @@ function vLessons(){
   var en=SUBJ.filter(function(x){return canEdit()||subjOn(x[0])}).map(function(x){return x[0]}),cs=en.indexOf(UI.course)>-1?UI.course:en[0]||"q";if(canEdit())h+=vSubjCfg();
   if(STOK&&!canEdit()&&en.length>1)h+='<div class="seg wide2 subj" style="margin-bottom:12px">'+en.map(function(c){return '<button class="'+(cs===c?"on":"")+'" data-a="course" data-v="'+c+'">'+(c==="q"?"📖 Суры":c==="ab"?abIco(22)+" Алифба":GC[c].ic+" "+GC[c].n)+'</button>'}).join("")+'</div>';
   if(STOK&&!canEdit()&&!en.length)return h+'<div class="box cen mut">Учитель пока не открыл уроки.</div>';
+  if(isKid()&&WAL&&Date.now()-(WAL._at||0)>60000){WAL._at=Date.now();walLoad(true)}
   var lbk=limBlock();if(lbk)h+=vLimit(lbk);else if(isKid()){var lc0=limCfg(),lo=limGet();if(lc0.les||lc0.min)h+='<div class="limbar">⏱ Сегодня: '+(lc0.les?"уроков "+lo.l+" из "+lc0.les:"")+(lc0.les&&lc0.min?" · ":"")+(lc0.min?"минут "+Math.floor(lo.s/60)+" из "+lc0.min:"")+'</div>'}
   if(GC[cs])return h+gcMap(cs);
   if(cs==="ab"){var at=0;ABLES.forEach(function(x,i){at+=LP&&LP["a"+(i+1)]||0});
@@ -2486,8 +2490,8 @@ function navStudent(){
   var nb=hwBadge(),t=[["o","🏠","Главная"],["s","🎓","Уроки"],["r","🏆","Рейтинг"],["d","📚","Задания"],["m","👤","Я"]];
   return '<nav class="nav"><div>'+t.map(function(x){return '<button class="'+(R.tab===x[0]||(x[0]==="m"&&R.tab==="p")?"on":"")+'" data-a="tab" data-v="'+x[0]+'"><span>'+x[1]+'</span>'+x[2]+(x[0]==="d"&&nb?'<b>'+nb+'</b>':"")+'</button>'}).join("")+'</div></nav>';
 }
-var TCM={q:"q",a:"ab",f:"fq",k:"aq",x:"ax",h:"hd",t:"tj"};
-var TILES=[["q","Коран","суры 30-го джуза","#22C55E","📖",1],["a","Алифба","буквы и чтение","#3B6CF6",'<svg viewBox="0 0 120 100" width="78" height="65" aria-hidden="true"><g transform="rotate(-8 30 70)"><rect x="8" y="48" width="44" height="44" rx="10" fill="#FFC93C"/><rect x="8" y="48" width="44" height="8" rx="4" fill="#fff" opacity=".35"/><text x="30" y="82" font-size="34" text-anchor="middle" fill="#7A4A06" style="font-family:Hafs,Sch,serif">ب</text></g><g transform="rotate(7 84 72)"><rect x="62" y="50" width="44" height="44" rx="10" fill="#FF6B9A"/><rect x="62" y="50" width="44" height="8" rx="4" fill="#fff" opacity=".35"/><text x="84" y="84" font-size="34" text-anchor="middle" fill="#fff" style="font-family:Hafs,Sch,serif">ت</text></g><g transform="rotate(-3 58 28)"><rect x="36" y="6" width="44" height="44" rx="10" fill="#22C55E"/><rect x="36" y="6" width="44" height="8" rx="4" fill="#fff" opacity=".35"/><text x="58" y="42" font-size="36" text-anchor="middle" fill="#fff" style="font-family:Hafs,Sch,serif">ا</text></g><path d="M102 12l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2Z" fill="#fff"/></svg>',1],["f","Фикх","намаз и омовение","#FF8A00","🕌",1],["k","Акыда","во что мы верим","#A855F7","💎",1],["x","Ахляк","как поступить правильно","#EC4899","🌸",1],["h","Хадисы","40 хадисов ан-Навави","#0EA5E9","📜",1],["t","Таджвид","тренажёр правил","#10B981","🎨",1],["s","Сира","жизнь Пророка ﷺ","#06B6D4","🐪",0]];
+var TCM={q:"q",a:"ab",f:"fq",k:"aq",x:"ax",h:"hd",t:"tj",s:"si"};
+var TILES=[["q","Коран","суры 30-го джуза","#22C55E","📖",1],["a","Алифба","буквы и чтение","#3B6CF6",'<svg viewBox="0 0 120 100" width="78" height="65" aria-hidden="true"><g transform="rotate(-8 30 70)"><rect x="8" y="48" width="44" height="44" rx="10" fill="#FFC93C"/><rect x="8" y="48" width="44" height="8" rx="4" fill="#fff" opacity=".35"/><text x="30" y="82" font-size="34" text-anchor="middle" fill="#7A4A06" style="font-family:Hafs,Sch,serif">ب</text></g><g transform="rotate(7 84 72)"><rect x="62" y="50" width="44" height="44" rx="10" fill="#FF6B9A"/><rect x="62" y="50" width="44" height="8" rx="4" fill="#fff" opacity=".35"/><text x="84" y="84" font-size="34" text-anchor="middle" fill="#fff" style="font-family:Hafs,Sch,serif">ت</text></g><g transform="rotate(-3 58 28)"><rect x="36" y="6" width="44" height="44" rx="10" fill="#22C55E"/><rect x="36" y="6" width="44" height="8" rx="4" fill="#fff" opacity=".35"/><text x="58" y="42" font-size="36" text-anchor="middle" fill="#fff" style="font-family:Hafs,Sch,serif">ا</text></g><path d="M102 12l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2Z" fill="#fff"/></svg>',1],["f","Фикх","намаз и омовение","#FF8A00","🕌",1],["k","Акыда","во что мы верим","#A855F7","💎",1],["x","Ахляк","как поступить правильно","#EC4899","🌸",1],["h","Хадисы","40 хадисов ан-Навави","#0EA5E9","📜",1],["t","Таджвид","тренажёр правил","#10B981","🎨",1],["s","Сира","жизнь Пророка ﷺ","#06B6D4","🐪",1]];
 function vHome2(){
   var s=STOK&&by(STOK.sid);if(!s)return vRating();
   qdLoad();if(!LP)lpLoad();
@@ -2819,7 +2823,7 @@ function vGc(){var c=LS.gc,C=GC[c],x=C.les[LS.i];
   return h+'</div>'}
 
 /* ---- что видят ученики: предметы и открытые уроки (выбирает учитель) ---- */
-var SUBJ=[["q","📖","Коран (суры)"],["ab","🔤","Алифба"],["aq","💎","Акыда"],["fq","🕌","Фикх"],["tj","🎨","Таджвид (тренажёр)"],["hd","📜","Хадисы"],["ax","🌸","Ахляк"]];
+var SUBJ=[["q","📖","Коран (суры)"],["ab","🔤","Алифба"],["aq","💎","Акыда"],["fq","🕌","Фикх"],["tj","🎨","Таджвид (тренажёр)"],["hd","📜","Хадисы"],["ax","🌸","Ахляк"],["si","🐪","Сира"]];
 function lsCfg(){return S&&S.lsn||{}}
 function subjOn(c){var o=lsCfg().on;return !o||o[c]!==false}
 function lsOk(c,id){if(canEdit())return true;var lk=c==="q"?"s"+id:c==="ab"?"a"+(+id+1):c+(+id+1);if(LP&&LP[lk])return true;var op=lsCfg().open;op=op&&op[c];return !op||op.indexOf(String(id))>-1}
@@ -2923,6 +2927,59 @@ GC.ax={n:"Ахляк",sub:"как поступить правильно",ic:"�
      ["Кто приветствует первым?",["Младший старшего, идущий сидящего","Всегда старший","Никто"],0,"Сунна салама."],
      ["«Не из нас тот, кто не милосерден к младшим и не…»",["уважает старших","читает Коран","ходит в мечеть"],0,"Хадис ат-Тирмизи."]]}
 ]};
+GC.si={n:"Сира",sub:"жизнь Пророка ﷺ",ic:"🐪",col:"#06B6D4",les:[
+ {t:"Рождение и детство",ic:"🌙",tip:"Узнаем, как начиналась жизнь самого лучшего человека.",c:[
+   ["🐘","Год слона","Пророк Мухаммад ﷺ родился в Мекке в «год слона» — около 571 года, в месяц раби-уль-авваль."],
+   ["💔","Сирота","Его отец Абдуллах умер ещё до его рождения, а мать Амина — когда ему было около шести лет."],
+   ["🏜","Халима","Младенцем его отдали кормилице Халиме из племени бану Саад — в пустыне, на чистом воздухе."],
+   ["👴","Дед и дядя","Сначала его растил дед Абдуль-Мутталиб, а после его смерти — дядя Абу Талиб."]],
+  q:[["В каком городе родился Пророк ﷺ?",["В Мекке","В Медине","В Иерусалиме"],0,"Там, где Кааба."],
+     ["Как называют год рождения Пророка ﷺ?",["Год слона","Год печали","Год хиджры"],0,"Армия с огромным животным шла на Мекку."],
+     ["Как звали маму Пророка ﷺ?",["Амина","Халима","Хадиджа"],0,"Халима — кормилица."],
+     ["Кто растил Пророка ﷺ после смерти деда?",["Дядя Абу Талиб","Абу Бакр","Халима"],0,"Его дядя."]]},
+ {t:"Юность: аль-Амин",ic:"🤝",tip:"Ещё до пророчества все знали его как самого честного.",c:[
+   ["🤝","Аль-Амин","Мекканцы называли его «аль-Амин» — «Надёжный», «Честный». Ему доверяли вещи на хранение."],
+   ["🐑","Труд","В юности он пас овец, а потом занимался торговлей."],
+   ["💍","Хадиджа","В 25 лет он женился на Хадидже — мудрой и уважаемой женщине. Она первой уверовала в него."]],
+  q:[["Как мекканцы называли Пророка ﷺ до пророчества?",["аль-Амин — Надёжный","аль-Фарук","ас-Сиддик"],0,"Ему все доверяли."],
+     ["Чем занимался Пророк ﷺ в юности?",["Пас овец и торговал","Был царём","Ничем"],0,"Многие пророки пасли овец."],
+     ["На ком женился Пророк ﷺ в 25 лет?",["На Хадидже","На Аише","На Фатыме"],0,"Она первой уверовала в него."]]},
+ {t:"Первое откровение",ic:"⛰",tip:"В 40 лет начался самый важный этап — пророчество.",c:[
+   ["⛰","Пещера Хира","Пророк ﷺ уединялся для размышлений в пещере Хира на горе возле Мекки."],
+   ["🕊","Джибриль","В 40 лет к нему пришёл ангел Джибриль и сказал: «Читай!» (Икра)."],
+   ["📖","Первые аяты","Первые ниспосланные аяты — начало суры «Аль-Аляк»: «Читай во имя твоего Господа, Который сотворил…»"],
+   ["🫂","Поддержка","Испуганный, он вернулся домой, и Хадиджа успокоила его: «Аллах никогда не опозорит тебя»."]],
+  q:[["Во сколько лет Пророк ﷺ получил первое откровение?",["В 40","В 25","В 63"],0,"Возраст зрелости."],
+     ["В какой пещере это произошло?",["Хира","Саур","Кахф"],0,"Саур — это пещера хиджры."],
+     ["Какое первое слово сказал Джибриль?",["«Читай!»","«Молись!»","«Иди!»"],0,"«Икра»."],
+     ["Из какой суры первые ниспосланные аяты?",["Аль-Аляк","Аль-Фатиха","Ан-Нас"],0,"96-я сура, «Сгусток»."]]},
+ {t:"Призыв в Мекке",ic:"📣",tip:"Первые мусульмане много терпели — и не оставили веру.",c:[
+   ["🤫","Тайный призыв","Сначала Пророк ﷺ около трёх лет призывал к исламу тайно — родных и друзей."],
+   ["🥇","Первые мусульмане","Первыми приняли ислам: Хадиджа, Абу Бакр, Али и Зейд ибн Хариса."],
+   ["📣","Открытый призыв","Потом Аллах велел призывать открыто. Многие курайшиты стали враждовать."],
+   ["🪨","Биляль","Биляля пытали под палящим солнцем, а он повторял: «Ахад, Ахад!» — «Един!». Позже он стал первым муаззином."]],
+  q:[["Сколько примерно лет призыв был тайным?",["Около трёх","Десять","Один день"],0,"Сначала — только близким."],
+     ["Кто из мужчин первым принял ислам?",["Абу Бакр","Абу Джахль","Абу Лахаб"],0,"Его прозвали ас-Сиддик."],
+     ["Что повторял Биляль под пытками?",["«Ахад, Ахад!»","«Помогите!»","Ничего"],0,"«Един, Един!»"],
+     ["Кем позже стал Биляль?",["Первым муаззином","Халифом","Купцом"],0,"Он призывал на намаз."]]},
+ {t:"Хиджра",ic:"🐪",tip:"Переселение в Медину — начало исламского календаря.",c:[
+   ["🐪","Хиджра","В 622 году Пророк ﷺ переселился из Мекки в Медину (Ясриб). С этого года начинается исламский календарь."],
+   ["🕳","Пещера Саур","По дороге он и Абу Бакр три дня скрывались в пещере Саур. Аллах защитил их."],
+   ["🕌","Мечеть Куба","Возле Медины Пророк ﷺ построил мечеть Куба — первую мечеть в исламе."],
+   ["🤝","Ансары и мухаджиры","Мединцы (ансары) приняли переселенцев (мухаджиров) как братьев и делились всем."]],
+  q:[["Куда совершил хиджру Пророк ﷺ?",["В Медину","В Таиф","В Египет"],0,"Раньше город назывался Ясриб."],
+     ["С кем Пророк ﷺ скрывался в пещере Саур?",["С Абу Бакром","С Али","С Умаром"],0,"Его верный друг."],
+     ["Какая мечеть была первой в исламе?",["Куба","Аль-Харам","Аль-Акса"],0,"Возле Медины."],
+     ["Как называли мединцев, принявших переселенцев?",["Ансары","Мухаджиры","Курайшиты"],0,"«Помощники»."]]},
+ {t:"Последние годы",ic:"🕋",tip:"Пророк ﷺ вернулся в Мекку — и простил тех, кто его обижал.",c:[
+   ["🕋","Возвращение в Мекку","В 630 году мусульмане вошли в Мекку почти без боя. Пророк ﷺ очистил Каабу от идолов и простил своих врагов."],
+   ["🕊","Прощальный хадж","В 632 году он совершил единственный хадж и произнёс прощальную проповедь о равенстве людей и братстве мусульман."],
+   ["🌙","Кончина","Пророк ﷺ скончался в Медине в 632 году, в возрасте 63 лет. Его могила — в его мечети в Медине."]],
+  q:[["Как Пророк ﷺ поступил с врагами, войдя в Мекку?",["Простил их","Изгнал всех","Наказал"],0,"Милость к миру."],
+     ["Сколько раз Пророк ﷺ совершил хадж?",["Один раз","Каждый год","Ни разу"],0,"Прощальный хадж."],
+     ["Сколько лет прожил Пророк ﷺ?",["63","40","70"],0,"Как Абу Бакр и Умар."],
+     ["Где находится могила Пророка ﷺ?",["В Медине","В Мекке","В Иерусалиме"],0,"В его мечети."]]}
+]};
 /* Тренажёр таджвида: вопросы строятся из настоящих аятов с разметкой правил */
 var TJS=["Мадд лязим","Мадд муттасыль","Мадд мунфасыль","Мадд ʿарид","Мадд табиъи","Гунна","Идгам с гунной","Ихфа","Ихфа шафави","Иклаб","Идгам шафави","Калькаля","Идгам без гунны","Идгам","Хамзат-уль-васль","Лям шамсия","Не читается"];
 GC.tj={n:"Таджвид",sub:"тренажёр правил",ic:"🎨",col:"#10B981",les:[
@@ -2958,11 +3015,20 @@ function plAct(k,v){var p=parentsList().filter(function(x){return pvKey(x)===k})
   if(f==="night"){x=o.night?o.night+d:(d>0?17:23);if(x<17||x>23)x=0}else x=Math.max(0,Math.min(f==="les"?20:180,x));var n={les:o.les,min:o.min,night:o.night};n[f]=x;PLIM[k]=n;render();
   rpc("parent_limit_set",{p_slug:p.slug,p_ptoken:p.t,p_les:n.les,p_min:n.min,p_night:n.night}).then(function(r){PLIM[k]=r;render()}).catch(function(e){flash("Не сохранилось: "+emsg(e));PLIM[k]=null;render()})}
 
+
+function vPrivacy(){return topbar('<a class="lnk" href="#/">‹ Главная</a>')+'<div class="box priv"><h2>🔒 Конфиденциальность и данные детей</h2><p class="sm mut">Черновик. Окончательный текст должен проверить юрист.</p>'+
+ '<h3>Кто отвечает за данные</h3><p>Приложение «Хасанатики» ведёт учитель медресе (организатор группы). Он добавляет учеников и выдаёт коды для входа.</p>'+
+ '<h3>Какие данные хранятся</h3><ul><li>Имя ученика (можно указать только имя без фамилии), пол и выбранный аватар или фото, если его загрузил учитель.</li><li>Баллы, посещаемость, выученные суры, результаты уроков и дуэлей, финики и вещи в «оазисе».</li><li>Домашние задания: ответы, файлы и голосовые записи, которые ученик сам отправил учителю.</li><li>Сообщения в чате родителя с учителем.</li><li>Время в приложении по дням и общие счётчики нажатий по экранам — без имён, чтобы улучшать приложение.</li></ul>'+
+ '<h3>Где хранятся</h3><p>В облачной базе данных Supabase. Доступ защищён: ученик видит свои данные и общий рейтинг группы, родитель — данные своего ребёнка и рейтинг группы, учитель — данные своей группы. Закрытую группу без кода посторонние не видят.</p>'+
+ '<h3>Чего мы не делаем</h3><ul><li>Не показываем рекламу и не продаём данные.</li><li>Не передаём данные третьим лицам, кроме хостинга.</li><li>Не собираем телефоны, адреса и геолокацию детей.</li></ul>'+
+ '<h3>Согласие и удаление</h3><p>Ребёнка добавляют в группу с согласия родителя. Родитель может в любой момент попросить учителя удалить данные ребёнка — учитель удаляет ученика из группы, а его задания, голосовые записи и другие сохранённые данные удаляются по запросу.</p>'+
+ '<h3>Ограничения времени</h3><p>Учитель и родитель могут ограничить, сколько уроков и минут в день ребёнок занимается и до какого часа.</p></div>'}
+
 /* ================= Дуэли ================= */
 var DU=null,DUbusy=false;
 function duLoad(f){if(!isKid()||!CLOUD||DUbusy||(DU&&!f&&Date.now()-DU.at<30000))return;DUbusy=true;rpc("duel_list",{p_slug:G.slug,p_stoken:STOK.t}).then(function(r){DUbusy=false;DU={at:Date.now(),list:r||[],k:G.slug+":"+STOK.sid};render()}).catch(function(){DUbusy=false})}
 function duOk(){if(DU&&DU.k!==G.slug+":"+STOK.sid)DU=null;return DU}
-function duCourses(){return ["hd","ax","aq","fq","tj"].filter(function(c){return GC[c]&&subjOn(c)&&GC[c].les.some(function(_,i){return lsOk(c,i)})})}
+function duCourses(){return ["hd","ax","aq","fq","si","tj"].filter(function(c){return GC[c]&&subjOn(c)&&GC[c].les.some(function(_,i){return lsOk(c,i)})})}
 function duBuild(c){var L=GC[c].les.map(function(_,i){return i}).filter(function(i){return lsOk(c,i)}),qs=[];shuf(L).forEach(function(i){if(qs.length<6)qs=qs.concat(gcBuild(c,i).slice(0,3))});
   return shuf(qs).slice(0,6).map(function(t){var o={q:t.q,opts:t.opts,good:t.good};if(t.arh){o.arh=t.arh;o.src=t.src}return o})}
 function duStart(du){LS={du:du,tasks:du.qs.map(function(q){var x=JSON.parse(JSON.stringify(q));x.t="gq";return x}),k:0,err:0,ok:0,fb:null,step:"game",res:null};du.start=Date.now();window.scrollTo(0,0)}
@@ -3039,9 +3105,9 @@ function sabInline(eq,w){return '<svg viewBox="0 0 200 200" width="'+w+'" height
 
 /* --- загрузка и действия --- */
 function walLoad(force){if(!isKid()||!CLOUD||WALbusy||(WAL&&!force))return;WALbusy=true;
-  rpc("wallet_get",{p_slug:G.slug,p_stoken:STOK.t}).then(function(w){WAL=w;WAL._k=G.slug+":"+STOK.sid;WALerr="";WALbusy=false;sabSync();render()}).catch(function(e){WALbusy=false;WALerr=emsg(e);render()})}
+  rpc("wallet_get",{p_slug:G.slug,p_stoken:STOK.t}).then(function(w){WAL=w;WAL._k=G.slug+":"+STOK.sid;WAL._at=Date.now();WAL._day=limDay();WALerr="";WALbusy=false;sabSync();render()}).catch(function(e){WALbusy=false;WALerr=emsg(e);render()})}
 function walDo(fn,args,ok){if(UI.wbusy)return;UI.wbusy=true;args.p_slug=G.slug;args.p_stoken=STOK.t;render();
-  rpc(fn,args).then(function(w){UI.wbusy=false;if(WAL&&WAL.plim&&!w.plim)w.plim=WAL.plim;WAL=w;WAL._k=G.slug+":"+STOK.sid;sabSync();if(ok)ok(w);render()}).catch(function(e){UI.wbusy=false;var c=e&&(e.message||e.code)||"";flash(/poor/.test(c)?"Пока не хватает — пройди ещё уроки":/owned/.test(c)?"Это у тебя уже есть":"Не получилось: "+emsg(e));render()})}
+  rpc(fn,args).then(function(w){UI.wbusy=false;if(WAL&&WAL.plim&&!w.plim)w.plim=WAL.plim;if(WAL&&WAL.today&&!w.today){w.today=WAL.today;w._day=WAL._day;w._at=WAL._at}WAL=w;WAL._k=G.slug+":"+STOK.sid;sabSync();if(ok)ok(w);render()}).catch(function(e){UI.wbusy=false;var c=e&&(e.message||e.code)||"";flash(/poor/.test(c)?"Пока не хватает — пройди ещё уроки":/owned/.test(c)?"Это у тебя уже есть":"Не получилось: "+emsg(e));render()})}
 function peekLoad(){if(PEEK&&PEEK.slug===G.slug&&Date.now()-PEEK.at<60000)return;PEEK={slug:G.slug,at:Date.now(),d:PEEK&&PEEK.slug===G.slug?PEEK.d:null};
   rpc("wallet_peek",{p_slug:G.slug,p_token:canEdit()?TOK:null,p_stoken:STOK?STOK.t:null,p_ptoken:PTOK?PTOK.t:null}).then(function(d){PEEK.d=d||{};render()}).catch(function(){PEEK.d=PEEK.d||{}})}
 function oasisAct(a,v,k){

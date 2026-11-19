@@ -1,3 +1,4 @@
+-- Порядок применения: delta_wallet.sql → delta_plim.sql → delta_lim2.sql (последний переопределяет wallet_get и _wallet_lesson)
 -- ---------- Оазис: финики 🌴, жемчужины 💎, сундуки, наряды Сабура, шатёр, мечеть ----------
 create table if not exists wallets (
   group_id   uuid not null references groups(id) on delete cascade,
