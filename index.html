@@ -159,7 +159,11 @@ textarea{min-height:170px;resize:vertical;font-size:14px;line-height:1.5}
 .nav div{display:flex;max-width:600px;margin:0 auto;gap:2px}
 .nav button{flex:1;background:none;border:0;color:var(--mut);font-weight:800;font-size:13px;padding:6px 2px;border-radius:16px;cursor:pointer;min-width:0}
 .nav button span{display:block;font-size:26px;line-height:1.15}
-.nav button.on{background:rgba(255,255,255,.08);color:var(--gold)}
+.nav button.on{background:none;color:var(--gold)}
+.nav button span{display:flex;align-items:center;justify-content:center;width:46px;height:40px;margin:0 auto 1px;border-radius:15px;transition:transform .25s cubic-bezier(.3,1.6,.5,1),background .2s}
+.nav button span img.em{width:34px;height:34px;vertical-align:0;filter:drop-shadow(0 2px 2px rgba(0,0,0,.18))}
+.nav button:not(.on) span img.em{filter:saturate(.75) drop-shadow(0 1px 1px rgba(0,0,0,.12))}
+.nav button.on span{background:linear-gradient(180deg,#FFF6CF,#FFD54F);transform:translateY(-7px) scale(1.12);box-shadow:0 6px 14px rgba(245,158,11,.35)}
 .ov{position:fixed;inset:0;z-index:40;background:rgba(3,6,18,.7);display:flex;align-items:flex-end;justify-content:center}
 .ov.anim{animation:fd .2s}.ov.anim .sheet{animation:up .25s ease-out}
 .sheet{width:100%;max-width:600px;max-height:90%;overflow:auto;background:var(--card);border:1px solid var(--line);border-radius:26px 26px 0 0;padding:18px max(18px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(18px,env(safe-area-inset-left,0px))}
@@ -299,7 +303,8 @@ div.fb{cursor:default}
   .stats,.qa{grid-template-columns:repeat(2,1fr)}
   .grid2{grid-template-columns:1fr}
   .nav button{font-size:11px}
-  .nav button span{font-size:23px}
+  .nav button span{font-size:23px;width:42px;height:36px}
+  .nav button span img.em{width:30px;height:30px}
 }
 /* плеер сур */
 .lsn{background:var(--card2);border-radius:16px;padding:12px;margin:10px 0}
@@ -384,7 +389,7 @@ html[data-theme] .tabs4{background:var(--navbg);box-shadow:var(--shadow)}
 html[data-theme] .tabs4 button.on{background:var(--sel);color:var(--sel-tx)}
 html[data-theme] .seg button.on{background:var(--sel);color:var(--sel-tx)}
 html[data-theme] .nav{background:var(--navbg);box-shadow:0 -2px 12px rgba(30,50,120,.06)}
-html[data-theme] .nav button.on{background:var(--soft);color:var(--brand)}
+html[data-theme] .nav button.on{background:none;color:var(--brand)}
 html[data-theme] .ov{background:var(--ovbg)}
 html[data-theme] .sheet .grab{background:var(--line)}
 html[data-theme] .close{background:var(--soft);color:var(--tx)}
@@ -412,7 +417,7 @@ html[data-theme] .say p:before{background:var(--card)}
 .tile.soon{opacity:.5}.tpr{position:absolute;left:14px;bottom:12px;width:70px;height:8px;border-radius:5px;background:rgba(255,255,255,.35)}.tpr u{display:block;height:100%;border-radius:5px;background:#fff}
 .qrow{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
 .qc{border:1px solid var(--line);background:var(--card);border-radius:20px;padding:12px;text-align:left;font:inherit;color:var(--tx);cursor:pointer;box-shadow:var(--shadow);display:flex;flex-direction:column}
-.qc i{font-style:normal;font-size:26px}.qc b{font-size:16px;font-weight:900}.qc small{color:var(--mut);font-weight:700;font-size:12px}
+.qc i{font-style:normal;font-size:34px}.qc b{font-size:16px;font-weight:900}.qc small{color:var(--mut);font-weight:700;font-size:12px}
 .lmap{position:relative;margin:6px 0 10px}.lmap>svg:not(.lspark){position:absolute;inset:0;width:100%;height:100%}
 .lnode{position:absolute;transform:translateX(-50%);width:110px;border:0;background:none;font:inherit;color:var(--tx);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;padding:0}
 .lnode .ln{width:66px;height:66px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px;background:var(--card);border:4px solid var(--brand);color:var(--brand);box-shadow:0 5px 0 var(--soft-sh)}
@@ -1044,7 +1049,7 @@ function teacherForm(t){
 
 /* ---- экраны группы ---- */
 function groupHeader(){
-  var ms=STOK&&by(STOK.sid),rt=ms?(canEdit()?"":walChip())+'<a class="lnk" href="#/g/'+encodeURIComponent(G.slug)+'/me">👤 '+esc(ms.name)+'</a>':isParent()?'<a class="lnk" href="#/parent">👪 Кабинет родителя</a>':null;
+  var ms=STOK&&by(STOK.sid),rt=ms?(canEdit()?"":walChip())+'<a class="lnk" href="#/g/'+encodeURIComponent(G.slug)+'/me">😊 '+esc(ms.name)+'</a>':isParent()?'<a class="lnk" href="#/parent">👪 Кабинет родителя</a>':null;
   var h=topbar('<a class="lnk" href="#/">‹ Главная</a>',rt)+'<header class="top">'+brand()+'<div class="gname">'+esc(G.name)+'</div></header>';
   if(canEdit()){
     var st=saveErr&&saveErr!=="network"?'<span><span class="dot e"></span>'+esc(emsg({code:saveErr}))+'</span>':saving?'<span><span class="dot w"></span>Сохраняю…</span>':Q.length?'<span><span class="dot w"></span>'+(saveErr==="network"?"Нет связи — ждут сохранения: ":"Сохраню через секунду: ")+Q.length+'</span>':'<span><span class="dot"></span>Всё сохранено</span>';
@@ -1232,7 +1237,7 @@ function vRules(){
   STK.forEach(function(b){h+='<div class="bd"><i>'+b[1]+'</i><b>'+b[2]+'</b><span>намаз в мечети каждую неделю</span></div>'});
   ATB.forEach(function(b){h+='<div class="bd"><i>'+b[1]+'</i><b>'+b[2]+'</b><span>'+pn(b[0],"урок","урока","уроков")+' в медресе</span></div>'});
   h+='<div class="bd"><i>🥉</i><b>В тройке</b><span>тройка лучших сезона</span></div><div class="bd"><i>👑</i><b>Чемпион сезона</b><span>1 место в сезоне</span></div>';
-  h+='</div></div><div class="box"><h2>👤 Мой кабинет</h2><p class="mut">Войди в группу под своим именем и PIN-кодом — телефон запомнит тебя. Сверху в рейтинге всегда будет твой персонаж. Нажми 👤 со своим именем вверху справа: там твои значки, дела, задания и аватарка.</p></div>';
+  h+='</div></div><div class="box"><h2>😊 Мой кабинет</h2><p class="mut">Войди в группу под своим именем и PIN-кодом — телефон запомнит тебя. Сверху в рейтинге всегда будет твой персонаж. Нажми 👤 со своим именем вверху справа: там твои значки, дела, задания и аватарка.</p></div>';
   h+=installBox();
   h+='<div class="box"><h2>Сезоны</h2><p class="mut">Рейтинг идёт до конца сезона. Потом учитель начинает новый сезон: таблица обнуляется, а десятка лучших попадает в Зал славы. Опыт, звание, значки и выученные суры остаются с тобой.</p></div>';
   return h;
@@ -1552,7 +1557,7 @@ function vStudentCab(){
   }
   var L=S.students.slice().sort(function(a,b){return a.name.localeCompare(b.name,"ru")}),cur=UI.pinSid||meStudent||"";
   if(!L.length)return"";
-  return '<div class="box"><h2>👤 Мой кабинет</h2>'+say("asl","Чтобы сдавать задания, выбери своё имя и введи PIN-код. Его даёт учитель.")+'<div class="grid2"><div class="field"><label for="pin_sid">Кто ты</label><select id="pin_sid"><option value="">— выбери имя —</option>'+L.map(function(s){return '<option value="'+s.id+'"'+(s.id===cur?" selected":"")+'>'+esc(s.name)+'</option>'}).join("")+'</select></div><div class="field"><label for="pin_code">PIN-код</label><input id="pin_code" type="password" inputmode="numeric" autocomplete="off" maxlength="4" placeholder="4 цифры"></div></div>'+(UI.pinErr?'<p class="note err" style="margin-bottom:10px">'+esc(UI.pinErr)+'</p>':"")+'<button class="btn pri" data-a="slogin">Войти</button></div>';
+  return '<div class="box"><h2>😊 Мой кабинет</h2>'+say("asl","Чтобы сдавать задания, выбери своё имя и введи PIN-код. Его даёт учитель.")+'<div class="grid2"><div class="field"><label for="pin_sid">Кто ты</label><select id="pin_sid"><option value="">— выбери имя —</option>'+L.map(function(s){return '<option value="'+s.id+'"'+(s.id===cur?" selected":"")+'>'+esc(s.name)+'</option>'}).join("")+'</select></div><div class="field"><label for="pin_code">PIN-код</label><input id="pin_code" type="password" inputmode="numeric" autocomplete="off" maxlength="4" placeholder="4 цифры"></div></div>'+(UI.pinErr?'<p class="note err" style="margin-bottom:10px">'+esc(UI.pinErr)+'</p>':"")+'<button class="btn pri" data-a="slogin">Войти</button></div>';
 }
 function cabSay(s,done,wait,todo){
   if(!HW||!HW.items.length||UI.seg==="chat")return"";
@@ -1988,7 +1993,7 @@ function vGroup(){
 var app=document.getElementById("app");
 
 /* ================= рисованные иконки вместо смайликов (Fluent Emoji, MIT) ================= */
-var EMH={};(["1f305", "1f307", "1f30a", "1f30d", "1f319", "1f31e", "1f31f", "1f324", "1f327", "1f331", "1f334", "1f338", "1f339", "1f33f", "1f343", "1f36c", "1f36f", "1f37d", "1f381", "1f389", "1f393", "1f396", "1f399", "1f3a7", "1f3a8", "1f3a9", "1f3ac", "1f3ae", "1f3af", "1f3b5", "1f3c1", "1f3c5", "1f3c6", "1f3d4", "1f3d5", "1f3db", "1f3dc", "1f3dd", "1f3e0", "1f3e1", "1f3ee", "1f3f9", "1f3fa", "1f40e", "1f411", "1f418", "1f422", "1f428", "1f42a", "1f42c", "1f42f", "1f43a", "1f43b", "1f43c", "1f440", "1f441", "1f443", "1f446", "1f44b", "1f44d", "1f451", "1f463", "1f464", "1f465", "1f466", "1f469", "1f474", "1f476", "1f48d", "1f48e", "1f494", "1f49a", "1f49e", "1f4a1", "1f4a7", "1f4aa", "1f4ab", "1f4ac", "1f4b0", "1f4be", "1f4c4", "1f4c5", "1f4ca", "1f4cb", "1f4ce", "1f4cf", "1f4d2", "1f4d5", "1f4d6", "1f4d7", "1f4d8", "1f4da", "1f4dc", "1f4dd", "1f4e2", "1f4e3", "1f4e8", "1f4ef", "1f4f1", "1f4f2", "1f4f4", "1f4f7", "1f4fd", "1f4ff", "1f501", "1f504", "1f507", "1f50a", "1f510", "1f511", "1f512", "1f514", "1f515", "1f516", "1f517", "1f51f", "1f524", "1f525", "1f528", "1f54a", "1f54b", "1f54c", "1f570", "1f573", "1f590", "1f5bc", "1f5d1", "1f5d3", "1f5dd", "1f5e3", "1f602", "1f606", "1f60a", "1f60b", "1f60d", "1f633", "1f634", "1f642", "1f647", "1f648", "1f64c", "1f680", "1f697", "1f6a7", "1f6aa", "1f6ab", "1f6bb", "1f6bd", "1f6bf", "1f6cb", "1f6e1", "1f7e2", "1f7e5", "1f910", "1f912", "1f91d", "1f927", "1f92b", "1f92e", "1f932", "1f938", "1f947", "1f948", "1f949", "1f981", "1f984", "1f985", "1f989", "1f98a", "1f98c", "1f9b4", "1f9b6", "1f9c3", "1f9ce", "1f9d1", "1f9d1-200d-1f3eb", "1f9d2", "1f9e0", "1f9e1", "1f9e3", "1f9ed", "1f9f0", "1f9f3", "1f9fc", "1f9fe", "1fa78", "1fa91", "1fa94", "1faa8", "1fac2", "1faf6", "23f1", "23f3", "2600", "261d", "267e", "2694", "2696", "2699", "26a0", "26a1", "26d4", "26f0", "26f5", "26fa", "2705", "270b", "270d", "270f", "2728", "274c", "2753", "2764", "2b06", "2b07", "2b50", "31-20e3", "32-20e3", "33-20e3", "34-20e3", "35-20e3", "36-20e3", "37-20e3", "38-20e3", "39-20e3"]).forEach(function(k){EMH[k]=1});var EMA={"1f46a":"1f465","1f46c":"1f465"};
+var EMH={},EM3={};(["1f305", "1f307", "1f30a", "1f30d", "1f319", "1f31e", "1f31f", "1f324", "1f327", "1f331", "1f334", "1f338", "1f339", "1f33f", "1f343", "1f36c", "1f36f", "1f37d", "1f381", "1f389", "1f393", "1f396", "1f399", "1f3a7", "1f3a8", "1f3a9", "1f3ac", "1f3ae", "1f3af", "1f3b5", "1f3c1", "1f3c5", "1f3c6", "1f3d4", "1f3d5", "1f3db", "1f3dc", "1f3dd", "1f3e0", "1f3e1", "1f3ee", "1f3f9", "1f3fa", "1f40e", "1f411", "1f418", "1f422", "1f428", "1f42a", "1f42c", "1f42f", "1f43a", "1f43b", "1f43c", "1f440", "1f441", "1f443", "1f446", "1f44b", "1f44d", "1f451", "1f463", "1f464", "1f465", "1f466", "1f469", "1f474", "1f476", "1f48d", "1f48e", "1f494", "1f49a", "1f49e", "1f4a1", "1f4a7", "1f4aa", "1f4ab", "1f4ac", "1f4b0", "1f4be", "1f4c4", "1f4c5", "1f4ca", "1f4cb", "1f4ce", "1f4cf", "1f4d2", "1f4d5", "1f4d6", "1f4d7", "1f4d8", "1f4da", "1f4dc", "1f4dd", "1f4e2", "1f4e3", "1f4e8", "1f4ef", "1f4f1", "1f4f2", "1f4f4", "1f4f7", "1f4fd", "1f4ff", "1f501", "1f504", "1f507", "1f50a", "1f510", "1f511", "1f512", "1f514", "1f515", "1f516", "1f517", "1f51f", "1f524", "1f525", "1f528", "1f54a", "1f54b", "1f54c", "1f570", "1f573", "1f590", "1f5bc", "1f5d1", "1f5d3", "1f5dd", "1f5e3", "1f602", "1f606", "1f60a", "1f60b", "1f60d", "1f633", "1f634", "1f642", "1f647", "1f648", "1f64c", "1f680", "1f697", "1f6a7", "1f6aa", "1f6ab", "1f6bb", "1f6bd", "1f6bf", "1f6cb", "1f6e1", "1f7e2", "1f7e5", "1f910", "1f912", "1f91d", "1f927", "1f92b", "1f92e", "1f932", "1f938", "1f947", "1f948", "1f949", "1f981", "1f984", "1f985", "1f989", "1f98a", "1f98c", "1f9b4", "1f9b6", "1f9c3", "1f9ce", "1f9d1", "1f9d1-200d-1f3eb", "1f9d2", "1f9e0", "1f9e1", "1f9e3", "1f9ed", "1f9f0", "1f9f3", "1f9fc", "1f9fe", "1fa78", "1fa91", "1fa94", "1faa8", "1fac2", "1faf6", "23f1", "23f3", "2600", "261d", "267e", "2694", "2696", "2699", "26a0", "26a1", "26d4", "26f0", "26f5", "26fa", "2705", "270b", "270d", "270f", "2728", "274c", "2753", "2764", "2b06", "2b07", "2b50", "31-20e3", "32-20e3", "33-20e3", "34-20e3", "35-20e3", "36-20e3", "37-20e3", "38-20e3", "39-20e3"]).forEach(function(k){EMH[k]=1});(["1f305", "1f307", "1f30a", "1f30d", "1f319", "1f31e", "1f31f", "1f324", "1f327", "1f331", "1f334", "1f338", "1f339", "1f33f", "1f343", "1f36c", "1f36f", "1f37d", "1f381", "1f389", "1f393", "1f396", "1f399", "1f3a7", "1f3a8", "1f3a9", "1f3ac", "1f3ae", "1f3af", "1f3b5", "1f3c1", "1f3c5", "1f3c6", "1f3d4", "1f3d5", "1f3db", "1f3dc", "1f3dd", "1f3e0", "1f3e1", "1f3ee", "1f3f9", "1f3fa", "1f40e", "1f411", "1f418", "1f422", "1f428", "1f42a", "1f42c", "1f42f", "1f43a", "1f43b", "1f43c", "1f440", "1f441", "1f443", "1f446", "1f44b", "1f44d", "1f451", "1f463", "1f464", "1f465", "1f466", "1f469", "1f474", "1f476", "1f48d", "1f48e", "1f494", "1f49a", "1f49e", "1f4a1", "1f4a7", "1f4aa", "1f4ab", "1f4ac", "1f4b0", "1f4be", "1f4c4", "1f4c5", "1f4ca", "1f4cb", "1f4ce", "1f4cf", "1f4d2", "1f4d5", "1f4d6", "1f4d7", "1f4d8", "1f4da", "1f4dc", "1f4dd", "1f4e2", "1f4e3", "1f4e8", "1f4ef", "1f4f1", "1f4f2", "1f4f4", "1f4f7", "1f4fd", "1f4ff", "1f501", "1f504", "1f507", "1f50a", "1f510", "1f511", "1f512", "1f514", "1f515", "1f516", "1f517", "1f51f", "1f524", "1f525", "1f528", "1f54a", "1f54b", "1f54c", "1f570", "1f573", "1f590", "1f5bc", "1f5d1", "1f5d3", "1f5dd", "1f5e3", "1f602", "1f606", "1f60a", "1f60b", "1f60d", "1f633", "1f634", "1f642", "1f647", "1f648", "1f64c", "1f680", "1f697", "1f6a7", "1f6aa", "1f6ab", "1f6bb", "1f6bd", "1f6bf", "1f6cb", "1f6e1", "1f7e2", "1f7e5", "1f910", "1f912", "1f91d", "1f927", "1f92b", "1f92e", "1f932", "1f938", "1f947", "1f948", "1f949", "1f981", "1f984", "1f985", "1f989", "1f98a", "1f98c", "1f9b4", "1f9b6", "1f9c3", "1f9ce", "1f9d1", "1f9d1-200d-1f3eb", "1f9d2", "1f9e0", "1f9e1", "1f9e3", "1f9ed", "1f9f0", "1f9f3", "1f9fc", "1f9fe", "1fa78", "1fa91", "1fa94", "1faa8", "1fac2", "1faf6", "23f1", "23f3", "2600", "261d", "267e", "2694", "2696", "2699", "26a0", "26a1", "26d4", "26f0", "26f5", "26fa", "2705", "270b", "270d", "270f", "2728", "274c", "2753", "2764", "2b06", "2b07", "2b50", "31-20e3", "32-20e3", "33-20e3", "34-20e3", "35-20e3", "36-20e3", "37-20e3", "38-20e3", "39-20e3"]).forEach(function(k){EM3[k]=1});var EMA={"1f46a":"1f465","1f46c":"1f465"};
 var EMRE=null;try{EMRE=new RegExp("\\p{Extended_Pictographic}(?:\\uFE0F|\\u200D\\p{Extended_Pictographic}\\uFE0F?)*|[0-9#*]\\uFE0F?\\u20E3","gu")}catch(e){}
 function emKey(e){var a=[];for(var i=0;i<e.length;){var c=e.codePointAt(i);i+=c>0xffff?2:1;if(c!==0xfe0f)a.push(c.toString(16))}var k=a.join("-");return EMH[k]?k:EMA[k]&&EMH[EMA[k]]?EMA[k]:null}
 var EMSKIP={SCRIPT:1,STYLE:1,TEXTAREA:1,OPTION:1,SELECT:1,INPUT:1,svg:1,text:1,TITLE:1};
@@ -1996,7 +2001,7 @@ function emify(root){if(!EMRE||!root)return;var w=document.createTreeWalker(root
   while((n=w.nextNode())){EMRE.lastIndex=0;if(EMRE.test(n.nodeValue))L.push(n)}
   L.forEach(function(t){var p=t.parentNode,q=p,skip=false;while(q&&q!==root){if(EMSKIP[q.nodeName]||q.hasAttribute&&q.hasAttribute("data-noem")){skip=true;break}q=q.parentNode}if(skip)return;
     var s=t.nodeValue,f=document.createDocumentFragment(),last=0,m;EMRE.lastIndex=0;
-    while((m=EMRE.exec(s))){var k=emKey(m[0]);if(!k)continue;if(m.index>last)f.appendChild(document.createTextNode(s.slice(last,m.index)));var im=document.createElement("img");im.className="em";im.alt=m[0];im.draggable=false;im.src="em/"+k+".svg";f.appendChild(im);last=m.index+m[0].length}
+    while((m=EMRE.exec(s))){var k=emKey(m[0]);if(!k)continue;if(m.index>last)f.appendChild(document.createTextNode(s.slice(last,m.index)));var im=document.createElement("img");im.className="em";im.alt=m[0];im.draggable=false;im.src=EM3[k]?"em3/"+k+".png":"em/"+k+".svg";f.appendChild(im);last=m.index+m[0].length}
     if(!last)return;if(last<s.length)f.appendChild(document.createTextNode(s.slice(last)));p.replaceChild(f,t)})}
 function render(){
   var y=window.scrollY,ae=document.activeElement,focusId=ae&&ae.id,selStart=null;
@@ -2513,7 +2518,7 @@ function vGoalSug(){
 
 /* ================= ученик: нижнее меню, главная, карта уроков ================= */
 function navStudent(){
-  var nb=hwBadge(),t=[["o","🏠","Главная"],["s","🎓","Уроки"],["r","🏆","Рейтинг"],["d","📚","Задания"],["m","👤","Я"]];
+  var nb=hwBadge(),t=[["o","🏠","Главная"],["s","🎓","Уроки"],["r","🏆","Рейтинг"],["d","📚","Задания"],["m","😊","Я"]];
   return '<nav class="nav"><div>'+t.map(function(x){return '<button class="'+(R.tab===x[0]||(x[0]==="m"&&R.tab==="p")?"on":"")+'" data-a="tab" data-v="'+x[0]+'"><span>'+x[1]+'</span>'+x[2]+(x[0]==="d"&&nb?'<b>'+nb+'</b>':"")+'</button>'}).join("")+'</div></nav>';
 }
 var TCM={q:"q",j:"q29",a:"ab",f:"fq",k:"aq",x:"ax",h:"hd",t:"tj",s:"si",n:"an",m:"nm",4:"h4",u:"du"};
