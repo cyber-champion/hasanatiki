@@ -1993,7 +1993,7 @@ function render(){
   UI.dropKeep=false;
   var osh=app.querySelector(".sheet"),sy=osh?osh.scrollTop:0,same=shownSheet===UI.sheet;
   var kept={};app.querySelectorAll("[data-keep]").forEach(function(el){kept[el.dataset.keep]=el});
-  teenSync();
+  teenSync();lmodSync();
   var html=R.view==="group"?vGroup():R.view==="privacy"?vPrivacy():R.view==="parent"?vParent():R.view==="login"?vLogin():R.view==="cab"?vCab():R.view==="home"?vHome():'<div class="loading">Загрузка…</div>';
   app.innerHTML=html+(toastMsg?'<div class="toast" role="status">'+esc(toastMsg)+(toastUndo?' <button class="btn sm" data-a="undog" data-v="'+esc(toastUndo)+'" style="margin-left:8px;padding:6px 12px">↩ Отменить</button>':"")+'</div>':"");
   Object.keys(keep).forEach(function(id){var el=document.getElementById(id);if(!el)return;if(el.type==="checkbox")el.checked=keep[id];else el.value=keep[id]});
@@ -2187,7 +2187,8 @@ function vListen(){
 // Модуль «Понимаю суры 30-го джуза». Задания строятся из текста сур автоматически:
 // порядок аятов, какой аят звучит, смысл аята, пропущенное слово, найди пару, что за сура.
 var QD=null,QDerr="",LP=null,LS=null,LA=null,LAerr=false;
-var LMOD={id:"q30",name:"Понимаю суры 30-го джуза",list:[1].concat((function(){var a=[];for(var i=114;i>=78;i--)a.push(i);return a})())};
+var LM30={id:"q30",name:"Понимаю суры 30-го джуза",list:[1].concat((function(){var a=[];for(var i=114;i>=78;i--)a.push(i);return a})())},LM29={id:"q29",name:"Понимаю суры 29-го джуза (Табарак)",list:[67,68,69,70,71,72,73,74,75,76,77]},LMOD=LM30;
+function lmodSync(){LMOD=(LS&&LS.n>=67&&LS.n<=77)||(!LS&&UI.course==="q29")?LM29:LM30}
 function abIco(w){return '<svg viewBox="0 0 120 100" width="'+w+'" height="'+Math.round(w*.83)+'" aria-hidden="true" style="vertical-align:-0.25em;display:inline-block"><g transform="rotate(-8 30 70)"><rect x="8" y="48" width="44" height="44" rx="10" fill="#FFC93C"/><text x="30" y="82" font-size="34" text-anchor="middle" fill="#7A4A06" style="font-family:Hafs,Sch,serif">ب</text></g><g transform="rotate(7 84 72)"><rect x="62" y="50" width="44" height="44" rx="10" fill="#FF6B9A"/><text x="84" y="84" font-size="34" text-anchor="middle" fill="#fff" style="font-family:Hafs,Sch,serif">ت</text></g><g transform="rotate(-3 58 28)"><rect x="36" y="6" width="44" height="44" rx="10" fill="#22C55E"/><text x="58" y="42" font-size="36" text-anchor="middle" fill="#fff" style="font-family:Hafs,Sch,serif">ا</text></g></svg>'}
 var SUBJ=[["q","📖","Коран",1],["a","","Алифба",1],["f","🕌","Фикх",0],["k","💎","Акида",0],["x","🌸","Ахляк",0],["h","📜","Хадисы",0],["s","🐪","Сира",0]];
 function qdLoad(){if(QD||QDerr==="busy")return;QDerr="busy";fetch("q30.json").then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){QD=d;QDerr="";render()}).catch(function(){QDerr="Не удалось загрузить суры. Проверьте интернет.";render()})}
@@ -2196,7 +2197,7 @@ function lpLoad(){
   if(!G)return;var slug=G.slug,sid=lsid(),loc=store.get("lp_"+slug,{});
   LP={};Object.keys(loc).forEach(function(k){LP[k]=loc[k]});
   if(!CLOUD||!sid||canEdit())return;
-  rpc("progress_get",V_({p_code:slug,p_student:sid})).then(function(r){if(!G||G.slug!==slug)return;(r||[]).forEach(function(x){if(x.course===LMOD.id||x.course==="ab"||GC[x.course])LP[x.lesson]=Math.max(LP[x.lesson]||0,x.best_stars)});render()}).catch(function(){});
+  rpc("progress_get",V_({p_code:slug,p_student:sid})).then(function(r){if(!G||G.slug!==slug)return;(r||[]).forEach(function(x){if(x.course==="q30"||x.course==="q29"||x.course==="ab"||GC[x.course])LP[x.lesson]=Math.max(LP[x.lesson]||0,x.best_stars)});render()}).catch(function(){});
 }
 function arn(n){return String(n).replace(/\d/g,function(d){return "٠١٢٣٤٥٦٧٨٩"[d]})}
 function ruT(t){return String(t||"").replace(/\s*\[\d+\]/g,"")}
@@ -2208,7 +2209,7 @@ function lsName(n){return n+". "+NAMES[n]}
 function lsBuild(n){
   var D=QD[n],A=D.ar,T=D.ru.map(ruT),N=A.length,tasks=[],uniq=function(arr,i){return arr.filter(function(x,k){return k===i||arr[k]!==arr[i]})};
   // 1. порядок аятов (до 5 подряд)
-  if(N>=3){var w=Math.min(4,N),ids=[];for(var k=0;k<w;k++)ids.push(k);var sl=ids.map(function(){return null});sl[0]=0;var mx=shuf(ids.slice(1));tasks.push({t:"ord",ids:ids,mix:mx,slot:sl,got:[0]})}
+  if(N>=3){var w=Math.min(A.slice(0,4).join("").length>300?3:4,N),ids=[];for(var k=0;k<w;k++)ids.push(k);var sl=ids.map(function(){return null});sl[0]=0;var mx=shuf(ids.slice(1));tasks.push({t:"ord",ids:ids,mix:mx,slot:sl,got:[0]})}
   // 2. какой аят звучит
   shuf(Array.apply(null,{length:N}).map(function(_,i){return i})).slice(0,2).forEach(function(i){tasks.push({t:"lis",i:i,opts:shuf([i].concat(pickOthers(N,i,2)))})});
   // 3. смысл аята
@@ -2279,7 +2280,7 @@ function vLessons(){
   var h=STOK&&!canEdit()?"":'<div class="tgrid">'+TILES.map(function(t){var on=(UI.course||"q")===TCM[t[0]];return '<button class="tile'+(t[5]?"":" soon")+'" style="--tc:'+t[3]+(t[5]&&!on?";opacity:.8":"")+(t[5]&&on?";outline:4px solid var(--brand);outline-offset:2px":"")+'"'+(t[5]?' data-a="course" data-v="'+TCM[t[0]]+'"':' data-a="soon"')+'><b>'+t[1]+'</b><small>'+(t[5]?t[2]:"скоро")+'</small><i>'+t[4]+'</i></button>'}).join("")+'</div>';
   if(!QD)return h+'<div class="box cen mut">'+(QDerr&&QDerr!=="busy"?esc(QDerr):"Загрузка…")+'</div>';
   var en=SUBJ.filter(function(x){return canEdit()||subjOn(x[0])}).map(function(x){return x[0]}),cs=en.indexOf(UI.course)>-1?UI.course:en[0]||"q";if(canEdit())h+=vSubjCfg();
-  if(STOK&&!canEdit()&&en.length>1)h+='<div class="seg wide2 subj" style="margin-bottom:12px">'+en.map(function(c){return '<button class="'+(cs===c?"on":"")+'" data-a="course" data-v="'+c+'">'+(c==="q"?"📖 Суры":c==="ab"?abIco(22)+" Алифба":GC[c].ic+" "+GC[c].n)+'</button>'}).join("")+'</div>';
+  if(STOK&&!canEdit()&&en.length>1)h+='<div class="seg wide2 subj" style="margin-bottom:12px">'+en.map(function(c){return '<button class="'+(cs===c?"on":"")+'" data-a="course" data-v="'+c+'">'+(c==="q"?"📖 Джуз 30":c==="q29"?"📗 Джуз 29":c==="ab"?abIco(22)+" Алифба":GC[c].ic+" "+GC[c].n)+'</button>'}).join("")+'</div>';
   if(STOK&&!canEdit()&&!en.length)return h+'<div class="box cen mut">Учитель пока не открыл уроки.</div>';
   if(isKid()&&WAL&&Date.now()-(WAL._at||0)>60000){WAL._at=Date.now();walLoad(true)}
   var lbk=limBlock();if(lbk)h+=vLimit(lbk);else if(isKid()){var lc0=limCfg(),lo=limGet();if(lc0.les||lc0.min)h+='<div class="limbar">⏱ Сегодня: '+(lc0.les?"уроков "+lo.l+" из "+lc0.les:"")+(lc0.les&&lc0.min?" · ":"")+(lc0.min?"минут "+Math.floor(lo.s/60)+" из "+lc0.min:"")+'</div>'}
@@ -2346,7 +2347,7 @@ function vLesson(){
 function lessonAct(a,v,k){
   var t=lsCur();
   switch(a){
-    case"lopen":var lb=limBlock();if(lb){UI.limHit=lb;flash("⏱ На сегодня уроки закончились");return true}var lc=k==="ab"?"ab":k&&GC[k]?k:"q";if(!lsOk(lc,v)){flash("🔒 Учитель ещё не открыл этот урок");return true}if(k==="ab")abOpen(parseInt(v,10));else if(k&&GC[k])gcOpen(k,parseInt(v,10));else lsOpen(parseInt(v,10));return true;
+    case"lopen":var lb=limBlock();if(lb){UI.limHit=lb;flash("⏱ На сегодня уроки закончились");return true}var lc=k==="ab"?"ab":k&&GC[k]?k:(+v>=67&&+v<=77?"q29":"q");if(!lsOk(lc,v)){flash("🔒 Учитель ещё не открыл этот урок");return true}if(k==="ab")abOpen(parseInt(v,10));else if(k&&GC[k])gcOpen(k,parseInt(v,10));else lsOpen(parseInt(v,10));return true;
     case"lbld":if(!t)return false;var bk=parseInt(v,10),bm=t.mix[bk];if(!bm||t.got.indexOf(bk)>-1)return false;
       if(bm.c===t.seq[t.got.length]){t.got.push(bk);LS.fb=null;if(t.got.length===t.seq.length)LS.ok++}else{LS.err++;LS.fb={wrong:bk}}return true;
     case"lquit":laStop();LS=null;window.scrollTo(0,0);return true;
@@ -2490,8 +2491,8 @@ function navStudent(){
   var nb=hwBadge(),t=[["o","🏠","Главная"],["s","🎓","Уроки"],["r","🏆","Рейтинг"],["d","📚","Задания"],["m","👤","Я"]];
   return '<nav class="nav"><div>'+t.map(function(x){return '<button class="'+(R.tab===x[0]||(x[0]==="m"&&R.tab==="p")?"on":"")+'" data-a="tab" data-v="'+x[0]+'"><span>'+x[1]+'</span>'+x[2]+(x[0]==="d"&&nb?'<b>'+nb+'</b>':"")+'</button>'}).join("")+'</div></nav>';
 }
-var TCM={q:"q",a:"ab",f:"fq",k:"aq",x:"ax",h:"hd",t:"tj",s:"si"};
-var TILES=[["q","Коран","суры 30-го джуза","#22C55E","📖",1],["a","Алифба","буквы и чтение","#3B6CF6",'<svg viewBox="0 0 120 100" width="78" height="65" aria-hidden="true"><g transform="rotate(-8 30 70)"><rect x="8" y="48" width="44" height="44" rx="10" fill="#FFC93C"/><rect x="8" y="48" width="44" height="8" rx="4" fill="#fff" opacity=".35"/><text x="30" y="82" font-size="34" text-anchor="middle" fill="#7A4A06" style="font-family:Hafs,Sch,serif">ب</text></g><g transform="rotate(7 84 72)"><rect x="62" y="50" width="44" height="44" rx="10" fill="#FF6B9A"/><rect x="62" y="50" width="44" height="8" rx="4" fill="#fff" opacity=".35"/><text x="84" y="84" font-size="34" text-anchor="middle" fill="#fff" style="font-family:Hafs,Sch,serif">ت</text></g><g transform="rotate(-3 58 28)"><rect x="36" y="6" width="44" height="44" rx="10" fill="#22C55E"/><rect x="36" y="6" width="44" height="8" rx="4" fill="#fff" opacity=".35"/><text x="58" y="42" font-size="36" text-anchor="middle" fill="#fff" style="font-family:Hafs,Sch,serif">ا</text></g><path d="M102 12l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2Z" fill="#fff"/></svg>',1],["f","Фикх","намаз и омовение","#FF8A00","🕌",1],["k","Акыда","во что мы верим","#A855F7","💎",1],["x","Ахляк","как поступить правильно","#EC4899","🌸",1],["h","Хадисы","40 хадисов ан-Навави","#0EA5E9","📜",1],["t","Таджвид","тренажёр правил","#10B981","🎨",1],["s","Сира","жизнь Пророка ﷺ","#06B6D4","🐪",1]];
+var TCM={q:"q",j:"q29",a:"ab",f:"fq",k:"aq",x:"ax",h:"hd",t:"tj",s:"si"};
+var TILES=[["q","Коран","суры 30-го джуза","#22C55E","📖",1],["j","Коран","суры 29-го джуза","#16A34A","📗",1],["a","Алифба","буквы и чтение","#3B6CF6",'<svg viewBox="0 0 120 100" width="78" height="65" aria-hidden="true"><g transform="rotate(-8 30 70)"><rect x="8" y="48" width="44" height="44" rx="10" fill="#FFC93C"/><rect x="8" y="48" width="44" height="8" rx="4" fill="#fff" opacity=".35"/><text x="30" y="82" font-size="34" text-anchor="middle" fill="#7A4A06" style="font-family:Hafs,Sch,serif">ب</text></g><g transform="rotate(7 84 72)"><rect x="62" y="50" width="44" height="44" rx="10" fill="#FF6B9A"/><rect x="62" y="50" width="44" height="8" rx="4" fill="#fff" opacity=".35"/><text x="84" y="84" font-size="34" text-anchor="middle" fill="#fff" style="font-family:Hafs,Sch,serif">ت</text></g><g transform="rotate(-3 58 28)"><rect x="36" y="6" width="44" height="44" rx="10" fill="#22C55E"/><rect x="36" y="6" width="44" height="8" rx="4" fill="#fff" opacity=".35"/><text x="58" y="42" font-size="36" text-anchor="middle" fill="#fff" style="font-family:Hafs,Sch,serif">ا</text></g><path d="M102 12l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2Z" fill="#fff"/></svg>',1],["f","Фикх","намаз и омовение","#FF8A00","🕌",1],["k","Акыда","во что мы верим","#A855F7","💎",1],["x","Ахляк","как поступить правильно","#EC4899","🌸",1],["h","Хадисы","40 хадисов ан-Навави","#0EA5E9","📜",1],["t","Таджвид","тренажёр правил","#10B981","🎨",1],["s","Сира","жизнь Пророка ﷺ","#06B6D4","🐪",1]];
 function vHome2(){
   var s=STOK&&by(STOK.sid);if(!s)return vRating();
   qdLoad();if(!LP)lpLoad();
@@ -2509,7 +2510,7 @@ function vMap(){
   var XS=[50,78,50,22],STEP=112,H=L.length*STEP+30,pts=L.map(function(n,i){return XS[i%4]+","+(i*STEP+44)}).join(" ");
   var h='<div class="lmap" style="height:'+H+'px"><svg viewBox="0 0 100 '+H+'" preserveAspectRatio="none" aria-hidden="true"><polyline points="'+pts+'" fill="none" stroke="var(--soft-sh)" stroke-width="10" stroke-linecap="round" stroke-dasharray="1 20" vector-effect="non-scaling-stroke"/></svg>';
   L.forEach(function(n,i){var b=LP&&LP["s"+n]||0,c=n===cur?"cur":b?"done":"",x=XS[i%4],y=i*STEP;
-    h+='<button class="lnode '+c+(lsOk("q",n)?"":" lock")+'" style="left:'+x+'%;top:'+y+'px;--nc:'+MAPC[i%MAPC.length]+'" data-a="lopen" data-v="'+n+'"><span class="ln">'+(b?"✓":n===1?"1":n)+'</span><span class="lt">'+esc(NAMES[n])+'</span><span class="ls">'+(b?[1,2,3].map(function(k){return k<=b?"⭐":"☆"}).join(""):"")+'</span></button>';
+    h+='<button class="lnode '+c+(lsOk(n>=67&&n<=77?"q29":"q",n)?"":" lock")+'" style="left:'+x+'%;top:'+y+'px;--nc:'+MAPC[i%MAPC.length]+'" data-a="lopen" data-v="'+n+'"><span class="ln">'+(b?"✓":n===1?"1":n)+'</span><span class="lt">'+esc(NAMES[n])+'</span><span class="ls">'+(b?[1,2,3].map(function(k){return k<=b?"⭐":"☆"}).join(""):"")+'</span></button>';
     if(n===cur)h+='<div class="lsab" style="left:'+(x>50?x-42:x+14)+'%;top:'+(y-22)+'px"><span class="sabw">'+mas("sab",90)+'<svg class="slids" viewBox="0 0 200 200"><circle cx="60" cy="66" r="9" fill="#e0a868"/><circle cx="84" cy="66" r="9" fill="#e0a868"/><path d="M52 66q8 6 16 0M76 66q8 6 16 0" stroke="#2a1a12" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg></span><b>Иду!</b></div>'});
   return h+'</div>';
 }
@@ -2823,11 +2824,11 @@ function vGc(){var c=LS.gc,C=GC[c],x=C.les[LS.i];
   return h+'</div>'}
 
 /* ---- что видят ученики: предметы и открытые уроки (выбирает учитель) ---- */
-var SUBJ=[["q","📖","Коран (суры)"],["ab","🔤","Алифба"],["aq","💎","Акыда"],["fq","🕌","Фикх"],["tj","🎨","Таджвид (тренажёр)"],["hd","📜","Хадисы"],["ax","🌸","Ахляк"],["si","🐪","Сира"]];
+var SUBJ=[["q","📖","Коран: 30-й джуз"],["q29","📗","Коран: 29-й джуз"],["ab","🔤","Алифба"],["aq","💎","Акыда"],["fq","🕌","Фикх"],["tj","🎨","Таджвид (тренажёр)"],["hd","📜","Хадисы"],["ax","🌸","Ахляк"],["si","🐪","Сира"]];
 function lsCfg(){return S&&S.lsn||{}}
 function subjOn(c){var o=lsCfg().on;return !o||o[c]!==false}
-function lsOk(c,id){if(canEdit())return true;var lk=c==="q"?"s"+id:c==="ab"?"a"+(+id+1):c+(+id+1);if(LP&&LP[lk])return true;var op=lsCfg().open;op=op&&op[c];return !op||op.indexOf(String(id))>-1}
-function subjLessons(c){if(c==="q")return LMOD.list.map(function(n){return [String(n),n+". "+NAMES[n]]});if(c==="ab")return ABLES.map(function(x,i){return [String(i),(i+1)+". "+x.t]});return GC[c].les.map(function(x,i){return [String(i),(i+1)+". "+x.t]})}
+function lsOk(c,id){if(canEdit())return true;var lk=c==="q"||c==="q29"?"s"+id:c==="ab"?"a"+(+id+1):c+(+id+1);if(LP&&LP[lk])return true;var op=lsCfg().open;op=op&&op[c];return !op||op.indexOf(String(id))>-1}
+function subjLessons(c){if(c==="q29")return LM29.list.map(function(n){return [String(n),n+". "+NAMES[n]]});if(c==="q")return LM30.list.map(function(n){return [String(n),n+". "+NAMES[n]]});if(c==="ab")return ABLES.map(function(x,i){return [String(i),(i+1)+". "+x.t]});return GC[c].les.map(function(x,i){return [String(i),(i+1)+". "+x.t]})}
 function vSubjCfg(){var cf=lsCfg(),h='<div class="box"><div class="sjrow" style="border:0;padding-top:0"><button class="sw'+(isTeen()?" on":"")+'" data-a="teenon" aria-label="Подростковый режим"><i></i></button><b>🧑 Группа подростков (13–15)<small class="mut" style="display:block;font-weight:600">Взрослый стиль без мультяшек, недельные лиги</small></b></div><h3 style="margin-top:8px">👀 Что видят ученики</h3><p class="sm mut" style="margin:-4px 0 8px">Включите предметы и откройте нужные уроки. Закрытые уроки ученики видят с замочком 🔒. Уже пройденные уроки остаются открытыми — их можно повторять.</p>';
   SUBJ.forEach(function(x){var c=x[0],on=subjOn(c),op=cf.open&&cf.open[c],L=subjLessons(c),n=op?op.length:L.length;
     h+='<div class="sjrow"><button class="sw'+(on?" on":"")+'" data-a="sjon" data-v="'+c+'" aria-label="Показывать предмет"><i></i></button><b>'+x[1]+' '+x[2]+'</b><button class="btn sm" data-a="sjx" data-v="'+c+'"'+(on?"":" disabled")+'>Открыто: '+(op?n+" из "+L.length:"все")+' ▾</button></div>';
