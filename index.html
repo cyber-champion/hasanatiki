@@ -502,6 +502,14 @@ html[data-theme=dark] .lsnbox .ayah{background:rgba(31,38,74,.88);border-color:#
 .ayah .ib.on{background:var(--brand);color:#fff}
 .tjbar{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start;margin:6px 0 2px}.tjleg{flex:1 1 220px;background:var(--card);border-radius:14px;padding:6px 12px;border:1px solid var(--line);font-size:14px}.tjleg summary{cursor:pointer;font-weight:800}.tjleg div{display:flex;align-items:center;gap:8px;margin:5px 0}.tjleg i{width:16px;height:16px;border-radius:50%;flex-shrink:0;background:var(--tc)}
 .tj{cursor:pointer;color:var(--tc)}
+.pgin .box,.pgin .tgrid,.pgin .hello,.pgin .tabs4,.pgin .dlyw,.pgin .qrow,.pgin .lmap{animation:slin .3s cubic-bezier(.2,.8,.2,1) both}
+@media (prefers-reduced-motion:reduce){.pgin .box,.pgin .tgrid,.pgin .hello,.pgin .tabs4,.pgin .dlyw,.pgin .qrow,.pgin .lmap{animation:none}}
+.lsfs{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;padding-block:max(10px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-bottom))}
+.lsfs>.box{flex:1;margin:0;display:flex;flex-direction:column}
+@keyframes slin{from{opacity:0;transform:translateX(56px)}to{opacity:1;transform:none}}
+@keyframes slres{0%{opacity:0;transform:scale(.92)}70%{transform:scale(1.02)}100%{opacity:1;transform:none}}
+.lsfs .slin{animation:slin .34s cubic-bezier(.2,.8,.2,1)}.lsfs .slres{animation:slres .45s ease-out}
+@media (prefers-reduced-motion:reduce){.lsfs .slin,.lsfs .slres{animation:none}}
 .lqx{display:inline-flex;gap:6px;align-items:center;flex-shrink:0}.vtb{padding:6px 10px}
 .say,.hello{position:relative}.ttsb{position:absolute;right:6px;bottom:6px;width:32px;height:32px;border-radius:50%;border:0;background:var(--card2);cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;opacity:.85}.ttsb .em{width:18px;height:18px}.say p{padding-right:30px}
 .lopt.vsel{outline:3px solid var(--gold);outline-offset:2px}
@@ -591,7 +599,7 @@ html[data-theme=dark] .rwd{background:#4A3A18;color:#FFD27A}html[data-theme=dark
 .sjrow{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}.sjrow b{flex:1}
 .sw{border:0;width:46px;height:28px;border-radius:999px;background:var(--line);position:relative;cursor:pointer;flex-shrink:0;transition:background .2s}.sw i{position:absolute;left:3px;top:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.25)}.sw.on{background:var(--ok)}.sw.on i{left:21px}
 .sjl{display:flex;flex-wrap:wrap;gap:6px;padding:4px 0 10px}.sjl .tg{border:0;font:inherit;cursor:pointer;font-size:13px;padding:5px 10px;border-radius:999px;background:var(--soft);color:var(--mut)}.sjl .tg.on{background:var(--nbg,#DDF7E3);color:var(--tx)}
-.seg.subj{display:flex;flex-wrap:wrap}.seg.subj button{flex:1 1 40%}
+.seg.subj{display:flex;flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:6px;padding:6px}.seg.subj::-webkit-scrollbar{display:none}.seg.subj button{flex:0 0 auto;white-space:nowrap;scroll-snap-align:center;padding:10px 14px}
 @media(min-width:760px){#app,.nav div,.sheet{max-width:860px}body{font-size:16px}.abtiles{grid-template-columns:repeat(7,1fr)}.shop{grid-template-columns:repeat(5,1fr)}.tgrid{grid-template-columns:repeat(3,1fr)}.ar{font-size:36px}.lsnbox .ar{font-size:38px}.gccards{grid-template-columns:repeat(3,1fr)}.gcopts{grid-template-columns:1fr 1fr}}
 @media(min-width:1100px){#app,.nav div,.sheet{max-width:1000px}}
 @media(orientation:landscape) and (max-height:500px){.nav{padding-bottom:2px}.nav button{padding:4px 0}}
@@ -673,6 +681,7 @@ var MASC={"sab": "<ellipse cx=\"118\" cy=\"128\" rx=\"46\" ry=\"34\" fill=\"#e0a
   d.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0">'+Object.keys(MASC).map(function(k){return '<symbol id="ms-'+k+'" viewBox="0 0 200 200">'+MASC[k]+'</symbol>'}).join("")+'</svg>';document.body.appendChild(d)})();
 function mas(k,w,cls){if(k==="sab"&&typeof sabMe==="function"&&sabMe()){sabSync();k="sabme"}return '<svg'+(cls?' class="'+cls+'"':"")+' viewBox="0 0 200 200" width="'+w+'" height="'+w+'" aria-hidden="true"><use href="#ms-'+k+'"/></svg>'}
 /* ================= озвучка заданий для тех, кто ещё не читает (голос телефона) ================= */
+var LSANIM="",PGANIM="",PGT=null;
 var TTSOK=!!(window.speechSynthesis&&window.SpeechSynthesisUtterance),TTSV=null,TTSLAST="";
 function vOn(){return TTSOK&&store.get("voice",0)===1}
 function ttsVoice(){if(TTSV)return TTSV;try{var L=speechSynthesis.getVoices().filter(function(v){return /^ru/i.test(v.lang)});TTSV=L.filter(function(v){return /google|милена|milena|yandex|natural|neural/i.test(v.name)})[0]||L[0]||null}catch(e){}return TTSV}
@@ -2081,7 +2090,10 @@ function vGroup(){
   if(R.tab==="c"&&!isParent())R.tab="r";
   if(R.tab==="w"&&!isKid())R.tab="r";
   if(UI.proj&&canEdit())return vProj();
+  // урок — на весь экран, без шапки и меню, как отдельная страница; каждое задание появляется с переходом
+  if(LS&&R.tab==="s"&&(UI.lseg||"l")==="l"){qdLoad();return '<div class="lsfs">'+vLesson()+'</div>'+(UI.sheet?vSheet():"")+vCeleb()}
   var body=({r:vRating,d:vHw,s:vSur,h:vHall,p:vRules,t:vTeacher,m:vMe,c:vChat,o:vHome2,w:vOasis}[R.tab]||vRating)();
+  if(UI.lockmsg)body+='<div class="abov" data-a="lockok"><div class="abpop" data-a="abnop" style="text-align:center"><div style="display:flex;justify-content:center">'+mas("sab",110)+'</div><div class="abnm">🔒 '+esc(UI.lockmsg.t)+'</div><p style="margin:8px 0 14px;font-weight:700">'+esc(UI.lockmsg.m)+'</p><button class="btn pri" data-a="lockok">Понятно</button></div></div>';
   return groupHeader()+body+'<input id="hwfile" type="file" multiple hidden><input id="avfile" type="file" accept="image/*" hidden>'+nav()+(UI.sheet?vSheet():"")+vCeleb();
 }
 
@@ -2121,6 +2133,9 @@ function render(){
   if(focusId){var el=document.getElementById(focusId);if(el){el.focus({preventScroll:true});try{if(selStart!=null)el.setSelectionRange(selStart,selStart)}catch(e){}}}
   plPos();
   if(LS)ttsAuto();else TTSLAST="";
+  var lbx=app.querySelector(".lsfs>.box");if(lbx&&LS){var lk=LS.step+"|"+LS.k+"|"+(LS.gc||LS.ab||LS.n||"");if(lk!==LSANIM){LSANIM=lk;lbx.classList.add(LS.step==="res"?"slres":"slin")}}else LSANIM="";
+  // переход между экранами (вкладка, предмет, раздел): содержимое въезжает справа
+  var pk=LS?"":R.view+"|"+(R.tab||"")+"|"+(UI.course||"")+"|"+(UI.lseg||"")+"|"+(UI.tseg||"")+"|"+(UI.tool||"");if(pk&&pk!==PGANIM){var first=PGANIM==="";PGANIM=pk;if(!first){app.classList.remove("pgin");void app.offsetWidth;app.classList.add("pgin");clearTimeout(PGT);PGT=setTimeout(function(){app.classList.remove("pgin")},450)}}
 }
 
 /* ================= плеер: чтение аль-Хусари ================= */
@@ -2743,7 +2758,7 @@ function vHome2(){
   var h='<div class="hello">'+mas("sab",92)+'<p><b>Ассаляму алейкум, '+esc(s.name)+'!</b>'+(line.length?"Сегодня: "+line.join(" и ")+". Вперёд!":"Всё сделано — машаллах! Повтори суры или поиграй ещё.")+'</p>'+(TTSOK?'<button class="ttsb" data-a="tts" aria-label="Прочитать вслух">🔊</button>':"")+'</div>';
   h+=vRepeat()+vDaily();
   h+='<div class="tgrid">'+TILES.filter(function(t){var c=TCM[t[0]];return !(c&&subjHid(c))}).map(function(t){var at2=0;ABLES.forEach(function(x,i){at2+=LP&&LP["a"+(i+1)]||0});var pr=t[0]==="q"?Math.round(st/(LMOD.list.length*3)*100):t[0]==="a"?Math.round(at2/(ABLES.length*3)*100):GC[TCM[t[0]]]?(function(c){var z=0;GC[c].les.forEach(function(_,i){z+=LP&&LP[c+(i+1)]||0});return Math.round(z/(GC[c].les.length*3)*100)})(TCM[t[0]]):0,av=t[5]&&(!TCM[t[0]]||subjOn(TCM[t[0]]));
-    return '<button class="tile'+(av?"":" soon")+'" style="--tc:'+t[3]+'"'+(av?' data-a="course" data-v="'+TCM[t[0]]+'"':' data-a="soon"')+'><b>'+t[1]+'</b><small>'+(av?t[2]:t[5]?"🔒 закрыто":"скоро")+'</small>'+(av?'<span class="tpr"><u style="width:'+Math.max(4,pr)+'%"></u></span>':"")+'<i>'+t[4]+'</i></button>'}).join("")+'</div>';
+    return '<button class="tile'+(av?"":" soon")+'" style="--tc:'+t[3]+'"'+(av?' data-a="course" data-v="'+TCM[t[0]]+'"':' data-a="soon"'+(t[5]?' data-k="lock"':""))+'><b>'+t[1]+'</b><small>'+(av?t[2]:t[5]?"🔒 закрыто":"скоро")+'</small>'+(av?'<span class="tpr"><u style="width:'+Math.max(4,pr)+'%"></u></span>':"")+'<i>'+t[4]+'</i></button>'}).join("")+'</div>';
   var L=ranked();h+='<div class="qrow"><button class="qc" data-a="tab" data-v="r"><i>🏆</i><b>'+place(s)+' место</b><small>из '+L.length+' · '+pn(tot(s),"балл","балла","баллов")+'</small></button><button class="qc" data-a="tab" data-v="d"><i>📚</i><b>'+(todo?pn(todo,"задание","задания","заданий"):"Задания")+'</b><small>'+(todo?"ждут тебя":"все сданы")+'</small></button></div>'+vTools();
   return h;
 }
@@ -3729,8 +3744,9 @@ function act(a,b,e){
   if(a==="lseg"){UI.lseg=v;if(v!=="l"){laStop();LS=null}window.scrollTo(0,0);render();return}
   if(a==="actre"){ACTD=null;render();return}
   if(a==="repgo"){var rc=k||(+v>=67&&+v<=77?"q29":"q");UI.course=rc;UI.lseg="l";LS=null;if(R.tab!=="s")go("#/g/"+encodeURIComponent(G.slug)+"/suras");lessonAct("lopen",v,k||"");render();return}
-  if(a==="course"){UI.course=v;LS=null;if(R.tab!=="s"){go("#/g/"+encodeURIComponent(G.slug)+"/suras")}render();return}
-  if(a==="soon"){flash("Этот предмет скоро появится, иншаАллах!");return}
+  if(a==="course"){UI.course=v;LS=null;UI.lseg="l";if(R.tab!=="s"){go("#/g/"+encodeURIComponent(G.slug)+"/suras")}render();setTimeout(function(){var on=app.querySelector(".seg.subj button.on");if(on)try{on.scrollIntoView({block:"nearest",inline:"center",behavior:"smooth"})}catch(e){}var c=app.querySelector(".seg.subj");if(c){var y=c.getBoundingClientRect().top+window.scrollY-8;if(window.scrollY<y-40||window.scrollY>y+40)window.scrollTo({top:Math.max(0,y),behavior:"smooth"})}},60);return}
+  if(a==="soon"){var lockd=b.dataset.k==="lock",m=lockd?"Этот предмет пока закрыт. Учитель откроет его, когда придёт время, иншаАллах!":"Этот предмет скоро появится, иншаАллах!";UI.lockmsg={t:(b.querySelector("b")||{}).textContent||"",m:m};render();if(vOn())speak(m);return}
+  if(a==="lockok"){UI.lockmsg=null;render();return}
   if(a==="theme"){var nd=TODS[(TODS.indexOf(tod())+1)%4];setTheme(nd);flash(TODI[nd]+" "+TODN[nd]+" — до следующей смены времени суток");render();return}
   if(a==="gmode"){UI.gmode=v;UI.gErr="";render();return}
   if(a==="gslogin"){gateLogin(false);return}
