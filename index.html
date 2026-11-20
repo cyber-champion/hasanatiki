@@ -502,6 +502,58 @@ html[data-theme=dark] .lsnbox .ayah{background:rgba(31,38,74,.88);border-color:#
 .ayah .ib.on{background:var(--brand);color:#fff}
 .tjbar{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start;margin:6px 0 2px}.tjleg{flex:1 1 220px;background:var(--card);border-radius:14px;padding:6px 12px;border:1px solid var(--line);font-size:14px}.tjleg summary{cursor:pointer;font-weight:800}.tjleg div{display:flex;align-items:center;gap:8px;margin:5px 0}.tjleg i{width:16px;height:16px;border-radius:50%;flex-shrink:0;background:var(--tc)}
 .tj{cursor:pointer;color:var(--tc)}
+/* ======== новый урок (по макету): сцена, крупные карточки и кнопки ======== */
+.lsfs{--sc1:#CFEAFF;--sc1b:#EAF6FF;--sc2:#F4DCA0;--sc3:rgba(255,255,255,.75);--sc4:#E8C778;position:relative;background:linear-gradient(180deg,var(--sc1),var(--sc1b) 55%,var(--sc2))}
+.lsfs.sc-msq{--sc1:#D8ECFF;--sc1b:#F3F8FF;--sc2:#EED9A8;--sc3:#FFF6DC;--sc4:#E9C979}
+.lsfs.sc-home{--sc1:#FFE9D2;--sc1b:#FFF6EC;--sc2:#F1D2A8;--sc3:#FFFFFF;--sc4:#FCD34D}
+.lsfs.sc-sky{--sc1:#C9D6FF;--sc1b:#EEF2FF;--sc2:#DDE4FF;--sc3:#FFFFFF;--sc4:#C7D2FE}
+.lsfs.sc-book{--sc1:#E3F2FF;--sc1b:#F5FAFF;--sc2:#D6E6F5;--sc3:#B7D3EE;--sc4:#93C5FD}
+.lsfs.sc-dune{--sc1:#FFE7C2;--sc1b:#FFF4E0;--sc2:#F1C27D;--sc3:#F6D39C;--sc4:#B45309}
+.lsfs.sc-paper{--sc1:#FFFBF0;--sc1b:#FFFDF6;--sc2:#FFF3D6;--sc3:#E9DDBF;--sc4:#F5E2B8}
+html[data-theme=dark] .lsfs{--sc1:#1B2350;--sc1b:#151C40;--sc2:#2A2F5E;--sc3:rgba(255,255,255,.07);--sc4:rgba(251,191,36,.18)}
+.lsscn{position:fixed;left:0;right:0;bottom:0;height:34vh;pointer-events:none;z-index:0}.lsscn svg{width:100%;height:100%;display:block}
+.lsfs>.box.ls2{background:transparent;border:0;box-shadow:none;position:relative;z-index:1;padding-inline:max(14px,env(safe-area-inset-left))}
+.lstop{display:flex;align-items:center;gap:8px;margin:0 0 6px}
+.lsx{width:42px;height:42px;border-radius:14px;border:0;background:var(--card);color:var(--tx);font:900 18px var(--font);cursor:pointer;flex-shrink:0;box-shadow:0 3px 0 rgba(0,0,0,.08)}
+.lsdots{flex:1;display:flex;gap:4px;align-items:center;min-width:0}.lsdots i{flex:1;height:10px;border-radius:6px;background:var(--card);opacity:.8}.lsdots i.on{background:#22C55E;opacity:1}.lsdots i.cur{background:#FBBF24;opacity:1}
+.lsbar{flex:1;height:10px;border-radius:6px;background:var(--card);overflow:hidden;display:block}.lsbar u{display:block;height:100%;background:#22C55E}
+.lstop .vtb{flex-shrink:0}
+.lstitle{text-align:center;font-weight:900;font-size:15px;color:var(--mut);margin:2px 0 8px}
+.lscard{text-align:center;margin:6px 0 10px}
+.lstip{margin:0 auto 10px;max-width:46ch;font-weight:800;color:var(--mut);font-size:14px}
+.lspic{width:170px;height:170px;margin:4px auto 10px;border-radius:40px;background:var(--card);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 0 rgba(31,37,71,.1)}
+.lspic svg{width:140px;height:140px}.lsem{font-size:104px;line-height:1}.lsem .em{width:118px;height:118px}
+.lsh{font-size:24px;margin:6px 0 4px;line-height:1.2}
+.lsar{font-family:Hafs,Sch,serif;font-size:30px;line-height:1.8;margin:6px 0;color:var(--tx)}
+.lsplay{margin-top:6px}.lsplay.on{background:var(--brand);color:#fff}
+.lsay{margin:8px 0 14px;align-items:flex-end}.lsay .who{width:84px;height:84px;flex-shrink:0}.lsay p{font-size:17px;font-weight:800;line-height:1.35;border-radius:22px 22px 22px 8px;padding:13px 40px 13px 15px;background:var(--card)!important;box-shadow:0 5px 0 rgba(31,37,71,.08)!important;border:0!important}
+.lsbtns{display:flex;gap:10px;margin:16px 0 4px;position:sticky;bottom:max(10px,env(safe-area-inset-bottom));z-index:3}
+.lsgo{flex:1;height:60px;border-radius:22px;font-size:19px;font-weight:900;box-shadow:0 6px 0 #3047C9}
+.lsback,.lsback2{height:60px;border-radius:22px;font-weight:900;font-size:18px;background:var(--card);box-shadow:0 6px 0 rgba(31,37,71,.12);padding:0 20px}
+.ls2 h3{font-size:21px;line-height:1.25;text-align:center;margin:10px 0 12px}
+.ls2 .lopt{padding:16px 18px;border-radius:20px;font-size:18px;font-weight:800;background:var(--card);border:3px solid transparent;box-shadow:0 5px 0 rgba(31,37,71,.12);margin-bottom:12px;transition:transform .1s}
+.ls2 .lopt:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(31,37,71,.12)}
+.ls2 .lopt.ok{border-color:#22C55E;background:#DCFCE7;color:#14532D;box-shadow:0 5px 0 #86EFAC}
+.ls2 .lopt.bad{border-color:#FDBA74;background:#FFF1E6;color:#9A3412;box-shadow:0 5px 0 #FDBA74;animation:shk .45s}
+html[data-theme=dark] .ls2 .lopt.ok{background:rgba(34,197,94,.22);color:#BBF7D0}html[data-theme=dark] .ls2 .lopt.bad{background:rgba(251,146,60,.2);color:#FED7AA}
+.ls2 .lopt.ar{font-size:24px}
+.ls2 .say p{font-size:16px;font-weight:800;background:var(--card);border:0;box-shadow:0 4px 0 rgba(31,37,71,.08);border-radius:20px 20px 20px 8px}
+.ls2 .btn.pri[data-a="lnext"],.ls2 .btn.pri[data-a="lstart"]{width:100%;height:58px;border-radius:22px;font-size:19px;font-weight:900;margin-top:6px;box-shadow:0 6px 0 #3047C9}
+.ls2 .gpic{background:var(--card)}
+/* итог урока */
+.lsres{position:relative;text-align:center;padding-top:6px}
+.lsglow{position:absolute;left:50%;top:40px;width:320px;height:320px;transform:translateX(-50%);background:repeating-conic-gradient(rgba(251,191,36,.35) 0 8deg,transparent 8deg 22deg);-webkit-mask:radial-gradient(circle,#000 22%,transparent 68%);mask:radial-gradient(circle,#000 22%,transparent 68%);animation:lspin 20s linear infinite;pointer-events:none}
+@keyframes lspin{to{transform:translateX(-50%) rotate(360deg)}}
+.lsstars{position:relative;font-size:46px;letter-spacing:4px}.lsstars span{display:inline-block;opacity:.25;filter:grayscale(1);transition:.3s}.lsstars span.on{opacity:1;filter:none;animation:lspop .5s both}.lsstars span.mid{font-size:60px;vertical-align:-4px}
+.lsstars span:nth-child(2){animation-delay:.15s}.lsstars span:nth-child(3){animation-delay:.3s}.lsstars .em{width:1em;height:1em}
+@keyframes lspop{0%{transform:scale(0)}70%{transform:scale(1.25)}100%{transform:scale(1)}}
+.lsgift{position:relative;font-size:120px;line-height:1;margin:6px 0 4px;animation:lsbob 1.6s ease-in-out infinite}.lsgift .em{width:150px;height:150px}
+@keyframes lsbob{50%{transform:translateY(-8px) rotate(-3deg)}}
+.lsrh{position:relative;font-size:28px;margin:8px 0 12px}
+.lsrw{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 10px}.lsrw div{background:var(--card);border-radius:20px;padding:10px 4px;box-shadow:0 5px 0 rgba(31,37,71,.1)}.lsrw b{display:block;font-size:24px}.lsrw small{color:var(--mut);font-weight:800;font-size:12.5px}
+.lsnote{position:relative;font-weight:800;color:var(--mut);font-size:14px;margin:4px 0 8px}.lsnote.ok{color:var(--ok)}
+.lsres .lsay{text-align:left}
+@media (prefers-reduced-motion:reduce){.lsglow,.lsgift,.lsstars span.on{animation:none}}
 .nav button span.navav .av{width:36px;height:36px;font-size:20px;border-width:2px}.nav button.on span.navav .av{border-color:var(--gold)}
 .brand{cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;display:inline-block}
 @keyframes bpop{0%{transform:scale(1)}30%{transform:scale(1.12) rotate(-2deg)}60%{transform:scale(.97) rotate(1deg)}100%{transform:scale(1)}}
@@ -716,12 +768,12 @@ function ttsClean(t){t=String(t||"").replace(/ﷺ/g," саллаллаху ал�
 function speak(t,add){if(!TTSOK)return;t=ttsClean(t);if(!t)return;try{if(!add)speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t);u.lang="ru-RU";var v=ttsVoice();if(v)u.voice=v;u.rate=.95;speechSynthesis.speak(u)}catch(e){}}
 function ttsStop(){try{if(TTSOK)speechSynthesis.cancel()}catch(e){}TTSLAST=""}
 // что прочитать на экране урока: вопрос, подсказку Сабура и варианты ответов (арабский текст не читается — его озвучивает аль-Хусари)
-function ttsScreen(){var box=app.querySelector(".lsnbox,.gcbox,.abbox")||app;var parts=[],q=box.querySelector("h3");if(q)parts.push(q.textContent);
+function ttsScreen(){var box=app.querySelector(".lsnbox,.gcbox,.abbox")||app;var parts=[],tt=box.querySelectorAll("[data-tts]");if(tt.length){tt.forEach(function(e){parts.push(e.textContent)});return parts.join(". ")}var q=box.querySelector("h3");if(q)parts.push(q.textContent);
   var pic=box.querySelector(".gpic b");if(pic)parts.unshift(pic.textContent+".");
   box.querySelectorAll(".say p").forEach(function(p){parts.push(p.textContent)});
   var op=[].slice.call(box.querySelectorAll(".lopt:not(.ar):not([disabled])"));if(op.length&&op.length<=6)parts.push("Варианты. "+op.map(function(o,i){return (i+1)+". "+o.textContent}).join(". "));
   return parts.join(". ")}
-function ttsAuto(){if(!vOn()||!LS)return;var key=LS.step+"|"+(LS.gc||"")+"|"+(LS.i!=null?LS.i:LS.n)+"|"+LS.k+"|"+(LS.fb?(LS.fb.ok?"ok":"no")+(LS.fb.wrong!=null?LS.fb.wrong:""):"q")+"|"+(lsCur()&&lsCur().miss?lsCur().miss.length:0);
+function ttsAuto(){if(!vOn()||!LS)return;var key=LS.step+"|"+(LS.gc||"")+"|"+(LS.i!=null?LS.i:LS.n)+"|"+(LS.li||0)+"|"+LS.k+"|"+(LS.fb?(LS.fb.ok?"ok":"no")+(LS.fb.wrong!=null?LS.fb.wrong:""):"q")+"|"+(lsCur()&&lsCur().miss?lsCur().miss.length:0);
   if(key===TTSLAST)return;TTSLAST=key;setTimeout(function(){speak(ttsScreen())},250)}
 // режим «слушаю»: первое нажатие на вариант — прочитать его, второе — ответить
 document.addEventListener("click",function(e){if(!vOn())return;var o=e.target.closest&&e.target.closest(".lopt");if(o&&!o.classList.contains("ar")&&!o.disabled&&o.dataset.a!=="lord"){if(o.dataset.vs!=="1"){e.stopPropagation();e.preventDefault();app.querySelectorAll(".lopt.vsel").forEach(function(x){x.classList.remove("vsel");x.dataset.vs=""});o.classList.add("vsel");o.dataset.vs="1";speak(o.textContent)}return}
@@ -2123,7 +2175,7 @@ function vGroup(){
   if(R.tab==="w"&&!isKid())R.tab="r";
   if(UI.proj&&canEdit())return vProj();
   // урок — на весь экран, без шапки и меню, как отдельная страница; каждое задание появляется с переходом
-  if(LS&&R.tab==="s"&&(UI.lseg||"l")==="l"){qdLoad();return '<div class="lsfs">'+vLesson()+'</div>'+(UI.sheet?vSheet():"")+vCeleb()}
+  if(LS&&R.tab==="s"&&(UI.lseg||"l")==="l"){qdLoad();var scn=lsScene();return '<div class="lsfs sc-'+scn+'"><div class="lsscn" aria-hidden="true">'+sceneSvg(scn)+'</div>'+vLesson()+'</div>'+(UI.sheet?vSheet():"")+vCeleb()}
   var body=({r:vRating,d:vHw,s:vSur,h:vHall,p:vRules,t:vTeacher,m:vMe,c:vChat,o:vHome2,w:vOasis}[R.tab]||vRating)();
   if(UI.lockmsg)body+='<div class="abov" data-a="lockok"><div class="abpop" data-a="abnop" style="text-align:center"><div style="display:flex;justify-content:center">'+mas("sab",110)+'</div><div class="abnm">🔒 '+esc(UI.lockmsg.t)+'</div><p style="margin:8px 0 14px;font-weight:700">'+esc(UI.lockmsg.m)+'</p><button class="btn pri" data-a="lockok">Понятно</button></div></div>';
   return groupHeader()+body+'<input id="hwfile" type="file" multiple hidden><input id="avfile" type="file" accept="image/*" hidden>'+nav()+(UI.sheet?vSheet():"")+vCeleb();
@@ -2165,7 +2217,7 @@ function render(){
   if(focusId){var el=document.getElementById(focusId);if(el){el.focus({preventScroll:true});try{if(selStart!=null)el.setSelectionRange(selStart,selStart)}catch(e){}}}
   plPos();
   if(LS)ttsAuto();else TTSLAST="";
-  var lbx=app.querySelector(".lsfs>.box");if(lbx&&LS){var lk=LS.step+"|"+LS.k+"|"+(LS.gc||LS.ab||LS.n||"");if(lk!==LSANIM){LSANIM=lk;lbx.classList.add(LS.step==="res"?"slres":"slin")}}else LSANIM="";
+  var lbx=app.querySelector(".lsfs>.box");if(lbx&&LS){var lk=LS.step+"|"+LS.k+"|"+(LS.li||0)+"|"+(LS.gc||LS.ab||LS.n||"");if(lk!==LSANIM){LSANIM=lk;lbx.classList.add(LS.step==="res"?"slres":"slin")}}else LSANIM="";
   // переход между экранами (вкладка, предмет, раздел): содержимое въезжает справа
   var pk=LS?"":R.view+"|"+(R.tab||"")+"|"+(UI.course||"")+"|"+(UI.lseg||"")+"|"+(UI.tseg||"")+"|"+(UI.tool||"");if(pk&&pk!==PGANIM){var first=PGANIM==="";PGANIM=pk;if(!first){app.classList.remove("pgin");void app.offsetWidth;app.classList.add("pgin");clearTimeout(PGT);PGT=setTimeout(function(){app.classList.remove("pgin")},450)}}
 }
@@ -2425,8 +2477,8 @@ document.addEventListener("click",function(e){if(window.__ordNoClick&&Date.now()
 function lsCur(){return LS&&LS.tasks?LS.tasks[LS.k]:null}
 // ошибка → подсказка и вторая попытка; после второй ошибки показываем ответ
 function lsAnswer(ok,val){var t=lsCur();if(!t||LS.fb)return;if(LS.du){if(ok)LS.ok++;else LS.err++;LS.fb={ok:ok,pick:val};return}
-  if(ok){if(!t.miss)LS.ok++;LS.fb={ok:true,pick:val};return}
-  LS.err++;lsMiss(t);t.miss=(t.miss||[]).concat([val]);
+  if(ok){if(!t.miss)LS.ok++;LS.fb={ok:true,pick:val};sfx("ok");var t0=t;setTimeout(function(){if(LS&&LS.fb&&LS.fb.ok&&lsCur()===t0&&LS.step==="game"){lsNext();render();window.scrollTo(0,0)}},vOn()?2200:1100);return}
+  sfx("no");LS.err++;lsMiss(t);t.miss=(t.miss||[]).concat([val]);
   if(t.miss.length<2){if(LS.ab==null&&LS.gc==null){t.hint=lsHint(t);if(t.t==="lis"||t.t==="gap")laPlay(LS.n,t.i+1)}return}
   LS.fb={ok:false,pick:val}}
 var LSQ={ord:"Порядок аятов",lis:"Какой аят звучит",mng:"Смысл аята",gap:"Пропущенное слово",par:"Найди пару: аят и смысл",sur:"Из какой суры аят",wrd:"Собери аят из слов"};
@@ -2444,7 +2496,7 @@ function lsNext(){
   laStop();LS.fb=null;LS.k++;
   if(LS.du&&LS.k>=LS.tasks.length){duFinish();return}
   if(LS.k<LS.tasks.length){var t=lsCur();if(t.t==="lis")setTimeout(function(){if(lsCur()===t)laPlay(LS.n,t.i+1)},250);return}
-  var stars=LS.err===0?3:LS.err<=2?2:1;LS.step="res";limAdd("l",1);LS.res={stars:stars,pts:null};
+  var stars=LS.err===0?3:LS.err<=2?2:1;LS.step="res";sfx("win");limAdd("l",1);LS.res={stars:stars,pts:null};
   var isAb=LS.ab!=null,isGc=LS.gc!=null,slug=G.slug,key=isGc?LS.gc+(LS.i+1):isAb?"a"+(LS.ab+1):"s"+LS.n,loc=store.get("lp_"+slug,{});loc[key]=Math.max(loc[key]||0,stars);store.set("lp_"+slug,loc);if(LP)LP[key]=Math.max(LP[key]||0,stars);
   if(!canEdit()){var rd=store.get("lpd_"+slug,{}),rx=rd[key];if(!rx)rd[key]={t:Date.now(),c:isGc?LS.gc:isAb?"ab":"",v:isGc?LS.i:isAb?LS.ab:LS.n};else if(!rx.r&&Date.now()-rx.t>=REPD){rx.r=Date.now();LS.res.rep=true}store.set("lpd_"+slug,rd)}
   if(CLOUD&&STOK&&!canEdit()){var R0=LS.res;rpc("lesson_done",{p_slug:slug,p_stoken:STOK.t,p_course:isGc?LS.gc:isAb?"ab":LMOD.id,p_lesson:key,p_title:isGc?GC[LS.gc].n+": "+GC[LS.gc].les[LS.i].t:isAb?"Алифба: "+ABLES[LS.ab].t:"Сура «"+NAMES[LS.n]+"»",p_stars:stars,p_correct:LS.ok,p_total:LS.ok+LS.err})
@@ -2471,19 +2523,52 @@ function vLessons(){
   h+='<p class="mut sm" style="margin-top:10px;font-size:12px">Текст и шрифт Корана: Комплекс короля Фахда (мединский мусхаф, Хафс). Перевод смыслов: Эльмир Кулиев (Tanzil.net). Чтение: шейх Махмуд Халиль аль-Хусари.</p></div>';
   return h;
 }
-function vLessonRes(){var r=LS.res;
-    var h='<div class="cen" style="padding:10px 0"><div style="font-size:44px;letter-spacing:4px">'+[1,2,3].map(function(k){return k<=r.stars?"⭐":"☆"}).join("")+'</div><h2 style="margin:8px 0">'+(r.stars===3?"Машаллах, без ошибок!":r.stars===2?"Хорошо! Почти без ошибок":"Урок пройден!")+'</h2>'+(r.stars<3?sayS("sab","Пройди ещё раз — получится лучше! Каждый повтор помогает запомнить."):sayS("asl","Ты собрал все звёзды! Возьмёмся за следующую суру?"))+'<p class="mut">Верно: '+LS.ok+' · ошибок: '+LS.err+'</p>';
-    if(r.rep)h+='<p class="note ok" style="margin:8px auto;max-width:40ch">🔁 Повторил через неделю — машаллах! Так знания запоминаются надолго.</p>';
-    if(STOK&&!canEdit())h+='<p style="margin-top:8px;font-weight:800">'+(r.pts===null?"Сохраняю…":r.pts>0?"+"+pn(r.pts,"балл","балла","баллов")+" в рейтинг 🎉":r.pts<0?esc(r.err||"Не удалось сохранить"):"Баллы за этот урок уже получены — можно улучшить звёзды")+'</p>'+rewardHtml(r.rw);
-    return h+'<div class="btns" style="justify-content:center;margin-top:12px"><button class="btn pri" data-a="lstart">🔁 Ещё раз</button><button class="btn" data-a="lquit">К списку уроков</button></div></div>';
-}
+function vLessonRes(){var r=LS.res,me=STOK&&by(STOK.sid),nl=lsNextLesson(),rw=r.rw||{};
+  var h='<div class="lsres"><div class="lsglow"></div><div class="lsstars">'+[1,2,3].map(function(k){return '<span class="'+(k<=r.stars?"on":"")+(k===2?" mid":"")+'">⭐</span>'}).join("")+'</div><div class="lsgift">🎁</div>';
+  h+='<h2 class="lsrh">'+(r.stars===3?"Машаллах"+(me?", "+esc(me.name):"")+"!":r.stars===2?"Хорошо"+(me?", "+esc(me.name):"")+"!":"Урок пройден!")+'</h2>';
+  if(STOK&&!canEdit()){var tl=[];tl.push('<div><b>'+(r.pts===null?"…":r.pts>0?"+"+r.pts:"0")+'</b><small>'+(r.pts>0?pl(r.pts,"балл","балла","баллов"):"баллов")+'</small></div>');
+    tl.push('<div><b>'+(rw.dates?"+"+rw.dates:"0")+'</b><small>фиников</small></div>');
+    var sk=WAL&&WAL.streak||0;tl.push('<div><b>🔥 '+sk+'</b><small>'+pl(sk,"день","дня","дней")+' подряд</small></div>');
+    h+='<div class="lsrw">'+tl.join("")+'</div>';
+    if(r.pts===0&&r.stars)h+='<p class="lsnote">Баллы за этот урок уже получены — можно улучшить звёзды</p>';
+    if(r.pts<0)h+='<p class="lsnote">'+esc(r.err||"Не удалось сохранить")+'</p>';
+    if(rw.pearls||rw.chest)h+=rewardHtml({pearls:rw.pearls,chest:rw.chest})}
+  if(r.rep)h+='<p class="lsnote ok">🔁 Повторил через неделю — так знания запоминаются надолго!</p>';
+  h+='<div class="say lsay"><div class="who">'+mas("sab",84)+'</div><p data-tts="1">'+(r.stars===3?"Без ошибок! Завтра повторим — и выучишь надолго.":r.stars===2?"Почти без ошибок! Пройди ещё раз — получишь три звезды.":"Каждый повтор помогает запомнить. Попробуем ещё раз?")+'</p></div>';
+  return h+'<div class="lsbtns"><button class="btn lsback2" data-a="lstart">Ещё раз</button>'+(nl?'<button class="btn pri lsgo" data-a="lnextl">Дальше →</button>':'<button class="btn pri lsgo" data-a="lquit">К урокам →</button>')+'</div></div>'}
 function vLesson(){return vLesson0()+vTjPop()}
+/* ======== новый урок: верхняя полоса, сцены, звуки ======== */
+function lsTotal(){return (LS.ln||0)+(LS.tasks?LS.tasks.length:0)}
+function lsPos(){return LS.step==="learn"?LS.li:LS.step==="game"?(LS.ln||0)+LS.k:LS.step==="res"?lsTotal():0}
+function lsTop(title){var T=lsTotal(),P=lsPos(),d="";
+  if(T&&T<=18){for(var i=0;i<T;i++)d+='<i class="'+(i<P?"on":i===P&&LS.step!=="res"?"cur":"")+'"></i>'}else d='<b class="lsbar"><u style="width:'+(T?Math.round(P/T*100):0)+'%"></u></b>';
+  return '<div class="lstop"><button class="lsx" data-a="lquit" aria-label="Выйти из урока">✕</button><div class="lsdots">'+d+'</div>'+vBtn()+'</div>'+(title?'<div class="lstitle">'+title+'</div>':"")}
+var SCN={q:"oasis",q29:"oasis",fq:"msq",nm:"msq",du:"home",aq:"sky",an:"sky",h4:"book",hd:"book",ax:"dune",si:"dune",tj:"paper",ab:"paper"};
+function lsScene(){if(!LS)return "";var c=LS.gc!=null?LS.gc:LS.ab!=null?"ab":LS.du?"sky":(LS.n>=67&&LS.n<=77?"q29":"q");return SCN[c]||"sky"}
+function sceneSvg(k){var S={
+ oasis:'<svg viewBox="0 0 400 140" preserveAspectRatio="xMidYMax slice"><path d="M0 110Q100 90 200 104T400 100V140H0Z" fill="var(--sc2)"/><g fill="var(--sc3)"><path d="M60 104q-2-34 4-52l3 0q-4 22-3 52z"/><path d="M66 54q-22-6-34 6q16-4 34 0zm0 0q20-10 34 0q-16-4-34 0zm0 0q-14 4-22 22q8-14 22-22zm0 0q14 6 20 22q-8-14-20-22z"/><path d="M330 102q-2-30 4-46l3 0q-4 20-3 46z"/><path d="M336 58q-20-6-30 5q14-4 30 0zm0 0q18-9 30 0q-14-4-30 0zm0 0q-12 4-19 19q7-12 19-19zm0 0q12 5 17 19q-7-12-17-19z"/></g><ellipse cx="200" cy="118" rx="60" ry="8" fill="var(--sc4)"/></svg>',
+ msq:'<svg viewBox="0 0 400 140" preserveAspectRatio="xMidYMax slice"><g fill="var(--sc3)"><path d="M200 40q-40 6-48 50h96q-8-44-48-50z"/><rect x="130" y="88" width="140" height="52"/><rect x="96" y="56" width="16" height="84"/><path d="M96 56l8-18 8 18z"/><rect x="288" y="56" width="16" height="84"/><path d="M288 56l8-18 8 18z"/><path d="M200 30v10" stroke="var(--sc3)" stroke-width="3"/></g><path d="M186 140v-28q14-14 28 0v28z" fill="var(--sc2)"/><path d="M0 134H400V140H0z" fill="var(--sc2)"/></svg>',
+ home:'<svg viewBox="0 0 400 140" preserveAspectRatio="xMidYMax slice"><g fill="var(--sc3)"><path d="M150 140V92l50-36 50 36v48z"/><path d="M140 96l60-46 60 46-6 6-54-40-54 40z"/></g><rect x="186" y="108" width="28" height="32" rx="4" fill="var(--sc2)"/><rect x="160" y="100" width="18" height="16" rx="3" fill="var(--sc4)"/><rect x="222" y="100" width="18" height="16" rx="3" fill="var(--sc4)"/><path d="M0 134H400V140H0z" fill="var(--sc2)"/></svg>',
+ sky:'<svg viewBox="0 0 400 140" preserveAspectRatio="xMidYMax slice"><g fill="var(--sc3)"><ellipse cx="70" cy="60" rx="40" ry="14"/><ellipse cx="96" cy="52" rx="24" ry="14"/><ellipse cx="320" cy="40" rx="36" ry="12"/><ellipse cx="342" cy="33" rx="20" ry="12"/></g><path d="M0 124Q200 104 400 124V140H0Z" fill="var(--sc2)"/></svg>',
+ book:'<svg viewBox="0 0 400 140" preserveAspectRatio="xMidYMax slice"><g fill="var(--sc3)"><rect x="40" y="96" width="70" height="12" rx="3"/><rect x="48" y="84" width="60" height="12" rx="3"/><rect x="290" y="92" width="74" height="16" rx="3"/><path d="M180 108l20-10 20 10v6l-20-8-20 8z"/></g><path d="M0 108H400V140H0z" fill="var(--sc2)"/></svg>',
+ dune:'<svg viewBox="0 0 400 140" preserveAspectRatio="xMidYMax slice"><path d="M0 104Q90 70 190 100T400 92V140H0Z" fill="var(--sc3)"/><path d="M0 120Q120 100 240 118T400 112V140H0Z" fill="var(--sc2)"/><g fill="var(--sc4)"><path d="M300 92q4-10 10-6l4-6q4 0 4 6h6q2 6-2 8z"/></g></svg>',
+ paper:'<svg viewBox="0 0 400 140" preserveAspectRatio="xMidYMax slice"><g stroke="var(--sc3)" stroke-width="1.4" fill="none"><path d="M0 70H400M0 92H400M0 114H400M0 136H400"/></g></svg>'};return S[k]||S.sky}
+var SFXC=null;
+function sndOn(){return store.get("snd",1)!==0}
+// короткие мягкие звуки без мелодии: «верно» — лёгкий щелчок вверх, «ошибка» — тихий глухой звук, «финиш» — один светлый звон
+function sfx(k){if(!sndOn())return;try{var C=SFXC||(SFXC=new (window.AudioContext||window.webkitAudioContext)());if(C.state==="suspended")C.resume();var t=C.currentTime,o=C.createOscillator(),g=C.createGain();o.connect(g);g.connect(C.destination);
+  if(k==="ok"){o.type="sine";o.frequency.setValueAtTime(620,t);o.frequency.exponentialRampToValueAtTime(940,t+.1)}else if(k==="no"){o.type="triangle";o.frequency.setValueAtTime(210,t);o.frequency.exponentialRampToValueAtTime(140,t+.16)}else if(k==="tap"){o.type="sine";o.frequency.setValueAtTime(480,t)}else{o.type="sine";o.frequency.setValueAtTime(560,t);o.frequency.exponentialRampToValueAtTime(1120,t+.35)}
+  var d=k==="win"?.5:k==="tap"?.06:.2;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(k==="tap"?.06:.16,t+.015);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.start(t);o.stop(t+d+.05)}catch(e){}}
+// следующий урок того же предмета (с учётом замков учителя)
+function lsNextLesson(){if(!LS)return null;if(LS.gc!=null){var c=LS.gc,i=LS.i+1;return i<GC[c].les.length&&lsOk(c,i)?{k:c,v:i}:null}
+  if(LS.ab!=null){var j=LS.ab+1;return j<ABLES.length&&lsOk("ab",j)?{k:"ab",v:j}:null}
+  if(LS.n!=null){var L=LMOD.list,x=L.indexOf(LS.n);for(var q=x+1;q<L.length;q++){var cc=L[q]>=67&&L[q]<=77?"q29":"q";if(lsOk(cc,L[q]))return {k:"",v:L[q]}}}return null}
 function vLesson0(){
   if(LS.du)return vDuel();
   if(LS.gc!=null)return vGc();
   if(LS.ab!=null)return vAb();
   var n=LS.n,D=QD[n],A=D.ar,T=D.ru.map(ruT),N=A.length;
-  var h='<div class="box lsnbox"><div class="btns" style="align-items:center;justify-content:space-between;flex-wrap:nowrap"><b style="font-size:18px">Сура «'+esc(NAMES[n])+'»</b><span class="lqx">'+vBtn()+'<button class="btn sm" data-a="lquit">✕ Выйти</button></span></div>';
+  var h='<div class="box lsnbox ls2">'+lsTop(LS.step==="intro"?'Сура «'+esc(NAMES[n])+'»':"");
   if(LS.step==="intro"){
     h+=sayS("sab","Сначала послушай каждый аят ▶ и прочитай, что он означает. Потом сыграем — я буду подсказывать!");
     h+=tjLeg();A.forEach(function(a,i){var pl=LA&&!LA.paused&&!LA.ended&&LA.cur===n+":"+(i+1);h+='<div class="ayah'+(pl||plIs(n,i+1)?" play":"")+'" data-ay="'+(i+1)+'"><button class="ib'+(pl?" on":"")+'" data-a="lplay" data-ic="1" data-v="'+(i+1)+'" aria-label="Слушать аят '+(i+1)+'">'+(pl?ICPAU:ICPLAY)+'</button><div class="mid"><div class="ar">'+tjw(a,D.tj&&D.tj[i])+' '+arn(i+1)+'</div><div class="sm mut">'+esc(T[i])+'</div></div></div>'});
@@ -2492,7 +2577,7 @@ function vLesson0(){
   }
   if(LS.step==="res")return h+vLessonRes()+'</div>';
   var t=lsCur(),L=LS.tasks.length;
-  h+='<div class="bar" style="height:8px;margin:8px 0 14px"><i style="width:'+Math.round(LS.k/L*100)+'%"></i></div>';
+  void L;
   var opt=function(v,label,ar,good){var cls="lopt"+(ar?" ar":""),miss=t.miss&&t.miss.indexOf(v)>-1;if(LS.fb){if(good)cls+=" ok";else if(LS.fb.pick===v||miss)cls+=" bad"}else if(miss)cls+=" bad off";return '<button class="'+cls+'" data-a="lans" data-v="'+v+'"'+(LS.fb||miss?" disabled":"")+'>'+label+'</button>'};
   if(t.t==="ord"){
     var done=t.slot.every(function(x){return x!=null});
@@ -2544,6 +2629,10 @@ function lessonAct(a,v,k){
     case"tjtog":store.set("tajweed",store.get("tajweed",1)===0?1:0);return true;
     case"tjr":UI.tjpop={v:+v,w:k||""};return true;
     case"tjclose":UI.tjpop=null;return true;
+    case"lnx":sfx("tap");try{if(GCP&&GCP.au){GCP.au.pause();GCP.on=false}}catch(e){}ttsStop();if(LS.li<(LS.ln||0)-1){LS.li++;window.scrollTo(0,0);return true}return lessonAct("lstart");
+    case"lpv":if(LS.li>0)LS.li--;ttsStop();window.scrollTo(0,0);return true;
+    case"lgrid":LS.step="intro";return true;
+    case"lnextl":var nl=lsNextLesson();if(!nl)return lessonAct("lquit");LS=null;return lessonAct("lopen",String(nl.v),nl.k);
     case"lplayall":laStop();plStart(String(LS.n),{});return true;
     case"lstart":try{if(GCP&&GCP.au){GCP.au.pause();GCP.on=false}}catch(e){}LS.tasks=LS.gc!=null?gcBuild(LS.gc,LS.i):LS.ab!=null?abBuild(LS.ab):lsBuild(LS.n);LS.k=0;LS.err=0;LS.ok=0;LS.fb=null;LS.step="game";window.scrollTo(0,0);var t0=LS.tasks[0];if(t0&&t0.t==="lis")laPlay(LS.n,t0.i+1);return true;
     case"lnext":lsNext();window.scrollTo(0,0);return true;
@@ -2897,11 +2986,11 @@ function vAbIntro(i){
 }
 function vAb(){
   var i=LS.ab,x=ABLES[i];
-  var h='<div class="box abbox"><div class="btns" style="align-items:center;justify-content:space-between;flex-wrap:nowrap"><b style="font-size:18px">'+abIco(26)+' '+esc(x.t)+'</b><span class="lqx">'+vBtn()+'<button class="btn sm" data-a="lquit">✕ Выйти</button></span></div>';
+  var h='<div class="box abbox ls2">'+lsTop(LS.step==="intro"?abIco(26)+' '+esc(x.t):"");
   if(LS.step==="intro")return h+vAbIntro(i)+'<div class="btns" style="margin-top:12px"><button class="btn pri" data-a="lstart">🎮 Начать игру</button></div></div>'+vAbPop();
   if(LS.step==="res")return h+vLessonRes()+'</div>';
   var t=lsCur(),L=LS.tasks.length;
-  h+='<div class="bar" style="height:8px;margin:8px 0 14px"><i style="width:'+Math.round(LS.k/L*100)+'%"></i></div>';
+  void L;
   var opt=function(v,label,ar){var cls="lopt abo"+(ar?" ar":""),miss=t.miss&&t.miss.indexOf(v)>-1;if(LS.fb){if(v===t.good)cls+=" ok";else if(LS.fb.pick===v||miss)cls+=" bad"}else if(miss)cls+=" bad off";return '<button class="'+cls+'" data-a="lans" data-v="'+v+'"'+(LS.fb||miss?" disabled":"")+'>'+label+'</button>'};
   var grid=function(items,ar){return '<div class="abopts">'+items.map(function(o,k){return opt(k,esc(o),ar)}).join("")+'</div>'};
   if(t.t==="fnd")h+='<h3>Найди букву «'+esc(t.say)+'»</h3>'+grid(t.opts,true);
@@ -3105,7 +3194,7 @@ var GC={
       ["Ният (намерение) делается…",["сердцем","ногами","только вслух громко"],0,"Главное — намерение в сердце."],
       ["Можно ли молиться без омовения?",["Нет","Да"],0,"Это первое условие намаза."]]}
  ]}};
-function gcOpen(c,i){if(PL&&PL.playing)plToggle(false);LS={gc:c,i:i,step:"intro",tasks:null,k:0,err:0,ok:0,fb:null,res:null};window.scrollTo(0,0)}
+function gcOpen(c,i){if(PL&&PL.playing)plToggle(false);var cs=GC[c].les[i].c||[];LS={gc:c,i:i,step:cs.length?"learn":"intro",li:0,ln:cs.length,tasks:null,k:0,err:0,ok:0,fb:null,res:null};window.scrollTo(0,0)}
 function gcBuild(c,i){var L=GC[c].les[i];if(L.gen)return tjGen(L.gen,i===GC[c].les.length-1?10:8);var out=shuf(L.q.map(function(x){var idx=x[1].map(function(_,k){return k}),mix=shuf(idx.slice());
   return {t:"gq",q:x[0],opts:mix.map(function(k){return x[1][k]}),good:mix.indexOf(x[2]),hint:x[3]}}));
   // дуа к картинке: ситуация → какое дуа подходит
@@ -3122,14 +3211,19 @@ function gcMap(c){var C=GC[c],L=C.les,cur=null;L.forEach(function(_,i){if(cur==n
   L.forEach(function(x,i){var b=LP&&LP[c+(i+1)]||0,ok=lsOk(c,i);h+='<button class="gcl c'+(i%8)+(i===cur?" cur":b?" done":"")+(ok?"":" lock")+'" data-a="lopen" data-k="'+c+'" data-v="'+i+'"><span class="gci">'+(ok?(x.ic.indexOf("fig:")===0?prayFig(x.ic.slice(4)):x.ic):"🔒")+'</span><span class="gct"><b>'+(i+1)+'. '+esc(x.t)+(canEdit()&&lsCfg().chk&&lsCfg().chk[c+"|"+i]?' <span class="chk1" title="Тексты проверены">✔</span>':"")+'</b><small>'+(ok?(b?[1,2,3].map(function(k){return k<=b?"⭐":"☆"}).join(""):i===cur?"Начни отсюда!":"Новый урок"):"Учитель ещё не открыл")+'</small></span>'+(i===cur?'<span class="gcs">'+mas("sab",52)+'</span>':"")+'</button>'});
   return h+'</div><p class="mut sm" style="margin-top:10px;font-size:12px">Фикх — по ханафитскому мазхабу, акыда — по учению ахлю-с-сунна валь-джамаа.</p></div>'}
 function vGc(){var c=LS.gc,C=GC[c],x=C.les[LS.i];
-  var h='<div class="box gcbox" style="--gcc:'+C.col+'"><div class="btns" style="align-items:center;justify-content:space-between;flex-wrap:nowrap"><b style="font-size:18px">'+(x.ic.indexOf("fig:")===0?"":x.ic+' ')+esc(x.t)+'</b><span class="lqx">'+vBtn()+'<button class="btn sm" data-a="lquit">✕ Выйти</button></span></div>';
+  var h='<div class="box gcbox ls2" style="--gcc:'+C.col+'">'+lsTop(LS.step==="learn"||LS.step==="intro"?(x.ic.indexOf("fig:")===0?"":x.ic+' ')+esc(x.t):"");
+  if(LS.step==="learn"){var k=x.c[LS.li],last=LS.li>=x.c.length-1;
+    h+='<div class="lscard">'+(LS.li===0&&x.tip?'<p class="lstip">'+esc(x.tip)+'</p>':"")+'<div class="lspic">'+(k[5]?prayFig(k[5]):'<span class="lsem">'+k[0]+'</span>')+'</div><h3 class="lsh" data-tts="1">'+esc(k[1])+'</h3>'+(k[3]?'<p class="lsar" dir="rtl" lang="ar">'+esc(k[3])+'</p>':"")+(k[4]?'<button class="btn lsplay'+(GCP&&GCP.k===k[4]&&GCP.on?" on":"")+'" data-a="gcplay" data-v="'+k[4]+'">'+(GCP&&GCP.k===k[4]&&GCP.on?"⏸ Стоп":"▶ Слушать")+'</button>':"")+'</div>';
+    h+='<div class="say lsay"><div class="who">'+mas("sab",84)+'</div><p data-tts="1">'+esc(k[2])+'</p>'+(TTSOK?'<button class="ttsb" data-a="tts" aria-label="Прочитать вслух">🔊</button>':"")+'</div>';
+    if(canEdit()){var ck0=c+"|"+LS.i,cd0=lsCfg().chk&&lsCfg().chk[ck0];h+='<div class="chkbar"><button class="btn sm'+(cd0?" pri":"")+'" data-a="chk" data-v="'+ck0+'">'+(cd0?"✔ Тексты проверены":"☐ Отметить: тексты проверены")+'</button><button class="btn sm" data-a="lgrid">📋 Все карточки</button></div>'}
+    return h+'<div class="lsbtns">'+(LS.li>0?'<button class="btn lsback" data-a="lpv" aria-label="Назад">←</button>':"")+'<button class="btn pri lsgo" data-a="lnx">'+(last?"Проверь себя →":"Понятно! →")+'</button></div></div>'}
   if(LS.step==="intro"&&x.gen&&!QD){qdLoad();return h+'<p class="mut">Загрузка аятов…</p></div>'}
   if(LS.step==="intro"){h+=sayS("sab",x.tip)+'<div class="gccards">'+x.c.map(function(k,j){return '<button class="gcc c'+(j%8)+(UI.gcf===j?" on":"")+'" data-a="gcflip" data-v="'+j+'"><span class="gce">'+(k[5]?prayFig(k[5]):k[0])+'</span><b>'+esc(k[1])+'</b>'+(k[4]?'<span class="gcpl'+(GCP&&GCP.k===k[4]&&GCP.on?" on":"")+'" role="button" data-a="gcplay" data-v="'+k[4]+'">'+(GCP&&GCP.k===k[4]&&GCP.on?"⏸ Стоп":"▶ Слушать")+'</span>':"")+(k[3]?'<p class="gcar'+(k[3].length>70?" l":"")+'" dir="rtl" lang="ar">'+esc(k[3])+'</p>':"")+'<p>'+esc(k[2])+'</p></button>'}).join("")+'</div>';
     if(canEdit()){var ckk=c+"|"+LS.i,ckd=lsCfg().chk&&lsCfg().chk[ckk];h+='<div class="chkbar"><button class="btn sm'+(ckd?" pri":"")+'" data-a="chk" data-v="'+ckk+'">'+(ckd?"✔ Тексты проверены":"☐ Отметить: тексты проверены")+'</button><small class="mut">'+(ckd?"отмечено "+new Date(ckd+"T12:00:00").toLocaleDateString("ru-RU",{day:"numeric",month:"long"}):"видно только учителю")+'</small></div>'}
     return h+'<div class="btns" style="margin-top:12px"><button class="btn pri" data-a="lstart">🎮 Проверь себя</button></div></div>'}
   if(LS.step==="res")return h+vLessonRes()+'</div>';
   var t=lsCur(),L=LS.tasks.length;
-  h+='<div class="bar" style="height:8px;margin:8px 0 14px"><i style="width:'+Math.round(LS.k/L*100)+'%"></i></div>';
+  void L;
   if(t.t==="gord"){var gd=t.got.length===t.steps.length;
     h+='<h3>'+esc(t.q)+'</h3><p class="sm mut">Нажимай шаги по очереди, начиная с шага № '+t.from+'.</p><ol class="gordl" start="'+t.from+'">'+t.steps.map(function(x,k){return '<li class="'+(k<t.got.length?"ok":"")+'">'+(k<t.got.length?esc(x):"…")+'</li>'}).join("")+'</ol>';
     if(!gd)h+='<div class="gcopts">'+t.mix.map(function(si,k){return t.got.indexOf(k)>-1?"":'<button class="lopt'+(LS.fb&&LS.fb.wrong===k?" bad":"")+'" data-a="lgord" data-v="'+k+'">'+esc(t.steps[si])+'</button>'}).join("")+'</div>';
@@ -3774,7 +3868,7 @@ function act(a,b,e){
     if(hk){var left=hx.listen?Math.max(1,hx.listen-(hx.my_listens||0)):1;plStart(hk,{times:left,hw:hx.id})}return}
   if(chatAct(a,b))return;
   if(S&&G&&hwAct(a,b))return;
-  if(/^(l(open|quit|play|playall|start|next|ans|ord|pl|pr|bld|wrd|gord)|ab(pop|close|nop|say)|tj(tog|r|close))$/.test(a)){if(a!=="lopen"&&!LS)return;var lr=lessonAct(a,v,k);if(lr)render();return}
+  if(/^(l(open|quit|play|playall|start|next|ans|ord|pl|pr|bld|wrd|gord|nx|pv|grid|nextl)|ab(pop|close|nop|say)|tj(tog|r|close))$/.test(a)){if(a!=="lopen"&&!LS)return;var lr=lessonAct(a,v,k);if(lr)render();return}
   if(a==="lseg"){UI.lseg=v;if(v!=="l"){laStop();LS=null}window.scrollTo(0,0);render();return}
   if(a==="actre"){ACTD=null;render();return}
   if(a==="repgo"){var rc=k||(+v>=67&&+v<=77?"q29":"q");UI.course=rc;UI.lseg="l";LS=null;if(R.tab!=="s")go("#/g/"+encodeURIComponent(G.slug)+"/suras");lessonAct("lopen",v,k||"");render();return}
