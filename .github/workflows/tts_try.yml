@@ -16,7 +16,7 @@ jobs:
         run: |
           sudo apt-get install -y -qq ffmpeg >/dev/null
           pip install -q torch --index-url https://download.pytorch.org/whl/cpu
-          pip install -q numpy omegaconf
+          pip install -q numpy omegaconf scipy
           mkdir -p tts_samples
           python3 - <<'PY'
           import torch, wave, numpy as np, subprocess
@@ -38,7 +38,7 @@ jobs:
                       a=model.apply_tts(text=T,speaker=sp,sample_rate=48000,put_accent=True,put_yo=True)
                       save(a.numpy(),48000,ver+'_'+sp)
                   except Exception as e:print('fail',ver,sp,e)
-              break
+              pass
           PY
           ls -la tts_samples
       - name: Сохранить в ветку samples
