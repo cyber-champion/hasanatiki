@@ -1211,7 +1211,9 @@ function teacherForm(t){
 /* ---- экраны группы ---- */
 function groupHeader(){
   var ms=!canEdit()&&STOK&&by(STOK.sid),rt=ms?walChip()+'<a class="lnk" href="#/g/'+encodeURIComponent(G.slug)+'/me">'+esc(ms.name)+'</a>':isParent()?'<a class="lnk" href="#/parent">🏡 Кабинет родителя</a>':null;
-  var h=topbar('<a class="lnk" href="#/" aria-label="Главная">‹<span class="bkt"> Главная</span></a>',rt)+'<header class="top">'+brand()+'<div class="gname">'+esc(G.name)+'</div></header>';
+  // «назад»: из любой вкладки — на свою главную в группе; с главной — к списку групп
+  var ht=STOK&&!canEdit()?"o":canEdit()?"t":"r",onHome=R.tab===ht,bk=onHome?'<a class="lnk" href="#/" aria-label="Все группы">‹<span class="bkt"> Группы</span></a>':'<a class="lnk" href="#/g/'+encodeURIComponent(G.slug)+'/'+TABS[ht]+'" aria-label="На главную">‹<span class="bkt"> Главная</span></a>';
+  var h=topbar(bk,rt)+'<header class="top">'+brand()+'<div class="gname">'+esc(G.name)+'</div></header>';
   if(canEdit()){
     var st=saveErr&&saveErr!=="network"?'<span><span class="dot e"></span>'+esc(emsg({code:saveErr}))+'</span>':saving?'<span><span class="dot w"></span>Сохраняю…</span>':Q.length?'<span><span class="dot w"></span>'+(saveErr==="network"?"Нет связи — ждут сохранения: ":"Сохраню через секунду: ")+Q.length+'</span>':'<span><span class="dot"></span>Всё сохранено</span>';
     h+='<div class="savebar">'+st+(Q.length&&!saving?'<button class="btn sm pri" data-a="savenow">Сохранить</button>':"")+'</div>';
