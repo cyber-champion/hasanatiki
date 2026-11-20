@@ -1381,7 +1381,7 @@ function vTeacher(){
   // вкладки: урок (посещения), баллы, ученики, ещё — чтобы не листать три списка подряд
   var ts=UI.tseg||store.get("tseg",null)||(new Date().getDay()===0?"a":"b");if(!L.length&&ts!=="m")ts="u";
   h+=tabs4("tseg",ts,[["a","📅","Урок"],["b","⭐","Баллы"],["u","🧒","Ученики"],["m","⚙️","Ещё"]]);
-  if(ts==="m"){h+=vProjBox();if(subjOn("tr"))h+=vPrayGroup();h+=vMiss()+vTaps()+vIconRef()}
+  if(ts==="m"){h+='<div class="box" id="limbox">'+vLimCfg().replace('<h3 style="margin:14px 0 4px">','<h3 style="margin:0 0 4px">')+'<p class="sm mut" style="margin-top:8px">То же самое есть во вкладке «Уроки» внизу блока «Что видят ученики».</p></div>'+vProjBox();if(subjOn("tr"))h+=vPrayGroup();h+=vMiss()+vTaps()+vIconRef()}
   if(ts==="a")return h+vAttend(L);
   if(ts==="b"){h+='<div class="box"><h2>✅ Отметить баллы</h2><p class="mut sm" style="margin:-6px 0 6px">Выберите, кто пришёл, и нажмите кнопку — балл получат все выбранные сразу.</p>';
   if(!L.length)h+='<p class="mut">Сначала добавьте учеников во вкладке «🧒 Ученики».</p>';
