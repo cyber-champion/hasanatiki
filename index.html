@@ -502,6 +502,10 @@ html[data-theme=dark] .lsnbox .ayah{background:rgba(31,38,74,.88);border-color:#
 .ayah .ib.on{background:var(--brand);color:#fff}
 .tjbar{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start;margin:6px 0 2px}.tjleg{flex:1 1 220px;background:var(--card);border-radius:14px;padding:6px 12px;border:1px solid var(--line);font-size:14px}.tjleg summary{cursor:pointer;font-weight:800}.tjleg div{display:flex;align-items:center;gap:8px;margin:5px 0}.tjleg i{width:16px;height:16px;border-radius:50%;flex-shrink:0;background:var(--tc)}
 .tj{cursor:pointer;color:var(--tc)}
+.brand{cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;display:inline-block}
+@keyframes bpop{0%{transform:scale(1)}30%{transform:scale(1.12) rotate(-2deg)}60%{transform:scale(.97) rotate(1deg)}100%{transform:scale(1)}}
+@keyframes bstar{0%{transform:rotate(0) scale(1)}50%{transform:rotate(180deg) scale(1.6)}100%{transform:rotate(360deg) scale(1)}}
+.brand.bpop{animation:bpop .45s ease-out}.brand.bpop i{display:inline-block;animation:bstar .6s ease-out}
 .rksp{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;font-size:12px;font-weight:700;opacity:.95}.rkmi .rksp b{display:inline;font-size:15px;line-height:1.2}.rksp span{background:rgba(255,255,255,.18);border-radius:99px;padding:2px 8px;white-space:nowrap}
 /* ---- рейтинг: крупно, коротко, понятно ---- */
 .rkme{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,var(--brand),#6D5BF6);color:#fff;border-radius:24px;padding:14px 16px;margin:6px 0 16px;cursor:pointer;box-shadow:0 10px 28px rgba(59,108,246,.28)}
@@ -1042,7 +1046,14 @@ function topbar(left,rt){
   var right=rt?rt:ME?'<a class="lnk" href="#/cab">'+esc(ME.name)+'</a>':'<a class="lnk" href="#/login">Вход для учителя</a>';
   return '<div class="topbar">'+(left||"<span></span>")+'<span class="tbr">'+right+thBtn()+'</span></div>';
 }
-function brand(){return '<div class="brand"><i>✦</i>'+esc(APP)+'<i>✦</i></div>'}
+function brand(){return '<div class="brand" data-a="brand" role="button" tabindex="0" aria-label="'+esc(APP)+' — на главную"><i>✦</i>'+esc(APP)+'<i>✦</i></div>'}
+// нажатие на «Хасанатики»: звёздочки вспыхивают, Сабур говорит доброе слово, и приложение ведёт на свою главную
+var BRANDSAY=["Ассаляму алейкум! Рад тебя видеть 🌙","За каждую прочитанную букву Корана — хасана, а хасана — десятикратно (ат-Тирмизи)","Учись с намерением ради Аллаха — и каждая минута станет наградой","Сделал доброе дело? Это тоже хасанат!","Не забудь сказать «Бисмиллях» перед уроком","Пророк ﷺ сказал: «Лучший из вас — тот, кто изучает Коран и обучает ему» (аль-Бухари)","Машаллах, ты сегодня молодец!"];
+function brandTap(b){try{b.classList.remove("bpop");void b.offsetWidth;b.classList.add("bpop")}catch(e){}
+  var m=BRANDSAY[rnd(BRANDSAY.length)],tgt=null;
+  if(R.view==="group"&&G){var t=STOK&&!canEdit()?"o":canEdit()?"t":"r";if(R.tab!==t)tgt="#/g/"+encodeURIComponent(G.slug)+"/"+TABS[t]}
+  else if(R.view!=="home")tgt="#/";
+  setTimeout(function(){flash("🐪 "+m);if(vOn())speak(m);if(tgt)go(tgt);else render()},420)}
 function demoNote(){return CLOUD?"":'<div class="note" style="margin:6px 0 14px">Демо-режим: данные хранятся только в этом браузере. Коды групп: <b>m7k2qa</b> и <b>d4p9xe</b>. Вход учителя: <b>admin</b> / <b>123456</b>.</div>'}
 
 function vHome(){
@@ -3738,6 +3749,7 @@ function download(name,blob){var a=document.createElement("a");a.href=URL.create
 function setTab(t){R.tab=t;var h="#/g/"+encodeURIComponent(G.slug)+(t==="r"?"":"/"+TABS[t]);if(location.hash!==h){skipRoute=true;location.hash=h}}
 var skipRoute=false;
 function act(a,b,e){
+  if(a==="brand"){brandTap(b);return}
   if(a==="tts"){var sp=b.closest(".say,.hello");if(sp){var pp=sp.querySelector("p");speak(pp?pp.textContent:"")}return}
   if(a==="ttsall"){speak(ttsScreen());return}
   if(a==="vtog"){var on=!vOn();store.set("voice",on?1:0);TTSLAST="";if(on)speak("Хорошо! Я буду читать задания вслух. Нажми на ответ — я его прочитаю. Нажми ещё раз — чтобы ответить.");else ttsStop();render();return}
