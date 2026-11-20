@@ -43,14 +43,15 @@ jobs:
               if not os.path.exists('em/'+k+'.svg'): continue
               png=glob.glob(d+'/3D/*.png')+glob.glob(d+'/Default/3D/*.png')+glob.glob(d+'/*/3D/*.png')
               if not png: continue
-              im=Image.open(png[0]).convert('RGBA');im.thumbnail((96,96),Image.LANCZOS);im.save('em3/'+k+'.png',optimize=True);n3+=1
+              im0=Image.open(png[0]).convert('RGBA');im=im0.copy();im.thumbnail((96,96),Image.LANCZOS);im.save('em3/'+k+'.png',optimize=True);n3+=1
+              os.makedirs('em3h',exist_ok=True);ih=im0.copy();ih.thumbnail((192,192),Image.LANCZOS);ih.save('em3h/'+k+'.webp','WEBP',quality=88,method=6)
           print('3d',n3)
           json.dump(sorted(f[:-4] for f in os.listdir('em') if f.endswith('.svg')),open('em/have.json','w'))
           PY
-          cp fe/LICENSE em/LICENSE-fluentui-emoji.txt; cp fe/LICENSE em3/LICENSE-fluentui-emoji.txt; du -sh em em3
+          cp fe/LICENSE em/LICENSE-fluentui-emoji.txt; cp fe/LICENSE em3/LICENSE-fluentui-emoji.txt; cp fe/LICENSE em3h/LICENSE-fluentui-emoji.txt; du -sh em em3 em3h
       - name: Сохранить
         run: |
           git config user.name "hasanatiki-bot"; git config user.email "actions@users.noreply.github.com"
-          git add em em3; git diff --cached --quiet && exit 0
+          git add em em3 em3h; git diff --cached --quiet && exit 0
           git commit -qm "Иконки: Fluent Emoji (MIT)"
           for i in 1 2 3 4 5; do git pull --rebase -q origin main && git push && exit 0; sleep 5; done; exit 1
