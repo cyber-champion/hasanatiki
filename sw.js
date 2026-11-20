@@ -2,13 +2,15 @@
 self.addEventListener("install", function () { self.skipWaiting(); });
 self.addEventListener("activate", function (e) { e.waitUntil(self.clients.claim()); });
 // без интернета: страница приложения берётся из кэша (сначала всегда пробуем сеть)
-var CACHE = "hs-v1";
+var CACHE = "hs-v1"; // v2: свежая страница без кэша браузера
 self.addEventListener("fetch", function (e) {
   var r = e.request, u;
   try { u = new URL(r.url); } catch (x) { return; }
   if (r.method !== "GET" || u.origin !== self.location.origin) return;
   if (/\/audio\/|\.apk$|\.mp3$/.test(u.pathname)) return;
-  e.respondWith(fetch(r).then(function (res) {
+  // страницу и главные файлы всегда берём свежими с сервера (мимо кэша браузера), чтобы обновления приходили сразу
+  var fresh = r.mode === "navigate" || /\/$|\.html$|\.json$|sw\.js$|config\.js$/.test(u.pathname);
+  e.respondWith((fresh ? fetch(r.url, { cache: "no-cache", credentials: "same-origin" }) : fetch(r)).then(function (res) {
     if (res && res.ok) { var c = res.clone(); caches.open(CACHE).then(function (k) { k.put(r, c); }); }
     return res;
   }).catch(function () {
