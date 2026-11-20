@@ -1166,13 +1166,13 @@ function vRating(){
   h+=rkPodium(L,tot)+rkList(L,tot,3);
   var tg=S.goal.target|0;
   if(tg>0){var sum=seasonTotal(),gp=Math.min(100,Math.round(sum/tg*100));h+='<div class="rkgoal"><div><b>🎯 Цель группы</b><span>'+sum+' из '+tg+'</span></div><div class="rkbar"><i style="width:'+gp+'%"></i></div>'+(S.goal.prize?'<small>Приз: '+esc(S.goal.prize)+'</small>':"")+'</div>'}
-  h+='<p class="rkhow">'+(isKid()?'Баллы бывают двух видов: 🕌 в медресе — учитель ставит за занятия, намаз, суры и поведение; 📱 дома — за уроки в приложении и намазы, которые подтвердили родители. Нажми на имя — увидишь, за что баллы.':'Баллы складываются из занятий в медресе (ставите вы) и занятий дома (уроки в приложении, намазы с подтверждением родителей). Нажмите на ученика, чтобы увидеть подробности.')+'</p>';
+  h+='<p class="rkhow">'+(isKid()?'Баллы бывают двух видов: 🕌 в мечети — учитель ставит за занятия, намаз, суры и поведение; 📱 дома — за уроки в приложении и намазы, которые подтвердили родители. Нажми на имя — увидишь, за что баллы.':'Баллы складываются из занятий в мечети (ставите вы) и занятий дома (уроки в приложении, намазы с подтверждением родителей). Нажмите на ученика, чтобы увидеть подробности.')+'</p>';
   return h+vDuels()+'<details class="box rklog"'+(canEdit()?" open":"")+'><summary><b>Последние баллы</b></summary>'+logList(S.log.slice(0,8),false)+'</details>'+vDuelPick();
 }
 // ---- общие части рейтинга: «я», пьедестал, список ----
-// баллы делятся на «в медресе» (ставит учитель) и «дома» (уроки в приложении и намазы, подтверждённые родителями)
+// баллы делятся на «в мечети» (ставит учитель) и «дома» (уроки в приложении и намазы, подтверждённые родителями)
 function homePts(id){var n=0;(S.log||[]).forEach(function(e){if(e.s===id&&e.t!=="f"&&e.v>0&&e.note&&(e.note.indexOf("🎓")===0||e.note.indexOf("подтвердил родитель")>-1))n+=e.v});return n}
-function rkSplit(s){var t=Math.max(0,tot(s)),hm=Math.min(t,homePts(s.id));return '<div class="rksp"><span>🕌 в медресе <b>'+(t-hm)+'</b></span><span>📱 дома <b>'+hm+'</b></span></div>'}
+function rkSplit(s){var t=Math.max(0,tot(s)),hm=Math.min(t,homePts(s.id));return '<div class="rksp"><span>🕌 в мечети <b>'+(t-hm)+'</b></span><span>📱 дома <b>'+hm+'</b></span></div>'}
 function rkMe(L,sc,m,unit,split){var i=L.indexOf(m);if(i<0)return "";var v=sc(m),up=i>0?L[i-1]:null,d=up?sc(up)-v+1:0,pc=up?Math.max(6,Math.min(100,Math.round(v/Math.max(1,sc(up)+1)*100))):100;
   return '<div class="rkme" data-a="open" data-id="'+m.id+'" role="button" tabindex="0">'+avh(m,"l")+'<div class="rkmi"><small>Ты</small><b>'+(i+1)+'-е место</b><span>'+v+' '+esc(unit)+'</span>'+(split?rkSplit(m):"")+'</div><div class="rkmg">'+(up?'<small>до '+i+'-го места</small><b>'+d+'</b><div class="rkbar"><i style="width:'+pc+'%"></i></div>':'<small>ты впереди всех</small><b>👑</b>')+'</div></div>'}
 function rkPodium(L,sc){var T=L.slice(0,3).filter(function(s){return sc(s)>0});if(!T.length)return "";
@@ -1201,7 +1201,7 @@ function scrLab(s){if(TAPSCR[s])return TAPSCR[s];if(s.indexOf("tab:w")===0)retur
 function lesLab(c,l){if(c==="ab"){var i=+l.slice(1)-1;return "Алифба: "+(ABLES[i]?ABLES[i].t:l)}if(GC[c]){var j=+l.slice(c.length)-1;return GC[c].n+": "+(GC[c].les[j]?GC[c].les[j].t:l)}var n=+l.slice(1);return "Сура «"+(NAMES[n]||l)+"»"}
 // ---- экран для проектора: крупный рейтинг группы, сам обновляется ----
 var PROJT=null;
-function vProjBox(){return '<div class="box"><h2>📺 Экран для проектора</h2><p class="sm mut" style="margin:-6px 0 8px">Крупный рейтинг группы для большого экрана в медресе. Обновляется сам каждую минуту.</p><button class="btn pri" data-a="projon">📺 Открыть экран</button></div>'}
+function vProjBox(){return '<div class="box"><h2>📺 Экран для проектора</h2><p class="sm mut" style="margin:-6px 0 8px">Крупный рейтинг группы для большого экрана в мечети. Обновляется сам каждую минуту.</p><button class="btn pri" data-a="projon">📺 Открыть экран</button></div>'}
 function vProj(){if(!PROJT)PROJT=setInterval(function(){if(!UI.proj){clearInterval(PROJT);PROJT=null;return}refreshGroup().then(render).catch(function(){})},60000);
   var k=UI.projk||"w",sc=k==="s"?null:perScores(k),f=function(x){return sc?sc[x.id]||0:tot(x)},L=actS().slice().sort(function(a,b){return f(b)-f(a)||a.name.localeCompare(b.name,"ru")}).slice(0,12);
   var h='<div class="proj"><div class="projh"><b>🏆 '+esc(G.name||"")+'</b><span class="seg">'+[["w","Неделя"],["d","Сегодня"],["s","Сезон"]].map(function(x){return '<button class="'+(k===x[0]?"on":"")+'" data-a="projk" data-v="'+x[0]+'">'+x[1]+'</button>'}).join("")+'</span><button class="btn" data-a="projoff">✕ Закрыть</button></div><div class="projl">';
@@ -1346,7 +1346,7 @@ function vRules(){
   h+='<div class="rule" style="background:var(--qbg)"><div class="e">📖</div><div><h3 style="color:var(--q)">Коран</h3>Прочитал страницу Корана — +'+pn(catPts("q"),"балл","балла","баллов")+'. Кто только учится, читает «Муаллим Сани»: одну, две или три буквы, в зависимости от уровня — и тоже получает балл.</div></div>';
   h+='<div class="rule" style="background:var(--xbg)"><div class="e">⭐</div><div><h3 style="color:var(--x)">Дополнительно</h3>Выучил и рассказал что-то, помог в мечети, хорошо поработал — дополнительные баллы.'+catList("x")+'</div></div>';
   h+='<div class="rule" style="background:var(--fbg)"><div class="e">⚠️</div><div><h3 style="color:var(--f)">Штраф</h3>За нарушения учитель может снять баллы — они вычитаются из общего счёта и из опыта. Можно потерять уровень и значок!'+catList("f")+'</div></div>';
-  if(S.attPts)h+='<div class="rule" style="background:var(--nbg)"><div class="e">📅</div><div><h3 style="color:var(--n)">Пришёл на урок</h3>За каждый урок в медресе — +'+pn(S.attPts,"балл","балла","баллов")+'.</div></div>';
+  if(S.attPts)h+='<div class="rule" style="background:var(--nbg)"><div class="e">📅</div><div><h3 style="color:var(--n)">Пришёл на урок</h3>За каждый урок в мечети — +'+pn(S.attPts,"балл","балла","баллов")+'.</div></div>';
   h+='<div class="rule" style="background:var(--qbg)"><div class="e">🎓</div><div><h3 style="color:var(--q)">Уроки-игры</h3>Во вкладке «Уроки» проходи уроки по сурам и предметам: за каждую звезду — +1 балл (до 3 баллов за урок). Баллы получает тот, кто вошёл в свой кабинет.</div></div>';
   if(subjOn("tr"))h+='<div class="rule" style="background:var(--nbg)"><div class="e">✅</div><div><h3 style="color:var(--n)">Мои намазы</h3>Отмечай прочитанные дома намазы. Когда мама или папа подтвердят — за каждый намаз +1 балл.</div></div>';
   h+='<p class="mut sm">Баллы ставит учитель, а за уроки-игры, задания и подтверждённые намазы они приходят сами. Намаз + Коран + Дополнительно − Штраф = общий счёт. Кто набрал больше, тот выше в таблице.</p></div>';
@@ -1359,7 +1359,7 @@ function vRules(){
   SB.forEach(function(b){h+='<div class="bd"><i>'+b[1]+'</i><b>'+b[2]+'</b><span>'+(b[0]===114?"все 114 сур":pn(b[0],"сура","суры","сур"))+'</span></div>'});
   h+='<div class="bd"><i>📖</i><b>Джуз Амма</b><span>30-й джуз целиком</span></div>';
   STK.forEach(function(b){h+='<div class="bd"><i>'+b[1]+'</i><b>'+b[2]+'</b><span>намаз в мечети каждую неделю</span></div>'});
-  ATB.forEach(function(b){h+='<div class="bd"><i>'+b[1]+'</i><b>'+b[2]+'</b><span>'+pn(b[0],"урок","урока","уроков")+' в медресе</span></div>'});
+  ATB.forEach(function(b){h+='<div class="bd"><i>'+b[1]+'</i><b>'+b[2]+'</b><span>'+pn(b[0],"урок","урока","уроков")+' в мечети</span></div>'});
   h+='<div class="bd"><i>🥉</i><b>В тройке</b><span>тройка лучших сезона</span></div><div class="bd"><i>👑</i><b>Чемпион сезона</b><span>1 место в сезоне</span></div>';
   h+='</div></div><div class="box"><h2>😊 Мой кабинет</h2><p class="mut">Войди в группу под своим именем и PIN-кодом — телефон запомнит тебя. Сверху в рейтинге всегда будет твой персонаж. Нажми на своё имя вверху справа: там твои значки, дела, задания и аватарка.</p></div>';
   h+=installBox();
@@ -2629,7 +2629,7 @@ function vMe(){
   h+='<div class="box"><h2>📋 Мои дела</h2>';
   h+='<a class="row" href="#/g/'+encodeURIComponent(G.slug)+'/hw" style="padding:10px 12px"><span style="font-size:24px">📚</span><div class="mid"><b>Задания</b><div class="sm mut">надо сделать: '+todo+' · на проверке: '+wait+' · принято: '+done+'</div></div><span class="mut">›</span></a>';
   h+='<a class="row" href="#/g/'+encodeURIComponent(G.slug)+'/suras" style="padding:10px 12px"><span style="font-size:24px">🎓</span><div class="mid"><b>Уроки-игры</b><div class="sm mut">⭐ '+st+' из '+LMOD.list.length*3+' звёзд</div></div><span class="mut">›</span></a>';
-  h+='<div class="row" style="padding:10px 12px"><span style="font-size:24px">📅</span><div class="mid"><b>Уроки в медресе</b><div class="sm mut">'+(a.n?"был "+a.p+" из "+a.n:"ещё не отмечали")+'</div></div></div>';
+  h+='<div class="row" style="padding:10px 12px"><span style="font-size:24px">📅</span><div class="mid"><b>Уроки в мечети</b><div class="sm mut">'+(a.n?"был "+a.p+" из "+a.n:"ещё не отмечали")+'</div></div></div>';
   h+='<div class="row" style="padding:10px 12px"><span style="font-size:24px">📜</span><div class="mid"><b>Суры наизусть</b><div class="sm mut">'+(s.sur.length?s.sur.map(esc).join(", "):"пока нет")+'</div></div></div></div>';
   h+='<div class="box"><h2>🏅 Мои значки <small>'+eb.filter(function(b){return b.ok}).length+' из '+eb.length+'</small></h2><div class="bgrid">'+eb.map(function(b){return '<div class="bd'+(b.ok?"":" off")+'"><i>'+b.e+'</i><b>'+b.n+'</b><span>'+(b.ok?"получен":b.r)+'</span></div>'}).join("")+'</div></div>';
   h+='<div class="box"><h2>🎨 Моя аватарка</h2><p class="mut sm" style="margin:-6px 0 8px">Выбери персонажа или загрузи свою картинку.</p>'+avPicker(s)+'</div>';
