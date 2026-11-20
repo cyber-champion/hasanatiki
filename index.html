@@ -43,6 +43,9 @@ p{margin:0}
 .brand i{font-style:normal;font-size:24px;vertical-align:middle;margin:0 6px}
 .gname{color:var(--tx);font-size:17px;font-weight:800;margin-top:8px}
 .topbar{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:34px}
+.topbar>*{min-width:0}.topbar>.lnk{flex-shrink:0}.topbar .lnk,.topbar .wchip,.topbar .wchip *{white-space:nowrap}.topbar .wchip{flex-shrink:0}.topbar .thbtn{flex-shrink:0}
+.topbar .tbr{display:flex;gap:8px;align-items:center;min-width:0;justify-content:flex-end}.topbar .tbr>.lnk{min-width:0;overflow:hidden;text-overflow:ellipsis;display:block;max-width:34vw}
+@media(max-width:400px){.topbar>.lnk{font-size:26px;padding:0 10px 4px 2px;line-height:1}.topbar{gap:4px}.topbar .tbr{gap:4px}.topbar .wchip{padding:5px 8px;gap:4px}.topbar .bkt{display:none}}
 .lnk{background:none;border:0;color:var(--mut);font-weight:800;font-size:14px;cursor:pointer;padding:6px 4px;text-decoration:none;display:inline-flex;align-items:center;gap:4px}
 .lnk:hover{color:var(--tx)}
 .chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:12px 0 16px}
@@ -984,7 +987,7 @@ function setThemeRaw(t){document.documentElement.setAttribute("data-theme",t);st
 function thBtn(){var d=tod(),n=TODS[(TODS.indexOf(d)+1)%4];return '<button class="thbtn" data-a="theme" aria-label="Фон: '+TODN[d]+'. Нажми — '+TODN[n].toLowerCase()+'" title="Фон: '+TODN[d]+' (меняется сам по времени намазов)">'+TODI[d]+'</button>'}
 function topbar(left,rt){
   var right=rt?rt:ME?'<a class="lnk" href="#/cab">'+esc(ME.name)+'</a>':'<a class="lnk" href="#/login">Вход для учителя</a>';
-  return '<div class="topbar">'+(left||"<span></span>")+'<span style="display:flex;gap:8px;align-items:center">'+right+thBtn()+'</span></div>';
+  return '<div class="topbar">'+(left||"<span></span>")+'<span class="tbr">'+right+thBtn()+'</span></div>';
 }
 function brand(){return '<div class="brand"><i>✦</i>'+esc(APP)+'<i>✦</i></div>'}
 function demoNote(){return CLOUD?"":'<div class="note" style="margin:6px 0 14px">Демо-режим: данные хранятся только в этом браузере. Коды групп: <b>m7k2qa</b> и <b>d4p9xe</b>. Вход учителя: <b>admin</b> / <b>123456</b>.</div>'}
@@ -1012,7 +1015,7 @@ function vSetup(){
   '<button class="btn pri wide" data-a="setup">Создать администратора</button></div>';
 }
 function vLogin(){
-  return topbar('<a class="lnk" href="#/">‹ Главная</a>')+'<header class="top">'+brand()+'</header>'+demoNote()+
+  return topbar('<a class="lnk" href="#/" aria-label="Главная">‹<span class="bkt"> Главная</span></a>')+'<header class="top">'+brand()+'</header>'+demoNote()+
   '<div class="box"><h2>Вход для учителя</h2>'+
   '<div class="field"><label for="li_login">Логин</label><input id="li_login" type="text" maxlength="32" autocapitalize="off" autocomplete="username"></div>'+
   '<div class="field"><label for="li_pass">Пароль</label><input id="li_pass" type="password" maxlength="72" autocomplete="current-password"></div>'+
@@ -1021,7 +1024,7 @@ function vLogin(){
 }
 function vCab(){
   if(!ME)return vLogin();
-  var h=topbar('<a class="lnk" href="#/">‹ Главная</a>')+'<header class="top">'+brand()+'</header>'+demoNote();
+  var h=topbar('<a class="lnk" href="#/" aria-label="Главная">‹<span class="bkt"> Главная</span></a>')+'<header class="top">'+brand()+'</header>'+demoNote();
   h+='<div class="box"><h2>Ассаляму алейкум, '+esc(ME.name)+'!'+(ME.is_admin?'<span class="badge">админ</span>':"")+'</h2>';
   if(!ME.groups.length)h+='<p class="mut">'+(ME.is_admin?'Групп пока нет — создайте первую ниже.':'Вам пока не назначили группы. Попросите администратора.')+'</p>';
   ME.groups.forEach(function(g){h+='<a class="row" href="#/g/'+encodeURIComponent(g.slug)+'/teacher"><span style="font-size:24px">🧑‍🏫</span><div class="mid"><div style="font-weight:800">'+esc(g.name)+'</div><div class="sm mut">код: '+esc(g.slug)+' · отмечать баллы</div></div><span class="mut">›</span></a>'});
@@ -1089,7 +1092,7 @@ function teacherForm(t){
 /* ---- экраны группы ---- */
 function groupHeader(){
   var ms=!canEdit()&&STOK&&by(STOK.sid),rt=ms?walChip()+'<a class="lnk" href="#/g/'+encodeURIComponent(G.slug)+'/me">'+esc(ms.name)+'</a>':isParent()?'<a class="lnk" href="#/parent">🏡 Кабинет родителя</a>':null;
-  var h=topbar('<a class="lnk" href="#/">‹ Главная</a>',rt)+'<header class="top">'+brand()+'<div class="gname">'+esc(G.name)+'</div></header>';
+  var h=topbar('<a class="lnk" href="#/" aria-label="Главная">‹<span class="bkt"> Главная</span></a>',rt)+'<header class="top">'+brand()+'<div class="gname">'+esc(G.name)+'</div></header>';
   if(canEdit()){
     var st=saveErr&&saveErr!=="network"?'<span><span class="dot e"></span>'+esc(emsg({code:saveErr}))+'</span>':saving?'<span><span class="dot w"></span>Сохраняю…</span>':Q.length?'<span><span class="dot w"></span>'+(saveErr==="network"?"Нет связи — ждут сохранения: ":"Сохраню через секунду: ")+Q.length+'</span>':'<span><span class="dot"></span>Всё сохранено</span>';
     h+='<div class="savebar">'+st+(Q.length&&!saving?'<button class="btn sm pri" data-a="savenow">Сохранить</button>':"")+'</div>';
@@ -2047,7 +2050,7 @@ function vCeleb(){
 }
 function vGroup(){
   if(!S&&GATE&&G)return vGate();
-  if(!S)return topbar('<a class="lnk" href="#/">‹ Главная</a>')+'<div class="loading">'+(R.err?esc(R.err)+'<p style="margin-top:12px"><a class="btn" href="#/">К списку групп</a></p>':"Загрузка…")+'</div>';
+  if(!S)return topbar('<a class="lnk" href="#/" aria-label="Главная">‹<span class="bkt"> Главная</span></a>')+'<div class="loading">'+(R.err?esc(R.err)+'<p style="margin-top:12px"><a class="btn" href="#/">К списку групп</a></p>':"Загрузка…")+'</div>';
   if(R.tab==="t"&&!canEdit())R.tab="r";
   if(R.tab==="d"&&isParent())R.tab="r";
   if(R.tab==="c"&&!isParent())R.tab="r";
@@ -2530,7 +2533,7 @@ function parentsAdd(p){var L=parentsList().filter(function(x){return!(x.slug===p
 function parentsDrop(slug,sid){store.set("parents",parentsList().filter(function(x){return!(x.slug===slug&&(!sid||x.sid===sid))}))}
 function vGate(){
   var gm=UI.gmode==="p"?"p":"s",L=GATE.students||[];
-  var h=topbar('<a class="lnk" href="#/">‹ Главная</a>')+'<header class="top">'+brand()+'<div class="gname">'+esc(G.name)+'</div></header>';
+  var h=topbar('<a class="lnk" href="#/" aria-label="Главная">‹<span class="bkt"> Главная</span></a>')+'<header class="top">'+brand()+'<div class="gname">'+esc(G.name)+'</div></header>';
   h+=say("duo",gm==="s"?'Ассаляму алейкум! Выбери своё имя и введи <b style="color:var(--gold)">PIN-код</b> — его даёт учитель. Телефон запомнит тебя.':'Ассаляму алейкум! Выберите имя ребёнка и введите <b style="color:var(--gold)">код родителя</b> (6 цифр) — его даёт учитель.');
   h+='<div class="box"><div class="seg wide2" style="margin-bottom:14px"><button class="'+(gm==="s"?"on":"")+'" data-a="gmode" data-v="s">🧒 Я ученик</button><button class="'+(gm==="p"?"on":"")+'" data-a="gmode" data-v="p">🏡 Я родитель</button></div>';
   if(!L.length)return h+'<p class="mut">В группе пока нет учеников.</p></div>';
@@ -2577,7 +2580,7 @@ function pvKey(p){return p.slug+"|"+p.sid}
 function pvLoad(){parentsList().forEach(function(p){var k=pvKey(p);if(PV[k]&&PV[k].busy)return;PV[k]={busy:1};rpc("parent_view",{p_ptoken:p.t}).then(function(r){PV[k]=r}).catch(function(e){PV[k]={err:e.code==="pauth"?"Код больше не действует — учитель мог выдать новый. Войдите заново.":emsg(e),gone:e.code==="pauth"}}).then(render)})}
 function hwSt(x){if(x.status==="accepted")return '<span class="tg tn">✅ принято'+(x.got?" +"+x.got:"")+'</span>';if(x.status==="sent")return '<span class="tg tx">⏳ на проверке</span>';if(x.status==="returned")return '<span class="tg tf">↩ на доработке</span>';return '<span class="tg">⬜ не сдано'+(x.due?" · срок "+fdate(x.due+"T12:00:00"):"")+'</span>'}
 function vParent(){
-  var L=parentsList(),h=topbar('<a class="lnk" href="#/">‹ Главная</a>')+'<header class="top">'+brand()+'<div class="gname">🏡 Кабинет родителя</div></header>';
+  var L=parentsList(),h=topbar('<a class="lnk" href="#/" aria-label="Главная">‹<span class="bkt"> Главная</span></a>')+'<header class="top">'+brand()+'<div class="gname">🏡 Кабинет родителя</div></header>';
   if(!L.length)h+=say("duo",'Ассаляму алейкум! Здесь вы увидите успехи своего ребёнка: баллы, посещения, задания и замечания учителя. Код родителя (6 цифр) выдаёт учитель.');
   L.forEach(function(p){var k=pvKey(p),d=PV[k];
     h+='<div class="box">';
@@ -3444,7 +3447,7 @@ function plAct(k,v){var p=parentsList().filter(function(x){return pvKey(x)===k})
   rpc("parent_limit_set",{p_slug:p.slug,p_ptoken:p.t,p_les:n.les,p_min:n.min,p_night:n.night}).then(function(r){PLIM[k]=r;render()}).catch(function(e){flash("Не сохранилось: "+emsg(e));PLIM[k]=null;render()})}
 
 
-function vPrivacy(){return topbar('<a class="lnk" href="#/">‹ Главная</a>')+'<div class="box priv"><h2>🔒 Конфиденциальность и данные детей</h2><p class="sm mut">Черновик. Окончательный текст должен проверить юрист.</p>'+
+function vPrivacy(){return topbar('<a class="lnk" href="#/" aria-label="Главная">‹<span class="bkt"> Главная</span></a>')+'<div class="box priv"><h2>🔒 Конфиденциальность и данные детей</h2><p class="sm mut">Черновик. Окончательный текст должен проверить юрист.</p>'+
  '<h3>Кто отвечает за данные</h3><p>Приложение «Хасанатики» ведёт учитель медресе (организатор группы). Он добавляет учеников и выдаёт коды для входа.</p>'+
  '<h3>Какие данные хранятся</h3><ul><li>Имя ученика (можно указать только имя без фамилии), пол и выбранный аватар или фото, если его загрузил учитель.</li><li>Баллы, посещаемость, выученные суры, результаты уроков и дуэлей, финики и вещи в «оазисе».</li><li>Домашние задания: ответы, файлы и голосовые записи, которые ученик сам отправил учителю.</li><li>Сообщения в чате родителя с учителем.</li><li>Время в приложении по дням и общие счётчики нажатий по экранам — без имён, чтобы улучшать приложение.</li></ul>'+
  '<h3>Где хранятся</h3><p>В облачной базе данных Supabase. Доступ защищён: ученик видит свои данные и общий рейтинг группы, родитель — данные своего ребёнка и рейтинг группы, учитель — данные своей группы. Закрытую группу без кода посторонние не видят.</p>'+
