@@ -1,0 +1,22 @@
+# Ставит метку (тег) на сохранённую версию, когда в versions/<дата>/ВЕРСИЯ.txt появляется новая запись
+name: Метка версии
+on:
+  push:
+    paths: ["versions/*/ВЕРСИЯ.txt"]
+permissions:
+  contents: write
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Тег
+        run: |
+          for f in versions/*/ВЕРСИЯ.txt; do
+            t=$(grep -o 'Метка (тег): [^ ]*' "$f" | awk '{print $3}'); c=$(grep -o 'полный: [0-9a-f]*' "$f" | awk '{print $2}')
+            [ -n "$t" ] && [ -n "$c" ] || continue
+            git rev-parse -q --verify "refs/tags/$t" >/dev/null && continue
+            git config user.name hasanatiki-bot; git config user.email actions@users.noreply.github.com
+            git tag -a "$t" "$c" -m "Сохранённая версия: $(head -1 "$f")" && git push origin "$t"
+          done
