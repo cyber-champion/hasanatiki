@@ -1,5 +1,5 @@
 -- ---------- Баллы за прослушивание суры (и за повторение за чтецом) ----------
--- Прослушал суру целиком: +1 балл; слушал с паузами и повторял за чтецом: +2 балла. Не больше 6 баллов в день за прослушивание.
+-- Прослушал суру целиком: +1 балл; слушал с паузами и повторял за чтецом: +2 балла. Не больше 50 баллов в день за прослушивание.
 -- Проверка, что запись правда звучала: между засчитанными прослушиваниями должно пройти не меньше 90% длины суры (с паузами — 150%).
 create or replace function listen_score(p_slug text, p_stoken text, p_sura text, p_rep boolean default false) returns json
 language plpgsql security definer set search_path = public, extensions as $$
@@ -24,7 +24,7 @@ begin
   select coalesce(sum((e->>'v')::int), 0) into today
     from jsonb_array_elements(coalesce(g.data->'log', '[]'::jsonb)) e
    where e->>'s' = sid and e->>'k' = 'listen' and (e->>'d')::timestamptz > date_trunc('day', now() at time zone 'Europe/Samara') at time zone 'Europe/Samara';
-  pts := least(case when coalesce(p_rep, false) then 2 else 1 end, greatest(0, 6 - today));
+  pts := least(case when coalesce(p_rep, false) then 2 else 1 end, greatest(0, 50 - today));
   if pts > 0 then
     select * into g from groups where id = g.id for update;
     select (e.ord - 1)::int into idx from jsonb_array_elements(g.data->'students') with ordinality as e(v, ord) where e.v->>'id' = sid limit 1;
