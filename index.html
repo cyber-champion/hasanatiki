@@ -2734,6 +2734,7 @@ function isParent(){return !!PTOK&&!STOK&&!canEdit()}
 function parentsList(){return store.get("parents",[])}
 function parentsAdd(p){var L=parentsList().filter(function(x){return!(x.slug===p.slug&&x.sid===p.sid)});L.push(p);store.set("parents",L)}
 function parentsDrop(slug,sid){store.set("parents",parentsList().filter(function(x){return!(x.slug===slug&&(!sid||x.sid===sid))}))}
+function parentLogoutAll(){var L=parentsList(),slugs={};L.forEach(function(p){rpc("parent_logout",{p_ptoken:p.t}).catch(function(){});slugs[p.slug]=1});Object.keys(slugs).forEach(function(slug){store.set("ptok_"+slug,null)});store.set("parents",[]);PTOK=null;PV={};G=null;S=null;go("#/")}
 function vGate(){
   var gm=UI.gmode==="p"?"p":"s",L=GATE.students||[];
   var h=topbar('<a class="lnk" href="#/" aria-label="Главная">‹<span class="bkt"> Главная</span></a>')+'<header class="top">'+brand()+'<div class="gname">'+esc(G.name)+'</div></header>';
@@ -2785,6 +2786,7 @@ function pvLoad(){parentsList().forEach(function(p){var k=pvKey(p);if(PV[k]&&PV[
 function hwSt(x){if(x.status==="accepted")return '<span class="tg tn">✅ принято'+(x.got?" +"+x.got:"")+'</span>';if(x.status==="sent")return '<span class="tg tx">⏳ на проверке</span>';if(x.status==="returned")return '<span class="tg tf">↩ на доработке</span>';return '<span class="tg">⬜ не сдано'+(x.due?" · срок "+fdate(x.due+"T12:00:00"):"")+'</span>'}
 function vParent(){
   var L=parentsList(),h=topbar('<a class="lnk" href="#/" aria-label="Главная">‹<span class="bkt"> Главная</span></a>')+'<header class="top">'+brand()+'<div class="gname">🏡 Кабинет родителя</div></header>';
+  if(L.length)h+='<div class="box" style="display:flex;justify-content:flex-end;padding:10px 14px"><button class="btn dng sm" data-a="pallout">🚪 Выйти из кабинета родителя</button></div>';
   if(!L.length)h+=say("duo",'Ассаляму алейкум! Здесь вы увидите успехи своего ребёнка: баллы, посещения, задания и замечания учителя. Код родителя (6 цифр) выдаёт учитель.');
   L.forEach(function(p){var k=pvKey(p),d=PV[k];
     h+='<div class="box">';
@@ -3924,6 +3926,7 @@ function act(a,b,e){
   if(a==="gslogin"){gateLogin(false);return}
   if(a==="gplogin"){gateLogin(true);return}
   if(a==="sout2"){studentOut();return}
+  if(a==="pallout"){parentLogoutAll();return}
   if(a==="pvout"){var pk=String(k||"").split("|"),pp=parentsList().filter(function(x){return x.slug===pk[0]&&x.sid===pk[1]})[0];if(pp)rpc("parent_logout",{p_ptoken:pp.t}).catch(function(){});var pt=store.get("ptok_"+pk[0],null);if(pt&&pt.sid===pk[1])store.set("ptok_"+pk[0],null);parentsDrop(pk[0],pk[1]);delete PV[k];render();return}
   if(a==="pcode"){var pc=val("pcode").trim().toLowerCase();if(pc){UI.gmode="p";go("#/g/"+encodeURIComponent(pc))}return}
   if(a==="goalsug"){UI.goalSug=1;UI.dropKeep=true;render();return}
