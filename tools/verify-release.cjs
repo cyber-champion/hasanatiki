@@ -49,7 +49,17 @@ for(const [sura,d] of Object.entries(quran)){
 }
 assert.deepEqual(new Set([...files.keys()].filter(x=>/^audio\/(?:h|hm)\/\d{6}\.mp3$/.test(x))),expected);
 const narration=new Set([...files.keys()].filter(x=>/^audio\/voice\/[a-f0-9]{24}\.mp3$/.test(x)));
-assert.equal([...files.keys()].filter(x=>x.endsWith('.mp3')).length,expected.size+narration.size);
+const demos=[...files.keys()].filter(x=>/^audio\/voice-demo\/(alexandr|dmitriy|ekaterina|oksana)\.mp3$/.test(x));
+const arabic=new Set([...files.keys()].filter(x=>/^audio\/arabic\/(asma|dua)\/[a-z0-9_-]+\.(mp3|ogg|mp4)$/.test(x)));
+assert.equal([...files.keys()].filter(x=>x.endsWith('.mp3')).length,expected.size+narration.size+demos.length+[...arabic].filter(x=>x.endsWith('.mp3')).length);
+if(files.has('arabic-pack.js')){
+  const globals={window:{}};
+  const script=read('arabic-pack.js');
+  assert.equal(files.get('arabic-pack.js'),Buffer.byteLength(script));
+  new vm.Script(script).runInNewContext(globals,{timeout:1000});
+  const mapped=Object.values(globals.window.HASANATIKI_ARABIC).map(value=>typeof value==='string'?value:value.src);
+  assert.deepEqual(new Set(mapped),arabic);
+}
 if(narration.size){
   const globals={window:{}};
   const voiceIndex=read('voice-pack.js');
@@ -57,6 +67,11 @@ if(narration.size){
   new vm.Script(voiceIndex).runInNewContext(globals,{timeout:1000});
   const voices=globals.window.HASANATIKI_VOICES;
   assert.ok(Object.keys(voices.sab).length>0&&Object.keys(voices.asl).length>0);
+  if(voices.sab_alt||voices.asl_alt){
+    assert.equal(demos.length,4);
+    for(const role of ['sab','asl'])assert.deepEqual(new Set(Object.keys(voices[role])),new Set(Object.keys(voices[role+'_alt'])));
+    for(const text of ['Найди букву Та','Как называется эта буква?','Собери слово из Корана'])assert.ok(voices.sab_alt[text],text);
+  }
   assert.deepEqual(new Set(Object.values(voices).flatMap(entries=>Object.values(entries)).map(id=>'audio/voice/'+id+'.mp3')),narration);
 }
 for(const [p,bytes] of files){
@@ -65,7 +80,7 @@ for(const [p,bytes] of files){
   if(partial)continue;
   const f=fs.statSync(path.join(root,p));
   assert.ok(f.isFile()&&f.size>0,p);
-  if(p.endsWith('.mp3'))assert.equal(f.size,bytes,p);
+  if(/\.(mp3|ogg|mp4)$/.test(p))assert.equal(f.size,bytes,p);
 }
 if(out){
   assert.ok(!partial,'Сборка требует все исходные файлы');

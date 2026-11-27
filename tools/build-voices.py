@@ -8,6 +8,8 @@ from pathlib import Path
 
 STAGE = Path(__file__).resolve().parent.parent
 LOCAL = STAGE / "Локальный синтез"
+if not LOCAL.is_dir():
+    LOCAL = STAGE.parent / "Голоса уроков" / "Локальный синтез"
 for folder in (LOCAL / "runtime", LOCAL / "runtime-extra"):
     if folder.is_dir():
         sys.path.insert(0, str(folder))
@@ -16,7 +18,8 @@ import lameenc
 import torch
 
 MODEL_HASH = "0405777e332906f0644e08a680f7cfdc2137ea864090079c1fdd30a43c1b8761"
-ACTORS = {"sab": "ru_dmitriy", "asl": "ru_ekaterina"}
+ACTORS = {"sab": "ru_dmitriy", "sab_alt": "ru_alexandr", "asl": "ru_ekaterina", "asl_alt": "ru_oksana"}
+DEMOS = {"sab": "dmitriy", "sab_alt": "alexandr", "asl": "ekaterina", "asl_alt": "oksana"}
 SAMPLE_RATE = 24000
 NUMBERS = ["", "П+ервый.", "Втор+ой.", "Тр+етий.", "Четв+ёртый.", "П+ятый.", "Шест+ой."]
 SMALL = ["ноль", "один", "два", "три", "четыре", "пять", "шесть", "семь", "восемь", "девять",
@@ -67,15 +70,19 @@ def clip_id(speaker, marked):
 def normalize_small_parts(text):
     if re.fullmatch(r"[1-6]\.", text):
         return NUMBERS[int(text[0])]
-    if re.fullmatch(r"(?:В )?\d{1,2}(?: \+ \d{1,2})*\.?|100", text):
-        def cardinal(m):
-            number = int(m[0])
-            if number < 20:
-                return SMALL[number]
-            if number == 100:
-                return "сто"
+    def cardinal(m):
+        number = int(m[0])
+        if number < 20:
+            return SMALL[number]
+        if number == 100:
+            return "сто"
+        if number < 100:
             return TENS[number // 10] + (" " + SMALL[number % 10] if number % 10 else "")
-        return re.sub(r"\d+", cardinal, text.replace("+", "плюс"))
+        return " ".join(SMALL[int(d)] for d in m[0])
+    text = re.sub(r"\s*№\s*", " номер ", text)
+    text = re.sub(r"(?<=\d)\s*\+\s*(?=\d)", " плюс ", text)
+    if not re.search(r"[а-яё]", text, re.I) or " номер " in text or " плюс " in text or re.fullmatch(r"В \d+", text):
+        return re.sub(r"\d+", cardinal, text)
     return text
 
 
@@ -95,14 +102,13 @@ def main():
     model.to(torch.device("cpu"))
     assert all(voice in model.speakers for voice in ACTORS.values()), model.speakers
     print("Голоса найдены:", ACTORS, flush=True)
+    demos = root / "audio" / "voice-demo"
+    demos.mkdir(parents=True, exist_ok=True)
+    probe = data(root, "voice-probes.json")[0]["marked"]
+    for role, speaker in ACTORS.items():
+        write_audio(model, speaker, probe, demos / (DEMOS[role] + ".mp3"))
     if args.preview:
-        out = root / "Прослушивание"
-        out.mkdir(exist_ok=True)
-        for row in data(root, "voice-probes.json"):
-            speaker = ACTORS[row["actor"]]
-            file = out / (row["actor"] + "-" + speaker + ".mp3")
-            write_audio(model, speaker, row["marked"], file)
-            print(file.name, file.stat().st_size, "байт", flush=True)
+        print("Готовы 4 пробы голосов.", flush=True)
         return
 
     from silero_stress import load_accentor
@@ -110,7 +116,7 @@ def main():
     accentor = load_accentor()
     out = root / "audio" / "voice"
     out.mkdir(parents=True, exist_ok=True)
-    available = {"sab": {}, "asl": {}}
+    available = {actor: {} for actor in ACTORS}
     offline = data(root, "offline-pack.json")
     entries = {name: size for name, size in offline["files"] if not name.startswith("audio/voice/")}
     missing = []
@@ -122,13 +128,14 @@ def main():
             marked = row.get("marked") or (normalized if re.fullmatch(r"[1-6]\.", text) else accentor(normalized))
             if not any(v in marked.lower() for v in VOWELS):
                 raise ValueError("нет произносимых гласных")
-            speaker = ACTORS[actor]
-            key = clip_id(speaker, marked)
-            file = out / (key + ".mp3")
-            write_audio(model, speaker, marked, file)
-            available[actor][text] = key
-            entries["audio/voice/" + file.name] = file.stat().st_size
-            report.append({"actor": actor, "text": text, "marked": marked, "id": key})
+            for role in (actor, actor + "_alt"):
+                speaker = ACTORS[role]
+                key = clip_id(speaker, marked)
+                file = out / (key + ".mp3")
+                write_audio(model, speaker, marked, file)
+                available[role][text] = key
+                entries["audio/voice/" + file.name] = file.stat().st_size
+                report.append({"actor": role, "text": text, "marked": marked, "id": key})
         except (ValueError, RuntimeError, AssertionError) as error:
             missing.append({"actor": actor, "text": text, "error": str(error)})
         if i % 50 == 0:
@@ -137,6 +144,9 @@ def main():
     script = "window.HASANATIKI_VOICES=" + json.dumps(available, ensure_ascii=False, separators=(",", ":")) + ";\n"
     (root / "voice-pack.js").write_text(script, encoding="utf-8")
     entries["voice-pack.js"] = len(script.encode("utf-8"))
+    for name in DEMOS.values():
+        clip = demos / (name + ".mp3")
+        entries["audio/voice-demo/" + clip.name] = clip.stat().st_size
     offline["files"] = list(entries.items())
     write_json(root / "offline-pack.json", offline)
     write_json(root / "voice-review.json", {"recorded": report, "missing": missing})
