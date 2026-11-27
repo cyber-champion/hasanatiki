@@ -2,15 +2,25 @@ name: Сборка голосов уроков
 
 on:
   push:
-    branches: [voice-build]
+    branches: [main, voice-build]
     paths:
       - .github/workflows/build-voice-pack.yml
+      - index.html
+      - q30.json
       - tools/build-voices.py
+      - tools/collect-voice-lines.cjs
+      - tools/import-arabic.py
       - voice-lines.json
       - voice-probes.json
+  workflow_dispatch:
 
 permissions:
   contents: write
+  pages: write
+
+concurrency:
+  group: voice-pack-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   voices:
@@ -21,19 +31,44 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Собрать тексты из приложения
+        run: |
+          npm install --prefix "$RUNNER_TEMP/voice-tools" --no-save --no-audit --no-fund playwright@1.62.1
+          export HASANATIKI_PLAYWRIGHT="$RUNNER_TEMP/voice-tools/node_modules/playwright"
+          node "$HASANATIKI_PLAYWRIGHT/cli.js" install chromium
+          node tools/collect-voice-lines.cjs
       - name: Подготовить локальный синтез
         run: |
           python -m pip install --index-url https://download.pytorch.org/whl/cpu torch==2.9.1
           python -m pip install --no-deps silero-stress==1.5 lameenc==1.9.0 numpy==2.2.6
-          curl --fail --location --silent --show-error 'https://models.silero.ai/models/tts/ru/v5_cis_base_nostress.pt' -o "$RUNNER_TEMP/silero.pt"
+          curl --fail --location --silent --show-error --retry 3 'https://models.silero.ai/models/tts/ru/v5_cis_base_nostress.pt' -o "$RUNNER_TEMP/silero.pt"
+      - name: Подготовить арабские записи
+        run: |
+          fetch_source() {
+            git init -q "$1"
+            git -C "$1" fetch -q --depth 1 "$2" "$3"
+            git -C "$1" checkout -q --detach FETCH_HEAD
+          }
+          fetch_source "$RUNNER_TEMP/names" https://github.com/MohammedAbidNafi/99-Names-of-Allah.git d16ac6f3f4fc02aa14c860cc36eddfd37278114f
+          fetch_source "$RUNNER_TEMP/duas" https://github.com/YousefAsalya/Islamic-Pro-azkar-API.git d793023e3b69c91674023f692425950c8ebbb64d
+          curl --fail --location --silent --show-error --retry 3 'https://everyayah.com/data/Husary_128kbps/020114.mp3' -o "$RUNNER_TEMP/020114.mp3"
+          python tools/import-arabic.py --names-source "$RUNNER_TEMP/names" --duas-source "$RUNNER_TEMP/duas" --study-verse "$RUNNER_TEMP/020114.mp3"
       - name: Озвучить уроки
         run: python tools/build-voices.py --root . --model "$RUNNER_TEMP/silero.pt"
       - name: Проверить пакет
         run: node tools/verify-release.cjs
       - name: Сохранить готовые записи
+        id: save
         run: |
           git config user.name "hasanatiki-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add -- voice-pack.js offline-pack.json audio/voice
-          git diff --cached --quiet || git commit -m "Собрать голоса Дмитрия и Екатерины"
-          git push origin HEAD:voice-build
+          git add -- voice-lines.json arabic-lines.json voice-pack.js arabic-pack.js offline-pack.json audio/voice audio/voice-demo audio/arabic
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Обновить записи для уроков и главной"
+          git push origin "HEAD:$GITHUB_REF_NAME"
+          echo 'changed=true' >> "$GITHUB_OUTPUT"
+      - name: Опубликовать обновлённые записи
+        if: github.ref == 'refs/heads/main' && steps.save.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api --method POST "repos/$GITHUB_REPOSITORY/pages/builds" --jq .status

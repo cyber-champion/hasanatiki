@@ -2,7 +2,7 @@
 var CACHE = "hs-v1";
 var OFF_FILES = "hs-offline-files-v1";
 var OFF_AUDIO = "hs-offline-audio-v1";
-var CORE=["index.html","config.js","voice-pack.js","q30.json","manifest.webmanifest","offline-pack.json",
+var CORE=["index.html","config.js","voice-pack.js","arabic-pack.js","q30.json","manifest.webmanifest","offline-pack.json",
   "fonts/nunito.woff","fonts/hafs.woff","fonts/sch.woff","fonts/sch-b.woff","fonts/ruqaa.woff",
   "icon-192.png","icon-512.png","apple-touch-icon.png"];
 var LETTERS=Array.from("ابتثجحخدذرزسشصضطظعغفقكلمنهوي",function(c){
@@ -57,7 +57,7 @@ self.addEventListener("fetch", function (e) {
   var r = e.request, url = new URL(r.url), scope = self.registration.scope;
   if (r.method !== "GET" || url.origin !== self.location.origin || !url.href.startsWith(scope)) return;
   var path = url.pathname.slice(new URL(scope).pathname.length);
-  if (/^audio\/(?:(?:h|hm)\/\d{6}|voice\/[a-f0-9]{24})\.mp3$/.test(path) || LETTERS.indexOf(path)>=0) {
+  if (/^audio\/(?:(?:(?:h|hm)\/\d{6}|voice\/[a-f0-9]{24}|voice-demo\/[a-z]+)\.mp3|arabic\/(?:asma|dua)\/[a-z0-9_-]+\.(?:mp3|ogg|mp4))$/.test(path) || LETTERS.indexOf(path)>=0) {
     e.respondWith(audioResponse(r));
     return;
   }
