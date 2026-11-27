@@ -202,6 +202,7 @@ textarea{min-height:170px;resize:vertical;font-size:14px;line-height:1.5}
 .hall-w{display:flex;gap:10px;align-items:center;padding:6px 0}
 .hall-w .m{font-size:26px}
 .splash{position:fixed;inset:0;z-index:90;background:var(--night);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .45s ease}
+ .duel-selected{outline:2px solid var(--brand);outline-offset:-2px}
 .off-link{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit}
 .off-bee{display:inline-flex;align-items:center;justify-content:center;transform-origin:center;animation:off-fly 2.3s ease-in-out infinite}
 .off-bee svg{display:block}.off-wait{display:flex;align-items:center;justify-content:center;gap:10px;padding:12px;color:var(--mut);font-weight:700}
@@ -850,7 +851,7 @@ function medal(i){return["🥇","🥈","🥉"][i]||String(i+1)}
 var TR={"а":"a","б":"b","в":"v","г":"g","д":"d","е":"e","ё":"e","ж":"zh","з":"z","и":"i","й":"y","к":"k","л":"l","м":"m","н":"n","о":"o","п":"p","р":"r","с":"s","т":"t","у":"u","ф":"f","х":"h","ц":"c","ч":"ch","ш":"sh","щ":"sch","ъ":"","ы":"y","ь":"","э":"e","ю":"yu","я":"ya","ә":"a","ө":"o","ү":"u","җ":"zh","ң":"n","һ":"h"};
 function slugify(s){return String(s||"").toLowerCase().split("").map(function(c){return TR[c]!=null?TR[c]:c}).join("").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,40)}
 function err(code){var e=new Error(code);e.code=code;return e}
-var ERR={teen_only:"Дуэли доступны только в подростковой группе",auth:"Нужно войти заново",forbidden:"Нет доступа к этой группе",not_found:"Группа с таким кодом не найдена. Проверьте код у учителя",no_student:"Ученик не найден в группе",bad_login:"Неверный логин или пароль",locked:"Слишком много попыток. Подождите 15 минут",short_password:"Пароль — минимум 6 символов",long_password:"Пароль слишком длинный",slug_taken:"Такой адрес уже занят — придумайте другой",login_taken:"Такой логин уже есть",bad_slug:"Адрес: латинские буквы, цифры и дефис, от 2 символов",bad_login_format:"Логин: от 3 до 32 символов, без пробелов",bad_name:"Введите имя",self_admin:"Нельзя снять права администратора с самого себя",self_delete:"Нельзя удалить самого себя",network:"Нет связи с сервером. Проверьте интернет",too_large:"Данных слишком много — скачайте копию и очистите журнал",exists:"Администратор уже создан — войдите",bad_password:"Старый пароль неверный",bad_input:"Неверные данные",sauth:"Войди в кабинет заново",no_pin:"Учитель ещё не выдал тебе PIN-код",bad_pin:"Неверный PIN-код",accepted:"Это задание уже принято",empty:"Напиши ответ или прикрепи файл",file_too_large:"Файл больше 25 МБ — такой не загрузить",quota:"Хранилище файлов заполнено — удалите старые задания",too_many:"Слишком много файлов",no_upload:"Файл не загрузился — попробуйте ещё раз",upload_failed:"Файл не загрузился — попробуйте ещё раз",no_file:"Файл не найден",bad_image:"Картинка не подошла — выберите другую",slow:"Слишком много сообщений подряд — подожди минутку",push_denied:"Уведомления не разрешены. Включите их: Настройки телефона → Приложения → Хасанатики (или Chrome) → Уведомления",push_wait:"Телефон не показал запрос. Включите уведомления: Настройки телефона → Приложения → Хасанатики → Уведомления, потом нажмите ещё раз",no_push:"Пуш-уведомления ещё не настроены (Кабинет → Пуш-уведомления)"};
+var ERR={update_required:"Обнови страницу, чтобы играть в дуэли",duel_locked:"Учитель пока не открыл этот предмет",duel_short:"Для дуэли пока мало открытых вопросов",duel_daily:"На сегодня достаточно дуэлей",duel_expired:"Время дуэли вышло. Начни заново",duel_legacy:"Этот вызов создан до обновления. Отправь новый",pending:"Этот соперник ещё не ответил",teen_only:"Дуэли доступны только в подростковой группе",auth:"Нужно войти заново",forbidden:"Нет доступа к этой группе",not_found:"Группа с таким кодом не найдена. Проверьте код у учителя",no_student:"Ученик не найден в группе",bad_login:"Неверный логин или пароль",locked:"Слишком много попыток. Подождите 15 минут",short_password:"Пароль — минимум 6 символов",long_password:"Пароль слишком длинный",slug_taken:"Такой адрес уже занят — придумайте другой",login_taken:"Такой логин уже есть",bad_slug:"Адрес: латинские буквы, цифры и дефис, от 2 символов",bad_login_format:"Логин: от 3 до 32 символов, без пробелов",bad_name:"Введите имя",self_admin:"Нельзя снять права администратора с самого себя",self_delete:"Нельзя удалить самого себя",network:"Нет связи с сервером. Проверьте интернет",too_large:"Данных слишком много — скачайте копию и очистите журнал",exists:"Администратор уже создан — войдите",bad_password:"Старый пароль неверный",bad_input:"Неверные данные",sauth:"Войди в кабинет заново",no_pin:"Учитель ещё не выдал тебе PIN-код",bad_pin:"Неверный PIN-код",accepted:"Это задание уже принято",empty:"Напиши ответ или прикрепи файл",file_too_large:"Файл больше 25 МБ — такой не загрузить",quota:"Хранилище файлов заполнено — удалите старые задания",too_many:"Слишком много файлов",no_upload:"Файл не загрузился — попробуйте ещё раз",upload_failed:"Файл не загрузился — попробуйте ещё раз",no_file:"Файл не найден",bad_image:"Картинка не подошла — выберите другую",slow:"Слишком много сообщений подряд — подожди минутку",push_denied:"Уведомления не разрешены. Включите их: Настройки телефона → Приложения → Хасанатики (или Chrome) → Уведомления",push_wait:"Телефон не показал запрос. Включите уведомления: Настройки телефона → Приложения → Хасанатики → Уведомления, потом нажмите ещё раз",no_push:"Пуш-уведомления ещё не настроены (Кабинет → Пуш-уведомления)"};
 function emsg(e){var c=e&&(e.code||e.message);if(/Could not find the function|schema cache/i.test(String(c)))return "Нужно обновить базу: запустите новый setup.sql в Supabase (SQL Editor → Run)";if(ERR[c])return ERR[c];try{console.warn("Ошибка сервера:",c)}catch(x){}return "Что-то пошло не так. Попробуйте ещё раз"}
 
 /* ================= связь с базой ================= */
@@ -1093,11 +1094,12 @@ function poll(){
 var R={view:"loading"},INFO=null,ADM=null;
 var UI={sel:[],amt:1,note:"",sheet:null,surq:"",confirm:null,certFor:null,certImg:null,certReason:"",restore:null,showAll:false,form:null,newG:"",dropKeep:false,slugEdited:false,afterLogin:null,showAllAv:false,hwForm:null,hwOpen:null,subm:null,pins:null,pinSid:"",pinErr:""};
 var toastMsg="",toastTimer=null,celeb=null,shownSheet=null,celebShown=false,meStudent=null;
-function canEdit(){return !!(ME&&G&&(ME.is_admin||ME.groups.some(function(g){return g.slug===G.slug})))}
+function canEdit(){return !!(!R.practice&&ME&&G&&(ME.is_admin||ME.groups.some(function(g){return g.slug===G.slug})))}
 var toastUndo=null;
 function flash(m,undo){if(replaying)return;toastMsg=m;toastUndo=undo||null;if(toastTimer)clearTimeout(toastTimer);toastTimer=setTimeout(function(){toastMsg="";toastUndo=null;render()},undo?6000:2800)}
 var TABS={r:"rating",d:"hw",s:"suras",h:"hall",p:"rules",t:"teacher",m:"me",c:"pchat",o:"home",w:"oasis"},TABN={rating:"r",hw:"d",suras:"s",hall:"h",rules:"p",teacher:"t",me:"m",pchat:"c",home:"o",oasis:"w"};
 function parseHash(){var h=location.hash.replace(/^#\/?/,"").split("/");
+  if(h[0]==="g"&&h[1]&&h[2]==="practice")return{view:"group",slug:decodeURIComponent(h[1]).toLowerCase(),tab:"s",ex:true,practice:true};
   if(h[0]==="g"&&h[1])return h[2]==="chat"?{view:"group",slug:decodeURIComponent(h[1]).toLowerCase(),tab:"d",chat:true,chatSid:h[3]?decodeURIComponent(h[3]):null}:{view:"group",slug:decodeURIComponent(h[1]).toLowerCase(),tab:TABN[h[2]]||"r",ex:!!h[2]};
   if(h[0]==="login")return{view:"login"};
   if(h[0]==="cab")return{view:"cab"};
@@ -1279,7 +1281,7 @@ function vRating(){
   var L=ranked(),dl=daysLeft(),h=(R.offline?'<div class="box sm" style="border-color:rgba(251,191,36,.45);padding:10px 14px">📴 Нет интернета — показан последний загруженный рейтинг'+(R.offline>1?" ("+rel(new Date(R.offline).toISOString())+", "+new Date(R.offline).toLocaleTimeString("ru",{hour:"2-digit",minute:"2-digit"})+")":"")+'</div>':"")+'<div class="chips"><span class="chip">🏁 '+esc(S.season.name)+' · '+(dl>0?"ещё "+pn(dl,"день","дня","дней"):"сезон закончился")+'</span></div>';
   if(canEdit()&&S.students.some(function(s){return s.ex}))h+='<div class="box" style="border-color:rgba(251,191,36,.4)"><b>Сейчас в группе примеры учеников.</b><p class="mut sm" style="margin:4px 0 10px">Удалите их и добавьте своих ребят во вкладке «Учитель».</p><button class="btn sm pri" data-a="clearex">Удалить примеры</button></div>';
   var rp=UI.rper||(isTeen()?"w":"s");if(isTeen()&&m0w())h+=leagueCard(perScores("w")[meStudent]||0);h+='<div class="seg wide2 rper">'+[["s","🏁 Сезон"],["w","📅 Неделя"],["d","☀️ Сегодня"],["l","🧠 Уроки"]].map(function(x){return '<button class="'+(rp===x[0]?"on":"")+'" data-a="rper" data-v="'+x[0]+'">'+x[1]+'</button>'}).join("")+'</div>';
-  if(duAllowed()){duLoad();var dd=duOk(),inc=dd&&dd.list.filter(function(x){return x.b===STOK.sid&&x.b_score==null})[0];if(inc){var io=by(inc.a);h+='<div class="gap1 duban">⚔️ '+esc(io?io.name:"")+' вызывает тебя на дуэль! <button class="btn pri sm" data-a="duplay" data-v="'+inc.id+'">Принять</button></div>'}}
+  if(duAllowed()){duLoad();var dd=duOk(),inc=dd&&dd.list.filter(function(x){return x.verified&&x.b===STOK.sid&&x.b_score==null})[0];if(inc){var io=by(inc.a);h+='<div class="gap1 duban">⚔️ '+esc(io?io.name:"")+' вызывает тебя на дуэль! <button class="btn pri sm" data-a="duplay" data-v="'+inc.id+'">Принять</button></div>'}}
   if(rp!=="s"&&L.length)return h+vRatingPerX(rp);
   if(!L.length)return h+'<div class="box cen"><div class="masbig">'+mas("sab",120)+'</div><h2>Пока нет учеников</h2><p class="mut">'+(canEdit()?"Добавьте ребят во вкладке «Учитель».":"Учитель скоро добавит ребят.")+'</p></div>';
   var m=meStudent&&by(meStudent);
@@ -1878,7 +1880,7 @@ function refreshGroup(){
   if(!G)return Promise.resolve();
   if(Q.length||saving){save();return Promise.resolve()}
   var slug=G.slug;
-  return rpc("group_get",V_({p_slug:slug})).then(function(r){if(!G||G.slug!==slug||Q.length||saving||r.closed)return;S=migrate(r.data);G.version=r.version;G.name=r.name}).catch(function(){});
+  return rpc("group_get",V_({p_slug:slug})).then(function(r){if(!G||G.slug!==slug||Q.length||saving||r.closed)return;S=migrate(r.data);G.version=r.version;G.name=r.name;R.offline=false}).catch(function(){});
 }
 function hwAct(a,b){
   var id=b.dataset.id,v=b.dataset.v,k=b.dataset.k,x=id&&HW?HW.items.filter(function(h){return h.id===id})[0]:null,F;
@@ -2236,6 +2238,9 @@ function vGroup(){
   if(UI.proj&&canEdit())return vProj();
   // урок — на весь экран, без шапки и меню, как отдельная страница; каждое задание появляется с переходом
   if(LS&&R.tab==="s"&&(UI.lseg||"l")==="l"){qdLoad();var scn=lsScene();return '<div class="lsfs sc-'+scn+'"><div class="lsscn" aria-hidden="true">'+sceneSvg(scn)+'</div>'+vLesson()+'</div>'+(UI.sheet?vSheet():"")+vCeleb()}
+  if(R.practice)return topbar('<a class="lnk" href="#/parent">‹ Кабинет родителя</a>')+
+    '<header class="top"><div class="gname">Самостоятельная практика</div></header>'+
+    '<p class="box sm">Занятия и звёзды сохраняются на этом устройстве. Баллы ребёнка остаются в его кабинете.</p>'+vRepeat()+vSur()+vTjPop();
   var body=({r:vRating,d:vHw,s:vSur,h:vHall,p:vRules,t:vTeacher,m:vMe,c:vChat,o:vHome2,w:vOasis}[R.tab]||vRating)();
   bellTrackLevels();if(UI.bell)body+=vBellPanel();
   if(UI.lockmsg)body+='<div class="abov" data-a="lockok"><div class="abpop" data-a="abnop" style="text-align:center"><div style="display:flex;justify-content:center">'+mas("sab",110)+'</div><div class="abnm">🔒 '+esc(UI.lockmsg.t)+'</div><p style="margin:8px 0 14px;font-weight:700">'+esc(UI.lockmsg.m)+'</p><button class="btn pri" data-a="lockok">Понятно</button></div></div>';
@@ -2265,6 +2270,7 @@ function render(){
   var osh=app.querySelector(".sheet"),sy=osh?osh.scrollTop:0,same=shownSheet===UI.sheet;
   var kept={};app.querySelectorAll("[data-keep]").forEach(function(el){kept[el.dataset.keep]=el});
   if(!duAllowed()){UI.dupick=null;if(LS&&LS.du)LS=null}
+  if(lpScope()!==LP_SCOPE){LP=null;LP_SCOPE=lpScope()}
   teenSync();lmodSync();
   var html=R.view==="group"?vGroup():R.view==="privacy"?vPrivacy():R.view==="offline"?vOffline():R.view==="parent"?vParent():R.view==="login"?vLogin():R.view==="cab"?vCab():R.view==="home"?vHome():'<div class="loading">Загрузка…</div>';
   app.innerHTML=html+(toastMsg?'<div class="toast" role="status">'+esc(toastMsg)+(toastUndo?' <button class="btn sm" data-a="undog" data-v="'+esc(toastUndo)+'" style="margin-left:8px;padding:6px 12px">↩ Отменить</button>':"")+'</div>':"");
@@ -2611,13 +2617,111 @@ function qdWait(){
 function beeWait(label){
   return '<div class="off-wait" role="status"><div class="off-bee" aria-hidden="true">'+mas("asl",66)+'</div>'+esc(label)+'</div>';
 }
-function lsid(){return STOK?STOK.sid:PTOK?PTOK.sid:null}
-function lpLoad(){
-  if(!G)return;var slug=G.slug,sid=lsid(),loc=store.get("lp_"+slug,{});
-  LP={};Object.keys(loc).forEach(function(k){LP[k]=loc[k]});
-  if(!CLOUD||!sid||canEdit())return;
-  rpc("progress_get",V_({p_code:slug,p_student:sid})).then(function(r){if(!G||G.slug!==slug)return;(r||[]).forEach(function(x){if(x.course==="q30"||x.course==="q29"||x.course==="ab"||GC[x.course])LP[x.lesson]=Math.max(LP[x.lesson]||0,x.best_stars)});render()}).catch(function(){});
+function lpScope(){
+  if(!G)return "";
+  var role=canEdit()?"teacher":STOK?"student":PTOK?"parent":"practice";
+  var id=canEdit()?ME.id:STOK?STOK.sid:PTOK?PTOK.sid:"device";
+  return encodeURIComponent(G.slug)+":"+role+":"+encodeURIComponent(String(id||"device"));
 }
+var LP_SCOPE="";
+function lpKey(prefix){return prefix+":v2:"+lpScope()}
+function lpLoad(){
+  if(!G)return;
+  var scope=lpScope(),slug=G.slug,account=STOK;
+  LP_SCOPE=scope;LP=Object.assign({},store.get(lpKey("lp"),{}));
+  if(!CLOUD||!account||canEdit()||R.offline)return;
+  var current=LP;
+  rpc("progress_get",{p_code:slug,p_student:account.sid,p_stoken:account.t}).then(function(rows){
+    if(lpScope()!==scope||LP!==current||!STOK||STOK.t!==account.t)return;
+    (rows||[]).forEach(function(x){if(x.course==="q30"||x.course==="q29"||x.course==="ab"||GC[x.course])LP[x.lesson]=Math.max(LP[x.lesson]||0,x.best_stars)});
+    store.set(lpKey("lp"),LP);render();
+  }).catch(function(){});
+}
+var LESSON_BUSY=new Set(),LESSON_UI=new Map(),LESSON_STATUS=new Map();
+function lessonAccount(){
+  return CLOUD&&R.view==="group"&&G&&S&&STOK&&!canEdit()&&by(STOK.sid)?
+    {scope:lpScope(),slug:G.slug,sid:STOK.sid,token:STOK.t}:null;
+}
+function lessonStill(account){
+  var now=lessonAccount();return now&&now.scope===account.scope&&now.token===account.token;
+}
+function lessonEntries(account){
+  var prefix="lesson_q:v1:"+account.scope+":",rows=[];
+  try{for(var i=0;i<localStorage.length;i++){
+    var k=localStorage.key(i);
+    if(k&&k.indexOf(prefix)===0){var v=store.get(k,null);if(v&&v.args)rows.push({key:k,value:v})}
+  }}catch(e){}
+  return rows.sort(function(a,b){return a.value.at-b.value.at});
+}
+function lessonSave(args,result){
+  var account=lessonAccount();
+  if(!account){result.practice=true;return}
+  args.p_completion=crypto.randomUUID();
+  var key="lesson_q:v1:"+account.scope+":"+args.p_completion;
+  store.set(key,{at:Date.now(),args:args});
+  if(!store.get(key,null)){
+    result.sync="Не удалось сохранить результат для отправки. Проверьте место на устройстве.";
+    result.pts=-1;return;
+  }
+  LESSON_UI.set(key,result);
+  result.sync="Сохранено на устройстве. Отправим, когда появится интернет.";
+  lessonFlush();
+}
+async function lessonFlush(){
+  var account=lessonAccount();
+  if(!account||navigator.onLine===false||LESSON_BUSY.has(account.scope))return;
+  var entries=lessonEntries(account).filter(function(x){return !x.value.blocked});
+  if(!entries.length)return;
+  LESSON_BUSY.add(account.scope);
+  var changed=false,gotPoints=false,refreshWallet=false;
+  try{
+    for(var i=0;i<entries.length&&lessonStill(account);i++){
+      var entry=entries[i],result=LESSON_UI.get(entry.key);
+      try{
+        var r=await rpc("lesson_done_once",Object.assign({p_slug:account.slug,p_stoken:account.token},entry.value.args));
+        if(!r||!r.ok)throw err("network");
+        store.set(entry.key,null);LESSON_UI.delete(entry.key);LESSON_STATUS.delete(account.scope);
+        changed=true;gotPoints=gotPoints||r.points>0;
+        if(result){result.pts=r.points||0;result.rw=r.replayed?null:r.reward;result.sync="Результат отправлен."}
+        if(!lessonStill(account))break;
+        if(r.replayed||!r.reward||!r.reward.wallet)refreshWallet=true;
+        else{
+          var wallet=r.reward.wallet;
+          if(WAL&&WAL._k===account.slug+":"+account.sid&&WAL.plim)wallet.plim=WAL.plim;
+          WAL=wallet;WAL._at=0;WAL._k=account.slug+":"+account.sid;sabSync();
+        }
+      }catch(e){
+        var code=e&&e.code,permanent=code==="bad_input";
+        var message=permanent?"Один результат не принят. Его копия осталась на устройстве.":
+          code==="sauth"||code==="auth"?"Войдите в кабинет ученика снова, чтобы отправить результаты.":
+          "Результаты на устройстве. Приложение повторит отправку.";
+        if(permanent){entry.value.blocked=true;store.set(entry.key,entry.value);LESSON_UI.delete(entry.key)}
+        if(LESSON_STATUS.get(account.scope)!==message){LESSON_STATUS.set(account.scope,message);changed=true}
+        if(result){result.sync=message;if(permanent)result.pts=-1}
+        if(!permanent)break;
+      }
+    }
+  }finally{
+    LESSON_BUSY.delete(account.scope);
+    if(lessonStill(account)&&changed){
+      if(refreshWallet)walLoad(true);
+      if(gotPoints)refreshGroup().then(render);else render();
+    }
+  }
+}
+function lessonPending(){
+  var account=lessonAccount();if(!account)return "";
+  var entries=lessonEntries(account);if(!entries.length)return "";
+  var blocked=entries.filter(function(x){return x.value.blocked}).length;
+  var queued=entries.length-blocked,message=LESSON_STATUS.get(account.scope);
+  return '<div class="box"><b>'+ (queued?'Ожидают отправки: '+queued:'Копии на устройстве')+'</b><p class="sm mut">'+
+    esc(message||(queued?"Результаты отправятся после подключения.":"Некоторые результаты не приняты сервером."))+
+    (blocked?" Не приняты: "+blocked+".":"")+'</p>'+(queued?'<button class="btn sm" data-a="lessonflush">Проверить отправку</button>':"")+'</div>';
+}
+window.addEventListener("online",lessonFlush);
+window.addEventListener("storage",function(e){var a=lessonAccount();if(a&&e.key&&e.key.indexOf("lesson_q:v1:"+a.scope+":")===0)lessonFlush()});
+document.addEventListener("visibilitychange",function(){if(!document.hidden)lessonFlush()});
+setInterval(function(){if(!document.hidden)lessonFlush()},20000);
 function arn(n){return String(n).replace(/\d/g,function(d){return "٠١٢٣٤٥٦٧٨٩"[d]})}
 function ruT(t){return String(t||"").replace(/\s*\[\d+\]/g,"")}
 function arPlain(w){return String(w).replace(/[ً-ٰٟۖ-ۭـ]/g,"")}
@@ -2729,13 +2833,14 @@ document.addEventListener("pointerup",ordEnd);document.addEventListener("pointer
 document.addEventListener("click",function(e){if(window.__ordNoClick&&Date.now()-window.__ordNoClick<400&&e.target.closest&&e.target.closest(".ordc")){e.stopPropagation();e.preventDefault()}},true);
 function lsCur(){return LS&&LS.tasks?LS.tasks[LS.k]:null}
 // ошибка → подсказка и вторая попытка; после второй ошибки показываем ответ
-function lsAnswer(ok,val){var t=lsCur();if(!t||LS.fb)return;if(LS.du){if(ok)LS.ok++;else LS.err++;LS.fb={ok:ok,pick:val};return}
+function lsAnswer(ok,val){var t=lsCur();if(!t||LS.fb)return;if(LS.du){LS.du.answers[LS.k]=Number(val);LS.fb={pick:val};return}
   if(ok){if(!t.miss)LS.ok++;LS.fb={ok:true,pick:val};sfx("ok");var t0=t;setTimeout(function(){if(LS&&LS.fb&&LS.fb.ok&&lsCur()===t0&&LS.step==="game"){lsNext();render();window.scrollTo(0,0)}},vOn()?2200:1100);return}
   sfx("no");LS.err++;lsMiss(t);t.miss=(t.miss||[]).concat([val]);
   if(t.miss.length<2){if(LS.ab==null&&LS.gc==null){t.hint=lsHint(t);if(t.t==="lis"||t.t==="gap")laPlay(LS.n,t.i+1)}return}
   LS.fb={ok:false,pick:val}}
 var LSQ={ord:"Порядок аятов",lis:"Какой аят звучит",mng:"Смысл аята",gap:"Пропущенное слово",par:"Найди пару: аят и смысл",sur:"Из какой суры аят",wrd:"Собери аят из слов"};
-function lsMiss(t){if(!t||t._ml||!CLOUD||!STOK||canEdit()||!G||LS.du)return;t._ml=1;
+function lsMiss(t){if(!t||t._ml||!LS||LS.du)return;t._ml=1;
+  if(!CLOUD||!STOK||canEdit()||!G||navigator.onLine===false)return;
   var isGc=LS.gc!=null,isAb=LS.ab!=null,ctx=isGc?GC[LS.gc].les[LS.i].t:isAb?ABLES[LS.ab].t:"Сура «"+NAMES[LS.n]+"»";
   var q=String(t.q||LSQ[t.t]||"Задание").replace(/<[^>]*>/g,"").replace(/\s+/g," ").trim();if(!isGc&&!isAb&&t.i!=null&&t.t!=="sur")q+=", аят "+(t.i+1);
   rpc("miss_log",{p_slug:G.slug,p_stoken:STOK.t,p_course:isGc?LS.gc:isAb?"ab":LMOD.id,p_q:(ctx+": "+q).slice(0,140)}).catch(function(){})}
@@ -2750,10 +2855,22 @@ function lsNext(){
   if(LS.du&&LS.k>=LS.tasks.length){duFinish();return}
   if(LS.k<LS.tasks.length){var t=lsCur();if(t.t==="lis")setTimeout(function(){if(lsCur()===t)laPlay(LS.n,t.i+1)},250);return}
   var stars=LS.err===0?3:LS.err<=2?2:1;LS.step="res";sfx("win");limAdd("l",1);LS.res={stars:stars,pts:null};
-  var isAb=LS.ab!=null,isGc=LS.gc!=null,slug=G.slug,key=isGc?LS.gc+(LS.i+1):isAb?"a"+(LS.ab+1):"s"+LS.n,loc=store.get("lp_"+slug,{});loc[key]=Math.max(loc[key]||0,stars);store.set("lp_"+slug,loc);if(LP)LP[key]=Math.max(LP[key]||0,stars);
-  if(!canEdit()){var rd=store.get("lpd_"+slug,{}),rx=rd[key];if(!rx)rd[key]={t:Date.now(),c:isGc?LS.gc:isAb?"ab":"",v:isGc?LS.i:isAb?LS.ab:LS.n};else if(!rx.r&&Date.now()-rx.t>=REPD){rx.r=Date.now();LS.res.rep=true}store.set("lpd_"+slug,rd)}
-  if(CLOUD&&STOK&&!canEdit()){var R0=LS.res;rpc("lesson_done",{p_slug:slug,p_stoken:STOK.t,p_course:isGc?LS.gc:isAb?"ab":LMOD.id,p_lesson:key,p_title:isGc?GC[LS.gc].n+": "+GC[LS.gc].les[LS.i].t:isAb?"Алифба: "+ABLES[LS.ab].t:"Сура «"+NAMES[LS.n]+"»",p_stars:stars,p_correct:LS.ok,p_total:LS.ok+LS.err})
-    .then(function(r){R0.pts=r&&r.points||0;R0.rw=r&&r.reward||null;if(R0.rw&&R0.rw.wallet){if(WAL&&WAL.plim)R0.rw.wallet.plim=WAL.plim;R0.rw.wallet._at=0;WAL=R0.rw.wallet;WAL._k=slug+":"+STOK.sid;sabSync()}if(R0.pts)refreshGroup().then(render);else render()}).catch(function(e){R0.pts=-1;R0.err=emsg(e);render()})}
+  var isAb=LS.ab!=null,isGc=LS.gc!=null;
+  var key=isGc?LS.gc+(LS.i+1):isAb?"a"+(LS.ab+1):"s"+LS.n;
+  var loc=store.get(lpKey("lp"),{});loc[key]=Math.max(loc[key]||0,stars);store.set(lpKey("lp"),loc);
+  if(LP)LP[key]=Math.max(LP[key]||0,stars);
+  var rd=store.get(lpKey("lpd"),{}),rx=rd[key];
+  if(!rx)rx={t:Date.now(),c:isGc?LS.gc:isAb?"ab":"",v:isGc?LS.i:isAb?LS.ab:LS.n};
+  else if(!rx.r&&Date.now()-rx.t>=REPD){rx.r=Date.now();LS.res.rep=true}
+  rx.m=LS.err;rx.last=Date.now();
+  rx.hints=Array.from(new Set(LS.tasks.filter(function(t){return t._ml}).map(function(t){
+    return String(t.q||LSQ[t.t]||"Упражнение").replace(/<[^>]*>/g,"").slice(0,64);
+  }))).slice(0,2);
+  rd[key]=rx;store.set(lpKey("lpd"),rd);
+  lessonSave({p_course:isGc?LS.gc:isAb?"ab":LMOD.id,p_lesson:key,
+    p_title:isGc?GC[LS.gc].n+": "+GC[LS.gc].les[LS.i].t:isAb?"Алифба: "+ABLES[LS.ab].t:"Сура «"+NAMES[LS.n]+"»",
+    p_stars:stars,p_correct:LS.ok,p_total:LS.ok+LS.err},LS.res);
+
 }
 function vLessons(){
   qdLoad();if(!LP)lpLoad();
@@ -2768,10 +2885,10 @@ function vLessons(){
   if(GC[cs])return h+gcMap(cs);
   if(cs==="ab"){var at=0;ABLES.forEach(function(x,i){at+=LP&&LP["a"+(i+1)]||0});
     return h+'<div class="box"><h2>'+abIco(34)+' Алифба — буквы и чтение</h2><p class="mut sm" style="margin:-6px 0 8px">Узнаём все 28 букв, их формы в начале, середине и конце слова, огласовки и собираем слова из Корана. За каждую звезду — +1 балл в рейтинг.</p><div class="sm" style="margin-bottom:10px">⭐ '+at+' из '+ABLES.length*3+'</div>'+'<div class="lmapbg">'+'<div class="hive" aria-hidden="true"><svg viewBox="0 0 100 100" width="84" height="84"><path d="M50 4v10" stroke="#8B5A2B" stroke-width="3"/><path d="M20 18Q50 8 80 18" stroke="#6B8E23" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M50 14C30 14 22 28 22 34C14 38 12 50 16 56C10 62 12 74 20 80L80 80C88 74 90 62 84 56C88 50 86 38 78 34C78 28 70 14 50 14Z" fill="#F7B733"/><g stroke="#D98E04" stroke-width="3" fill="none" stroke-linecap="round"><path d="M28 34Q50 28 72 34"/><path d="M19 47Q50 40 81 47"/><path d="M17 60Q50 53 83 60"/><path d="M20 72Q50 66 80 72"/></g><path d="M38 80Q38 64 50 64Q62 64 62 80Z" fill="#5B3410"/><rect x="12" y="78" width="76" height="8" rx="4" fill="#A0522D"/><circle cx="84" cy="88" r="4" fill="#F472B6"/><circle cx="84" cy="88" r="1.6" fill="#FDE68A"/><circle cx="14" cy="90" r="3.4" fill="#FB923C"/><circle cx="14" cy="90" r="1.3" fill="#FDE68A"/></svg><b class="zz">Z z z</b></div><div class="fbee" data-keep="bee" aria-hidden="true"><i>'+mas("asl",44)+'<svg class="lids" viewBox="0 0 200 200"><circle cx="85" cy="78" r="11" fill="#fcd34d"/><circle cx="115" cy="78" r="11" fill="#fcd34d"/><path d="M76 78q9 8 18 0M106 78q9 8 18 0" stroke="#5b3a1a" stroke-width="3.6" fill="none" stroke-linecap="round"/></svg></i><b>Ж-ж-ж!</b></div>'+vAbMap()+'</div>'+'<p class="mut sm" style="margin-top:10px;font-size:12px">Буквы показаны шрифтом мединского мусхафа — такими же их увидишь в Коране.</p></div>'}
-  var sid=lsid(),tot=0;LMOD.list.forEach(function(n){tot+=LP&&LP["s"+n]||0});
+  var tot=0;LMOD.list.forEach(function(n){tot+=LP&&LP["s"+n]||0});
   h+='<div class="box"><h2>📖 '+esc(LMOD.name)+'</h2><p class="mut sm" style="margin:-6px 0 8px">Слушай, читай и пойми смысл каждой суры. Игры: порядок аятов, угадай аят на слух, смысл аята, пропущенное слово, найди пару. За каждую звезду — +1 балл в рейтинг.</p>';
   h+='<div class="sm" style="margin-bottom:10px">⭐ '+tot+' из '+LMOD.list.length*3+'</div>';
-  if(!STOK&&!canEdit())h+='<p class="sm" style="background:var(--xbg);padding:8px 12px;border-radius:12px;margin-bottom:10px">Играть можно и так, но баллы получают только те, кто вошёл в свой кабинет по PIN-коду (вкладка «Задания»).</p>';
+  if(!STOK&&!canEdit()&&!R.practice)h+='<p class="sm" style="background:var(--xbg);padding:8px 12px;border-radius:12px;margin-bottom:10px">Играть можно и так, но баллы получают только те, кто вошёл в свой кабинет по PIN-коду (вкладка «Задания»).</p>';
   h+='<div class="lmapbg">'+'<div class="hive" aria-hidden="true"><svg viewBox="0 0 100 100" width="84" height="84"><path d="M50 4v10" stroke="#8B5A2B" stroke-width="3"/><path d="M20 18Q50 8 80 18" stroke="#6B8E23" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M50 14C30 14 22 28 22 34C14 38 12 50 16 56C10 62 12 74 20 80L80 80C88 74 90 62 84 56C88 50 86 38 78 34C78 28 70 14 50 14Z" fill="#F7B733"/><g stroke="#D98E04" stroke-width="3" fill="none" stroke-linecap="round"><path d="M28 34Q50 28 72 34"/><path d="M19 47Q50 40 81 47"/><path d="M17 60Q50 53 83 60"/><path d="M20 72Q50 66 80 72"/></g><path d="M38 80Q38 64 50 64Q62 64 62 80Z" fill="#5B3410"/><rect x="12" y="78" width="76" height="8" rx="4" fill="#A0522D"/><circle cx="84" cy="88" r="4" fill="#F472B6"/><circle cx="84" cy="88" r="1.6" fill="#FDE68A"/><circle cx="14" cy="90" r="3.4" fill="#FB923C"/><circle cx="14" cy="90" r="1.3" fill="#FDE68A"/></svg><b class="zz">Z z z</b></div><div class="fbee" data-keep="bee" aria-hidden="true"><i>'+mas("asl",44)+'<svg class="lids" viewBox="0 0 200 200"><circle cx="85" cy="78" r="11" fill="#fcd34d"/><circle cx="115" cy="78" r="11" fill="#fcd34d"/><path d="M76 78q9 8 18 0M106 78q9 8 18 0" stroke="#5b3a1a" stroke-width="3.6" fill="none" stroke-linecap="round"/></svg></i><b>Ж-ж-ж!</b></div>'+vMap()+'</div>';if(0)h+='<div class="lgrid">'+LMOD.list.map(function(n){var b=LP&&LP["s"+n]||0;return '<button class="lcard'+(b?" done":"")+'" data-a="lopen" data-v="'+n+'"><b>'+esc(NAMES[n])+'</b><small>'+n+' · '+pn(QD[n].ar.length,"аят","аята","аятов")+'</small><i>'+[1,2,3].map(function(k){return k<=b?"⭐":"☆"}).join("")+'</i></button>'}).join("")+'</div>';
   h+='<p class="mut sm" style="margin-top:10px;font-size:12px">Текст и шрифт Корана: Комплекс короля Фахда (мединский мусхаф, Хафс). Перевод смыслов: Эльмир Кулиев (Tanzil.net). Чтение: шейх Махмуд Халиль аль-Хусари.</p></div>';
   return h;
@@ -2783,9 +2900,10 @@ function vLessonRes(){var r=LS.res,me=STOK&&by(STOK.sid),nl=lsNextLesson(),rw=r.
     tl.push('<div><b>'+(rw.dates?"+"+rw.dates:"0")+'</b><small>фиников</small></div>');
     var sk=WAL&&WAL.streak||0;tl.push('<div><b>🔥 '+sk+'</b><small>'+pl(sk,"день","дня","дней")+' подряд</small></div>');
     h+='<div class="lsrw">'+tl.join("")+'</div>';
-    if(r.pts===0&&r.stars)h+='<p class="lsnote">Баллы за этот урок уже получены — можно улучшить звёзды</p>';
-    if(r.pts<0)h+='<p class="lsnote">'+esc(r.err||"Не удалось сохранить")+'</p>';
+    if(r.pts===0&&r.stars)h+='<p class="lsnote">За эту попытку новых баллов нет.</p>';
+    if(r.sync)h+='<p class="lsnote" role="status">'+esc(r.sync)+'</p>';
     if(rw.pearls||rw.chest)h+=rewardHtml({pearls:rw.pearls,chest:rw.chest})}
+  if(r.practice)h+='<p class="lsnote">Звёзды за самостоятельную практику сохранены на этом устройстве.</p>';
   if(r.rep)h+='<p class="lsnote ok">🔁 Повторил через неделю — так знания запоминаются надолго!</p>';
   h+='<div class="say lsay"><div class="who">'+mas("sab",84)+'</div><p data-tts="1">'+(r.stars===3?"Без ошибок! Завтра повторим — и выучишь надолго.":r.stars===2?"Почти без ошибок! Пройди ещё раз — получишь три звезды.":"Каждый повтор помогает запомнить. Попробуем ещё раз?")+'</p></div>';
   return h+'<div class="lsbtns"><button class="btn lsback2" data-a="lstart">Ещё раз</button>'+(nl?'<button class="btn pri lsgo" data-a="lnextl">Дальше →</button>':'<button class="btn pri lsgo" data-a="lquit">К урокам →</button>')+'</div></div>'}
@@ -2940,7 +3058,7 @@ function vActivity(L){
 
 /* ================= вход в группу, кабинет ребёнка, кабинет родителя ================= */
 var PTOK=null,GATE=null,PV={};
-function vtok(){var o={};if(TOK)o.p_token=TOK;if(STOK)o.p_stoken=STOK.t;if(PTOK)o.p_ptoken=PTOK.t;return o}
+function vtok(){var o={};if(TOK&&!R.practice)o.p_token=TOK;if(STOK)o.p_stoken=STOK.t;if(PTOK)o.p_ptoken=PTOK.t;return o}
 function V_(o){var a=vtok();Object.keys(a).forEach(function(k){o[k]=a[k]});return o}
 function isParent(){return !!PTOK&&!STOK&&!canEdit()}
 function parentsList(){return store.get("parents",[])}
@@ -3025,8 +3143,11 @@ function pvLoad(){parentsList().forEach(function(p){
   if(PV[k]&&PV[k].busy)return;
   var loading={busy:1};
   PV[k]=loading;
-  rpc("parent_view",{p_ptoken:p.t}).then(function(r){
-    if(PV[k]===loading){PV[k]=r;render()}
+  Promise.all([
+    rpc("parent_view",{p_ptoken:p.t}),
+    rpc("progress_get",{p_code:p.slug,p_student:p.sid,p_ptoken:p.t}).catch(function(){return null})
+  ]).then(function(pair){
+    if(PV[k]===loading){PV[k]=pair[0];PV[k].weekly=pair[1];render()}
   }).catch(function(e){
     if(PV[k]===loading){
       PV[k]={err:e.code==="pauth"?"Код больше не действует — учитель мог выдать новый. Войдите заново.":emsg(e),gone:e.code==="pauth"};
@@ -3035,6 +3156,21 @@ function pvLoad(){parentsList().forEach(function(p){
   });
 })}
 function hwSt(x){if(x.status==="accepted")return '<span class="tg tn">✅ принято'+(x.got?" +"+x.got:"")+'</span>';if(x.status==="sent")return '<span class="tg tx">⏳ на проверке</span>';if(x.status==="returned")return '<span class="tg tf">↩ на доработке</span>';return '<span class="tg">⬜ не сдано'+(x.due?" · срок "+fdate(x.due+"T12:00:00"):"")+'</span>'}
+function vParentWeekly(d){
+  var h='<section class="box"><h3>Учёба за последние 7 дней</h3>';
+  if(!Array.isArray(d.weekly))return h+'<p class="sm mut">Учебная сводка пока недоступна.</p></section>';
+  var rows=d.weekly.filter(function(x){return Date.parse(x.updated_at)>=Date.now()-7*864e5});
+  var hw=(d.hw||[]).filter(function(x){return x.due&&x.due<ymd(new Date())&&x.status!=="accepted"&&x.status!=="sent"}).length;
+  h+='<p class="sm">Уроков с результатом: <b>'+rows.length+'</b> · Просроченных заданий: <b>'+hw+'</b></p>';
+  var toReview=rows.filter(function(x){return x.stars<3||x.total>x.correct}).sort(function(a,b){return b.total-b.correct-(a.total-a.correct)}).slice(0,3);
+  if(toReview.length)h+='<b class="sm">Что повторить</b><ul class="sm">'+toReview.map(function(x){
+    var m=String(x.lesson).match(/\d+$/),n=m?Number(m[0]):0;
+    var c=x.course,key=c==="q29"||c==="q30"?"":c;
+    return '<li>'+esc(n?repLabel({c:key,v:key?n-1:n}):"Урок")+'</li>';
+  }).join("")+'</ul>';
+  else h+='<p class="sm mut">'+(rows.length?"По свежим результатам всё получается.":"Как только ребёнок пройдёт урок, здесь появится результат.")+'</p>';
+  return h+'</section>';
+}
 function vParent(){
   var L=parentsList(),h=topbar('<a class="lnk" href="#/" aria-label="Главная">‹<span class="bkt"> Главная</span></a>')+'<header class="top">'+brand()+'<div class="gname">🏡 Кабинет родителя</div></header>';
   if(L.length)h+='<div class="box" style="display:flex;justify-content:flex-end;padding:10px 14px"><button class="btn dng sm" data-a="pallout">🚪 Выйти из кабинета родителя</button></div>';
@@ -3049,6 +3185,8 @@ function vParent(){
     h+='<div class="mecard"><div class="av xl" style="--c:'+l[4]+'">'+av+'<em>'+l[0]+'</em></div><div class="mid"><div class="nm" style="font-size:22px">'+esc(s.name)+'</div><div class="sm mut">'+esc(d.name)+'</div><div class="lvl" style="color:'+l[4]+'">'+l[1]+" "+l[2]+'</div><div class="sm">🏆 '+place(s)+' место из '+N+' · '+pn(tot(s),"балл","балла","баллов")+'</div></div></div>';
     h+='<div class="stats" style="margin-top:10px"><div class="st"><b style="color:var(--n)">'+s.n+'</b><span>🕌 Намаз</span></div><div class="st"><b style="color:var(--q)">'+s.q+'</b><span>📖 Коран</span></div><div class="st"><b style="color:var(--x)">'+s.x+'</b><span>⭐ Доп.</span></div><div class="st"><b style="color:var(--f)">'+s.f+'</b><span>⚠️ Штраф</span></div></div>';
     h+='<div class="tags" style="margin:8px 0">'+'<span class="tg tn">📅 Уроки: '+(a.n?a.p+" из "+a.n:"—")+'</span><span class="tg tq">📱 За неделю: '+(ac.v7||0)+' '+pl(ac.v7||0,"заход","захода","заходов")+', '+dur(ac.s7)+'</span><span class="tg tx">🎓 Игры: ⭐'+(le.stars||0)+'</span><span class="tg ts">📜 Суры: '+surCount(s)+'</span><span class="tg">🏅 Значки: '+eb.length+'</span></div>';
+    h+=vParentWeekly(d);
+    h+='<div class="btns"><a class="btn sm" href="#/g/'+encodeURIComponent(p.slug)+'/practice">Позаниматься самому</a><a class="btn sm" href="#/offline">Слушать Коран</a></div>';
     if(d.hw&&d.hw.length){h+='<div class="sec">📚 Задания</div>';d.hw.slice(0,8).forEach(function(x){h+='<div class="lg"><div class="lt">'+esc(x.title)+(x.teacher_note?'<small>💬 Учитель: '+esc(x.teacher_note)+'</small>':"")+'</div>'+hwSt(x)+'</div>'})}
     var lg=S.log.filter(function(e){return e.s===s.id}).slice(0,6);if(lg.length)h+='<div class="sec">Последние баллы</div>'+logList(lg,false);
     var trOn=subjOn("tr");S=S0;
@@ -3172,18 +3310,31 @@ function vHome2(){
   LMOD.list.forEach(function(n){var b=LP&&LP["s"+n]||0;st+=b;if(!next&&b<3)next=n});
   var line=[];if(todo)line.push("заданий: "+todo);if(next)line.push("урок по суре «"+NAMES[next]+"»");
   var h='<div class="hello">'+mas("sab",92)+'<p><b>Ассаляму алейкум, '+esc(s.name)+'!</b>'+(line.length?"Сегодня: "+line.join(" и ")+". Вперёд!":"Всё сделано — ма ша Аллах! Повтори суры или поиграй ещё.")+'</p>'+(TTSOK?'<button class="ttsb" data-a="tts" aria-label="Прочитать вслух">🔊</button>':"")+'</div>';
-  h+=vRepeat()+vDaily();
+  h+=lessonPending()+vRepeat()+vDaily();
   h+='<div class="tgrid">'+TILES.filter(function(t){var c=TCM[t[0]];return !(c&&subjHid(c))}).map(function(t){var at2=0;ABLES.forEach(function(x,i){at2+=LP&&LP["a"+(i+1)]||0});var pr=t[0]==="q"?Math.round(st/(LMOD.list.length*3)*100):t[0]==="a"?Math.round(at2/(ABLES.length*3)*100):GC[TCM[t[0]]]?(function(c){var z=0;GC[c].les.forEach(function(_,i){z+=LP&&LP[c+(i+1)]||0});return Math.round(z/(GC[c].les.length*3)*100)})(TCM[t[0]]):0,av=t[5]&&(!TCM[t[0]]||subjOn(TCM[t[0]]));
     return '<button class="tile'+(av?"":" soon")+'" style="--tc:'+t[3]+'"'+(av?' data-a="course" data-v="'+TCM[t[0]]+'"':' data-a="soon"'+(t[5]?' data-k="lock"':""))+'><b>'+t[1]+'</b><small>'+(av?t[2]:t[5]?"🔒 закрыто":"скоро")+'</small>'+(av?'<span class="tpr"><u style="width:'+Math.max(4,pr)+'%"></u></span>':"")+'<i>'+t[4]+'</i></button>'}).join("")+'</div>';
   var L=ranked();h+='<div class="qrow"><button class="qc" data-a="tab" data-v="r"><i>🏆</i><b>'+place(s)+' место</b><small>из '+L.length+' · '+pn(tot(s),"балл","балла","баллов")+'</small></button><button class="qc" data-a="tab" data-v="d"><i>📚</i><b>'+(todo?pn(todo,"задание","задания","заданий"):"Задания")+'</b><small>'+(todo?"ждут тебя":"все сданы")+'</small></button></div>'+vTools();
   return h;
 }
 var REPD=7*864e5;
-function repDue(){if(!G)return [];var rd=store.get("lpd_"+G.slug,{}),now=Date.now();return Object.keys(rd).filter(function(k){var x=rd[k];return !x.r&&now-x.t>=REPD}).sort(function(a,b){return rd[a].t-rd[b].t}).map(function(k){var x=rd[k];x.k=k;return x})}
+function repDue(){
+  if(!G)return [];
+  var rd=store.get(lpKey("lpd"),{}),now=Date.now();
+  return Object.keys(rd).map(function(k){return rd[k]}).filter(function(x){
+    return x&&(x.m>0||!x.r&&now-x.t>=REPD);
+  }).sort(function(a,b){return (b.m||0)-(a.m||0)||a.t-b.t});
+}
 function repLabel(x){return x.c==="ab"?"Алифба: "+(ABLES[x.v]?ABLES[x.v].t:""):x.c&&GC[x.c]?GC[x.c].n+": "+(GC[x.c].les[x.v]?GC[x.c].les[x.v].t:""):"Сура «"+(NAMES[x.v]||"")+"»"}
-function vRepeat(){var L=repDue().filter(function(x){return !x.c||x.c==="ab"||subjOn(x.c)});if(!L.length)return "";
-  var rd=store.get("lpd_"+G.slug,{}),done=Object.keys(rd).filter(function(k){return rd[k].r}).length;
-  return '<div class="box rep"><h3 style="margin:0 0 4px">🔁 Пора повторить</h3><p class="sm mut" style="margin:0 0 8px">Прошла неделя — повтори, и урок запомнится надолго.'+(done?" Уже повторено: "+done+".":"")+'</p>'+L.slice(0,3).map(function(x){return '<button class="btn sm" style="margin:0 6px 6px 0" data-a="repgo" data-v="'+x.v+'"'+(x.c?' data-k="'+x.c+'"':"")+'>'+esc(repLabel(x))+'</button>'}).join("")+'</div>'}
+function vRepeat(){
+  var l=repDue().filter(function(x){return !x.c||x.c==="ab"||subjOn(x.c)});
+  if(!l.length)return "";
+  var focused=l.some(function(x){return x.m>0});
+  return '<div class="box rep"><h3>🔁 '+(focused?"Повторить трудные задания":"Пора повторить")+'</h3><p class="sm mut">'+
+    (focused?"Начни с уроков, где в прошлый раз были ошибки.":"Прошла неделя — повтори, чтобы закрепить знания.")+'</p>'+
+    l.slice(0,3).map(function(x){return '<div><button class="btn sm" style="margin:0 6px 6px 0" data-a="repgo" data-v="'+x.v+'"' +
+      (x.c?' data-k="'+x.c+'"':"")+'>'+esc(repLabel(x))+'</button>'+
+      (x.m&&x.hints&&x.hints.length?'<small class="mut">'+esc(x.hints.join(" · "))+'</small>':"")+'</div>'}).join("")+'</div>';
+}
 function dayIdx(n){var d=new Date();return Math.floor((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/864e5))%n}
 function vDaily(){var out=[];
   if(subjOn("an")&&typeof ASMA!=="undefined"){var a=ASMA[dayIdx(ASMA.length)];out.push('<div class="dly"><small>✨ Имя Аллаха на сегодня</small><div class="ar" style="font-size:26px">'+esc(a[1])+'</div><b>'+esc(a[0])+'</b><p class="sm">'+esc(a[2])+'</p></div>')}
@@ -3939,12 +4090,32 @@ function duLoad(force){
 }
 function duOk(){return duAllowed()&&DU&&DU.key===duKey()&&DU.token===STOK.t?DU:null}
 function duCourses(){return ["hd","ax","aq","fq","si","tj","an","nm","h4","du"].filter(function(c){return GC[c]&&subjOn(c)&&GC[c].les.some(function(_,i){return lsOk(c,i)})})}
-function duBuild(c){var L=GC[c].les.map(function(_,i){return i}).filter(function(i){return lsOk(c,i)}),qs=[];shuf(L).forEach(function(i){if(qs.length<6)qs=qs.concat(gcBuild(c,i).slice(0,3))});
-  return shuf(qs).slice(0,6).map(function(t){var o={q:t.q,opts:t.opts,good:t.good};if(t.arh){o.arh=t.arh;o.src=t.src}return o})}
-function duStart(du){LS={du:du,tasks:du.qs.map(function(q){var x=JSON.parse(JSON.stringify(q));x.t="gq";return x}),k:0,err:0,ok:0,fb:null,step:"game",res:null};du.start=Date.now();window.scrollTo(0,0)}
-function duFinish(){if(!duAllowed()){LS=null;flash("Дуэли доступны только в подростковой группе");return}var token=STOK.t,du=LS.du,ms=Date.now()-du.start,sc=LS.ok;LS.step="res";LS.res={busy:true,ms:ms,sc:sc};var R0=LS.res;
-  var pr=du.id?rpc("duel_play",{p_slug:G.slug,p_stoken:STOK.t,p_id:du.id,p_score:sc,p_ms:ms}):rpc("duel_create",{p_slug:G.slug,p_stoken:STOK.t,p_opp:du.opp,p_course:du.course,p_qs:du.qs,p_score:sc,p_ms:ms});
-  pr.then(function(r){R0.busy=false;R0.r=r;duLoad(true);if(STOK&&STOK.t===token&&r&&r.winner===STOK.sid){WAL=null;walLoad()}render()}).catch(function(e){R0.busy=false;R0.err=emsg(e);render()})}
+var DU_START=null;
+function duOpen(opp,course,id){
+  if(!duAllowed()||DU_START)return;
+  if(limBlock()){flash("⏱ На сегодня занятия закончились");return}
+  var key=duKey(),token=STOK.t,request={};DU_START=request;
+  flash("Загружаем вопросы…");render();
+  rpc("duel_round_start",{p_slug:G.slug,p_stoken:token,p_opp:opp,p_course:course,p_invite:id}).then(function(r){
+    if(DU_START!==request||!duAllowed()||duKey()!==key||STOK.t!==token)return;
+    if(!r||!r.id||!r.qs||!r.qs.length||!GC[r.course])throw err("bad_input");
+    LS={du:{round:r.id,course:r.course,opp:r.opp,accepting:r.accepting,answers:[],start:Date.now()-(r.elapsed_ms||0)},
+      tasks:r.qs.map(function(q){q.t="gq";return q}),k:0,err:0,ok:0,fb:null,step:"game",res:null};
+    UI.dupick=null;go("#/g/"+encodeURIComponent(G.slug)+"/suras");
+  }).catch(function(e){if(duAllowed()&&duKey()===key&&STOK.t===token){flash(emsg(e));render()}})
+    .finally(function(){if(DU_START===request)DU_START=null});
+}
+function duFinish(){
+  if(!duAllowed()||!LS||!LS.du||LS.res&&LS.res.busy)return;
+  var token=STOK.t,key=duKey(),du=LS.du;LS.step="res";LS.res={busy:true};var state=LS.res;
+  rpc("duel_round_finish",{p_slug:G.slug,p_stoken:token,p_round:du.round,p_answers:du.answers}).then(function(r){
+    if(!r||!r.ok)throw err("network");
+    state.busy=false;state.r=r;state.sc=r.score;state.ms=r.ms;
+    if(duAllowed()&&duKey()===key&&STOK.t===token){
+      duLoad(true);if(r.winner===STOK.sid){WAL=null;walLoad()}render();
+    }
+  }).catch(function(e){state.busy=false;state.err=emsg(e);if(LS&&LS.res===state)render()});
+}
 // Peer questions may include saved markup. Render only text and the known highlight.
 function duQuestionMarkup(value){
   var template=document.createElement("template");
@@ -3957,20 +4128,21 @@ function duQuestionMarkup(value){
 function secs(ms){return Math.round(ms/1000)+" с"}
 function vDuel(){var du=LS.du,op=by(du.opp),on=op?op.name:"соперник",C=GC[du.course];
   var h='<div class="box gcbox duel" style="--gcc:'+C.col+'"><div class="btns" style="align-items:center;justify-content:space-between;flex-wrap:nowrap"><b style="font-size:18px">⚔️ Дуэль · соперник: '+esc(on)+'</b><span class="lqx">'+vBtn()+'<button class="btn sm" data-a="lquit">✕ Выйти</button></span></div><p class="sm mut" style="margin:2px 0 8px">'+C.ic+' '+C.n+' · одна попытка на вопрос · считается и время</p>';
-  if(LS.step==="res"){var r=LS.res;h+='<div class="cen" style="padding:8px 0"><div style="font-size:52px">⚔️</div><h2>'+r.sc+' из '+LS.tasks.length+' за '+secs(r.ms)+'</h2>';
-    if(r.busy)h+='<p class="mut">Сохраняю…</p>';else if(r.err)h+='<p style="color:var(--err)">'+esc(r.err)+'</p>';
-    else if(!du.id)h+='<p>Вызов отправлен! Теперь '+esc(on)+' ответит на те же вопросы. Результат появится в рейтинге, в разделе «Дуэли».</p>';
+  if(LS.step==="res"){var r=LS.res;h+='<div class="cen" style="padding:8px 0"><div style="font-size:52px">⚔️</div>'+(r.r?'<h2>'+r.sc+' из '+LS.tasks.length+' за '+secs(r.ms)+'</h2>':"");
+    if(r.busy)h+='<p class="mut">Сохраняю…</p>';else if(r.err)h+='<p style="color:var(--err)">'+esc(r.err)+'</p><button class="btn sm" data-a="duretry">Отправить ответы ещё раз</button>';
+    else if(!du.accepting)h+='<p>Вызов отправлен! Теперь '+esc(on)+' ответит на те же вопросы. Результат появится в рейтинге, в разделе «Дуэли».</p>';
     else{var w=r.r&&r.r.winner;h+=w==="draw"?'<h3>🤝 Ничья!</h3>':w===STOK.sid?'<h3>🏆 Победа! +10 <i class=dti></i></h3>':'<h3>Победил '+esc(on)+'. Попробуй взять реванш!</h3>';h+='<p class="mut">'+esc(on)+': '+r.r.a_score+' за '+secs(r.r.a_ms)+'</p>'}
     return h+'<div class="btns" style="justify-content:center"><button class="btn pri" data-a="lquit">Готово</button></div></div></div>'}
   var t=lsCur(),L=LS.tasks.length;
   h+='<div class="bar" style="height:8px;margin:4px 0 12px"><i style="width:'+Math.round(LS.k/L*100)+'%"></i></div><div class="dutm">⏱ <span class="dutime">'+secs(Date.now()-du.start)+'</span> · вопрос '+(LS.k+1)+' из '+L+'</div><h3>'+esc(t.q)+'</h3>'+(t.arh?'<div class="ar gcar">'+duQuestionMarkup(t.arh)+'</div><p class="sm mut" style="margin:-4px 0 10px;text-align:right">'+esc(t.src||"")+'</p>':"")+'<div class="gcopts">';
-  h+=t.opts.map(function(o,v){var cls="lopt";if(LS.fb){if(v===t.good)cls+=" ok";else if(LS.fb.pick===v)cls+=" bad"}return '<button class="'+cls+'" data-a="lans" data-v="'+v+'"'+(LS.fb?" disabled":"")+'>'+esc(o)+'</button>'}).join("")+'</div>';
+  h+=t.opts.map(function(o,v){var cls="lopt";if(LS.fb&&LS.fb.pick===v)cls+=" duel-selected";return '<button class="'+cls+'" data-a="lans" data-v="'+v+'"'+(LS.fb?" disabled":"")+'>'+esc(o)+'</button>'}).join("")+'</div>';
   if(LS.fb)h+='<div class="btns" style="margin-top:10px"><button class="btn pri" data-a="lnext">'+(LS.k+1<L?"Дальше ›":"Завершить")+'</button></div>';
   return h+'</div>'}
 setInterval(function(){var e=document.querySelector(".dutime");if(e&&LS&&LS.du&&LS.step!=="res")e.textContent=secs(Date.now()-LS.du.start)},1000);
 function vDuels(){if(!duAllowed())return "";duLoad();var d=duOk();if(!d)return "";var me=STOK.sid,L=d.list;
-  var inc=L.filter(function(x){return x.b===me&&x.b_score==null}),sent=L.filter(function(x){return x.a===me&&x.b_score==null}),fin=L.filter(function(x){return x.b_score!=null}).slice(0,5);
+  var legacy=L.some(function(x){return !x.verified&&x.b_score==null}),inc=L.filter(function(x){return x.verified&&x.b===me&&x.b_score==null}),sent=L.filter(function(x){return x.verified&&x.a===me&&x.b_score==null}),fin=L.filter(function(x){return x.b_score!=null}).slice(0,5);
   var h='<div class="box"><h2>⚔️ Дуэли</h2>';
+  if(legacy)h+='<p class="sm mut">Незаконченные вызовы старого формата сохранились в истории. Чтобы сыграть, отправь новый вызов.</p>';
   if(inc.length)h+=inc.map(function(x){var o=by(x.a);return '<div class="durow inc"><b>'+esc(o?o.name:"?")+' вызывает тебя!</b><small>'+(GC[x.course]?GC[x.course].ic+" "+GC[x.course].n:"")+' · '+x.total+' вопросов</small><button class="btn pri sm" data-a="duplay" data-v="'+x.id+'">Принять</button></div>'}).join("");
   if(sent.length)h+=sent.map(function(x){var o=by(x.b);return '<div class="durow"><span>⏳ Ждём ответа: <b>'+esc(o?o.name:"?")+'</b></span><small>ты: '+x.a_score+'/'+x.total+'</small></div>'}).join("");
   if(fin.length)h+=fin.map(function(x){var mine=x.a===me,o=by(mine?x.b:x.a),my=mine?x.a_score:x.b_score,th=mine?x.b_score:x.a_score,w=x.winner;return '<div class="durow"><span>'+(w==="draw"?"🤝":w===me?"🏆":"🙂")+' '+esc(o?o.name:"?")+'</span><small>'+my+' : '+th+'</small></div>'}).join("");
@@ -3981,8 +4153,8 @@ function duelAct(a,v){
   if(a!=="duclose"&&!duAllowed()){UI.dupick=null;return true}
   if(a==="duel"){if(limBlock()){flash("⏱ На сегодня занятия закончились");return true}UI.dupick=v;UI.sheet=null;return true}
   if(a==="duclose"){UI.dupick=null;return true}
-  if(a==="duelgo"){var c=v;if(!UI.dupick||duCourses().indexOf(c)===-1)return true;if(!QD&&c==="tj"){qdLoad();flash("Загружаю аяты, нажми ещё раз");return true}var qs=duBuild(c);if(qs.length<3){flash("Мало вопросов — учитель открыл мало уроков");return true}duStart({opp:UI.dupick,course:c,qs:qs,id:null});UI.dupick=null;go("#/g/"+encodeURIComponent(G.slug)+"/suras");return true}
-  if(a==="duplay"){if(limBlock()){flash("⏱ На сегодня занятия закончились");return true}var d=duOk(),x=d&&d.list.filter(function(y){return y.id==v})[0];if(!x||!x.qs)return false;duStart({opp:x.a,course:x.course,qs:x.qs,id:x.id});go("#/g/"+encodeURIComponent(G.slug)+"/suras");return true}
+  if(a==="duelgo"){if(UI.dupick&&duCourses().indexOf(v)>-1)duOpen(UI.dupick,v,null);return true}
+  if(a==="duplay"){var d=duOk(),x=d&&d.list.find(function(y){return y.id==v});if(x&&x.verified)duOpen(null,null,x.id);return true}
   return false}
 
 /* ================= Оазис: финики, жемчужины, сундуки, наряды Сабура, шатёр, мечеть ================= */
@@ -4173,6 +4345,8 @@ function act(a,b,e){
   if(a==="ttsall"){speak(ttsScreen());return}
   if(a==="vtog"){var on=!vOn();store.set("voice",on?1:0);TTSLAST="";if(on)speak("Хорошо! Я буду читать задания вслух. Нажми на ответ — я его прочитаю. Нажми ещё раз — чтобы ответить.");else ttsStop();render();return}
   var id=b.dataset.id,s=id&&S?by(id):null,k=b.dataset.k,v=b.dataset.v;
+  if(a==="duretry"){duFinish();return}
+  if(a==="lessonflush"){lessonFlush();return}
   if(a==="qdretry"){QDerr="";qdLoad();render();return}
   if(a==="offdownload"){offDownload();return}
   if(a==="offstop"){if(OFF.controller)OFF.controller.abort();return}
@@ -4386,17 +4560,27 @@ function confetti(){
 }
 
 /* ================= маршруты ================= */
+function cachedGroupAllowed(c){
+  if(!CLOUD)return true;
+  var v=c.viewer||{};
+  if(R.practice)return !!(PTOK&&v.p===PTOK.sid);
+  return !!(v.s&&STOK&&v.s===STOK.sid||v.p&&PTOK&&v.p===PTOK.sid||v.t&&ME&&v.t===ME.id);
+}
 function route(){
   if(skipRoute){skipRoute=false;return}
   var r=parseHash();UI.dupick=null;UI.sheet=null;UI.confirm=null;UI.form=null;UI.formErr="";UI.dropKeep=true;UI.newG="";celeb=null;
   if(r.view==="group"&&r.chat){UI.seg="chat";UI.chat=r.chatSid;CH=null;THR=null}
   if(r.view==="group"){
-    if(G&&G.slug===r.slug&&S){R=r;if(R.tab==="t"&&!canEdit())R.tab="r";render();window.scrollTo(0,0);if(R.tab==="d"||!HW)hwLoad();return}
+    if(G&&G.slug===r.slug&&S&&!!R.practice===!!r.practice){
+      r.offline=R.offline;R=r;if(R.tab==="t"&&!canEdit())R.tab="r";render();window.scrollTo(0,0);
+      if(!R.practice&&(R.tab==="d"||!HW))hwLoad();lessonFlush();return
+    }
     if(Q.length&&G)save();
     R=r;S=null;G=null;R.err="";UI.sel=[];UI.restore=null;UI.showAll=false;HW=null;HWerr="";STOK=null;PH={};CH=null;THR=null;LP=null;LS=null;ACTD=null;if(!r.chat){UI.seg="hw";UI.chat=null}UI.hwForm=null;UI.subm=null;UI.pins=null;UI.hwOpen=null;UI.pinErr="";UI.pinSid="";render();
-    GATE=null;STOK=store.get("stok_"+r.slug,null);PTOK=store.get("ptok_"+r.slug,null);
+    GATE=null;STOK=r.practice?null:store.get("stok_"+r.slug,null);PTOK=store.get("ptok_"+r.slug,null);
+    if(r.practice&&!PTOK){go("#/parent");return}
     rpc("group_get",V_({p_slug:r.slug})).then(function(g){
-      if(R.view!=="group"||R.slug!==r.slug)return;
+      if(R!==r)return;
       if(g.closed){
         if(STOK){STOK=null;store.set("stok_"+g.slug,null)}
         if(PTOK){PTOK=null;store.set("ptok_"+g.slug,null);parentsDrop(g.slug)}
@@ -4406,18 +4590,18 @@ function route(){
       G={slug:g.slug,name:g.name,version:g.version};S=migrate(g.data);
       if(STOK&&!by(STOK.sid))STOK=null;if(PTOK&&!by(PTOK.sid))PTOK=null;meStudent=STOK?STOK.sid:PTOK?PTOK.sid:null;
       if(R.tab==="m"&&!STOK)R.tab="r";
-      if(STOK&&!R.ex&&!R.chat&&!canEdit())R.tab="o";hwLoad();phLoad();if(!PUSHV)pushInfo();
+      if(STOK&&!R.ex&&!R.chat&&!canEdit())R.tab="o";if(!R.practice){hwLoad();phLoad();if(!PUSHV)pushInfo()}
       var rc=store.get("recent",[]).filter(function(x){return x.slug!==g.slug});rc.unshift({slug:g.slug,name:g.name});store.set("recent",rc.slice(0,5));
       var pend=store.get("pending_"+g.slug,null);
       if(pend&&canEdit()){
         if(pend.v===g.version){var snap=migrate(pend.data);S=JSON.parse(JSON.stringify(snap));Q.push(function(){S=JSON.parse(JSON.stringify(snap))});schedule();flash("Восстановил изменения, которые не успели сохраниться")}
         else{store.set("pending_"+g.slug,null);flash("Несохранённые изменения с этого телефона устарели — данные обновил другой учитель")}
       }
-      document.title=g.name+" — "+APP;render();window.scrollTo(0,0);setTimeout(checkCeleb,900);actLast=0;setTimeout(actPing,2500);
+      document.title=g.name+" — "+APP;render();window.scrollTo(0,0);setTimeout(checkCeleb,900);actLast=0;if(!R.practice)setTimeout(actPing,2500);lessonFlush();
     }).catch(function(x){
-      if(R.view!=="group"||R.slug!==r.slug)return;
+      if(R!==r)return;
       var c=x&&x.code==="network"&&store.get("cache_"+r.slug,null);
-      if(c&&c.data&&(!c.viewer||!c.viewer.p||PTOK&&PTOK.sid===c.viewer.p)){G={slug:c.slug,name:c.name,version:c.version};S=migrate(c.data);R.offline=c.at||1;meStudent=store.get("me_"+c.slug,null);if(meStudent&&!by(meStudent))meStudent=null;document.title=c.name+" — "+APP;render();return}
+      if(c&&c.data&&cachedGroupAllowed(c)){G={slug:c.slug,name:c.name,version:c.version};S=migrate(c.data);R.offline=c.at||1;meStudent=store.get("me_"+c.slug,null);if(meStudent&&!by(meStudent))meStudent=null;document.title=c.name+" — "+APP;render();return}
       R.err=emsg(x);render()});
     return;
   }
