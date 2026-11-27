@@ -762,6 +762,7 @@ html[data-theme] body,html[data-theme][data-tod] body,html.teen[data-theme] body
 <div id="app"><div class="boot-screen" role="status">🐝 Открываем Хасанатики…</div></div>
 <div id="pl" hidden aria-label="Плеер"></div>
 <script src="config.js"></script>
+<script src="voice-pack.js"></script>
 <script>
 (function(){
 "use strict";
@@ -799,28 +800,82 @@ var MASC={"sab": "<ellipse cx=\"118\" cy=\"128\" rx=\"46\" ry=\"34\" fill=\"#e0a
 function mas(k,w,cls){if(k==="sab"&&typeof sabMe==="function"&&sabMe()){sabSync();k="sabme"}return '<svg'+(cls?' class="'+cls+'"':"")+' viewBox="0 0 200 200" width="'+w+'" height="'+w+'" aria-hidden="true"><use href="#ms-'+k+'"/></svg>'}
 /* ================= озвучка заданий для тех, кто ещё не читает (голос телефона) ================= */
 var LSANIM="",PGANIM="",PGT=null;
-var TTSOK=!!(window.speechSynthesis&&window.SpeechSynthesisUtterance),TTSV=null,TTSLAST="";
+var TTSNATIVE=!!(window.speechSynthesis&&window.SpeechSynthesisUtterance);
+var TTSPACK=window.HASANATIKI_VOICES||{},TTSOK=TTSNATIVE||Object.keys(TTSPACK).length>0;
+var TTSV=null,TTSLAST="",TTSMEDIA=null,TTSRUN=0;
 function vOn(){return TTSOK&&store.get("voice",0)===1}
 function ttsVoice(){if(TTSV)return TTSV;try{var L=speechSynthesis.getVoices().filter(function(v){return /^ru/i.test(v.lang)});TTSV=L.filter(function(v){return /google|милена|milena|yandex|natural|neural/i.test(v.name)})[0]||L[0]||null}catch(e){}return TTSV}
-if(TTSOK)try{speechSynthesis.onvoiceschanged=function(){TTSV=null;ttsVoice()}}catch(e){}
+if(TTSNATIVE)try{speechSynthesis.onvoiceschanged=function(){TTSV=null;ttsVoice()}}catch(e){}
 function ttsClean(t){t=String(t||"").replace(/ﷺ/g," саллаллаху алейхи ва саллям ").replace(/<[^>]*>/g," ").replace(/&nbsp;/g," ").replace(/&[a-z]+;/g," ");
   try{t=t.replace(/\p{Extended_Pictographic}|\uFE0F|\u200D/gu,"")}catch(e){}
   return t.replace(/[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]+/g," ").replace(/[«»"]/g,"").replace(/\s+/g," ").replace(/\s+([.,!?:;])/g,"$1").replace(/([.!?…])\.+/g,"$1").replace(/:\./g,":").trim()}
-function speak(t,add){if(!TTSOK)return;t=ttsClean(t);if(!t)return;try{if(!add)speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t);u.lang="ru-RU";var v=ttsVoice();if(v)u.voice=v;u.rate=.95;speechSynthesis.speak(u)}catch(e){}}
-function ttsStop(){try{if(TTSOK)speechSynthesis.cancel()}catch(e){}TTSLAST=""}
+function ttsCancel(){
+  TTSRUN++;
+  if(TTSMEDIA){TTSMEDIA.onended=null;TTSMEDIA.onerror=null;TTSMEDIA.pause()}
+  if(TTSNATIVE)try{speechSynthesis.cancel()}catch(e){}
+}
+function ttsStop(){ttsCancel();TTSLAST=""}
+function ttsClip(actor,text){
+  var clips=TTSPACK[actor==="asl"?"asl":"sab"];
+  var name=clips&&Object.prototype.hasOwnProperty.call(clips,text)?clips[text]:"";
+  return /^[0-9a-f]{24}$/.test(name)?"audio/voice/"+name+".mp3":"";
+}
+function ttsRead(parts){
+  if(!TTSOK)return;
+  var lines=parts.map(function(p){return {text:ttsClean(p.text),actor:p.actor}}).filter(function(p){return p.text});
+  if(!lines.length)return;
+  ttsCancel();abStop();
+  var run=TTSRUN,cursor=0;
+  function next(){
+    if(run!==TTSRUN||cursor===lines.length)return;
+    var line=lines[cursor++],src=ttsClip(line.actor,line.text);
+    function nativeVoice(){
+      if(run!==TTSRUN)return;
+      if(!TTSNATIVE){next();return}
+      try{
+        var u=new SpeechSynthesisUtterance(line.text),v=ttsVoice();
+        u.lang="ru-RU";if(v)u.voice=v;u.rate=.95;
+        u.onend=next;u.onerror=next;speechSynthesis.speak(u);
+      }catch(e){next()}
+    }
+    if(!src){nativeVoice();return}
+    if(!TTSMEDIA)TTSMEDIA=new Audio();
+    var player=TTSMEDIA,waiting=true;
+    function advance(success){
+      if(!waiting||run!==TTSRUN)return;
+      waiting=false;player.onended=null;player.onerror=null;
+      if(success)next();else nativeVoice();
+    }
+    player.onended=function(){advance(true)};
+    player.onerror=function(){advance(false)};
+    player.src=src;
+    player.play().catch(function(){advance(false)});
+  }
+  next();
+}
+function speak(t,actor){ttsRead([{text:t,actor:actor}])}
+function ttsActor(el){var narrator=el&&el.closest("[data-narrator]");return narrator&&narrator.dataset.narrator==="asl"?"asl":"sab"}
 // что прочитать на экране урока: вопрос, подсказку Сабура и варианты ответов (арабский текст не читается — его озвучивает аль-Хусари)
-function ttsScreen(){var box=app.querySelector(".lsnbox,.gcbox,.abbox")||app;var parts=[],tt=box.querySelectorAll("[data-tts]");if(tt.length){tt.forEach(function(e){parts.push(e.textContent)});return parts.join(". ")}var q=box.querySelector("h3");if(q)parts.push(q.textContent);
-  var pic=box.querySelector(".gpic b");if(pic)parts.unshift(pic.textContent+".");
-  box.querySelectorAll(".say p").forEach(function(p){parts.push(p.textContent)});
-  var op=[].slice.call(box.querySelectorAll(".lopt:not(.ar):not([disabled])"));if(op.length&&op.length<=6)parts.push("Варианты. "+op.map(function(o,i){return (i+1)+". "+o.textContent}).join(". "));
-  return parts.join(". ")}
-function ttsAuto(){if(!vOn()||!LS)return;var key=LS.step+"|"+(LS.gc||"")+"|"+(LS.i!=null?LS.i:LS.n)+"|"+(LS.li||0)+"|"+LS.k+"|"+(LS.fb?(LS.fb.ok?"ok":"no")+(LS.fb.wrong!=null?LS.fb.wrong:""):"q")+"|"+(lsCur()&&lsCur().miss?lsCur().miss.length:0);
-  if(key===TTSLAST)return;TTSLAST=key;setTimeout(function(){speak(ttsScreen())},250)}
+function ttsScreen(){
+  var box=app.querySelector(".lsnbox,.gcbox,.abbox")||app.querySelector(".lsfs")||app,parts=[],tt=box.querySelectorAll("[data-tts]");
+  function add(el){if(el)parts.push({text:el.textContent,actor:ttsActor(el)})}
+  if(tt.length){tt.forEach(add);return parts}
+  add(box.querySelector(".gpic b"));add(box.querySelector("h3"));
+  box.querySelectorAll(".say p").forEach(add);
+  var options=box.querySelectorAll(".lopt:not(.ar):not([disabled])");
+  if(options.length&&options.length<=6){
+    parts.push({text:"Варианты ответа."});
+    options.forEach(function(o,i){parts.push({text:(i+1)+"."});add(o)});
+  }
+  return parts;
+}
+function ttsAuto(){if(!vOn()||!LS)return;var key=LS.step+"|"+(LS.gc||"")+"|"+(LS.i??LS.ab??LS.n)+"|"+(LS.li||0)+"|"+LS.k+"|"+(LS.fb?(LS.fb.ok?"ok":"no")+(LS.fb.wrong!=null?LS.fb.wrong:""):"q")+"|"+(lsCur()&&lsCur().miss?lsCur().miss.length:0);
+  if(key===TTSLAST)return;TTSLAST=key;var run=TTSRUN;setTimeout(function(){if(run===TTSRUN&&key===TTSLAST&&LS&&vOn())ttsRead(ttsScreen())},250)}
 // режим «слушаю»: первое нажатие на вариант — прочитать его, второе — ответить
 document.addEventListener("click",function(e){if(!vOn())return;var o=e.target.closest&&e.target.closest(".lopt");if(o&&!o.classList.contains("ar")&&!o.disabled&&o.dataset.a!=="lord"){if(o.dataset.vs!=="1"){e.stopPropagation();e.preventDefault();app.querySelectorAll(".lopt.vsel").forEach(function(x){x.classList.remove("vsel");x.dataset.vs=""});o.classList.add("vsel");o.dataset.vs="1";speak(o.textContent)}return}
-  var c=e.target.closest&&e.target.closest(".gcc");if(c&&!e.target.closest("[data-a=gcplay]")){var tt=[];c.querySelectorAll("b,p:not(.gcar)").forEach(function(x){tt.push(x.textContent)});speak(tt.join(". "))}},true);
+  var c=e.target.closest&&e.target.closest(".gcc");if(c&&!e.target.closest("[data-a=gcplay]")){var tt=[];c.querySelectorAll("b,p:not(.gcar)").forEach(function(x){tt.push({text:x.textContent})});ttsRead(tt)}},true);
 function vBtn(){if(!TTSOK)return "";var on=vOn();return '<button class="btn sm vtb'+(on?" pri":"")+'" data-a="vtog" aria-label="'+(on?"Не читать вслух":"Читать задания вслух")+'" title="'+(on?"Читаю задания вслух — нажми, чтобы выключить":"Читать задания вслух")+'">'+(on?"🔊":"🔈")+'</button>'+(on?'<button class="btn sm vtb" data-a="ttsall" aria-label="Прочитать ещё раз" title="Прочитать ещё раз">🔁</button>':"")}
-function sayS(k,html){return '<div class="say sm3"><div class="who">'+mas(k,64)+'</div><p>'+html+'</p>'+(TTSOK?'<button class="ttsb" data-a="tts" aria-label="Прочитать вслух">🔊</button>':"")+'</div>'}
+function sayS(k,html){return '<div class="say sm3" data-narrator="'+(k==="asl"?"asl":"sab")+'"><div class="who">'+mas(k,64)+'</div><p>'+html+'</p>'+(TTSOK?'<button class="ttsb" data-a="tts" aria-label="Прочитать вслух">🔊</button>':"")+'</div>'}
 var PRAISE=["Ма ша Аллах! Верно 🌟","Баракаллаху фик! Так держать","Отлично! Ты молодец","Верно! Ещё шаг к цели","Альхамдулиллах, правильно!"];
 function praise(){return PRAISE[rnd(PRAISE.length)]}
 function say(k,html){return '<div class="say"><div class="who">'+(k==="duo"?mas("sab",96)+mas("asl",44,"bee"):mas(k,96))+'</div><p>'+html+'</p></div>'}
@@ -2610,7 +2665,7 @@ function offLink(){
   return '<a class="box row off-link" href="#/offline"><span aria-hidden="true">⬇</span><div class="mid"><b>Без интернета</b><div class="sm mut">Скачайте суры и учебные материалы заранее</div></div><span aria-hidden="true">›</span></a>';
 }
 function offCan(){return !!(window.isSecureContext&&window.caches&&siteWorker)}
-function offIsAudio(path){return /^audio\/(?:(?:h|hm)\/\d{6}\.mp3|ab\/recorded\/[a-f0-9]{4}\.wav)$/.test(path)}
+function offIsAudio(path){return /^audio\/(?:(?:h|hm)\/\d{6}\.mp3|ab\/recorded\/[a-f0-9]{4}\.wav|voice\/[a-f0-9]{24}\.mp3)$/.test(path)}
 function offMb(bytes){return Math.max(1,Math.round(bytes/1000000))+" МБ"}
 function offCatalogOk(data){
   return data&&data.version===1&&Array.isArray(data.files)&&data.files.length>0&&data.files.length<10000&&
@@ -2626,7 +2681,7 @@ function offPaint(){
   },160);
 }
 function offPack(){
-  var h='<h2>Скачать материалы</h2><p class="sm mut">Чтение аль-Хусари в двух записях, Аль-Фатиха, Аят аль-Курси, 29-й и 30-й джузы, переводы, таджвид и озвучка 28 букв Алифбы.</p>';
+  var h='<h2>Скачать материалы</h2><p class="sm mut">Аудио сур, переводы, таджвид, озвучка 28 букв Алифбы и записи русских реплик уроков.</p>';
   if(!offCan())return h+'<p class="note">Откройте сайт или приложение в браузере, который поддерживает офлайн-загрузку.</p>';
   if(OFF.scanning)return h+beeWait("Проверяем сохранённые материалы…");
   if(OFF.active)h+=beeWait("Асаль собирает материалы…");
@@ -3124,7 +3179,7 @@ function lessonAct(a,v,k){
     case"lopen":var lb=limBlock();if(lb){UI.limHit=lb;flash("⏱ На сегодня уроки закончились");return true}var lc=k==="ab"?"ab":k&&GC[k]?k:(+v>=67&&+v<=77?"q29":"q");if(!lsOk(lc,v)){flash("🔒 Учитель ещё не открыл этот урок");return true}if(k==="ab")abOpen(parseInt(v,10));else if(k&&GC[k])gcOpen(k,parseInt(v,10));else lsOpen(parseInt(v,10));return true;
     case"lbld":if(!t)return false;var bk=parseInt(v,10),bm=t.mix[bk];if(!bm||t.got.indexOf(bk)>-1)return false;
       if(bm.c===t.seq[t.got.length]){t.got.push(bk);LS.fb=null;if(t.got.length===t.seq.length)LS.ok++}else{LS.err++;lsMiss(t);LS.fb={wrong:bk}}return true;
-    case"lquit":laStop();UI.tjpop=null;try{if(GCP&&GCP.au){GCP.au.pause();GCP.on=false}}catch(e){}LS=null;window.scrollTo(0,0);return true;
+    case"lquit":laStop();ttsStop();UI.tjpop=null;try{if(GCP&&GCP.au){GCP.au.pause();GCP.on=false}}catch(e){}LS=null;window.scrollTo(0,0);return true;
     case"lplay":if(LS.ab!=null||LS.gc!=null)return false;var pn_=parseInt(v,10);laPlay(LS.step==="intro"||!t||t.t!=="sur"?LS.n:t.n,pn_);return false;
     case"abpop":UI.abpop=v;UI.abk=k!=null&&k!==""?+k:null;return true;
     case"abclose":UI.abpop=null;abStop();return true;
@@ -4557,8 +4612,8 @@ function act(a,b,e){
   if(a==="bellx"){UI.bell=0;render();return}
   if(a==="bellgo"){UI.bell=0;return}
   if(a==="brand"){brandTap(b);return}
-  if(a==="tts"){var sp=b.closest(".say,.hello");if(sp){var pp=sp.querySelector("p");speak(pp?pp.textContent:"")}return}
-  if(a==="ttsall"){speak(ttsScreen());return}
+  if(a==="tts"){var sp=b.closest(".say,.hello");if(sp){var pp=sp.querySelector("p");speak(pp?pp.textContent:"",ttsActor(sp))}return}
+  if(a==="ttsall"){ttsRead(ttsScreen());return}
   if(a==="vtog"){var on=!vOn();store.set("voice",on?1:0);TTSLAST="";if(on)speak("Хорошо! Я буду читать задания вслух. Нажми на ответ — я его прочитаю. Нажми ещё раз — чтобы ответить.");else ttsStop();render();return}
   var id=b.dataset.id,s=id&&S?by(id):null,k=b.dataset.k,v=b.dataset.v;
   if(a==="netretry"){reconnect();return}
@@ -4794,7 +4849,7 @@ function reconnect(){
 }
 function route(){
   if(skipRoute){skipRoute=false;return}
-  abStop();
+  abStop();ttsStop();
   var r=parseHash();
   if(r.view==="local-practice"){
     if(R.local&&G&&S){render();return}
