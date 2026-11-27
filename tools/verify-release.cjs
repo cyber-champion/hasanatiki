@@ -47,7 +47,18 @@ for(const [sura,d] of Object.entries(quran)){
     expected.add('audio/h/'+key+'.mp3');
   });
 }
-assert.deepEqual(new Set([...files.keys()].filter(x=>x.endsWith('.mp3'))),expected);
+assert.deepEqual(new Set([...files.keys()].filter(x=>/^audio\/(?:h|hm)\/\d{6}\.mp3$/.test(x))),expected);
+const narration=new Set([...files.keys()].filter(x=>/^audio\/voice\/[a-f0-9]{24}\.mp3$/.test(x)));
+assert.equal([...files.keys()].filter(x=>x.endsWith('.mp3')).length,expected.size+narration.size);
+if(narration.size){
+  const globals={window:{}};
+  const voiceIndex=read('voice-pack.js');
+  assert.equal(files.get('voice-pack.js'),Buffer.byteLength(voiceIndex));
+  new vm.Script(voiceIndex).runInNewContext(globals,{timeout:1000});
+  const voices=globals.window.HASANATIKI_VOICES;
+  assert.ok(Object.keys(voices.sab).length>0&&Object.keys(voices.asl).length>0);
+  assert.deepEqual(new Set(Object.values(voices).flatMap(entries=>Object.values(entries)).map(id=>'audio/voice/'+id+'.mp3')),narration);
+}
 for(const [p,bytes] of files){
   assert.ok(/^[a-z0-9][a-z0-9_.\/-]*$/i.test(p)&&!p.includes('..'),p);
   assert.ok(Number.isSafeInteger(bytes)&&bytes>=0,p);
@@ -69,4 +80,4 @@ if(out){
     fs.copyFileSync(src,dst);
   }
 }
-console.log('Проверка пройдена: '+Object.keys(quran).length+' сур, '+expected.size+' MP3, '+files.size+' файлов.');
+console.log('Проверка пройдена: '+Object.keys(quran).length+' сур, '+expected.size+' коранических MP3, '+narration.size+' записей уроков, '+files.size+' файлов.');
