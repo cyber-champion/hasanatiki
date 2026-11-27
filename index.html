@@ -202,6 +202,14 @@ textarea{min-height:170px;resize:vertical;font-size:14px;line-height:1.5}
 .hall-w{display:flex;gap:10px;align-items:center;padding:6px 0}
 .hall-w .m{font-size:26px}
 .splash{position:fixed;inset:0;z-index:90;background:var(--night);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .45s ease}
+.off-link{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit}
+.off-bee{display:inline-flex;align-items:center;justify-content:center;transform-origin:center;animation:off-fly 2.3s ease-in-out infinite}
+.off-bee svg{display:block}.off-wait{display:flex;align-items:center;justify-content:center;gap:10px;padding:12px;color:var(--mut);font-weight:700}
+.off-wait .off-bee{flex:none}.off-progress{width:100%;height:12px;accent-color:var(--brand)}
+.off-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}.off-list .btn{min-height:41px}
+.off-pack .btns{flex-wrap:wrap;gap:8px}.off-state{min-height:1.5em}
+@keyframes off-fly{0%,100%{transform:translate(-7px,2px) rotate(-9deg)}50%{transform:translate(7px,-7px) rotate(10deg)}}
+@media(prefers-reduced-motion:reduce){.off-bee{animation:none}}
 .splash.out{opacity:0;pointer-events:none}
 .splash .sic{width:164px;height:164px;transition:transform .45s cubic-bezier(.5,0,.75,0)}
 .splash.out .sic{transform:scale(1.35)}
@@ -1095,6 +1103,7 @@ function parseHash(){var h=location.hash.replace(/^#\/?/,"").split("/");
   if(h[0]==="cab")return{view:"cab"};
   if(h[0]==="parent")return{view:"parent"};
   if(h[0]==="privacy")return{view:"privacy"};
+  if(h[0]==="offline")return{view:"offline",sur:/^\d{1,3}$/.test(h[1]||"")&&PLN[h[1]]?h[1]:null};
   return{view:"home"};
 }
 function go(h){if(location.hash===h)route();else location.hash=h}
@@ -1156,7 +1165,8 @@ function demoNote(){return CLOUD?"":'<div class="note" style="margin:6px 0 14px"
 
 function vHome(){
   var h=topbar()+'<header class="top">'+(ICON?'<img class="logo" alt="" src="'+esc(ICON)+'">':"")+brand()+'</header>'+demoNote();
-  if(!INFO)return h+'<div class="loading">Загрузка…</div>';
+  h+=offLink();
+  if(!INFO)return h+beeWait("Открываем Хасанатики…");
   if(!INFO.has_admin)return h+vSetup();
   h+=say("duo",'Ассаляму алейкум! Я верблюжонок <b style="color:var(--gold)">Сабур</b>, а это моя помощница — пчёлка <b style="color:var(--gold)">Асаль</b>. Открывай свою группу — будем вместе собирать хасанаты!');
   h+='<div class="box"><h2>Открыть свою группу</h2><p class="mut sm" style="margin:-6px 0 10px">Код группы даёт учитель. Он же есть в ссылке, которую прислали в чат.</p>'+
@@ -1242,7 +1252,7 @@ function vAdmin(){
 function teacherForm(t){
   var id=t?t.id:"",gs=t?t.groups:[];
   var h='<div class="form"><div class="grid2"><div class="field"><label for="tf_name">Имя</label><input id="tf_name" type="text" maxlength="40" value="'+esc(t?t.name:"")+'"></div><div class="field"><label for="tf_login">Логин</label><input id="tf_login" type="text" maxlength="32" autocapitalize="off" value="'+esc(t?t.login:"")+'"></div></div>'+
-  '<div class="field"><label for="tf_pass">'+(t?'Новый пароль (оставьте пустым, чтобы не менять)':'Пароль (от 6 символов)')+'</label><input id="tf_pass" type="text" maxlength="72" autocomplete="off"></div>'+
+  '<div class="field"><label for="tf_pass">'+(t?'Новый пароль (оставьте пустым, чтобы не менять)':'Пароль (от 6 символов)')+'</label><input id="tf_pass" type="password" maxlength="72" autocomplete="new-password"></div>'+
   '<div class="sec" style="margin-top:4px">Группы</div>'+(ADM.groups.length?ADM.groups.map(function(g){return '<label class="chk"><input type="checkbox" id="tf_g_'+esc(g.slug)+'" data-g="'+esc(g.slug)+'"'+(gs.indexOf(g.slug)>-1?" checked":"")+'>'+esc(g.name)+'</label>'}).join(""):'<p class="mut sm">Сначала создайте группы</p>')+
   '<label class="chk" style="margin-top:6px"><input type="checkbox" id="tf_admin"'+(t&&t.is_admin?" checked":"")+'>Администратор (видит все группы и управляет учителями)</label>'+
   (UI.formErr?'<p class="note err" style="margin:8px 0">'+esc(UI.formErr)+'</p>':"")+
@@ -2117,8 +2127,9 @@ function pushOff(){
 }
 function kick(){if(!PUSHV||!CLOUD)return Promise.resolve(null);return fetch(sbase()+"/functions/v1/push",{method:"POST",headers:shead({"Content-Type":"application/json"}),body:"{}"}).then(function(r){return r.text().then(function(t){var j=null;try{j=JSON.parse(t)}catch(e){}return {ok:r.ok,status:r.status,j:j,t:t}})}).catch(function(){return null})}
 function pushInfo(){if(!CLOUD)return;rpc("push_info",{}).then(function(r){PUSHV=r&&r.vapid||null;render()}).catch(function(){})}
-if(CLOUD&&"serviceWorker" in navigator){
-  navigator.serviceWorker.register("sw.js").catch(function(){});
+var siteWorker=null;
+if("serviceWorker" in navigator){
+  siteWorker=navigator.serviceWorker.register("sw.js").catch(function(){return null});
   navigator.serviceWorker.addEventListener("message",function(e){if(e.data&&typeof e.data.go==="string"&&e.data.go)location.hash=e.data.go});
 }
 var PUSH_FN="// Хасанатики — отправка пуш-уведомлений.\n// Supabase → Edge Functions → новая функция с именем «push» → вставить этот код → Deploy.\n// Секреты (Edge Functions → Secrets): VAPID_PUBLIC, VAPID_PRIVATE, PUSH_SECRET — их создаёт Кабинет → «Пуш-уведомления».\nimport webpush from \"npm:web-push@3.6.7\";\n\nconst cors = {\n  \"Access-Control-Allow-Origin\": \"*\",\n  \"Access-Control-Allow-Headers\": \"apikey, authorization, content-type, x-client-info\",\n  \"Access-Control-Allow-Methods\": \"POST, OPTIONS\",\n};\nconst json = (o: unknown, status = 200) =>\n  new Response(JSON.stringify(o), { status, headers: { ...cors, \"Content-Type\": \"application/json\" } });\n\nDeno.serve(async (req) => {\n  if (req.method === \"OPTIONS\") return new Response(\"ok\", { headers: cors });\n  const pub = Deno.env.get(\"VAPID_PUBLIC\"), priv = Deno.env.get(\"VAPID_PRIVATE\"), secret = Deno.env.get(\"PUSH_SECRET\");\n  if (!pub || !priv || !secret) return json({ error: \"Не заданы секреты VAPID_PUBLIC, VAPID_PRIVATE, PUSH_SECRET\" }, 500);\n  webpush.setVapidDetails(Deno.env.get(\"VAPID_SUBJECT\") || \"https://hasanatiki.netlify.app\", pub, priv);\n  const base = Deno.env.get(\"SUPABASE_URL\")!;\n  const key = req.headers.get(\"apikey\") || Deno.env.get(\"SUPABASE_ANON_KEY\") || \"\";\n  const rpc = async (fn: string, args: unknown) => {\n    const h: Record<string, string> = { apikey: key, \"Content-Type\": \"application/json\" };\n    if (key.startsWith(\"eyJ\")) h.Authorization = \"Bearer \" + key;\n    const r = await fetch(`${base}/rest/v1/rpc/${fn}`, { method: \"POST\", headers: h, body: JSON.stringify(args) });\n    const body = await r.json().catch(() => null);\n    if (!r.ok) throw new Error((body && body.message) || \"http \" + r.status);\n    return body;\n  };\n  try {\n    const list = (await rpc(\"push_take\", { p_secret: secret })) as Array<{ endpoint: string; p256dh: string; auth: string; payload: unknown }>;\n    const gone: string[] = [], errors: string[] = [];\n    let sent = 0, failed = 0;\n    await Promise.all(list.map(async (m) => {\n      try {\n        await webpush.sendNotification({ endpoint: m.endpoint, keys: { p256dh: m.p256dh, auth: m.auth } }, JSON.stringify(m.payload), { TTL: 86400 });\n        sent++;\n      } catch (e) {\n        const err = e as { statusCode?: number; body?: string; message?: string };\n        if (err.statusCode === 404 || err.statusCode === 410) gone.push(m.endpoint);\n        else { failed++; if (errors.length < 3) errors.push(((err.statusCode ? err.statusCode + \" \" : \"\") + (err.body || err.message || String(e))).slice(0, 200)); }\n      }\n    }));\n    if (gone.length) await rpc(\"push_gone\", { p_secret: secret, p_endpoints: gone });\n    return json({ ok: true, version: 2, total: list.length, sent, failed, removed: gone.length, errors });\n  } catch (e) {\n    return json({ error: String((e as Error).message || e) }, 500);\n  }\n});\n";
@@ -2255,7 +2266,7 @@ function render(){
   var kept={};app.querySelectorAll("[data-keep]").forEach(function(el){kept[el.dataset.keep]=el});
   if(!duAllowed()){UI.dupick=null;if(LS&&LS.du)LS=null}
   teenSync();lmodSync();
-  var html=R.view==="group"?vGroup():R.view==="privacy"?vPrivacy():R.view==="parent"?vParent():R.view==="login"?vLogin():R.view==="cab"?vCab():R.view==="home"?vHome():'<div class="loading">Загрузка…</div>';
+  var html=R.view==="group"?vGroup():R.view==="privacy"?vPrivacy():R.view==="offline"?vOffline():R.view==="parent"?vParent():R.view==="login"?vLogin():R.view==="cab"?vCab():R.view==="home"?vHome():'<div class="loading">Загрузка…</div>';
   app.innerHTML=html+(toastMsg?'<div class="toast" role="status">'+esc(toastMsg)+(toastUndo?' <button class="btn sm" data-a="undog" data-v="'+esc(toastUndo)+'" style="margin-left:8px;padding:6px 12px">↩ Отменить</button>':"")+'</div>':"");
   Object.keys(keep).forEach(function(id){var el=document.getElementById(id);if(!el)return;if(el.type==="checkbox")el.checked=keep[id];else el.value=keep[id]});
   app.querySelectorAll("[data-keep]").forEach(function(el){var o=kept[el.dataset.keep];if(o&&o!==el)el.replaceWith(o)});
@@ -2279,8 +2290,8 @@ function render(){
 // Две записи: "hm" — обычное чтение (мураттал), "h" — обучающее (Муаллим, медленнее).
 // При смене записи нужно обновить и длительности сур в базе (таблица sura_secs).
 var PLDIR="hm";
-var PLN={1:7,78:40,79:46,80:42,81:29,82:19,83:36,84:25,85:22,86:17,87:19,88:26,89:30,90:20,91:15,92:21,93:11,94:8,95:8,96:19,97:5,98:8,99:8,100:11,101:11,102:8,103:3,104:9,105:5,106:4,107:7,108:3,109:6,110:3,111:5,112:4,113:5,114:6};
-var PLK=["1","k"];for(var pi=78;pi<=114;pi++)PLK.push(String(pi));   // порядок в списке
+var PLN={"1":7,"67":30,"68":52,"69":52,"70":44,"71":28,"72":28,"73":20,"74":56,"75":40,"76":31,"77":50,"78":40,"79":46,"80":42,"81":29,"82":19,"83":36,"84":25,"85":22,"86":17,"87":19,"88":26,"89":30,"90":20,"91":15,"92":21,"93":11,"94":8,"95":8,"96":19,"97":5,"98":8,"99":8,"100":11,"101":11,"102":8,"103":3,"104":9,"105":5,"106":4,"107":7,"108":3,"109":6,"110":3,"111":5,"112":4,"113":5,"114":6};
+var PLK=["1","k"];for(var pi=67;pi<=114;pi++)PLK.push(String(pi));
 var PL=null,plA=null,plPre=null,plT=null,plTick=null;
 var PLGAPS=[[0,"нет"],[0.5,"½ аята"],[1,"как аят"],[1.5,"1,5 аята"],[2,"2 аята"]];   // пауза после аята — чтобы повторить за чтецом
 function plGapStop(){if(plT){clearTimeout(plT);plT=null}if(plTick){clearInterval(plTick);plTick=null}if(PL){PL.wait=0;PL.hold=false}}
@@ -2304,7 +2315,7 @@ function plFirst(k){return (k==="k"||k==="1")?1:0}   // перед сурой �
 function plStart(k,o){
   if(!plA){plA=new Audio();plA.preload="auto";
     plA.addEventListener("ended",plEnded);
-    plA.addEventListener("error",function(){if(!PL)return;PL.playing=false;PL.err="Не удалось загрузить аудио. Проверьте интернет и попробуйте ещё раз.";plRender()});
+    plA.addEventListener("error",function(){if(!PL)return;PL.playing=false;PL.err=navigator.onLine===false?"Этот аят не скачан. Загрузите записи в разделе «Без интернета», когда будет связь.":"Не удалось загрузить аудио. Попробуйте ещё раз.";plRender()});
     plA.addEventListener("playing",function(){if(PL){PL.playing=true;PL.err="";plRender()}});
     plA.addEventListener("pause",function(){if(PL&&!plA.ended){PL.playing=false;plRender()}});
     if("mediaSession" in navigator){try{
@@ -2315,7 +2326,10 @@ function plStart(k,o){
     }catch(e){}}
   }
   var c=plCount(k),old=PL;o=o||{};
-  PL={k:k,from:1,to:c,a:plFirst(k),cnt:0,rep:old?old.rep:1,times:o.times||(old&&!old.hw?old.times:1),heard:0,sent:0,hw:o.hw||null,clean:true,rate:old?old.rate:1,gap:store.get("plgap",0),wait:0,hold:false,playing:false,err:"",msg:""};
+  if(!c)return;
+  var from=o.ayah||1,to=o.ayah||c;
+  var credit=R.view==="group"&&G&&STOK&&!canEdit()?{slug:G.slug,token:STOK.t}:null;
+  PL={k:k,from:from,to:to,a:o.ayah||plFirst(k),credit:credit,cnt:0,rep:old?old.rep:1,times:o.times||(old&&!old.hw?old.times:1),heard:0,sent:0,hw:o.hw||null,clean:true,rate:old?old.rate:1,gap:store.get("plgap",0),wait:0,hold:false,playing:false,err:"",msg:""};
   plGapStop();plPlay();
 }
 function plPlay(){
@@ -2356,10 +2370,15 @@ function plNext(){
 }
 // засчитать полное прослушивание (только ученику, вошедшему в свой кабинет)
 function plCounted(P){
-  if(canEdit()||!STOK||!G)return;
+  var credit=P.credit;
+  if(!credit||R.view!=="group"||!G||!STOK||canEdit()||G.slug!==credit.slug||STOK.t!==credit.token)return;
+  if(R.offline||navigator.onLine===false){
+    P.msg="Прослушано без интернета. Баллы группе начисляются при подключении.";
+    plRender();return;
+  }
   var slug=G.slug,name=plName(P.k);
   rpc("listen_score",{p_slug:slug,p_stoken:STOK.t,p_sura:name,p_rep:P.gap>0}).then(function(r){
-    if(r&&r.ok&&r.points>0){flash("🎧 +"+pn(r.points,"балл","балла","баллов")+(P.gap>0?" за повторение за чтецом":" за прослушивание суры"));sfx("ok");refreshGroup().then(render)}
+    if(G&&G.slug===slug&&STOK&&STOK.t===credit.token&&r&&r.ok&&r.points>0){flash("🎧 +"+pn(r.points,"балл","балла","баллов")+(P.gap>0?" за повторение за чтецом":" за прослушивание суры"));sfx("ok");refreshGroup().then(render)}
     if(PL!==P)return;
     if(r&&r.ok){P.sent++;P.msg="";if(HW&&HW.items)HW.items.forEach(function(h){if(h.sura===name&&h.my_listens!=null)h.my_listens++});render()}
     else P.msg=r&&r.why==="limit"?"На сегодня прослушиваний достаточно":"Это прослушивание не засчитано: запись проиграна слишком быстро";
@@ -2445,10 +2464,136 @@ function hwListen(x){
   }else h+='<div class="sm mut" style="margin:4px 0 6px">'+(canEdit()?"Ученики слушают в своём кабинете — счётчик виден в «Ответы учеников».":"Войдите в свой кабинет ученика, чтобы прослушивания засчитывались.")+'</div><button class="btn sm" data-a="pl" data-v="'+k+'">🎧 Послушать</button>';
   return h+'</div>';
 }
-function vListen(){
-  var h='<div class="box"><h2>🎧 Слушать суры</h2><p class="mut sm" style="margin:6px 0 12px">Чтение шейха Махмуда Халиля аль-Хусари — спокойно и чётко, удобно повторять за ним. 🐢 в плеере замедляет чтение. Можно повторять каждый аят по несколько раз.</p><div class="plg">';
+function vListen(offlinePage){
+  var h=(offlinePage?"":offLink())+'<div class="box"><h2>🎧 Слушать суры</h2><p class="mut sm" style="margin:6px 0 12px">Чтение шейха Махмуда Халиля аль-Хусари — спокойно и чётко, удобно повторять за ним. 🐢 в плеере замедляет чтение. Можно повторять каждый аят по несколько раз.</p><div class="plg">';
   PLK.forEach(function(k){h+='<button data-a="pl" data-v="'+k+'"'+(PL&&PL.k===k?' class="on"':"")+'><i>'+(PL&&PL.k===k&&PL.playing?"⏸":"▶")+'</i><span>'+esc(k==="k"?AYAT:k+". "+NAMES[k])+'<small>'+(k==="k"?"2:255":pn(PLN[k],"аят","аята","аятов"))+'</small></span></button>'});
   return h+'</div></div>';
+}
+
+/* ================= материалы без интернета ================= */
+var OFF_FILES="hs-offline-files-v1",OFF_AUDIO="hs-offline-audio-v1",OFF_CATALOG="offline-pack.json";
+var OFF={catalog:null,remaining:null,done:0,total:0,bytes:0,scanning:false,active:false,controller:null,note:"",paint:null};
+function offLink(){
+  return '<a class="box row off-link" href="#/offline"><span aria-hidden="true">⬇</span><div class="mid"><b>Без интернета</b><div class="sm mut">Скачайте суры и учебные материалы заранее</div></div><span aria-hidden="true">›</span></a>';
+}
+function offCan(){return !!(window.isSecureContext&&window.caches&&siteWorker)}
+function offIsAudio(path){return /^audio\/(?:h|hm)\/\d{6}\.mp3$/.test(path)}
+function offMb(bytes){return Math.max(1,Math.round(bytes/1000000))+" МБ"}
+function offCatalogOk(data){
+  return data&&data.version===1&&Array.isArray(data.files)&&data.files.length>0&&data.files.length<10000&&
+    data.files.every(function(f){return Array.isArray(f)&&typeof f[0]==="string"&&/^[a-zA-Z0-9][a-zA-Z0-9_.\/-]*$/.test(f[0])&&!f[0].includes("..")&&Number.isSafeInteger(f[1])&&f[1]>=0})&&
+    new Set(data.files.map(function(f){return f[0]})).size===data.files.length;
+}
+function offPaint(){
+  if(OFF.paint)return;
+  OFF.paint=setTimeout(function(){
+    OFF.paint=null;
+    var el=document.getElementById("offPack");
+    if(el)el.innerHTML=offPack();
+  },160);
+}
+function offPack(){
+  var h='<h2>Скачать материалы</h2><p class="sm mut">Чтение аль-Хусари в двух записях, Аль-Фатиха, Аят аль-Курси, 29-й и 30-й джузы, переводы, таджвид и материалы уроков.</p>';
+  if(!offCan())return h+'<p class="note">Откройте сайт или приложение в браузере, который поддерживает офлайн-загрузку.</p>';
+  if(OFF.scanning)return h+beeWait("Проверяем сохранённые материалы…");
+  if(OFF.active)h+=beeWait("Асаль собирает материалы…");
+  if(OFF.total){
+    h+='<progress class="off-progress" max="'+OFF.total+'" value="'+OFF.done+'" aria-label="Скачано материалов"></progress><p class="off-state sm" role="status">'+
+      (OFF.done===OFF.total?"Пакет сохранён на этом устройстве":OFF.done+" из "+OFF.total+" файлов")+'</p>';
+  }
+  if(OFF.note)h+='<p class="note sm">'+esc(OFF.note)+'</p>';
+  if(OFF.active)return h+'<button class="btn" data-a="offstop">Приостановить</button>';
+  if(OFF.total&&OFF.done===OFF.total)return h+'<p class="sm mut">Откройте этот раздел в том же приложении или браузере, когда связи не будет.</p>';
+  return h+'<button class="btn pri" data-a="offdownload">'+(OFF.done?"Продолжить скачивание":"Скачать всё")+(OFF.bytes?" · ≈ "+offMb(OFF.bytes):"")+
+    '</button><p class="sm mut" style="margin-bottom:0">Лучше скачивать по Wi-Fi и держать приложение открытым. Чат, отправка заданий и начисление баллов требуют связи.</p>';
+}
+async function offScan(){
+  if(!offCan()||OFF.scanning||OFF.active)return;
+  OFF.scanning=true;offPaint();
+  try{
+    var files=await caches.open(OFF_FILES),audio=await caches.open(OFF_AUDIO);
+    var manifest;
+    try{
+      var res=await fetch(OFF_CATALOG,{cache:"no-cache"});
+      if(!res.ok)throw new Error("catalog");
+      manifest=await res.clone().json();
+      if(!offCatalogOk(manifest))throw new Error("catalog");
+      await files.put(OFF_CATALOG,res);
+    }catch(e){
+      var old=await files.match(OFF_CATALOG);
+      if(!old)throw e;
+      manifest=await old.json();
+      if(!offCatalogOk(manifest))throw new Error("catalog");
+    }
+    var saved=await Promise.all([files.keys(),audio.keys()]);
+    var keys=new Set(saved[0].concat(saved[1]).map(function(r){return r.url}));
+    OFF.catalog=manifest;
+    OFF.remaining=manifest.files.filter(function(f){return !keys.has(new URL(f[0],location.href).href)});
+    OFF.total=manifest.files.length;
+    OFF.done=OFF.total-OFF.remaining.length;
+    OFF.bytes=OFF.remaining.reduce(function(n,f){return n+f[1]},0);
+    OFF.note="";
+  }catch(e){OFF.note="Не удалось проверить пакет. Подключитесь к интернету и попробуйте снова."}
+  finally{OFF.scanning=false;offPaint()}
+}
+async function offDownload(){
+  if(!offCan()||OFF.active||OFF.scanning)return;
+  if(navigator.onLine===false){OFF.note="Подключитесь к интернету, чтобы скачать материалы.";offPaint();return}
+  if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(function(){});
+  if(!OFF.catalog)await offScan();
+  if(!OFF.remaining||!OFF.remaining.length)return;
+  var pack=OFF.remaining.slice(),controller=new AbortController(),errorCount=0,storageFull=false,cursor=0;
+  OFF.active=true;OFF.controller=controller;OFF.note="";offPaint();
+  try{
+    if(!await siteWorker){OFF.note="Браузер не подключил офлайн-режим. Откройте страницу ещё раз.";return}
+    if(navigator.storage&&navigator.storage.estimate){
+      var space=await navigator.storage.estimate().catch(function(){return {}});
+      if(space.quota&&space.quota-(space.usage||0)<OFF.bytes){storageFull=true;return}
+    }
+    var files=await caches.open(OFF_FILES), audio=await caches.open(OFF_AUDIO);
+    async function take(){
+      while(!controller.signal.aborted&&cursor<pack.length){
+        var file=pack[cursor++], path=file[0], media=offIsAudio(path), cache=media?audio:files;
+        try{
+          var response=await fetch(path,{signal:controller.signal,cache:"no-cache"});
+          if(response.status!==200||media&&/text\/html/i.test(response.headers.get("Content-Type")||""))throw new Error("file");
+          await cache.put(path,response);
+          OFF.done++;OFF.bytes=Math.max(0,OFF.bytes-file[1]);offPaint();
+        }catch(e){
+          if(controller.signal.aborted)break;
+          if(e.name==="QuotaExceededError"){storageFull=true;controller.abort();break}
+          errorCount++;
+          if(errorCount>=6||navigator.onLine===false)controller.abort();
+        }
+      }
+    }
+    await Promise.all([take(),take(),take(),take(),take()]);
+  }catch(e){errorCount++}
+  finally{
+    OFF.active=false;OFF.controller=null;
+    var message=OFF.note;
+    await offScan();
+    if(storageFull)OFF.note="Не хватает места. Освободите память или попробуйте на другом устройстве.";
+    else if(errorCount)OFF.note="Часть файлов не удалось скачать. Проверьте связь и нажмите «Продолжить скачивание».";
+    else if(controller.signal.aborted)OFF.note="Загрузка приостановлена. Уже скачанное сохранено.";
+    else if(message)OFF.note=message;
+    offPaint();
+  }
+}
+function vOffline(){
+  var top=topbar('<a class="lnk" href="#/" aria-label="Главная">‹ Главная</a>')+'<header class="top">'+brand()+'<div class="gname">Без интернета</div></header>';
+  var n=R.sur;
+  if(!n)return top+'<section class="box off-pack" id="offPack">'+offPack()+'</section><details class="box"><summary><b>Читать суры и перевод</b></summary><div class="off-list">'+Object.keys(PLN).map(function(k){
+    return '<a class="btn sm" href="#/offline/'+k+'">'+esc(plTitle(k))+'</a>';
+  }).join("")+'</div></details>'+vListen(true);
+  top+='<div class="btns"><a class="btn" href="#/offline">‹ Все суры и загрузки</a><button class="btn pri" data-a="pl" data-v="'+n+'">Слушать суру</button></div>';
+  if(!QD){qdLoad();return top+qdWait()}
+  var d=QD[n];
+  if(!d)return top+'<p class="note">Текст суры не найден.</p>';
+  return top+'<section class="box lsnbox"><h2>'+esc(plTitle(n))+'</h2>'+tjLeg()+d.ar.map(function(a,i){
+    return '<div class="ayah"><button class="ib" data-a="offayah" data-v="'+n+'" data-k="'+(i+1)+'" aria-label="Слушать аят '+(i+1)+'">'+ICPLAY+
+      '</button><div class="mid"><div class="ar">'+tjw(a,d.tj&&d.tj[i])+' '+arn(i+1)+'</div><div class="sm mut">'+esc(d.ru[i])+'</div></div></div>';
+  }).join("")+'</section>'+vTjPop();
 }
 
 /* ================= уроки-игры ================= */
@@ -2458,7 +2603,14 @@ var QD=null,QDerr="",LP=null,LS=null,LA=null,LAerr=false;
 var LM30={id:"q30",name:"Понимаю суры 30-го джуза",list:[1].concat((function(){var a=[];for(var i=114;i>=78;i--)a.push(i);return a})())},LM29={id:"q29",name:"Понимаю суры 29-го джуза (Табарак)",list:[67,68,69,70,71,72,73,74,75,76,77]},LMOD=LM30;
 function lmodSync(){LMOD=(LS&&LS.n>=67&&LS.n<=77)||(!LS&&UI.course==="q29")?LM29:LM30}
 function abIco(w){return '<svg viewBox="0 0 120 100" width="'+w+'" height="'+Math.round(w*.83)+'" aria-hidden="true" style="vertical-align:-0.25em;display:inline-block"><g transform="rotate(-8 30 70)"><rect x="8" y="48" width="44" height="44" rx="10" fill="#FFC93C"/><text x="30" y="82" font-size="34" text-anchor="middle" fill="#7A4A06" style="font-family:Hafs,Sch,serif">ب</text></g><g transform="rotate(7 84 72)"><rect x="62" y="50" width="44" height="44" rx="10" fill="#38BDF8"/><text x="84" y="84" font-size="34" text-anchor="middle" fill="#fff" style="font-family:Hafs,Sch,serif">ت</text></g><g transform="rotate(-3 58 28)"><rect x="36" y="6" width="44" height="44" rx="10" fill="#22C55E"/><text x="58" y="42" font-size="36" text-anchor="middle" fill="#fff" style="font-family:Hafs,Sch,serif">ا</text></g></svg>'}
-function qdLoad(){if(QD||QDerr==="busy")return;QDerr="busy";fetch("q30.json").then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){QD=d;QDerr="";render()}).catch(function(){QDerr="Не удалось загрузить суры. Проверьте интернет.";render()})}
+function qdLoad(){if(QD||QDerr)return;QDerr="busy";fetch("q30.json").then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){QD=d;QDerr="";render()}).catch(function(){QDerr="Не удалось загрузить тексты сур.";render()})}
+function qdWait(){
+  if(QDerr&&QDerr!=="busy")return '<div class="box cen"><p class="mut">'+esc(QDerr)+'</p><button class="btn" data-a="qdretry">Попробовать ещё раз</button></div>';
+  return beeWait("Загружаем суры…");
+}
+function beeWait(label){
+  return '<div class="off-wait" role="status"><div class="off-bee" aria-hidden="true">'+mas("asl",66)+'</div>'+esc(label)+'</div>';
+}
 function lsid(){return STOK?STOK.sid:PTOK?PTOK.sid:null}
 function lpLoad(){
   if(!G)return;var slug=G.slug,sid=lsid(),loc=store.get("lp_"+slug,{});
@@ -2607,7 +2759,7 @@ function vLessons(){
   qdLoad();if(!LP)lpLoad();
   if(LS)return vLesson();
   var h=STOK&&!canEdit()?"":'<div class="tgrid">'+TILES.map(function(t){var on=(UI.course||"q")===TCM[t[0]];return '<button class="tile'+(t[5]?"":" soon")+'" style="--tc:'+t[3]+(t[5]&&!on?";opacity:.8":"")+(t[5]&&on?";outline:4px solid var(--brand);outline-offset:2px":"")+'"'+(t[5]?' data-a="course" data-v="'+TCM[t[0]]+'"':' data-a="soon"')+'><b>'+t[1]+'</b><small>'+(t[5]?t[2]:"скоро")+'</small><i>'+t[4]+'</i></button>'}).join("")+'</div>';
-  if(!QD)return h+'<div class="box cen mut">'+(QDerr&&QDerr!=="busy"?esc(QDerr):"Загрузка…")+'</div>';
+  if(!QD)return h+qdWait();
   var en=SUBJ.filter(function(x){return canEdit()||subjOn(x[0])}).map(function(x){return x[0]}),cs=en.indexOf(UI.course)>-1?UI.course:en[0]||"q";if(canEdit())h+=vSubjCfg();
   if(STOK&&!canEdit()&&en.length>1)h+='<div class="seg wide2 subj" style="margin-bottom:12px">'+en.map(function(c){return '<button class="'+(cs===c?"on":"")+'" data-a="course" data-v="'+c+'">'+(c==="q"?"📖 Джуз 30":c==="q29"?"📗 Джуз 29":c==="ab"?abIco(22)+" Алифба":GC[c].ic+" "+GC[c].n)+'</button>'}).join("")+'</div>';
   if(STOK&&!canEdit()&&!en.length)return h+'<div class="box cen mut">Учитель пока не открыл уроки.</div>';
@@ -4021,6 +4173,11 @@ function act(a,b,e){
   if(a==="ttsall"){speak(ttsScreen());return}
   if(a==="vtog"){var on=!vOn();store.set("voice",on?1:0);TTSLAST="";if(on)speak("Хорошо! Я буду читать задания вслух. Нажми на ответ — я его прочитаю. Нажми ещё раз — чтобы ответить.");else ttsStop();render();return}
   var id=b.dataset.id,s=id&&S?by(id):null,k=b.dataset.k,v=b.dataset.v;
+  if(a==="qdretry"){QDerr="";qdLoad();render();return}
+  if(a==="offdownload"){offDownload();return}
+  if(a==="offstop"){if(OFF.controller)OFF.controller.abort();return}
+  if(a==="offayah"){plStart(v,{ayah:+k});return}
+  if(R.view==="offline"&&/^(tjtog|tjr|tjclose)$/.test(a)){if(lessonAct(a,v,k))render();return}
   if(a==="plset"){plAct(k,v);return}
   if(a==="lrec"){LS=null;UI.subm={hid:v,note:"",files:[]};UI.dropKeep=true;go("#/g/"+encodeURIComponent(G.slug)+"/hw");return}
   if(/^(duel|duclose|duelgo|duplay)$/.test(a)){if(duelAct(a,v))render();return}
@@ -4268,6 +4425,7 @@ function route(){
   if(r.view==="login"&&ME){go("#/cab");return}
   if(r.view==="cab"&&!ME){UI.afterLogin="#/cab";R={view:"login"};render();return}
   if(r.view==="parent"){R=r;PV={};render();window.scrollTo(0,0);pvLoad();return}
+  if(r.view==="offline"){R=r;LS=null;UI.tjpop=null;render();offScan();window.scrollTo(0,0);return}
   R=r;render();window.scrollTo(0,0);
   if(r.view==="login")rpc("app_info",{}).then(function(i){INFO=i;if(!i.has_admin&&R.view==="login")go("#/")}).catch(function(){});
   if(r.view==="home")rpc("app_info",{}).then(function(i){INFO=i;render()}).catch(function(x){INFO={has_admin:true,groups:[]};flash(emsg(x));render()});
@@ -4290,8 +4448,8 @@ var SPL=null,SPT=Date.now();
 var SPST=false;try{SPST=window.matchMedia("(display-mode: standalone)").matches||navigator.standalone||/^android-app:/.test(document.referrer)}catch(e){}
 // в установленном приложении — при каждом запуске, в браузере — раз за сеанс
 if(SPST||!sess.get("splash")){sess.set("splash","1");SPL=document.createElement("div");SPL.className="splash";
-  SPL.innerHTML='<div class="sic">'+splashSvg()+'</div><div class="snm">'+esc(APP)+'</div><div class="ssb">собираем хасанаты вместе</div>';document.body.appendChild(SPL)}
-function splashOff(){if(!SPL)return;var sp=SPL;SPL=null;setTimeout(function(){sp.classList.add("out");setTimeout(function(){sp.remove()},500)},Math.max(0,3200-(Date.now()-SPT)))}
+  SPL.innerHTML='<div class="off-bee" aria-hidden="true">'+mas("asl",144)+'</div><div class="snm">'+esc(APP)+'</div><div class="ssb">Асаль уже летит…</div>';document.body.appendChild(SPL)}
+function splashOff(){if(!SPL)return;var sp=SPL;SPL=null;setTimeout(function(){sp.classList.add("out");setTimeout(function(){sp.remove()},500)},Math.max(0,850-(Date.now()-SPT)))}
 setTimeout(splashOff,6500);
 (TOK?rpc("me",{p_token:TOK}).then(function(m){ME=m}).catch(function(x){if(x.code==="auth"){TOK=null;store.set("tok",null)}}):Promise.resolve()).then(route).then(splashOff,splashOff);
 
