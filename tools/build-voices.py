@@ -16,7 +16,7 @@ import lameenc
 import torch
 
 MODEL_HASH = "0405777e332906f0644e08a680f7cfdc2137ea864090079c1fdd30a43c1b8761"
-ACTORS = {"sab": "ru_aidar", "asl": "ru_xenia"}
+ACTORS = {"sab": "ru_dmitriy", "asl": "ru_ekaterina"}
 SAMPLE_RATE = 24000
 NUMBERS = ["", "П+ервый.", "Втор+ой.", "Тр+етий.", "Четв+ёртый.", "П+ятый.", "Шест+ой."]
 VOWELS = "аеёиоуыэюя"

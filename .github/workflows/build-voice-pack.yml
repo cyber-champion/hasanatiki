@@ -35,5 +35,5 @@ jobs:
           git config user.name "hasanatiki-bot"
           git config user.email "actions@users.noreply.github.com"
           git add -- voice-pack.js offline-pack.json audio/voice
-          git diff --cached --quiet || git commit -m "Собрать голоса Айдара и Ксении"
+          git diff --cached --quiet || git commit -m "Собрать голоса Дмитрия и Екатерины"
           git push origin HEAD:voice-build
