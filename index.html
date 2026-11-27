@@ -1190,7 +1190,7 @@ function parseHash(){var h=location.hash.replace(/^#\/?/,"").split("/");
   if(h[0]==="parent")return{view:"parent"};
   if(h[0]==="privacy")return{view:"privacy"};
   if(h[0]==="practice")return{view:"local-practice"};
-  if(h[0]==="offline")return{view:"offline",sur:/^\d{1,3}$/.test(h[1]||"")&&PLN[h[1]]?h[1]:null};
+  if(h[0]==="offline")return{view:"offline",alphabet:h[1]==="alphabet",sur:/^\d{1,3}$/.test(h[1]||"")&&PLN[h[1]]?h[1]:null};
   return{view:"home"};
 }
 function go(h){if(location.hash===h)route();else location.hash=h}
@@ -2599,7 +2599,7 @@ function offLink(){
   return '<a class="box row off-link" href="#/offline"><span aria-hidden="true">⬇</span><div class="mid"><b>Без интернета</b><div class="sm mut">Скачайте суры и учебные материалы заранее</div></div><span aria-hidden="true">›</span></a>';
 }
 function offCan(){return !!(window.isSecureContext&&window.caches&&siteWorker)}
-function offIsAudio(path){return /^audio\/(?:h|hm)\/\d{6}\.mp3$/.test(path)}
+function offIsAudio(path){return /^audio\/(?:(?:h|hm)\/\d{6}\.mp3|ab\/recorded\/[a-f0-9]{4}\.wav)$/.test(path)}
 function offMb(bytes){return Math.max(1,Math.round(bytes/1000000))+" МБ"}
 function offCatalogOk(data){
   return data&&data.version===1&&Array.isArray(data.files)&&data.files.length>0&&data.files.length<10000&&
@@ -2615,7 +2615,7 @@ function offPaint(){
   },160);
 }
 function offPack(){
-  var h='<h2>Скачать материалы</h2><p class="sm mut">Чтение аль-Хусари в двух записях, Аль-Фатиха, Аят аль-Курси, 29-й и 30-й джузы, переводы, таджвид и материалы уроков.</p>';
+  var h='<h2>Скачать материалы</h2><p class="sm mut">Чтение аль-Хусари в двух записях, Аль-Фатиха, Аят аль-Курси, 29-й и 30-й джузы, переводы, таджвид и озвучка 28 букв Алифбы.</p>';
   if(!offCan())return h+'<p class="note">Откройте сайт или приложение в браузере, который поддерживает офлайн-загрузку.</p>';
   if(OFF.scanning)return h+beeWait("Проверяем сохранённые материалы…");
   if(OFF.active)h+=beeWait("Асаль собирает материалы…");
@@ -2705,7 +2705,8 @@ async function offDownload(){
 function vOffline(){
   var top=topbar('<a class="lnk" href="#/" aria-label="Главная">‹ Главная</a>')+'<header class="top">'+brand()+'<div class="gname">Без интернета</div></header>';
   var n=R.sur;
-  if(!n)return top+'<section class="box off-pack" id="offPack">'+offPack()+'</section><a class="box row off-link" href="#/practice"><div class="mid"><b>Уроки без интернета</b><div class="sm mut">Самостоятельная практика без входа в группу</div></div>›</a><details class="box"><summary><b>Читать суры и перевод</b></summary><div class="off-list">'+Object.keys(PLN).map(function(k){
+  if(R.alphabet)return top+'<section class="box"><a class="lnk" href="#/offline">‹ Без интернета</a><h2>Арабский алфавит</h2><p class="sm mut">Нажми на букву, чтобы услышать её название.</p>'+abTiles("absay")+'</section>';
+  if(!n)return top+'<section class="box off-pack" id="offPack">'+offPack()+'</section>'+abLink()+'<a class="box row off-link" href="#/practice"><div class="mid"><b>Уроки без интернета</b><div class="sm mut">Самостоятельная практика без входа в группу</div></div>›</a><details class="box"><summary><b>Читать суры и перевод</b></summary><div class="off-list">'+Object.keys(PLN).map(function(k){
     return '<a class="btn sm" href="#/offline/'+k+'">'+esc(plTitle(k))+'</a>';
   }).join("")+'</div></details>'+vListen(true);
   top+='<div class="btns"><a class="btn" href="#/offline">‹ Все суры и загрузки</a><button class="btn pri" data-a="pl" data-v="'+n+'">Слушать суру</button></div>';
@@ -3000,7 +3001,7 @@ function vLessons(){
   if(isKid()&&WAL&&Date.now()-(WAL._at||0)>60000){WAL._at=Date.now();walLoad(true)}
   var lbk=limBlock();if(lbk)h+=vLimit(lbk);else if(isKid()){var lc0=limCfg(),lo=limGet();if(lc0.les||lc0.min)h+='<div class="limbar">⏱ Сегодня: '+(lc0.les?"уроков "+lo.l+" из "+lc0.les:"")+(lc0.les&&lc0.min?" · ":"")+(lc0.min?"минут "+Math.floor(lo.s/60)+" из "+lc0.min:"")+'</div>'}
   if(GC[cs])return h+gcMap(cs);
-  if(cs==="ab"){var at=0;ABLES.forEach(function(x,i){at+=LP&&LP["a"+(i+1)]||0});
+  if(cs==="ab"){var at=0;ABLES.forEach(function(x,i){at+=LP&&LP["a"+(i+1)]||0});h+=abLink();
     return h+'<div class="box"><h2>'+abIco(34)+' Алифба — буквы и чтение</h2><p class="mut sm" style="margin:-6px 0 8px">Узнаём все 28 букв, их формы в начале, середине и конце слова, огласовки и собираем слова из Корана. За каждую звезду — +1 балл в рейтинг.</p><div class="sm" style="margin-bottom:10px">⭐ '+at+' из '+ABLES.length*3+'</div>'+'<div class="lmapbg">'+'<div class="hive" aria-hidden="true"><svg viewBox="0 0 100 100" width="84" height="84"><path d="M50 4v10" stroke="#8B5A2B" stroke-width="3"/><path d="M20 18Q50 8 80 18" stroke="#6B8E23" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M50 14C30 14 22 28 22 34C14 38 12 50 16 56C10 62 12 74 20 80L80 80C88 74 90 62 84 56C88 50 86 38 78 34C78 28 70 14 50 14Z" fill="#F7B733"/><g stroke="#D98E04" stroke-width="3" fill="none" stroke-linecap="round"><path d="M28 34Q50 28 72 34"/><path d="M19 47Q50 40 81 47"/><path d="M17 60Q50 53 83 60"/><path d="M20 72Q50 66 80 72"/></g><path d="M38 80Q38 64 50 64Q62 64 62 80Z" fill="#5B3410"/><rect x="12" y="78" width="76" height="8" rx="4" fill="#A0522D"/><circle cx="84" cy="88" r="4" fill="#F472B6"/><circle cx="84" cy="88" r="1.6" fill="#FDE68A"/><circle cx="14" cy="90" r="3.4" fill="#FB923C"/><circle cx="14" cy="90" r="1.3" fill="#FDE68A"/></svg><b class="zz">Z z z</b></div><div class="fbee" data-keep="bee" aria-hidden="true"><i>'+mas("asl",44)+'<svg class="lids" viewBox="0 0 200 200"><circle cx="85" cy="78" r="11" fill="#fcd34d"/><circle cx="115" cy="78" r="11" fill="#fcd34d"/><path d="M76 78q9 8 18 0M106 78q9 8 18 0" stroke="#5b3a1a" stroke-width="3.6" fill="none" stroke-linecap="round"/></svg></i><b>Ж-ж-ж!</b></div>'+vAbMap()+'</div>'+'<p class="mut sm" style="margin-top:10px;font-size:12px">Буквы показаны шрифтом мединского мусхафа — такими же их увидишь в Коране.</p></div>'}
   var tot=0;LMOD.list.forEach(function(n){tot+=LP&&LP["s"+n]||0});
   h+='<div class="box"><h2>📖 '+esc(LMOD.name)+'</h2><p class="mut sm" style="margin:-6px 0 8px">Слушай, читай и пойми смысл каждой суры. Игры: порядок аятов, угадай аят на слух, смысл аята, пропущенное слово, найди пару. За каждую звезду — +1 балл в рейтинг.</p>';
@@ -3111,7 +3112,7 @@ function lessonAct(a,v,k){
     case"lquit":laStop();UI.tjpop=null;try{if(GCP&&GCP.au){GCP.au.pause();GCP.on=false}}catch(e){}LS=null;window.scrollTo(0,0);return true;
     case"lplay":if(LS.ab!=null||LS.gc!=null)return false;var pn_=parseInt(v,10);laPlay(LS.step==="intro"||!t||t.t!=="sur"?LS.n:t.n,pn_);return false;
     case"abpop":UI.abpop=v;UI.abk=k!=null&&k!==""?+k:null;return true;
-    case"abclose":UI.abpop=null;return true;
+    case"abclose":UI.abpop=null;abStop();return true;
     case"abnop":return false;
     case"absay":abSpeak(v);return false;
     case"tjtog":store.set("tajweed",store.get("tajweed",1)===0?1:0);return true;
@@ -3514,12 +3515,29 @@ function abFN(F,k){return F.length===2?["одна","в конце"][k]:["одн�
 var ABFX=["Так буква пишется отдельно — сама по себе.","В начале слова буква соединяется только со следующей буквой (слева от неё).","В середине слова буква соединяется с обеих сторон: и справа, и слева.","В конце слова буква соединяется только с предыдущей буквой (справа) и часто получает «хвостик»."];
 function abWord(c){if(typeof QD==="undefined"||!QD)return null;var best=null;Object.keys(QD).some(function(n){QD[n].ar.some(function(a){a.split(" ").forEach(function(w){var b=w.replace(/[\u064B-\u065F\u0670\u06D6-\u06ED\u0640]/g,"").replace(/[أإآٱ]/g,"ا").replace(/ى/g,"ي").replace(/ة/g,"ه");if(b.indexOf(c)>-1&&b.length>=3&&b.length<=5&&(!best||b.length<best.b.length))best={w:w,b:b}})})});return best?best.w:null}
 function abHi(w,c){var h="",norm=function(ch){return ch.replace(/[أإآٱ]/,"ا").replace("ى","ي").replace("ة","ه")};var i=0;while(i<w.length){var j=i+1;while(j<w.length&&/[\u064B-\u065F\u0670\u06D6-\u06ED]/.test(w[j]))j++;var seg=w.slice(i,j);h+=norm(w[i])===c?'<em>'+esc(seg)+'</em>':esc(seg);i=j}return h}
-function abSpeak(c){try{var u=new SpeechSynthesisUtterance(ABAR[c]||c);u.lang="ar-SA";u.rate=.8;var v=speechSynthesis.getVoices().filter(function(x){return /^ar/i.test(x.lang)})[0];if(v)u.voice=v;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
-function abHasVoice(){try{return speechSynthesis.getVoices().some(function(x){return /^ar/i.test(x.lang)})}catch(e){return false}}
+var AB_AUDIO=null;
+function abStop(){if(AB_AUDIO){AB_AUDIO.pause();AB_AUDIO=null}}
+function abSpeak(c){
+  if(!ABL[c])return;
+  abStop();ttsStop();laStop();
+  if(PL&&PL.playing)plToggle(false);
+  var clip=new Audio("audio/ab/recorded/"+c.charCodeAt(0).toString(16).padStart(4,"0")+".wav");
+  AB_AUDIO=clip;
+  clip.play().catch(function(){
+    if(AB_AUDIO!==clip)return;
+    flash(navigator.onLine===false?"Подключитесь к интернету и скачайте озвучку в разделе «Без интернета».":"Не удалось воспроизвести запись. Попробуйте ещё раз.");render();
+  });
+}
+function abLink(){return '<a class="box row off-link" href="#/offline/alphabet"><div class="mid"><b>Послушать арабский алфавит</b><div class="sm mut">28 букв</div></div><span aria-hidden="true">›</span></a>'}
+function abTiles(action){
+  return '<div class="abtiles">'+ABALL.map(function(c,k){
+    return '<button class="abt c'+(k%8)+'" data-a="'+action+'" data-v="'+c+'"><span class="ar" lang="ar">'+c+'</span><small>'+abName(c)+'</small></button>';
+  }).join("")+'</div>';
+}
 function vAbPop(){if(!QD)qdLoad();var c=UI.abpop,k=UI.abk==null?-1:UI.abk;if(!c||!ABL[c])return "";var F=abForms(c),j=ABL[c][2],ci=ABALL.indexOf(c)%8,w=abWord(c);
   var h='<div class="abov" data-a="abclose"><div class="abpop c'+ci+'" data-a="abnop"><button class="abx" data-a="abclose" aria-label="Закрыть">✕</button>';
   h+='<div class="abbig ar">'+(k>=0?F[k]:c)+'</div><div class="abnm">'+esc(abName(c))+' <span class="ar">'+(ABAR[c]||"")+'</span></div>';
-  if(abHasVoice())h+='<button class="btn sm" data-a="absay" data-v="'+c+'">🔊 Послушать</button>';
+  h+='<button class="btn sm" data-a="absay" data-v="'+c+'">🔊 Послушать</button>';
   h+='<div class="abinfo"><div>💬 <b>Звук:</b> '+esc(ABL[c][1])+'</div><div>⚫ <b>Точки:</b> '+(ABDOT[c]||"без точек")+'</div>'+(j?'':'<div>✋ <b>Не соединяется</b> со следующей буквой — после неё в слове разрыв.</div>')+'</div>';
   h+='<div class="abf big">'+F.map(function(f,q){return '<button class="'+(q===k?"on":"")+'" data-a="abpop" data-v="'+c+'" data-k="'+q+'"><i class="ar">'+f+'</i><small>'+abFN(F,q)+'</small></button>'}).join("")+'</div>';
   if(k>=0)h+='<p class="abx2">'+(F.length===2&&k===1?ABFX[3]:ABFX[k])+'</p>';
@@ -3565,7 +3583,7 @@ function vAbIntro(i){
   var x=ABLES[i],h=sayS("sab",x.tip);
   if(x.H){h+='<div class="abgrid">'+HAR.map(function(z){return '<div class="abc"><div class="ar abl">بـ'+z[0]+'</div><b>'+z[2]+'</b><small>звук «'+z[1]+'»</small></div>'}).join("")+'</div>';
     h+='<p class="sm mut" style="margin:10px 0 4px">Примеры:</p><div class="tags" style="justify-content:center">'+["ب","ت","م","ن","ل","ك"].map(function(c){return HAR.map(function(z){return '<span class="tg tq" style="font-size:18px"><span class="ar" style="font-size:24px;line-height:1.4">'+c+z[0]+'</span>&nbsp;'+abSyl(c,HAR.indexOf(z))+'</span>'}).join("")}).join("")+'</div>';return h}
-  if(x.R)return h+'<p class="sm mut" style="text-align:center;margin:8px 0 2px">Нажми на любую букву 👆</p><div class="abtiles">'+ABALL.map(function(c,k){return '<button class="abt c'+(k%8)+'" data-a="abpop" data-v="'+c+'"><span class="ar">'+c+'</span><small>'+abName(c)+'</small></button>'}).join("")+'</div>';
+  if(x.R)return h+'<p class="sm mut" style="text-align:center;margin:8px 0 2px">Нажми на любую букву 👆</p>'+abTiles("abpop");
   x.L.split("").forEach(function(c){var F=abForms(c);
     var ci=ABALL.indexOf(c)%8;h+='<div class="abcard c'+ci+'"><button class="ar abl" data-a="abpop" data-v="'+c+'">'+c+'</button><div class="mid"><b style="font-size:20px">'+abName(c)+'</b><div class="sm mut">звук: '+esc(ABL[c][1])+'</div></div><div class="abf">'+F.map(function(f,k){return '<button data-a="abpop" data-v="'+c+'" data-k="'+k+'"><i class="ar">'+f+'</i><small>'+abFN(F,k)+'</small></button>'}).join("")+'</div></div>'});
   return h;
@@ -4509,7 +4527,7 @@ function act(a,b,e){
   if(a==="offdownload"){offDownload();return}
   if(a==="offstop"){if(OFF.controller)OFF.controller.abort();return}
   if(a==="offayah"){plStart(v,{ayah:+k});return}
-  if(R.view==="offline"&&/^(tjtog|tjr|tjclose)$/.test(a)){if(lessonAct(a,v,k))render();return}
+  if(R.view==="offline"&&/^(tjtog|tjr|tjclose|absay)$/.test(a)){if(lessonAct(a,v,k))render();return}
   if(a==="plset"){plAct(k,v);return}
   if(a==="lrec"){LS=null;UI.subm={hid:v,note:"",files:[]};UI.dropKeep=true;go("#/g/"+encodeURIComponent(G.slug)+"/hw");return}
   if(/^(duel|duclose|duelgo|duplay)$/.test(a)){if(duelAct(a,v))render();return}
@@ -4735,6 +4753,7 @@ function reconnect(){
 }
 function route(){
   if(skipRoute){skipRoute=false;return}
+  abStop();
   var r=parseHash();
   if(r.view==="local-practice"){
     if(R.local&&G&&S){render();return}

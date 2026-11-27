@@ -5,16 +5,20 @@ var OFF_AUDIO = "hs-offline-audio-v1";
 var CORE=["index.html","config.js","q30.json","manifest.webmanifest","offline-pack.json",
   "fonts/nunito.woff","fonts/hafs.woff","fonts/sch.woff","fonts/sch-b.woff","fonts/ruqaa.woff",
   "icon-192.png","icon-512.png","apple-touch-icon.png"];
+var LETTERS=Array.from("ابتثجحخدذرزسشصضطظعغفقكلمنهوي",function(c){
+  return "audio/ab/recorded/"+c.charCodeAt(0).toString(16).padStart(4,"0")+".wav";
+});
 self.addEventListener("install", function(e){
   e.waitUntil((async function(){
     try{
       var cache=await caches.open(CACHE);
-      await Promise.allSettled(CORE.map(async function(path){
+      var audio=await caches.open(OFF_AUDIO);
+      await Promise.allSettled(CORE.concat(LETTERS).map(async function(path){
         var url=new URL(path,self.registration.scope).href;
         var ctrl=new AbortController(),timer=setTimeout(function(){ctrl.abort()},4500);
         try{
           var response=await fetch(url,{cache:"reload",signal:ctrl.signal});
-          if(response.ok)await cache.put(url,response);
+          if(response.ok)await (LETTERS.indexOf(path)>=0?audio:cache).put(url,response);
         }finally{clearTimeout(timer)}
       }));
     }finally{await self.skipWaiting()}
@@ -43,7 +47,7 @@ async function audioResponse(request) {
   }
   end = Math.min(end, blob.size - 1);
   return new Response(blob.slice(start, end + 1), {status:206, headers:{
-    "Content-Type":full.headers.get("Content-Type") || "audio/mpeg",
+    "Content-Type":full.headers.get("Content-Type") || (/\.wav$/i.test(new URL(request.url).pathname)?"audio/wav":"audio/mpeg"),
     "Accept-Ranges":"bytes", "Content-Length":String(end-start+1),
     "Content-Range":"bytes " + start + "-" + end + "/" + blob.size
   }});
@@ -53,7 +57,7 @@ self.addEventListener("fetch", function (e) {
   var r = e.request, url = new URL(r.url), scope = self.registration.scope;
   if (r.method !== "GET" || url.origin !== self.location.origin || !url.href.startsWith(scope)) return;
   var path = url.pathname.slice(new URL(scope).pathname.length);
-  if (/^audio\/(?:h|hm)\/\d{6}\.mp3$/.test(path)) {
+  if (/^audio\/(?:h|hm)\/\d{6}\.mp3$/.test(path) || LETTERS.indexOf(path)>=0) {
     e.respondWith(audioResponse(r));
     return;
   }
