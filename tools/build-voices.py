@@ -19,6 +19,11 @@ MODEL_HASH = "0405777e332906f0644e08a680f7cfdc2137ea864090079c1fdd30a43c1b8761"
 ACTORS = {"sab": "ru_dmitriy", "asl": "ru_ekaterina"}
 SAMPLE_RATE = 24000
 NUMBERS = ["", "П+ервый.", "Втор+ой.", "Тр+етий.", "Четв+ёртый.", "П+ятый.", "Шест+ой."]
+SMALL = ["ноль", "один", "два", "три", "четыре", "пять", "шесть", "семь", "восемь", "девять",
+         "десять", "одиннадцать", "двенадцать", "тринадцать", "четырнадцать", "пятнадцать",
+         "шестнадцать", "семнадцать", "восемнадцать", "девятнадцать"]
+TENS = ["", "", "двадцать", "тридцать", "сорок", "пятьдесят", "шестьдесят",
+        "семьдесят", "восемьдесят", "девяносто"]
 VOWELS = "аеёиоуыэюя"
 
 
@@ -62,6 +67,15 @@ def clip_id(speaker, marked):
 def normalize_small_parts(text):
     if re.fullmatch(r"[1-6]\.", text):
         return NUMBERS[int(text[0])]
+    if re.fullmatch(r"(?:В )?\d{1,2}(?: \+ \d{1,2})*\.?|100", text):
+        def cardinal(m):
+            number = int(m[0])
+            if number < 20:
+                return SMALL[number]
+            if number == 100:
+                return "сто"
+            return TENS[number // 10] + (" " + SMALL[number % 10] if number % 10 else "")
+        return re.sub(r"\d+", cardinal, text.replace("+", "плюс"))
     return text
 
 
@@ -72,11 +86,12 @@ def main():
     parser.add_argument("--preview", action="store_true")
     args = parser.parse_args()
     root = args.root.resolve()
-    with args.model.open("rb") as stream:
-        assert hashlib.file_digest(stream, "sha256").hexdigest() == MODEL_HASH, "отличается контрольная сумма модели"
     torch.set_num_threads(min(3, os.cpu_count() or 1))
     torch.set_num_interop_threads(1)
-    model = torch.package.PackageImporter(str(args.model)).load_pickle("tts_models", "model")
+    with args.model.open("rb") as stream:
+        assert hashlib.file_digest(stream, "sha256").hexdigest() == MODEL_HASH, "отличается контрольная сумма модели"
+        stream.seek(0)
+        model = torch.package.PackageImporter(stream).load_pickle("tts_models", "model")
     model.to(torch.device("cpu"))
     assert all(voice in model.speakers for voice in ACTORS.values()), model.speakers
     print("Голоса найдены:", ACTORS, flush=True)
@@ -104,7 +119,7 @@ def main():
         actor, text = row["actor"], row["text"]
         try:
             normalized = normalize_small_parts(text)
-            marked = row.get("marked") or (normalized if normalized != text else accentor(text))
+            marked = row.get("marked") or (normalized if re.fullmatch(r"[1-6]\.", text) else accentor(normalized))
             if not any(v in marked.lower() for v in VOWELS):
                 raise ValueError("нет произносимых гласных")
             speaker = ACTORS[actor]
