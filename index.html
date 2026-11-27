@@ -203,6 +203,7 @@ textarea{min-height:170px;resize:vertical;font-size:14px;line-height:1.5}
 .hall-w .m{font-size:26px}
 .splash{position:fixed;inset:0;z-index:90;background:var(--night);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .45s ease}
  .duel-selected{outline:2px solid var(--brand);outline-offset:-2px}
+.boot-screen{position:fixed;inset:0;display:grid;place-content:center;text-align:center;background:var(--night);color:var(--tx);z-index:89}
 .off-link{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit}
 .off-bee{display:inline-flex;align-items:center;justify-content:center;transform-origin:center;animation:off-fly 2.3s ease-in-out infinite}
 .off-bee svg{display:block}.off-wait{display:flex;align-items:center;justify-content:center;gap:10px;padding:12px;color:var(--mut);font-weight:700}
@@ -637,6 +638,9 @@ details.box summary{cursor:pointer}
 ::highlight(taj-sl){color:var(--taj-sl)}
 ::highlight(taj-iz){color:var(--taj-iz)}
 .tjayah{cursor:pointer}
+.verse-end{position:relative;display:inline-grid;place-items:center;inline-size:2.25em;block-size:2.25em;box-sizing:border-box;margin-inline-start:.15em;border:3px double currentColor;border-radius:50%;color:#805714;font-family:Tahoma,Arial,sans-serif;font-size:.64em;font-weight:700;line-height:1;vertical-align:.13em;white-space:nowrap;unicode-bidi:isolate}
+.verse-end::before{content:"";position:absolute;top:50%;left:50%;width:.19em;height:.19em;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 -1.11em currentColor,0 1.11em currentColor,-1.11em 0 currentColor,1.11em 0 currentColor,-.79em -.79em currentColor,.79em -.79em currentColor,-.79em .79em currentColor,.79em .79em currentColor;pointer-events:none}
+html[data-theme=dark] .verse-end{color:#edcb7f}
 .tjpop .abbig .tj{color:var(--tc)}.tjdot{display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--tc);margin-right:8px;vertical-align:-1px}
 .wrdline{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-start;direction:rtl;padding:12px;border-radius:16px;background:var(--card);border:1px dashed var(--line);margin-bottom:12px;min-height:60px;font-size:26px}.wrdw{padding:2px 8px;border-radius:10px;background:rgba(34,197,94,.14)}.wrdw.emp{background:transparent;border-bottom:3px solid var(--line);min-width:48px;border-radius:0}.wrdw.emp.cur{border-bottom-color:var(--brand)}
 .wrdpool{display:flex;flex-wrap:wrap;gap:8px;direction:rtl}.wrdpool .lopt{width:auto;flex:0 0 auto;font-size:24px;padding:8px 14px}
@@ -743,11 +747,12 @@ html.teen .brand i{display:none}html.teen .rwrow,html.teen .rwrow+.btn{display:n
 html.teen .limbox>svg{display:none}
 .priv h3{margin:14px 0 4px}.priv ul{margin:4px 0;padding-left:20px}.priv li{margin:3px 0}
 .vj{display:grid;grid-template-columns:24px 1fr auto auto;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--line);font-size:14px}.vj small{color:var(--mut)}.vj i{font-style:normal;font-weight:800;min-width:56px;text-align:right}
+html[data-theme] body,html[data-theme][data-tod] body,html.teen[data-theme] body{min-height:100vh;min-height:100dvh;background-repeat:no-repeat}
 </style>
 <script>(function(){var t="light";try{t=JSON.parse(localStorage.getItem("theme"))||"light"}catch(e){}document.documentElement.setAttribute("data-theme",t==="dark"?"dark":"light");try{var d=JSON.parse(localStorage.getItem("tod"));if(d)document.documentElement.setAttribute("data-tod",d)}catch(e){}})()</script>
 </head>
 <body>
-<div id="app"><div class="loading">Загрузка…</div></div>
+<div id="app"><div class="boot-screen" role="status">🐝 Открываем Хасанатики…</div></div>
 <div id="pl" hidden aria-label="Плеер"></div>
 <script src="config.js"></script>
 <script>
@@ -855,16 +860,61 @@ var ERR={update_required:"Обнови страницу, чтобы играть
 function emsg(e){var c=e&&(e.code||e.message);if(/Could not find the function|schema cache/i.test(String(c)))return "Нужно обновить базу: запустите новый setup.sql в Supabase (SQL Editor → Run)";if(ERR[c])return ERR[c];try{console.warn("Ошибка сервера:",c)}catch(x){}return "Что-то пошло не так. Попробуйте ещё раз"}
 
 /* ================= связь с базой ================= */
-var TOK=store.get("tok",null),ME=null;
+var TOK=store.get("tok",null),ME=null,ME_LIVE=false,ME_WAIT=!!TOK,AUTH_TASK=null;
+var ADMIN_STATUS="";
 function rpc(fn,args){
   if(!CLOUD)return DEMO.call(fn,args||{});
+  if(navigator.onLine===false)return Promise.reject(err("network"));
+  var reads=/^(?:me|app_info|group_get|admin_list|admin_login_log|listens_get|wallet_get|wallet_peek|parent_view|parent_pray_get|progress_get|progress_group|hw_list|msg_list|msg_threads|push_info|student_activity_get|avatars_get|journal_get|miss_report|taps_report|duel_list)$/;
+  var ctrl=reads.test(fn)?new AbortController():null;
+  var timer=ctrl?setTimeout(function(){ctrl.abort()},4200):null;
   var h={"Content-Type":"application/json",apikey:CFG.supabaseKey};
   if(/^eyJ/.test(CFG.supabaseKey))h.Authorization="Bearer "+CFG.supabaseKey;
-  var body=JSON.stringify(args||{});
-  return fetch(String(CFG.supabaseUrl).replace(/\/+$/,"")+"/rest/v1/rpc/"+fn,{method:"POST",headers:h,body:body})
+  return fetch(String(CFG.supabaseUrl).replace(/\/+$/,"")+"/rest/v1/rpc/"+fn,
+    {method:"POST",headers:h,body:JSON.stringify(args||{}),signal:ctrl?ctrl.signal:undefined})
     .catch(function(){throw err("network")})
-    .then(function(r){return r.text().then(function(t){var j=null;try{j=t?JSON.parse(t):null}catch(e){}
-      if(!r.ok)throw err((j&&(j.message||j.msg||j.error))||("http_"+r.status));return j})});
+    .then(async function(r){
+      var t;
+      try{t=await r.text()}catch(e){throw err("network")}
+      var j=null;try{j=t?JSON.parse(t):null}catch(e){}
+      if(!r.ok)throw err((j&&(j.message||j.msg||j.error))||("http_"+r.status));return j;
+    }).finally(function(){if(timer)clearTimeout(timer)});
+}
+async function offlineTag(token){
+  if(!token||!window.crypto||!crypto.subtle)return "";
+  try{
+    var h=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(token));
+    return Array.from(new Uint8Array(h),function(b){return b.toString(16).padStart(2,"0")}).join("");
+  }catch(e){return ""}
+}
+async function backupTeacher(token,me){
+  var tag=await offlineTag(token);
+  if(tag&&TOK===token&&me&&Array.isArray(me.groups)){
+    store.set("off_teacher_v1",{tag:tag,at:Date.now(),profile:{
+      id:me.id,name:me.name,is_admin:!!me.is_admin,groups:me.groups.map(function(g){return {slug:g.slug,name:g.name}})
+    }});
+  }
+}
+async function restoreTeacher(token){
+  var entry=store.get("off_teacher_v1",null);
+  if(!entry||!entry.profile||Date.now()-entry.at>30*864e5)return;
+  var tag=await offlineTag(token);
+  if(tag&&TOK===token&&tag===entry.tag&&!ME_LIVE)ME=entry.profile;
+}
+function confirmTeacher(){
+  if(!TOK)return Promise.resolve();
+  if(AUTH_TASK)return AUTH_TASK;
+  var token=TOK;
+  AUTH_TASK=rpc("me",{p_token:token}).then(function(m){
+    if(TOK!==token)return;
+    if(!m||!Array.isArray(m.groups))throw err("network");
+    ME=m;ME_LIVE=true;backupTeacher(token,m);
+  }).catch(function(e){
+    if(TOK!==token)return;
+    ME_LIVE=false;
+    if(e.code==="auth"){logoutLocal();G=null;S=null;LS=null}
+  }).finally(function(){AUTH_TASK=null;if(TOK===token||!TOK)ME_WAIT=false});
+  return AUTH_TASK;
 }
 
 /* ---- демо-режим: всё хранится в этом браузере, без базы ---- */
@@ -1075,26 +1125,60 @@ function bumpDiff(o,n){if(!o||!n)return;var m={};o.students.forEach(function(x){
   n.students.forEach(function(x){if(m[x.id]!=null&&tot(x)!==m[x.id]){BUMP[x.id]=tot(x)-m[x.id];any=true}});
   if(any){if(bumpT)clearTimeout(bumpT);bumpT=setTimeout(function(){BUMP={};render()},4000)}}
 function bumpH(s){var b=BUMP[s.id];return b?'<span class="bump'+(b<0?" neg":"")+'">'+(b>0?"+":"−")+Math.abs(b)+'</span>':""}
-function cacheGroup(g){try{store.set("cache_"+g.slug,{slug:g.slug,name:g.name,version:g.version,data:g.data,viewer:g.viewer,at:Date.now()})}catch(e){}}
+function groupCacheKey(slug,viewer){
+  if(!viewer)return "";
+  var id=viewer.t||viewer.s||viewer.p;
+  return id?"off_group_v1:"+slug+":"+(viewer.t?"t":viewer.s?"s":"p")+":"+id:"";
+}
+function cacheGroup(g){
+  var key=groupCacheKey(g.slug,g.viewer);
+  if(key)store.set(key,{slug:g.slug,name:g.name,version:g.version,data:g.data,viewer:g.viewer,at:Date.now()});
+  if(!CLOUD)store.set("cache_"+g.slug,{slug:g.slug,name:g.name,version:g.version,data:g.data,at:Date.now()});
+}
+function cachedGroup(slug){
+  var viewers=[];
+  if(R.practice){if(PTOK)viewers=[{p:PTOK.sid}]}
+  else{
+    if(ME&&TOK&&(ME.is_admin||ME.groups.some(function(g){return g.slug===slug})))viewers.push({t:ME.id});
+    if(STOK)viewers.push({s:STOK.sid});
+    if(PTOK)viewers.push({p:PTOK.sid});
+  }
+  for(var i=0;i<viewers.length;i++){
+    var c=store.get(groupCacheKey(slug,viewers[i]),null);
+    if(c&&c.data&&cachedGroupAllowed(c))return c;
+  }
+  var old=store.get("cache_"+slug,null);
+  return old&&old.data&&cachedGroupAllowed(old)?old:null;
+}
+function useCachedGroup(c){
+  G={slug:c.slug,name:c.name,version:c.version};S=migrate(c.data);R.offline=c.at||1;
+  var student=STOK&&by(STOK.sid),child=PTOK&&by(PTOK.sid);
+  meStudent=student?student.id:child?child.id:null;
+  if(R.tab==="m"&&!student)R.tab="r";
+  if(student&&!R.ex&&!R.chat&&!R.practice)R.tab="o";
+  document.title=c.name+" — "+APP;
+}
 function poll(){
   pollAt=Date.now();
-  if(R.view!=="group"||!G||!S||document.hidden)return;
+  if(R.view!=="group"||R.local||!G||!S||document.hidden||navigator.onLine===false)return;
   if(R.tab==="d"&&!UI.hwForm&&!UI.subm&&!HWbusy)hwLoad();
   if(Q.length||saving)return;
-  var slug=G.slug;
+  var slug=G.slug,routeRef=R;
   rpc("group_get",V_({p_slug:slug})).then(function(r){
-    if(!G||G.slug!==slug||Q.length||saving)return;
+    if(R!==routeRef||!G||G.slug!==slug||Q.length||saving)return;
     if(r.closed){G=null;S=null;route();return}
     if(R.offline){R.offline=false;render()}
+    cacheGroup(r);
     if(r.version!==G.version){var old=S;S=migrate(r.data);G.version=r.version;G.name=r.name;bumpDiff(old,S);cacheGroup(r);render();checkCeleb();phLoad()}
-  }).catch(function(x){if(x&&x.code==="network"&&!R.offline){R.offline=true;render()}});
+  }).catch(function(x){if(R===routeRef&&x&&x.code==="network"&&!R.offline){R.offline=true;render()}});
 }
 
 /* ================= состояние экрана ================= */
 var R={view:"loading"},INFO=null,ADM=null;
 var UI={sel:[],amt:1,note:"",sheet:null,surq:"",confirm:null,certFor:null,certImg:null,certReason:"",restore:null,showAll:false,form:null,newG:"",dropKeep:false,slugEdited:false,afterLogin:null,showAllAv:false,hwForm:null,hwOpen:null,subm:null,pins:null,pinSid:"",pinErr:""};
 var toastMsg="",toastTimer=null,celeb=null,shownSheet=null,celebShown=false,meStudent=null;
-function canEdit(){return !!(!R.practice&&ME&&G&&(ME.is_admin||ME.groups.some(function(g){return g.slug===G.slug})))}
+function teacherContext(){return !!(!R.practice&&ME&&G&&(ME.is_admin||ME.groups.some(function(g){return g.slug===G.slug})))}
+function canEdit(){return !!(teacherContext()&&ME_LIVE&&!R.offline&&navigator.onLine!==false)}
 var toastUndo=null;
 function flash(m,undo){if(replaying)return;toastMsg=m;toastUndo=undo||null;if(toastTimer)clearTimeout(toastTimer);toastTimer=setTimeout(function(){toastMsg="";toastUndo=null;render()},undo?6000:2800)}
 var TABS={r:"rating",d:"hw",s:"suras",h:"hall",p:"rules",t:"teacher",m:"me",c:"pchat",o:"home",w:"oasis"},TABN={rating:"r",hw:"d",suras:"s",hall:"h",rules:"p",teacher:"t",me:"m",pchat:"c",home:"o",oasis:"w"};
@@ -1105,6 +1189,7 @@ function parseHash(){var h=location.hash.replace(/^#\/?/,"").split("/");
   if(h[0]==="cab")return{view:"cab"};
   if(h[0]==="parent")return{view:"parent"};
   if(h[0]==="privacy")return{view:"privacy"};
+  if(h[0]==="practice")return{view:"local-practice"};
   if(h[0]==="offline")return{view:"offline",sur:/^\d{1,3}$/.test(h[1]||"")&&PLN[h[1]]?h[1]:null};
   return{view:"home"};
 }
@@ -1168,8 +1253,8 @@ function demoNote(){return CLOUD?"":'<div class="note" style="margin:6px 0 14px"
 function vHome(){
   var h=topbar()+'<header class="top">'+(ICON?'<img class="logo" alt="" src="'+esc(ICON)+'">':"")+brand()+'</header>'+demoNote();
   h+=offLink();
-  if(!INFO)return h+beeWait("Открываем Хасанатики…");
-  if(!INFO.has_admin)return h+vSetup();
+  if(INFO&&INFO.has_admin===false)return h+vSetup();
+  if(CLOUD&&(navigator.onLine===false||INFO&&INFO.offline))h+='<p class="note sm">Без интернета доступны сохранённые группы и учебные материалы.</p>';
   h+=say("duo",'Ассаляму алейкум! Я верблюжонок <b style="color:var(--gold)">Сабур</b>, а это моя помощница — пчёлка <b style="color:var(--gold)">Асаль</b>. Открывай свою группу — будем вместе собирать хасанаты!');
   h+='<div class="box"><h2>Открыть свою группу</h2><p class="mut sm" style="margin:-6px 0 10px">Код группы даёт учитель. Он же есть в ссылке, которую прислали в чат.</p>'+
     '<div class="btns" style="flex-wrap:nowrap"><input id="code" type="text" maxlength="12" autocapitalize="off" autocomplete="off" spellcheck="false" placeholder="k7m2qa" style="font-size:20px;letter-spacing:2px;text-transform:lowercase"><button class="btn pri" data-a="opencode">Открыть</button></div>'+
@@ -1197,13 +1282,15 @@ function vLogin(){
   '<button class="btn pri wide" data-a="login">Войти</button><p class="mut sm" style="margin-top:10px">Логин и пароль выдаёт администратор. Ученики и родители входят в группу по своим кодам.</p></div>';
 }
 function vCab(){
-  if(!ME)return vLogin();
+  if(!ME)return TOK&&ME_WAIT?offLink()+beeWait("Проверяем вход…"):vLogin()+offLink();
   var h=topbar('<a class="lnk" href="#/" aria-label="Главная">‹<span class="bkt"> Главная</span></a>')+'<header class="top">'+brand()+'</header>'+demoNote();
   h+='<div class="box"><h2>Ассаляму алейкум, '+esc(ME.name)+'!'+(ME.is_admin?'<span class="badge">админ</span>':"")+'</h2>';
   if(!ME.groups.length)h+='<p class="mut">'+(ME.is_admin?'Групп пока нет — создайте первую ниже.':'Вам пока не назначили группы. Попросите администратора.')+'</p>';
-  ME.groups.forEach(function(g){h+='<a class="row" href="#/g/'+encodeURIComponent(g.slug)+'/teacher"><span style="font-size:24px">🧑‍🏫</span><div class="mid"><div style="font-weight:800">'+esc(g.name)+'</div><div class="sm mut">код: '+esc(g.slug)+' · отмечать баллы</div></div><span class="mut">›</span></a>'});
+  ME.groups.forEach(function(g){h+='<a class="row" href="#/g/'+encodeURIComponent(g.slug)+'/teacher"><span style="font-size:24px">🧑‍🏫</span><div class="mid"><div style="font-weight:800">'+esc(g.name)+'</div><div class="sm mut">код: '+esc(g.slug)+(ME_LIVE?' · отмечать баллы':' · просмотр сохранённой копии')+'</div></div><span class="mut">›</span></a>'});
   h+='</div>';
+  if(!ME_LIVE||navigator.onLine===false)return h+cabStatus("Открыт сохранённый кабинет. Чтобы изменить группы и настройки, подключитесь к интернету.")+offLink()+logoutBox();
   var f=UI.form&&UI.form.k==="pass";
+  if(ME.is_admin&&(!ADM||ADMIN_STATUS&&ADMIN_STATUS!=="busy"))return h+cabStatus()+offLink()+logoutBox();
   if(ME.is_admin){
     // кабинет администратора по вкладкам
     var cs=UI.cseg||store.get("cseg",null)||"g",adm=vAdmin(),cut=adm.indexOf('<div class="box"><h2>🧑‍🏫 Учителя');if(cut<0)cut=adm.length;
@@ -1212,7 +1299,7 @@ function vCab(){
     if(cs!=="g"){h=h.slice(0,h.indexOf("@@TABS@@"))+tb}else h=h.replace("@@TABS@@",tb);
     if(cs==="g")return h+adm.slice(0,cut)+logoutBox();
     if(cs==="t")return h+adm.slice(cut)+logoutBox();
-    if(cs==="p")return h+(ADM?vPushAdmin():'<div class="box"><div class="loading" style="padding:20px">Загрузка…</div></div>')+logoutBox();
+    if(cs==="p")return h+(ADM&&(!ADMIN_STATUS||ADMIN_STATUS==="busy")?vPushAdmin():cabStatus())+logoutBox();
     h+=vLoginLog();
   }
   h+='<div class="box"><h2>🔑 Мой пароль</h2>'+(f?'<div class="field"><label for="pw_old">Старый пароль</label><input id="pw_old" type="password" autocomplete="current-password"></div><div class="field"><label for="pw_new">Новый пароль (от 6 символов)</label><input id="pw_new" type="password" autocomplete="new-password"></div>'+(UI.formErr?'<p class="note err" style="margin-bottom:10px">'+esc(UI.formErr)+'</p>':"")+'<div class="btns"><button class="btn pri" data-a="pwsave">Сменить пароль</button><button class="btn" data-a="formclose">Отмена</button></div>':'<button class="btn" data-a="form" data-k="pass">Сменить пароль</button>')+'</div>';
@@ -1220,8 +1307,23 @@ function vCab(){
   return h;
 }
 function groupLink(slug){return location.href.split("#")[0]+"#/g/"+encodeURIComponent(slug)}
+function cabStatus(message){
+  if(!message&&(!ADMIN_STATUS||ADMIN_STATUS==="busy"))return '<div class="box">'+beeWait("Обновляем список групп…")+'</div>';
+  return '<div class="box"><p class="sm mut">'+esc(message||ADMIN_STATUS)+'</p><button class="btn sm" data-a="netretry">Проверить связь</button></div>';
+}
+function loadAdmin(){
+  if(!TOK||!ME_LIVE||!ME||!ME.is_admin||ADMIN_STATUS==="busy")return;
+  var token=TOK;ADMIN_STATUS="busy";
+  rpc("admin_list",{p_token:token}).then(function(a){
+    if(TOK!==token)return;ADM=a;ADMIN_STATUS="";
+  }).catch(function(e){
+    if(TOK!==token)return;
+    if(e.code==="auth"){logoutLocal();return}
+    ADMIN_STATUS=e.code==="network"?"Нет связи с сервером. Назначенные группы доступны выше.":emsg(e);
+  }).finally(function(){if(R.view==="cab")render()});
+}
 function vAdmin(){
-  if(!ADM)return '<div class="box"><div class="loading" style="padding:20px">Загрузка…</div></div>';
+  if(!ADM||ADMIN_STATUS&&ADMIN_STATUS!=="busy")return cabStatus();
   var F=UI.form||{},h='<div class="box"><h2>🕌 Группы <small>'+ADM.groups.length+'</small></h2>';
   ADM.groups.forEach(function(g){
     h+='<div class="adm"><div class="hd"><div class="mid"><b>'+esc(g.name)+'</b><div class="sm mut">'+pn(g.students,"ученик","ученика","учеников")+' · код <b style="color:var(--gold);letter-spacing:1px">'+esc(g.slug)+'</b></div><div class="code">'+esc(groupLink(g.slug))+'</div></div><div class="btns"><button class="btn sm" data-a="copylink" data-v="'+esc(g.slug)+'">📋 Ссылка</button><button class="btn sm" data-a="form" data-k="grp" data-v="'+esc(g.slug)+'">✏️</button></div></div>';
@@ -1669,14 +1771,19 @@ function shead(h){h=h||{};h.apikey=CFG.supabaseKey;if(/^eyJ/.test(CFG.supabaseKe
 function surl(p){return sbase()+"/storage/v1/object/hw/"+String(p).split("/").map(encodeURIComponent).join("/")}
 function hwRole(){return canEdit()?"teacher":(STOK&&HW&&HW.role==="student")?"student":"guest"}
 function hwLoad(){
-  if(!CLOUD||!G)return Promise.resolve();
-  var slug=G.slug;HWbusy=true;
+  if(!CLOUD||!G||R.local||R.practice||navigator.onLine===false||HWbusy||TOK&&!ME_LIVE&&!STOK)return Promise.resolve();
+  var slug=G.slug,scope=lpScope();HWbusy=true;
   return rpc("hw_list",V_({p_slug:slug})).then(function(r){
-    if(!G||G.slug!==slug)return;
+    if(!G||G.slug!==slug||lpScope()!==scope)return;
     HW=r;HWerr="";
-    if(STOK&&!canEdit()&&r.role!=="student"){STOK=null;store.set("stok_"+slug,null)}
+    if(r&&Array.isArray(r.items)&&scope.indexOf(":practice:")<0){
+      store.set("off_hw_v1:"+scope,{at:Date.now(),items:r.items.slice(0,50).map(function(x){
+        return {title:x.title,due:x.due,body:x.body,my:x.my?{status:x.my.status,got:x.my.got}:null};
+      })});
+    }
+    if(STOK&&!teacherContext()&&r.role!=="student"){STOK=null;store.set("stok_"+slug,null)}
     if(canEdit()&&!cleaned){cleaned=true;hwCleanup()}
-  }).catch(function(x){HWerr=emsg(x)}).then(function(){HWbusy=false;render()});
+  }).catch(function(x){if(G&&G.slug===slug&&lpScope()===scope)HWerr=emsg(x)}).then(function(){HWbusy=false;render()});
 }
 function hwCleanup(){rpc("hw_cleanup",{p_token:TOK}).then(function(ps){(ps||[]).forEach(function(p){fetch(surl(p),{method:"DELETE",headers:shead()}).catch(function(){})})}).catch(function(){})}
 function hwBadge(){
@@ -1781,6 +1888,15 @@ function stName(st){return st==="accepted"?"✅ принято":st==="returned"?
 function stCls(st){return st==="accepted"?"tn":st==="returned"?"tf":st==="sent"?"tx":"ts"}
 
 function vHw(){
+  if(CLOUD&&(R.offline||navigator.onLine===false)){
+    var snap=store.get("off_hw_v1:"+lpScope(),null);
+    var list=snap&&snap.items||[];
+    return '<div class="box"><h2>Домашние задания</h2><p class="sm mut">'+
+      (snap?"Сохранённые задания. Для отправки работы и открытия сетевых вложений нужна связь.":"Сохранённой копии пока нет. Откройте задания один раз с интернетом.")+
+      '</p>'+list.map(function(x){return '<div class="lg"><div class="lt">'+esc(x.title)+(x.body?'<small>'+esc(x.body)+'</small>':"")+
+        '</div>'+hwSt({status:x.my&&x.my.status,got:x.my&&x.my.got,due:x.due})+'</div>'}).join("")+
+      '<button class="btn sm" data-a="netretry">Проверить связь</button></div>'+offLink();
+  }
   if(!CLOUD)return '<div class="box cen"><div class="big">📚</div><h2>Домашние задания</h2><p class="mut">В демо-режиме задания не работают: для файлов нужна база. На настоящем сайте здесь будут задания учителя, ответы учеников и личный кабинет.</p></div>';
   var role=hwRole(),h="";
   if(role!=="teacher")h+=vStudentCab();
@@ -2230,7 +2346,7 @@ function vCeleb(){
 }
 function vGroup(){
   if(!S&&GATE&&G)return vGate();
-  if(!S)return topbar('<a class="lnk" href="#/" aria-label="Главная">‹<span class="bkt"> Главная</span></a>')+'<div class="loading">'+(R.err?esc(R.err)+'<p style="margin-top:12px"><a class="btn" href="#/">К списку групп</a></p>':"Загрузка…")+'</div>';
+  if(!S)return topbar('<a class="lnk" href="#/" aria-label="Главная">‹<span class="bkt"> Главная</span></a>')+'<div class="box">'+(R.err?'<p>'+esc(R.err)+'</p><button class="btn" data-a="netretry">Проверить связь</button>':beeWait("Открываем группу…"))+'</div>'+offLink();
   if(R.tab==="t"&&!canEdit())R.tab="r";
   if(R.tab==="d"&&isParent())R.tab="r";
   if(R.tab==="c"&&!isParent())R.tab="r";
@@ -2238,13 +2354,13 @@ function vGroup(){
   if(UI.proj&&canEdit())return vProj();
   // урок — на весь экран, без шапки и меню, как отдельная страница; каждое задание появляется с переходом
   if(LS&&R.tab==="s"&&(UI.lseg||"l")==="l"){qdLoad();var scn=lsScene();return '<div class="lsfs sc-'+scn+'"><div class="lsscn" aria-hidden="true">'+sceneSvg(scn)+'</div>'+vLesson()+'</div>'+(UI.sheet?vSheet():"")+vCeleb()}
-  if(R.practice)return topbar('<a class="lnk" href="#/parent">‹ Кабинет родителя</a>')+
+  if(R.practice)return topbar(R.local?'<a class="lnk" href="#/offline">‹ Без интернета</a>':'<a class="lnk" href="#/parent">‹ Кабинет родителя</a>')+
     '<header class="top"><div class="gname">Самостоятельная практика</div></header>'+
     '<p class="box sm">Занятия и звёзды сохраняются на этом устройстве. Баллы ребёнка остаются в его кабинете.</p>'+vRepeat()+vSur()+vTjPop();
   var body=({r:vRating,d:vHw,s:vSur,h:vHall,p:vRules,t:vTeacher,m:vMe,c:vChat,o:vHome2,w:vOasis}[R.tab]||vRating)();
   bellTrackLevels();if(UI.bell)body+=vBellPanel();
   if(UI.lockmsg)body+='<div class="abov" data-a="lockok"><div class="abpop" data-a="abnop" style="text-align:center"><div style="display:flex;justify-content:center">'+mas("sab",110)+'</div><div class="abnm">🔒 '+esc(UI.lockmsg.t)+'</div><p style="margin:8px 0 14px;font-weight:700">'+esc(UI.lockmsg.m)+'</p><button class="btn pri" data-a="lockok">Понятно</button></div></div>';
-  return groupHeader()+body+'<input id="hwfile" type="file" multiple hidden><input id="avfile" type="file" accept="image/*" hidden>'+nav()+(UI.sheet?vSheet():"")+vCeleb();
+  return groupHeader()+(R.offline?'<div class="note sm">Показана сохранённая копия группы. Скачанные уроки доступны без сети.</div>':"")+body+'<input id="hwfile" type="file" multiple hidden><input id="avfile" type="file" accept="image/*" hidden>'+nav()+(UI.sheet?vSheet():"")+vCeleb();
 }
 
 /* ================= отрисовка ================= */
@@ -2589,7 +2705,7 @@ async function offDownload(){
 function vOffline(){
   var top=topbar('<a class="lnk" href="#/" aria-label="Главная">‹ Главная</a>')+'<header class="top">'+brand()+'<div class="gname">Без интернета</div></header>';
   var n=R.sur;
-  if(!n)return top+'<section class="box off-pack" id="offPack">'+offPack()+'</section><details class="box"><summary><b>Читать суры и перевод</b></summary><div class="off-list">'+Object.keys(PLN).map(function(k){
+  if(!n)return top+'<section class="box off-pack" id="offPack">'+offPack()+'</section><a class="box row off-link" href="#/practice"><div class="mid"><b>Уроки без интернета</b><div class="sm mut">Самостоятельная практика без входа в группу</div></div>›</a><details class="box"><summary><b>Читать суры и перевод</b></summary><div class="off-list">'+Object.keys(PLN).map(function(k){
     return '<a class="btn sm" href="#/offline/'+k+'">'+esc(plTitle(k))+'</a>';
   }).join("")+'</div></details>'+vListen(true);
   top+='<div class="btns"><a class="btn" href="#/offline">‹ Все суры и загрузки</a><button class="btn pri" data-a="pl" data-v="'+n+'">Слушать суру</button></div>';
@@ -2598,7 +2714,7 @@ function vOffline(){
   if(!d)return top+'<p class="note">Текст суры не найден.</p>';
   return top+'<section class="box lsnbox"><h2>'+esc(plTitle(n))+'</h2>'+tjLeg()+d.ar.map(function(a,i){
     return '<div class="ayah"><button class="ib" data-a="offayah" data-v="'+n+'" data-k="'+(i+1)+'" aria-label="Слушать аят '+(i+1)+'">'+ICPLAY+
-      '</button><div class="mid"><div class="ar">'+tjw(a,d.tj&&d.tj[i])+' '+arn(i+1)+'</div><div class="sm mut">'+esc(d.ru[i])+'</div></div></div>';
+      '</button><div class="mid"><div class="ar">'+tjw(a,d.tj&&d.tj[i])+verseEnd(i+1)+'</div><div class="sm mut">'+esc(d.ru[i])+'</div></div></div>';
   }).join("")+'</section>'+vTjPop();
 }
 
@@ -2619,8 +2735,8 @@ function beeWait(label){
 }
 function lpScope(){
   if(!G)return "";
-  var role=canEdit()?"teacher":STOK?"student":PTOK?"parent":"practice";
-  var id=canEdit()?ME.id:STOK?STOK.sid:PTOK?PTOK.sid:"device";
+  var role=teacherContext()?"teacher":STOK?"student":PTOK?"parent":"practice";
+  var id=teacherContext()?ME.id:STOK?STOK.sid:PTOK?PTOK.sid:"device";
   return encodeURIComponent(G.slug)+":"+role+":"+encodeURIComponent(String(id||"device"));
 }
 var LP_SCOPE="";
@@ -2639,7 +2755,7 @@ function lpLoad(){
 }
 var LESSON_BUSY=new Set(),LESSON_UI=new Map(),LESSON_STATUS=new Map();
 function lessonAccount(){
-  return CLOUD&&R.view==="group"&&G&&S&&STOK&&!canEdit()&&by(STOK.sid)?
+  return CLOUD&&R.view==="group"&&G&&S&&STOK&&!teacherContext()&&by(STOK.sid)?
     {scope:lpScope(),slug:G.slug,sid:STOK.sid,token:STOK.t}:null;
 }
 function lessonStill(account){
@@ -2723,6 +2839,7 @@ window.addEventListener("storage",function(e){var a=lessonAccount();if(a&&e.key&
 document.addEventListener("visibilitychange",function(){if(!document.hidden)lessonFlush()});
 setInterval(function(){if(!document.hidden)lessonFlush()},20000);
 function arn(n){return String(n).replace(/\d/g,function(d){return "٠١٢٣٤٥٦٧٨٩"[d]})}
+function verseEnd(n){return '&nbsp;<span class="verse-end" dir="ltr">'+arn(n)+'</span>'}
 function ruT(t){return String(t||"").replace(/\s*\[\d+\]/g,"")}
 function arPlain(w){return String(w).replace(/[ً-ٰٟۖ-ۭـ]/g,"")}
 function rnd(n){return Math.floor(Math.random()*n)}
@@ -2942,8 +3059,8 @@ function vLesson0(){
   var h='<div class="box lsnbox ls2">'+lsTop(LS.step==="intro"?'Сура «'+esc(NAMES[n])+'»':"");
   if(LS.step==="intro"){
     h+=sayS("sab","Сначала послушай каждый аят ▶ и прочитай, что он означает. Потом сыграем — я буду подсказывать!");
-    h+=tjLeg();A.forEach(function(a,i){var pl=LA&&!LA.paused&&!LA.ended&&LA.cur===n+":"+(i+1);h+='<div class="ayah'+(pl||plIs(n,i+1)?" play":"")+'" data-ay="'+(i+1)+'"><button class="ib'+(pl?" on":"")+'" data-a="lplay" data-ic="1" data-v="'+(i+1)+'" aria-label="Слушать аят '+(i+1)+'">'+(pl?ICPAU:ICPLAY)+'</button><div class="mid"><div class="ar">'+tjw(a,D.tj&&D.tj[i])+' '+arn(i+1)+'</div><div class="sm mut">'+esc(T[i])+'</div></div></div>'});
-    if(isKid()&&!HW)hwLoad();var rh=isKid()&&HW&&HW.items?HW.items.filter(function(x){return plFind(x.sura||x.title)===String(n)&&!(x.my&&x.my.status==="accepted")})[0]:null;
+    h+=tjLeg();A.forEach(function(a,i){var pl=LA&&!LA.paused&&!LA.ended&&LA.cur===n+":"+(i+1);h+='<div class="ayah'+(pl||plIs(n,i+1)?" play":"")+'" data-ay="'+(i+1)+'"><button class="ib'+(pl?" on":"")+'" data-a="lplay" data-ic="1" data-v="'+(i+1)+'" aria-label="Слушать аят '+(i+1)+'">'+(pl?ICPAU:ICPLAY)+'</button><div class="mid"><div class="ar">'+tjw(a,D.tj&&D.tj[i])+verseEnd(i+1)+'</div><div class="sm mut">'+esc(T[i])+'</div></div></div>'});
+    if(isKid()&&!HW&&!HWerr)hwLoad();var rh=isKid()&&HW&&HW.items?HW.items.filter(function(x){return plFind(x.sura||x.title)===String(n)&&!(x.my&&x.my.status==="accepted")})[0]:null;
     return h+'<div class="btns" style="margin-top:12px"><button class="btn pri" data-a="lstart">🎮 Начать игру</button><button class="btn" data-a="lplayall">🎧 Слушать всю суру</button>'+(rh?'<button class="btn" data-a="lrec" data-v="'+esc(rh.id)+'">🎙 Записать чтение учителю</button>':"")+'</div>'+(isKid()&&!rh?'<p class="sm mut" style="margin-top:8px">🎙 Хочешь отправить учителю своё чтение? Попроси учителя дать задание по этой суре — тогда здесь появится кнопка записи.</p>':"")+'</div>';
   }
   if(LS.step==="res")return h+vLessonRes()+'</div>';
@@ -3060,7 +3177,7 @@ function vActivity(L){
 var PTOK=null,GATE=null,PV={};
 function vtok(){var o={};if(TOK&&!R.practice)o.p_token=TOK;if(STOK)o.p_stoken=STOK.t;if(PTOK)o.p_ptoken=PTOK.t;return o}
 function V_(o){var a=vtok();Object.keys(a).forEach(function(k){o[k]=a[k]});return o}
-function isParent(){return !!PTOK&&!STOK&&!canEdit()}
+function isParent(){return !!PTOK&&!STOK&&!teacherContext()}
 function parentsList(){return store.get("parents",[])}
 function parentsAdd(p){var L=parentsList().filter(function(x){return!(x.slug===p.slug&&x.sid===p.sid)});L.push(p);store.set("parents",L)}
 function parentsDrop(slug,sid){store.set("parents",parentsList().filter(function(x){return!(x.slug===slug&&(!sid||x.sid===sid))}))}
@@ -3143,13 +3260,33 @@ function pvLoad(){parentsList().forEach(function(p){
   if(PV[k]&&PV[k].busy)return;
   var loading={busy:1};
   PV[k]=loading;
+  var cache=offlineTag(p.t).then(function(tag){return tag?"off_parent_v1:"+tag:""});
+  cache.then(function(key){
+    var cached=key&&store.get(key,null);
+    if(PV[k]===loading&&cached){loading.preview=cached;render()}
+  });
   Promise.all([
     rpc("parent_view",{p_ptoken:p.t}),
     rpc("progress_get",{p_code:p.slug,p_student:p.sid,p_ptoken:p.t}).catch(function(){return null})
   ]).then(function(pair){
-    if(PV[k]===loading){PV[k]=pair[0];PV[k].weekly=pair[1];render()}
+    if(PV[k]===loading){
+      PV[k]=pair[0];PV[k].weekly=pair[1];render();
+      cache.then(function(key){
+        if(!key||PV[k]!==pair[0])return;
+        store.set(key,{at:Date.now(),name:p.name,group:pair[0].name,weekly:pair[1],
+          hw:(pair[0].hw||[]).slice(0,30).map(function(x){return {title:x.title,due:x.due,status:x.status,got:x.got}})});
+      });
+    }
   }).catch(function(e){
     if(PV[k]===loading){
+      if(e.code==="network"){
+        cache.then(function(key){
+          if(PV[k]!==loading)return;
+          var snapshot=key&&store.get(key,null);
+          PV[k]=snapshot?{preview:snapshot,offline:true}:{err:"Сводка пока не сохранена. Откройте кабинет один раз с интернетом."};
+          render();
+        });return;
+      }
       PV[k]={err:e.code==="pauth"?"Код больше не действует — учитель мог выдать новый. Войдите заново.":emsg(e),gone:e.code==="pauth"};
       render();
     }
@@ -3177,7 +3314,11 @@ function vParent(){
   if(!L.length)h+=say("duo",'Ассаляму алейкум! Здесь вы увидите успехи своего ребёнка: баллы, посещения, задания и замечания учителя. Код родителя (6 цифр) выдаёт учитель.');
   L.forEach(function(p){var k=pvKey(p),d=PV[k];
     h+='<div class="box">';
-    if(!d||d.busy){h+='<b>'+esc(p.name||"Ребёнок")+'</b><p class="mut">Загрузка…</p></div>';return}
+    if(d&&d.preview){
+      h+='<b>'+esc(d.preview.name||p.name||"Ребёнок")+'</b><p class="sm mut">Сохранённая сводка от '+esc(fdate(d.preview.at,true))+'</p>'+
+        vParentWeekly(d.preview)+'<div class="btns"><a class="btn sm" href="#/practice">Уроки без интернета</a><a class="btn sm" href="#/offline">Коран</a></div></div>';return;
+    }
+    if(!d||d.busy){h+='<b>'+esc(p.name||"Ребёнок")+'</b>'+beeWait("Открываем сводку…")+'</div>';return}
     if(d.err){h+='<b>'+esc(p.name||"Ребёнок")+'</b> · '+esc(p.gname||"")+'<p class="note err" style="margin:8px 0">'+esc(d.err)+'</p><div class="btns"><a class="btn sm" href="#/g/'+encodeURIComponent(p.slug)+'">Войти снова</a><button class="btn sm" data-a="pvout" data-k="'+esc(k)+'">Убрать</button></div></div>';return}
     var S0=S;S=migrate(d.data);var s=by(d.student_id);
     if(!s){S=S0;h+='<p class="mut">Ребёнка больше нет в группе.</p></div>';return}
@@ -4039,7 +4180,7 @@ function tjGen(rules,cnt){var out=[],seen={},tries=0;if(!QD)return out;var ks=Ob
     var x=r[Math.floor(Math.random()*r.length)],key=n+":"+i+":"+x[2];if(seen[key])continue;seen[key]=1;var a=D.ar[i],good=TJS[x[2]];
     var pool=rules.map(function(k){return TJS[k]}).filter(function(v,j,arr){return v!==good&&arr.indexOf(v)===j});if(pool.length<2)pool=pool.concat(["Калькаля","Ихфа","Гунна","Мадд табиъи"].filter(function(v){return v!==good&&pool.indexOf(v)<0}));
     var opts=shuf([good].concat(shuf(pool).slice(0,2)));
-    out.push({t:"gq",q:"Какое правило у выделенной буквы?",arh:esc(a.slice(0,x[0]))+'<mark class="tjq">'+esc(a.slice(x[0],x[1]))+'</mark>'+esc(a.slice(x[1]))+' '+arn(i+1),src:"Сура «"+NAMES[n]+"», аят "+(i+1),opts:opts,good:opts.indexOf(good),hint:TJN[x[2]]})}
+    out.push({t:"gq",q:"Какое правило у выделенной буквы?",arh:esc(a.slice(0,x[0]))+'<mark class="tjq">'+esc(a.slice(x[0],x[1]))+'</mark>'+esc(a.slice(x[1]))+verseEnd(i+1),src:"Сура «"+NAMES[n]+"», аят "+(i+1),opts:opts,good:opts.indexOf(good),hint:TJN[x[2]]})}
   return out}
 
 /* ================= Подростковый режим ================= */
@@ -4158,7 +4299,7 @@ function duelAct(a,v){
   return false}
 
 /* ================= Оазис: финики, жемчужины, сундуки, наряды Сабура, шатёр, мечеть ================= */
-var WAL=null,WALbusy=false,WALerr="",PEEK=null;
+var WAL=null,WALbusy=false,WALfailure=null,PEEK=null;
 var SHOP=[
   {id:"h_tub",slot:"hat",n:"Тюбетейка зелёная",c:"d",p:40},{id:"h_tub2",slot:"hat",n:"Тюбетейка синяя",c:"d",p:50},{id:"h_kuf",slot:"hat",n:"Белая чалма",c:"d",p:70},{id:"h_gold",slot:"hat",n:"Золотая тюбетейка",c:"p",p:2},
   {id:"sc_red",slot:"sc",n:"Красный шарф",c:"d",p:25},{id:"sc_grn",slot:"sc",n:"Зелёный шарф",c:"d",p:25},{id:"sc_str",slot:"sc",n:"Полосатый шарф",c:"d",p:45},
@@ -4170,7 +4311,7 @@ var TENTIC={t_rug:"🟥",t_pil:"🛋️",t_lamp:"🏮",t_shelf:"📚",t_rehal:"�
 var MOSQ=[["Фундамент",30,0],["Стены",50,0],["Дверь и окна",70,0],["Крыша",90,0],["Купол",110,1],["Минарет",140,1],["Место для омовения",170,2]];
 function shopItem(id){for(var i=0;i<SHOP.length;i++)if(SHOP[i].id===id)return SHOP[i];return null}
 function cur(c,n){return c==="p"?n+" 💎":n+" <i class=dti></i>"}
-function isKid(){return !!(STOK&&!canEdit()&&by(STOK.sid))}
+function isKid(){return !!(STOK&&!teacherContext()&&by(STOK.sid))}
 
 /* --- одежда Сабура --- */
 var HATS={
@@ -4196,9 +4337,21 @@ function sabSync(){var el=document.getElementById("ms-sabme");if(!sabMe()){retur
 function sabInline(eq,w){return '<svg viewBox="0 0 200 200" width="'+w+'" height="'+w+'" aria-hidden="true">'+sabSvg(eq)+'</svg>'}
 
 /* --- загрузка и действия --- */
-function walLoad(force){if(!isKid()||!CLOUD||WALbusy||(WAL&&!force))return;WALbusy=true;
-  rpc("wallet_get",{p_slug:G.slug,p_stoken:STOK.t}).then(function(w){WAL=w;WAL._k=G.slug+":"+STOK.sid;WAL._at=Date.now();WAL._day=limDay();WALerr="";WALbusy=false;sabSync();render()}).catch(function(e){WALbusy=false;WALerr=emsg(e);render()})}
-function walDo(fn,args,ok){if(UI.wbusy)return;UI.wbusy=true;args.p_slug=G.slug;args.p_stoken=STOK.t;render();
+function walLoad(force){
+  if(!isKid()||!CLOUD||WALbusy||navigator.onLine===false)return;
+  walOwn();
+  var slug=G.slug,account=STOK,scope=lpScope();
+  if(!force&&(WAL||WALfailure&&WALfailure.scope===scope&&Date.now()<WALfailure.until))return;
+  WALbusy=true;
+  function current(){return lpScope()===scope&&STOK&&STOK.t===account.t}
+  rpc("wallet_get",{p_slug:slug,p_stoken:account.t}).then(function(w){
+    if(!current())return;
+    WAL=w;WAL._k=slug+":"+account.sid;WAL._at=Date.now();WAL._day=limDay();WALfailure=null;sabSync();
+  }).catch(function(e){
+    if(current())WALfailure={scope:scope,until:Date.now()+15000,message:emsg(e)};
+  }).finally(function(){WALbusy=false;render()});
+}
+function walDo(fn,args,ok){if(UI.wbusy)return;if(navigator.onLine===false){flash("Действия в оазисе доступны при подключении к интернету.");render();return}UI.wbusy=true;args.p_slug=G.slug;args.p_stoken=STOK.t;render();
   rpc(fn,args).then(function(w){UI.wbusy=false;if(WAL&&WAL.plim&&!w.plim)w.plim=WAL.plim;if(WAL&&WAL.today&&!w.today){w.today=WAL.today;w._day=WAL._day;w._at=WAL._at}WAL=w;WAL._k=G.slug+":"+STOK.sid;sabSync();if(ok)ok(w);render()}).catch(function(e){UI.wbusy=false;var c=e&&(e.message||e.code)||"";flash(/poor/.test(c)?"Пока не хватает — пройди ещё уроки":/owned/.test(c)?"Это у тебя уже есть":"Не получилось: "+emsg(e));render()})}
 function peekLoad(){if(PEEK&&PEEK.slug===G.slug&&Date.now()-PEEK.at<60000)return;PEEK={slug:G.slug,at:Date.now(),d:PEEK&&PEEK.slug===G.slug?PEEK.d:null};
   rpc("wallet_peek",{p_slug:G.slug,p_token:canEdit()?TOK:null,p_stoken:STOK?STOK.t:null,p_ptoken:PTOK?PTOK.t:null}).then(function(d){PEEK.d=d||{};render()}).catch(function(){PEEK.d=PEEK.d||{}})}
@@ -4246,7 +4399,11 @@ function mosqueSvg(n){var s='<svg viewBox="0 0 360 240" class="tent" aria-hidden
 function vOasis(){
   if(isKid())walOwn();
   if(!isKid())return '<div class="box cen mut">Оазис есть у каждого ученика в его кабинете.</div>';
-  if(!WAL){walLoad();return '<div class="box cen mut">'+(WALerr?esc(WALerr):"Загрузка оазиса…")+'</div>'}
+  if(!WAL){
+    if(navigator.onLine===false)return '<div class="box cen mut">Оазис откроется, когда появится интернет.</div>';
+    walLoad();
+    return '<div class="box cen mut">'+(WALfailure&&WALfailure.scope===lpScope()&&!WALbusy?esc(WALfailure.message):beeWait("Открываем оазис…"))+'</div>';
+  }
   var w=WAL,tab=UI.wtab||(w.chests||w.offer?"c":"s"),eq=w.equip||{},items=w.items||[];
   var h='<div class="box oas"><div class="oashead"><div class="oassab">'+sabInline(UI.wtry&&shopItem(UI.wtry)&&shopItem(UI.wtry).slot!=="tent"?(function(){var e=JSON.parse(JSON.stringify(eq));e[shopItem(UI.wtry).slot]=UI.wtry;return e})():eq,110)+'</div><div><h2 style="margin:0 0 6px">Мой оазис</h2><div class="oasbal"><span><i class=dti></i> <b>'+w.dates+'</b><small>финики</small></span><span>💎 <b>'+w.pearls+'</b><small>жемчужины</small></span><span>🔥 <b>'+(w.streak||0)+'</b><small>дней подряд</small></span></div></div></div>';
   h+='<p class="sm mut" style="margin:8px 0"><i class=dti></i> Финики — за каждый верный ответ в уроках. 💎 Жемчужины — за каждые 5 уроков и каждые 3 дня подряд. 🎁 Сундук — за каждые 3 урока.</p>';
@@ -4345,6 +4502,7 @@ function act(a,b,e){
   if(a==="ttsall"){speak(ttsScreen());return}
   if(a==="vtog"){var on=!vOn();store.set("voice",on?1:0);TTSLAST="";if(on)speak("Хорошо! Я буду читать задания вслух. Нажми на ответ — я его прочитаю. Нажми ещё раз — чтобы ответить.");else ttsStop();render();return}
   var id=b.dataset.id,s=id&&S?by(id):null,k=b.dataset.k,v=b.dataset.v;
+  if(a==="netretry"){reconnect();return}
   if(a==="duretry"){duFinish();return}
   if(a==="lessonflush"){lessonFlush();return}
   if(a==="qdretry"){QDerr="";qdLoad();render();return}
@@ -4491,13 +4649,13 @@ function copy(text,ok,fallback){
   var done=function(){flash(ok);render()},fail=function(){if(fallback)fallback();flash("Выделите текст и скопируйте вручную");render();if(fallback)setTimeout(fallback,30)};
   try{if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(done,fail);else fail()}catch(e){fail()}
 }
-function logoutLocal(){TOK=null;ME=null;ADM=null;store.set("tok",null);if(R.tab==="t")R.tab="r";UI.hwForm=null;UI.pins=null;HW=null;render()}
-function afterAuth(r){TOK=r.token;ME=r.me;store.set("tok",TOK);UI.formErr="";UI.dropKeep=true;var to=UI.afterLogin;UI.afterLogin=null;
+function logoutLocal(){TOK=null;ME=null;ME_LIVE=false;ME_WAIT=false;ADM=null;ADMIN_STATUS="";store.set("tok",null);store.set("off_teacher_v1",null);if(R.tab==="t")R.tab="r";UI.hwForm=null;UI.pins=null;HW=null;render()}
+function afterAuth(r){TOK=r.token;ME=r.me;ME_LIVE=true;ME_WAIT=false;store.set("tok",TOK);backupTeacher(TOK,ME);UI.formErr="";UI.dropKeep=true;var to=UI.afterLogin;UI.afterLogin=null;
   if(to)go(to);else go(ME.groups.length===1?"#/g/"+encodeURIComponent(ME.groups[0].slug)+"/teacher":"#/cab")}
 function doLogin(){var l=val("li_login"),p=val("li_pass");if(!l||!p){UI.formErr="Введите логин и пароль";render();return}
   rpc("login",{p_login:l,p_password:p}).then(function(r){if(r&&r.ok)afterAuth(r);else{UI.formErr=emsg({code:r&&r.error});render()}}).catch(function(x){UI.formErr=emsg(x);render()})}
 function doSetup(){rpc("setup_admin",{p_login:val("su_login"),p_name:val("su_name"),p_password:val("su_pass")}).then(function(r){INFO=null;afterAuth(r)}).catch(function(x){UI.formErr=emsg(x);render()})}
-function refreshMe(){if(!TOK){render();return Promise.resolve()}return rpc("me",{p_token:TOK}).then(function(m){ME=m;render()}).catch(function(x){if(x.code==="auth")logoutLocal();render()})}
+function refreshMe(){return confirmTeacher().then(render)}
 
 document.addEventListener("click",function(e){var verse=e.target.closest(".tjayah");if(verse&&app.contains(verse)){tjHit(verse,e);return}var b=e.target.closest("[data-a]");if(!b||!app.contains(b))return;act(b.dataset.a,b,e)});
 document.addEventListener("keydown",function(e){
@@ -4564,11 +4722,28 @@ function cachedGroupAllowed(c){
   if(!CLOUD)return true;
   var v=c.viewer||{};
   if(R.practice)return !!(PTOK&&v.p===PTOK.sid);
-  return !!(v.s&&STOK&&v.s===STOK.sid||v.p&&PTOK&&v.p===PTOK.sid||v.t&&ME&&v.t===ME.id);
+  if(ME&&TOK&&(ME.is_admin||ME.groups.some(function(g){return g.slug===c.slug})))return v.t===ME.id;
+  if(STOK)return v.s===STOK.sid;
+  return !!(PTOK&&v.p===PTOK.sid);
+}
+function reconnect(){
+  return confirmTeacher().then(function(){
+    if(R.local)return;
+    if(R.view==="group"&&G&&S){poll();lessonFlush();walLoad(true);render();return}
+    route();
+  });
 }
 function route(){
   if(skipRoute){skipRoute=false;return}
-  var r=parseHash();UI.dupick=null;UI.sheet=null;UI.confirm=null;UI.form=null;UI.formErr="";UI.dropKeep=true;UI.newG="";celeb=null;
+  var r=parseHash();
+  if(r.view==="local-practice"){
+    if(R.local&&G&&S){render();return}
+    if(Q.length&&G){flash("Дождитесь сохранения изменений группы, затем откройте самостоятельные уроки.");return}
+    R={view:"group",local:true,practice:true,tab:"s",slug:"~practice",offline:true};
+    G={slug:R.slug,name:"Самостоятельная практика",version:0};S=migrate({});LS=null;LP=null;STOK=null;PTOK=null;GATE=null;
+    UI.lseg="l";UI.tjpop=null;render();window.scrollTo(0,0);return;
+  }
+  UI.dupick=null;UI.sheet=null;UI.confirm=null;UI.form=null;UI.formErr="";UI.dropKeep=true;UI.newG="";celeb=null;
   if(r.view==="group"&&r.chat){UI.seg="chat";UI.chat=r.chatSid;CH=null;THR=null}
   if(r.view==="group"){
     if(G&&G.slug===r.slug&&S&&!!R.practice===!!r.practice){
@@ -4579,6 +4754,8 @@ function route(){
     R=r;S=null;G=null;R.err="";UI.sel=[];UI.restore=null;UI.showAll=false;HW=null;HWerr="";STOK=null;PH={};CH=null;THR=null;LP=null;LS=null;ACTD=null;if(!r.chat){UI.seg="hw";UI.chat=null}UI.hwForm=null;UI.subm=null;UI.pins=null;UI.hwOpen=null;UI.pinErr="";UI.pinSid="";render();
     GATE=null;STOK=r.practice?null:store.get("stok_"+r.slug,null);PTOK=store.get("ptok_"+r.slug,null);
     if(r.practice&&!PTOK){go("#/parent");return}
+    var saved=cachedGroup(r.slug);
+    if(saved){useCachedGroup(saved);render()}
     rpc("group_get",V_({p_slug:r.slug})).then(function(g){
       if(R!==r)return;
       if(g.closed){
@@ -4595,26 +4772,26 @@ function route(){
       var pend=store.get("pending_"+g.slug,null);
       if(pend&&canEdit()){
         if(pend.v===g.version){var snap=migrate(pend.data);S=JSON.parse(JSON.stringify(snap));Q.push(function(){S=JSON.parse(JSON.stringify(snap))});schedule();flash("Восстановил изменения, которые не успели сохраниться")}
-        else{store.set("pending_"+g.slug,null);flash("Несохранённые изменения с этого телефона устарели — данные обновил другой учитель")}
+        else{flash("Данные группы изменились. Черновик остался на этом устройстве.")}
       }
       document.title=g.name+" — "+APP;render();window.scrollTo(0,0);setTimeout(checkCeleb,900);actLast=0;if(!R.practice)setTimeout(actPing,2500);lessonFlush();
     }).catch(function(x){
       if(R!==r)return;
-      var c=x&&x.code==="network"&&store.get("cache_"+r.slug,null);
-      if(c&&c.data&&cachedGroupAllowed(c)){G={slug:c.slug,name:c.name,version:c.version};S=migrate(c.data);R.offline=c.at||1;meStudent=store.get("me_"+c.slug,null);if(meStudent&&!by(meStudent))meStudent=null;document.title=c.name+" — "+APP;render();return}
-      R.err=emsg(x);render()});
+      var c=x&&x.code==="network"&&cachedGroup(r.slug);
+      if(c){useCachedGroup(c);render();return}
+      G=null;S=null;R.err=x&&x.code==="network"?"Для этой группы пока нет сохранённой копии. Откройте её один раз с интернетом.":emsg(x);render()});
     return;
   }
   document.title=APP;
   if(r.view==="login"&&ME){go("#/cab");return}
-  if(r.view==="cab"&&!ME){UI.afterLogin="#/cab";R={view:"login"};render();return}
+  if(r.view==="cab"&&!ME&&(!TOK||!ME_WAIT)){UI.afterLogin="#/cab";R={view:"login"};render();return}
   if(r.view==="parent"){R=r;PV={};render();window.scrollTo(0,0);pvLoad();return}
   if(r.view==="offline"){R=r;LS=null;UI.tjpop=null;render();offScan();window.scrollTo(0,0);return}
   R=r;render();window.scrollTo(0,0);
   if(r.view==="login")rpc("app_info",{}).then(function(i){INFO=i;if(!i.has_admin&&R.view==="login")go("#/")}).catch(function(){});
-  if(r.view==="home")rpc("app_info",{}).then(function(i){INFO=i;render()}).catch(function(x){INFO={has_admin:true,groups:[]};flash(emsg(x));render()});
+  if(r.view==="home")rpc("app_info",{}).then(function(i){INFO=i;render()}).catch(function(x){INFO={has_admin:true,offline:true};render()});
   if(r.view==="cab"&&ME&&ME.is_admin&&CLOUD)pushInfo();
-  if(r.view==="cab"&&ME&&ME.is_admin)rpc("admin_list",{p_token:TOK}).then(function(a){ADM=a;render()}).catch(function(x){if(x.code==="auth")logoutLocal();else flash(emsg(x));render()});
+  if(r.view==="cab"&&ME&&ME.is_admin)loadAdmin();
 }
 window.addEventListener("hashchange",route);
 thTick(1);setInterval(thTick,60000);
@@ -4635,7 +4812,21 @@ if(SPST||!sess.get("splash")){sess.set("splash","1");SPL=document.createElement(
   SPL.innerHTML='<div class="off-bee" aria-hidden="true">'+mas("asl",144)+'</div><div class="snm">'+esc(APP)+'</div><div class="ssb">Асаль уже летит…</div>';document.body.appendChild(SPL)}
 function splashOff(){if(!SPL)return;var sp=SPL;SPL=null;setTimeout(function(){sp.classList.add("out");setTimeout(function(){sp.remove()},500)},Math.max(0,850-(Date.now()-SPT)))}
 setTimeout(splashOff,6500);
-(TOK?rpc("me",{p_token:TOK}).then(function(m){ME=m}).catch(function(x){if(x.code==="auth"){TOK=null;store.set("tok",null)}}):Promise.resolve()).then(route).then(splashOff,splashOff);
+var bootRoute=parseHash().view;
+if(bootRoute==="offline"||bootRoute==="local-practice"||bootRoute==="parent"){route();splashOff()}
+restoreTeacher(TOK).then(function(){
+  if(R.view==="loading")route();
+  splashOff();
+  return confirmTeacher();
+}).then(function(){
+  if(R.local||R.view==="offline"||R.view==="parent")return;
+  if(R.view==="group"&&G&&S){poll();render()}else route();
+}).catch(function(){splashOff()});
+window.addEventListener("online",reconnect);
+window.addEventListener("offline",function(){ME_LIVE=false;if(R.view==="group")R.offline=true;render()});
+setInterval(function(){
+  if(TOK&&!ME_LIVE&&!document.hidden&&navigator.onLine!==false&&!R.local&&R.view!=="offline")reconnect();
+},25000);
 
 })();
 </script>

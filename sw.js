@@ -2,7 +2,24 @@
 var CACHE = "hs-v1";
 var OFF_FILES = "hs-offline-files-v1";
 var OFF_AUDIO = "hs-offline-audio-v1";
-self.addEventListener("install", function () { self.skipWaiting(); });
+var CORE=["index.html","config.js","q30.json","manifest.webmanifest","offline-pack.json",
+  "fonts/nunito.woff","fonts/hafs.woff","fonts/sch.woff","fonts/sch-b.woff","fonts/ruqaa.woff",
+  "icon-192.png","icon-512.png","apple-touch-icon.png"];
+self.addEventListener("install", function(e){
+  e.waitUntil((async function(){
+    try{
+      var cache=await caches.open(CACHE);
+      await Promise.allSettled(CORE.map(async function(path){
+        var url=new URL(path,self.registration.scope).href;
+        var ctrl=new AbortController(),timer=setTimeout(function(){ctrl.abort()},4500);
+        try{
+          var response=await fetch(url,{cache:"reload",signal:ctrl.signal});
+          if(response.ok)await cache.put(url,response);
+        }finally{clearTimeout(timer)}
+      }));
+    }finally{await self.skipWaiting()}
+  })());
+});
 self.addEventListener("activate", function (e) { e.waitUntil(self.clients.claim()); });
 
 async function audioResponse(request) {
@@ -43,27 +60,40 @@ self.addEventListener("fetch", function (e) {
   if (/\.(?:apk|mp3)$/i.test(path)) return;
   // Read only public site resources on this origin. Supabase requests bypass the worker.
   var fresh = r.mode === "navigate" || /\/$|\.html$|\.json$|sw\.js$|config\.js$/.test(url.pathname);
-  var network = fresh ? fetch(r, {cache:"no-cache"}) : fetch(r);
-  e.respondWith(network.then(function (res) {
-    if (res.ok || res.status < 500) return res;
-    throw new Error("unavailable");
-  }).catch(async function () {
-    var appCache = await caches.open(CACHE);
-    var pack = await caches.open(OFF_FILES);
-    var options = {ignoreSearch:true};
-    var hit = await appCache.match(r, options) || await pack.match(r, options);
-    if (!hit && r.mode === "navigate") {
-      hit = await appCache.match(scope) || await appCache.match(scope+"index.html") ||
+  var controller=new AbortController();
+  var timer=setTimeout(function(){controller.abort()},r.mode==="navigate"?5500:9000);
+  var network=fetch(r,{cache:fresh?"no-cache":r.cache,signal:controller.signal})
+    .finally(function(){clearTimeout(timer)});
+  var cached=(async function(){
+    try{
+      var appCache=await caches.open(CACHE),pack=await caches.open(OFF_FILES);
+      var options={ignoreSearch:true};
+      var hit=r.mode==="navigate"&&(path===""||path==="index.html")?await appCache.match(scope+"index.html"):null;
+      hit=hit||await appCache.match(r,options)||await pack.match(r,options);
+      if(!hit&&r.mode==="navigate"){
+        hit=await appCache.match(scope+"index.html")||await appCache.match(scope)||
             await pack.match(scope+"index.html");
+      }
+      return hit;
+    }catch(e){return null}
+  })();
+  var save=network.then(async function(res){
+    if(res.status!==200)return;
+    var copy=res.clone();
+    var target=r.mode==="navigate"&&(path===""||path==="index.html")?scope+"index.html":r;
+    var cache=await caches.open(CACHE);
+    await cache.put(target,copy);
+  }).catch(function(){});
+  e.waitUntil(save);
+  e.respondWith((async function(){
+    var hit=await cached;
+    var online=network.then(function(res){return res.status>=500?null:res},function(){return null});
+    if(hit&&(r.mode==="navigate"||CORE.indexOf(path)>=0)){
+      var first=await Promise.race([online,new Promise(function(resolve){setTimeout(function(){resolve(null)},1200)})]);
+      return first||hit;
     }
-    return hit || Response.error();
-  }));
-  e.waitUntil(network.then(async function (res) {
-    if (res.status !== 200) return;
-    var copy = res.clone();
-    var cache = await caches.open(CACHE);
-    await cache.put(r, copy);
-  }).catch(function () {}));
+    return await online||hit||Response.error();
+  })());
 });
 self.addEventListener("push", function (e) {
   var d = {};
