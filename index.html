@@ -755,6 +755,7 @@ html.teen .limbox>svg{display:none}
 .priv h3{margin:14px 0 4px}.priv ul{margin:4px 0;padding-left:20px}.priv li{margin:3px 0}
 .vj{display:grid;grid-template-columns:24px 1fr auto auto;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--line);font-size:14px}.vj small{color:var(--mut)}.vj i{font-style:normal;font-weight:800;min-width:56px;text-align:right}
 html[data-theme] body,html[data-theme][data-tod] body,html.teen[data-theme] body{min-height:100vh;min-height:100dvh;background-repeat:no-repeat}
+.pvsel{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}.pvsel .pk.on{border-color:var(--brand);background:color-mix(in srgb,var(--brand) 14%,var(--card2))}.pwsum{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:4px 0 10px}.pwsum span{display:flex;flex-direction:column;align-items:center;padding:8px 4px;border-radius:14px;background:var(--card2)}.pwsum b{font-size:20px}.pwsum small{color:var(--mut);font-size:11.5px;text-align:center}.pwch{display:flex;gap:6px;align-items:flex-end;height:150px;padding:0 2px}.pwd{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;min-width:0}.pwd em{font-style:normal;font-size:11px;font-weight:800;color:var(--mut);min-height:14px}.pwd u{display:block;width:100%;max-width:34px;background:linear-gradient(#34D399,#10B981);border-radius:8px 8px 3px 3px;min-height:0}.pwd.td u{background:linear-gradient(#FBBF24,#F59E0B)}.pwd i{font-style:normal;margin-top:4px;width:20px;height:20px;border-radius:50%;background:#7C3AED;color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center}.pwd i.z{background:transparent}.pwd small{font-size:11px;color:var(--mut);font-weight:800;margin-top:2px;white-space:nowrap}.pwleg{margin:6px 0 4px}.psj{display:flex;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}.psj:first-of-type{border-top:0}.psi{font-size:24px;width:32px;text-align:center}.psj .mid{flex:1;min-width:0}.psj small{color:var(--mut);font-weight:700;font-size:12px}.psj .tpr{display:block;height:8px;border-radius:9px;background:var(--card2);overflow:hidden;margin:4px 0}.psj .tpr u{display:block;height:100%;background:#10B981;border-radius:9px}.psw{color:#D97706}.pnud{display:flex;flex-wrap:wrap;gap:6px}.pnud .pk{font-size:13px;text-align:left}.kn{border:2px solid #F9A8D4;background:color-mix(in srgb,#F9A8D4 14%,var(--card))}.knr{display:flex;gap:10px;align-items:center;padding:4px 0}.knr+.knr{border-top:1px dashed var(--line);padding-top:10px;margin-top:6px}.kni{font-size:30px}.knr .mid{flex:1;min-width:0}.knr small{display:block;color:var(--mut);font-weight:800;font-size:12px}.knr b{font-size:16px}
 </style>
 <script>(function(){var t="light";try{t=JSON.parse(localStorage.getItem("theme"))||"light"}catch(e){}document.documentElement.setAttribute("data-theme",t==="dark"?"dark":"light");try{var d=JSON.parse(localStorage.getItem("tod"));if(d)document.documentElement.setAttribute("data-tod",d)}catch(e){}})()</script>
 </head>
@@ -968,7 +969,7 @@ var ADMIN_STATUS="";
 function rpc(fn,args){
   if(!CLOUD)return DEMO.call(fn,args||{});
   if(navigator.onLine===false)return Promise.reject(err("network"));
-  var reads=/^(?:me|app_info|group_get|admin_list|admin_login_log|listens_get|wallet_get|wallet_peek|parent_view|parent_pray_get|progress_get|progress_group|hw_list|msg_list|msg_threads|push_info|student_activity_get|avatars_get|journal_get|miss_report|taps_report|duel_list)$/;
+  var reads=/^(?:me|app_info|group_get|admin_list|admin_login_log|listens_get|wallet_get|wallet_peek|parent_view|parent_dash|kid_notes|parent_pray_get|progress_get|progress_group|hw_list|msg_list|msg_threads|push_info|student_activity_get|avatars_get|journal_get|miss_report|taps_report|duel_list)$/;
   var ctrl=reads.test(fn)?new AbortController():null;
   var timer=ctrl?setTimeout(function(){ctrl.abort()},4200):null;
   var h={"Content-Type":"application/json",apikey:CFG.supabaseKey};
@@ -1329,6 +1330,7 @@ function bellItems(){if(!G||!S)return [];var out=[],me=STOK&&!canEdit()&&by(STOK
     if(canEdit())HW.items.forEach(function(h){(h.subs||[]).forEach(function(x){if(x.status==="sent"&&by(x.student_id))out.push({k:"sub:"+h.id+":"+x.student_id+":"+(x.updated_at||x.created_at||""),t:x.updated_at||x.created_at||"",ic:"📥",txt:by(x.student_id).name+" сдал(а) «"+h.title+"»",go:"#/g/"+slug+"/hw"})})});
     else if(me)HW.items.forEach(function(h){if(!h.my)out.push({k:"hw:"+h.id,t:h.created_at||"",ic:"📚",txt:"Новое задание: «"+h.title+"»",go:"#/g/"+slug+"/hw"});else if(h.my.status==="accepted")out.push({k:"ok:"+h.id,t:h.my.updated_at||"",ic:"✅",txt:"Учитель принял «"+h.title+"»",go:"#/g/"+slug+"/hw"});else if(h.my.status==="returned")out.push({k:"ret:"+h.id+":"+(h.my.updated_at||""),t:h.my.updated_at||"",ic:"↩️",txt:"«"+h.title+"» — нужно доделать",go:"#/g/"+slug+"/hw"})});
     if(HW.msg_unread)out.push({k:"msg:"+HW.msg_unread+":"+(S.log&&S.log[0]?S.log[0].id:""),t:new Date().toISOString(),ic:"💬",txt:pn(HW.msg_unread,"новое сообщение","новых сообщения","новых сообщений")+" в чате",go:"#/g/"+slug+"/hw",msg:1})}
+  if(me&&KN&&KN.list&&KN.k===G.slug+":"+me.id)KN.list.forEach(function(n){out.push({k:"pn:"+n.id,t:n.at,ic:n.k==="task"?"📝":"💌",txt:(n.k==="task"?"Задание от родителей: «":"Родители: «")+n.txt+"»",go:"#/g/"+slug})});
   var L=(S.log||[]).slice(0,40);
   if(me)L.filter(function(e){return e.s===me.id}).slice(0,15).forEach(function(e){out.push({k:"log:"+e.id,t:e.d,ic:e.t==="f"?"➖":"⭐",txt:(e.t==="f"?"−":"+")+pn(Math.abs(e.v),"балл","балла","баллов")+(e.note?": "+e.note:""),go:"#/g/"+slug+"/rating"})});
   else if(isParent()&&!canEdit()){var pk=PTOK&&PTOK.sid;if(pk)L.filter(function(e){return e.s===pk}).slice(0,15).forEach(function(e){out.push({k:"log:"+e.id,t:e.d,ic:"⭐",txt:(by(pk)||{}).name+": +"+e.v+(e.note?" — "+e.note:""),go:"#/g/"+slug+"/rating"})})}
@@ -3384,7 +3386,7 @@ function vMe(){
 // кабинет родителя
 function pvKey(p){return p.slug+"|"+p.sid}
 function pvLoad(){parentsList().forEach(function(p){
-  var k=pvKey(p);
+  var k=pvKey(p);pdLoad(p,true);
   if(PV[k]&&PV[k].busy)return;
   var loading={busy:1};
   PV[k]=loading;
@@ -3436,10 +3438,59 @@ function vParentWeekly(d){
   else h+='<p class="sm mut">'+(rows.length?"По свежим результатам всё получается.":"Как только ребёнок пройдёт урок, здесь появится результат.")+'</p>';
   return h+'</section>';
 }
+/* --- кабинет родителя 2: неделя по дням, предметы, напоминания и задания ребёнку --- */
+var PD={};
+function pdLoad(p,force){var k=pvKey(p);if(!CLOUD||navigator.onLine===false)return;var o=PD[k];if(o&&(o.busy||!force&&Date.now()-o.at<60000))return;
+  PD[k]={busy:1,at:Date.now(),days:o&&o.days,notes:o&&o.notes};
+  rpc("parent_dash",{p_ptoken:p.t}).then(function(r){PD[k]={at:Date.now(),days:r.days||[],notes:r.notes||[]};render()}).catch(function(e){PD[k]={at:Date.now(),err:e.code==="pauth"?"":emsg(e),days:o&&o.days,notes:o&&o.notes};render()})}
+var WDS=["Вс","Пн","Вт","Ср","Чт","Пт","Сб"];
+function vParWeek(k){var o=PD[k];if(!o||!o.days){return '<section class="box pw"><h3>📅 Неделя по дням</h3>'+(o&&o.err?'<p class="sm mut">'+esc(o.err)+'</p>':beeWait("Считаем…"))+'</section>'}
+  var D=o.days.slice(-7),P=o.days.slice(0,-7),mn=function(x){return Math.round((x.secs||0)/60)},sum=function(L,f){return L.reduce(function(a,x){return a+f(x)},0)};
+  var mx=Math.max(10,Math.max.apply(null,D.map(mn))),tm=sum(D,mn),pm=sum(P,mn),ad=D.filter(function(x){return x.secs>0||x.visits>0||x.les>0}).length,les=sum(D,function(x){return x.les||0});
+  var h='<section class="box pw"><h3>📅 Неделя по дням</h3><div class="pwsum"><span><b>'+tm+'</b><small>'+pl(tm,"минута","минуты","минут")+'</small></span><span><b>'+ad+' из 7</b><small>дней занимался</small></span><span><b>'+les+'</b><small>'+pl(les,"урок","урока","уроков")+'</small></span></div>';
+  h+='<div class="pwch" role="img" aria-label="Минуты занятий по дням">'+D.map(function(x,i){var m=mn(x),dt=new Date(x.d+"T12:00:00"),td=i===D.length-1;
+    return '<div class="pwd'+(td?" td":"")+'"><em>'+(m||"")+'</em><u style="height:'+(m?Math.max(6,Math.round(m/mx*100)):0)+'%"></u>'+(x.les?'<i>'+x.les+'</i>':'<i class="z"></i>')+'<small>'+(td?"сегодня":WDS[dt.getDay()])+'</small></div>'}).join("")+'</div>';
+  h+='<p class="sm mut pwleg">Столбик — минуты в приложении, кружок — пройденные уроки.</p>';
+  if(pm||tm)h+='<p class="sm">'+(tm>pm?"📈 Больше, чем на прошлой неделе ("+pm+" мин). Ма ша Аллах!":tm<pm?"📉 Меньше, чем на прошлой неделе ("+pm+" мин). Можно напомнить ребёнку — кнопки ниже.":"Столько же, сколько на прошлой неделе.")+'</p>';
+  else h+='<p class="sm mut">На этой неделе ребёнок ещё не занимался в приложении.</p>';
+  return h+'</section>'}
+// прогресс по предметам — вызывать, пока S подменён данными группы ребёнка
+function parSubjRows(rows){var out=[];rows=Array.isArray(rows)?rows:[];
+  SUBJ.forEach(function(x){var key=x[0];if(!subjOn(key))return;var course=key==="q"?"q30":key,tot=key==="q"?LM30.list.length:key==="q29"?LM29.list.length:key==="ab"?ABLES.length:GC[key]?GC[key].les.length:0;if(!tot)return;
+    var R0=rows.filter(function(r){return r.course===course}),done=R0.filter(function(r){return (r.best_stars||0)>0}).length,st=R0.reduce(function(a,r){return a+(r.best_stars||0)},0),c=R0.reduce(function(a,r){return a+(r.correct||0)},0),t=R0.reduce(function(a,r){return a+(r.total||0)},0);
+    out.push({ic:x[1],n:x[2],done:Math.min(done,tot),tot:tot,st:st,acc:t?Math.round(c/t*100):null,last:R0.reduce(function(a,r){return r.updated_at>a?r.updated_at:a},"")})});
+  return out}
+function vParSubj(list){if(!list.length)return "";var on=list.filter(function(x){return x.done>0}).sort(function(a,b){return String(b.last).localeCompare(String(a.last))}),off=list.filter(function(x){return !x.done});
+  var h='<section class="box"><h3>📚 Предметы</h3>';
+  if(!on.length)h+='<p class="sm mut">Ребёнок ещё не прошёл ни одного урока в приложении.</p>';
+  h+=on.map(function(x){var w=x.acc!=null&&x.acc<70;return '<div class="psj"><span class="psi">'+x.ic+'</span><div class="mid"><b>'+esc(x.n)+'</b><span class="tpr"><u style="width:'+Math.max(4,Math.round(x.done/x.tot*100))+'%"></u></span><small>'+x.done+' из '+x.tot+' · ⭐ '+x.st+(x.acc!=null?' · верно '+x.acc+'%':"")+(w?' · <b class="psw">⚠️ трудно</b>':"")+'</small></div></div>'}).join("");
+  if(off.length)h+='<p class="sm mut" style="margin:8px 0 0">Ещё не начинал: '+off.map(function(x){return x.ic+" "+esc(x.n)}).join(", ")+'</p>';
+  return h+'</section>'}
+var PNUDGE=[["📖","Пора позаниматься в Хасанатиках!"],["🔁","Повтори суру, которую учишь"],["📚","Сделай задание учителя"],["🕌","Не забудь про намаз"],["❤️","Ма ша Аллах, я горжусь тобой!"]];
+function vParNotes(k){var o=PD[k]||{},N=o.notes||[];
+  var h='<section class="box"><h3>💌 Напомнить ребёнку</h3><p class="sm mut" style="margin:-4px 0 8px">Ребёнок увидит это на главной, когда откроет приложение, и нажмёт «Готово».</p><div class="pnud">'+PNUDGE.map(function(x,i){return '<button class="pk" data-a="pnudge" data-k="'+esc(k)+'" data-v="'+i+'">'+x[0]+' '+esc(x[1])+'</button>'}).join("")+'</div>';
+  h+='<div class="sec" style="margin-top:12px">📝 Своё задание</div><div class="btns" style="flex-wrap:nowrap"><input id="ptask" type="text" maxlength="160" placeholder="Например: выучи 3 аята суры «Ан-Наба»"><button class="btn pri" data-a="ptask" data-k="'+esc(k)+'">Дать</button></div>';
+  if(N.length)h+='<div class="sec" style="margin-top:12px">Отправлено</div>'+N.slice(0,8).map(function(n){var stt=n.done?'<span class="tg tn">✅ '+(n.k==="task"?"сделано":"готово")+'</span>':n.seen?'<span class="tg tx">👀 увидел</span>':'<span class="tg">⏳ ещё не открыл</span>';
+    return '<div class="lg"><div class="lt">'+(n.k==="task"?"📝 ":"💌 ")+esc(n.txt)+'<small>'+esc(fdate(n.at))+'</small></div>'+stt+'<button class="btn sm" data-a="pndel" data-k="'+esc(k)+'" data-id="'+n.id+'" aria-label="Удалить">✕</button></div>'}).join("");
+  return h+'</section>'}
+function pnAct(a,k,v,id){var p=parentsList().find(function(x){return pvKey(x)===k});if(!p)return;
+  if(navigator.onLine===false){flash("Нужен интернет");render();return}
+  var call=a==="pndel"?rpc("parent_note_del",{p_ptoken:p.t,p_id:+id}):rpc("parent_note_add",{p_ptoken:p.t,p_kind:a==="ptask"?"task":"nudge",p_txt:a==="ptask"?v:PNUDGE[+v][1]+" "+PNUDGE[+v][0]});
+  call.then(function(r){var o=PD[k]||(PD[k]={at:Date.now()});o.notes=r.notes||[];if(a!=="pndel"){flash(a==="ptask"?"Задание отправлено ребёнку":"Напоминание отправлено");var i=document.getElementById("ptask");if(i&&a==="ptask")i.value=""}render()})
+    .catch(function(e){flash(e&&(e.message||e.code||"").indexOf("too_many")>-1?"На сегодня хватит напоминаний — ребёнок их уже увидит 🙂":emsg(e));render()})}
+/* --- у ребёнка: записки от родителей на главной --- */
+var KN=null;
+function knLoad(force){if(!CLOUD||!STOK||!G||canEdit()||navigator.onLine===false)return;var k=G.slug+":"+STOK.sid;if(KN&&KN.k===k&&(KN.busy||!force&&Date.now()-KN.at<60000))return;
+  var acc=STOK,prev=KN&&KN.k===k?KN.list:[];KN={k:k,at:Date.now(),busy:1,list:prev};
+  rpc("kid_notes",{p_slug:G.slug,p_stoken:acc.t}).then(function(r){if(!KN||KN.k!==k)return;KN.list=Array.isArray(r)?r:[];KN.busy=0;KN.at=Date.now();render()}).catch(function(){if(KN&&KN.k===k)KN.busy=0})}
+function vKidNotes(){knLoad();if(!KN||!KN.list||!KN.list.length)return "";
+  return '<div class="box kn">'+KN.list.map(function(n){return '<div class="knr"><span class="kni">'+(n.k==="task"?"📝":"💌")+'</span><div class="mid"><small>'+(n.k==="task"?"Задание от родителей":"Родители пишут")+'</small><b>'+esc(n.txt)+'</b></div><button class="btn sm pri" data-a="kndone" data-id="'+n.id+'">'+(n.k==="task"?"✅ Сделано":"👍 Хорошо")+'</button></div>'}).join("")+'</div>'}
+function knDone(id){if(!STOK||!G)return;rpc("kid_note_done",{p_slug:G.slug,p_stoken:STOK.t,p_id:+id}).then(function(r){if(KN)KN.list=r.notes||[];flash("Ма ша Аллах! Родители увидят 💚");render()}).catch(function(e){flash(emsg(e));render()})}
 function vParent(){
   var L=parentsList(),h=topbar('<a class="lnk" href="#/" aria-label="Главная">‹<span class="bkt"> Главная</span></a>')+'<header class="top">'+brand()+'<div class="gname">🏡 Кабинет родителя</div></header>';
   if(L.length)h+='<div class="box" style="display:flex;justify-content:flex-end;padding:10px 14px"><button class="btn dng sm" data-a="pallout">🚪 Выйти из кабинета родителя</button></div>';
   if(!L.length)h+=say("duo",'Ассаляму алейкум! Здесь вы увидите успехи своего ребёнка: баллы, посещения, задания и замечания учителя. Код родителя (6 цифр) выдаёт учитель.');
+  if(L.length>1){var cur=UI.pvsel&&L.some(function(p){return pvKey(p)===UI.pvsel})?UI.pvsel:pvKey(L[0]);h+='<div class="pvsel">'+L.map(function(p){var k0=pvKey(p);return '<button class="pk'+(k0===cur?" on":"")+'" data-a="pvsel" data-k="'+esc(k0)+'">'+esc(p.name||"Ребёнок")+'</button>'}).join("")+'</div>';L=L.filter(function(p){return pvKey(p)===cur})}
   L.forEach(function(p){var k=pvKey(p),d=PV[k];
     h+='<div class="box">';
     if(d&&d.preview){
@@ -3454,8 +3505,8 @@ function vParent(){
     h+='<div class="mecard"><div class="av xl" style="--c:'+l[4]+'">'+av+'<em>'+l[0]+'</em></div><div class="mid"><div class="nm" style="font-size:22px">'+esc(s.name)+'</div><div class="sm mut">'+esc(d.name)+'</div><div class="lvl" style="color:'+l[4]+'">'+l[1]+" "+l[2]+'</div><div class="sm">🏆 '+place(s)+' место из '+N+' · '+pn(tot(s),"балл","балла","баллов")+'</div></div></div>';
     h+='<div class="stats" style="margin-top:10px"><div class="st"><b style="color:var(--n)">'+s.n+'</b><span>🕌 Намаз</span></div><div class="st"><b style="color:var(--q)">'+s.q+'</b><span>📖 Коран</span></div><div class="st"><b style="color:var(--x)">'+s.x+'</b><span>⭐ Доп.</span></div><div class="st"><b style="color:var(--f)">'+s.f+'</b><span>⚠️ Штраф</span></div></div>';
     h+='<div class="tags" style="margin:8px 0">'+'<span class="tg tn">📅 Уроки: '+(a.n?a.p+" из "+a.n:"—")+'</span><span class="tg tq">📱 За неделю: '+(ac.v7||0)+' '+pl(ac.v7||0,"заход","захода","заходов")+', '+dur(ac.s7)+'</span><span class="tg tx">🎓 Игры: ⭐'+(le.stars||0)+'</span><span class="tg ts">📜 Суры: '+surCount(s)+'</span><span class="tg">🏅 Значки: '+eb.length+'</span></div>';
-    h+=vParentWeekly(d);
-    h+='<div class="btns"><a class="btn sm" href="#/g/'+encodeURIComponent(p.slug)+'/practice">Позаниматься самому</a><a class="btn sm" href="#/offline">Слушать Коран</a></div>';
+    var subjL=parSubjRows(d.weekly);h+='</div>'+vParWeek(k)+vParSubj(subjL)+vParentWeekly(d)+vParNotes(k)+'<div class="box">';
+    h+='<div class="btns"><a class="btn sm pri" href="#/g/'+encodeURIComponent(p.slug)+'/practice">🎓 Пройти урок самому</a><a class="btn sm" href="#/offline">Слушать Коран</a></div>';
     if(d.hw&&d.hw.length){h+='<div class="sec">📚 Задания</div>';d.hw.slice(0,8).forEach(function(x){h+='<div class="lg"><div class="lt">'+esc(x.title)+(x.teacher_note?'<small>💬 Учитель: '+esc(x.teacher_note)+'</small>':"")+'</div>'+hwSt(x)+'</div>'})}
     var lg=S.log.filter(function(e){return e.s===s.id}).slice(0,6);if(lg.length)h+='<div class="sec">Последние баллы</div>'+logList(lg,false);
     var trOn=subjOn("tr");S=S0;
@@ -3579,7 +3630,7 @@ function vHome2(){
   LMOD.list.forEach(function(n){var b=LP&&LP["s"+n]||0;st+=b;if(!next&&b<3)next=n});
   var line=[];if(todo)line.push("заданий: "+todo);if(next)line.push("урок по суре «"+NAMES[next]+"»");
   var h='<section class="kid-home"><div class="hello">'+mas("sab",92)+'<p><b>Ассаляму алейкум, '+esc(s.name)+'!</b> '+(line.length?"Сегодня: "+line.join(" и ")+". Вперёд!":"Всё сделано — ма ша Аллах! Повтори суры или поиграй ещё.")+'</p>'+(TTSOK?'<button class="ttsb" data-a="tts" aria-label="Прочитать вслух">🔊</button>':"")+'</div><div class="btns"><button class="btn sm" data-a="read-home">🔊 Прочитать главную</button><a class="btn sm" href="#/offline/voices">Голоса</a></div>'+offLink();
-  h+='<div class="home-sync">'+lessonPending()+'</div>'+vRepeat()+vDaily();
+  h+=vKidNotes()+'<div class="home-sync">'+lessonPending()+'</div>'+vRepeat()+vDaily();
   h+='<div class="tgrid">'+subjectTiles(orderedSubjects()).filter(function(t){var c=TCM[t[0]];return !(c&&subjHid(c))}).map(function(t){var at2=0;ABLES.forEach(function(x,i){at2+=LP&&LP["a"+(i+1)]||0});var pr=t[0]==="q"?Math.round(st/(LMOD.list.length*3)*100):t[0]==="a"?Math.round(at2/(ABLES.length*3)*100):GC[TCM[t[0]]]?(function(c){var z=0;GC[c].les.forEach(function(_,i){z+=LP&&LP[c+(i+1)]||0});return Math.round(z/(GC[c].les.length*3)*100)})(TCM[t[0]]):0,av=t[5]&&(!TCM[t[0]]||subjOn(TCM[t[0]]));
     return '<button class="tile'+(av?"":" soon")+'" style="--tc:'+t[3]+'"'+(av?' data-a="course" data-v="'+TCM[t[0]]+'"':' data-a="soon"'+(t[5]?' data-k="lock"':""))+'><b>'+t[1]+'</b><small>'+(av?t[2]:t[5]?"🔒 закрыто":"скоро")+'</small>'+(av?'<span class="tpr"><u style="width:'+Math.max(4,pr)+'%"></u></span>':"")+'<i>'+t[4]+'</i></button>'}).join("")+'</div>';
   var L=ranked();h+='<div class="qrow"><button class="qc" data-a="tab" data-v="r"><i>🏆</i><b>'+place(s)+' место</b><small>из '+L.length+' · '+pn(tot(s),"балл","балла","баллов")+'</small></button><button class="qc" data-a="tab" data-v="d"><i>📚</i><b>'+(todo?pn(todo,"задание","задания","заданий"):"Задания")+'</b><small>'+(todo?"ждут тебя":"все сданы")+'</small></button></div>'+vTools();
@@ -4758,6 +4809,10 @@ function act(a,b,e){
   if(a==="gplogin"){gateLogin(true);return}
   if(a==="sout2"){studentOut();return}
   if(a==="pallout"){parentLogoutAll();return}
+  if(a==="pvsel"){UI.pvsel=k;render();return}
+  if(a==="pnudge"||a==="pndel"){pnAct(a,k,v,b.dataset.id);return}
+  if(a==="ptask"){var tv=val("ptask").trim();if(tv.length<2){flash("Напишите задание");render();return}pnAct(a,k,tv);return}
+  if(a==="kndone"){knDone(b.dataset.id);return}
   if(a==="pvout"){var p=parentsList().find(function(x){return pvKey(x)===k});if(p)parentExit([p]);render();return}
   if(a==="pcode"){var pc=val("pcode").trim().toLowerCase();if(pc){UI.gmode="p";go("#/g/"+encodeURIComponent(pc))}return}
   if(a==="goalsug"){UI.goalSug=1;UI.dropKeep=true;render();return}
