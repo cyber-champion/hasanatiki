@@ -25,6 +25,18 @@ class PronunciationTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             compile_rules({"бухари": "бу+хари"})
 
+    def test_dobro_in_lessons_and_greeting(self):
+        project = Path(__file__).resolve().parents[1]
+        rules = compile_rules(json.loads((project / "voice-pronunciation.json").read_text(encoding="utf-8")))
+        for before, after in [
+            ("Делать д+обро родителям.", "Делать добр+о родителям."),
+            ("Дай нам д+обро в этом мире и добро́ в Вечной жизни.", "Дай нам добр+о в этом мире и добр+о в Вечной жизни."),
+            ("Д+обро пожалов+ать!", "Добр+о пож+аловать!"),
+            ("Доброе дело.", "Доброе дело."),
+        ]:
+            with self.subTest(before=before):
+                self.assertEqual(apply_rules(before, rules), after)
+
 
 if __name__ == "__main__":
     unittest.main()
