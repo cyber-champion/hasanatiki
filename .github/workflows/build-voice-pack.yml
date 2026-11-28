@@ -8,10 +8,13 @@ on:
       - index.html
       - q30.json
       - tools/build-voices.py
+      - tools/voice_pronunciation.py
+      - tools/test-voice-pronunciation.py
       - tools/collect-voice-lines.cjs
       - tools/import-arabic.py
       - voice-lines.json
       - voice-probes.json
+      - voice-pronunciation.json
   workflow_dispatch:
 
 permissions:
@@ -31,6 +34,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Проверить словарь произношения
+        run: python tools/test-voice-pronunciation.py
       - name: Собрать тексты из приложения
         run: |
           npm install --prefix "$RUNNER_TEMP/voice-tools" --no-save --no-audit --no-fund playwright@1.62.1

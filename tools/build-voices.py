@@ -16,6 +16,7 @@ for folder in (LOCAL / "runtime", LOCAL / "runtime-extra"):
 
 import lameenc
 import torch
+from voice_pronunciation import apply_rules, compile_rules
 
 MODEL_HASH = "0405777e332906f0644e08a680f7cfdc2137ea864090079c1fdd30a43c1b8761"
 ACTORS = {"sab": "ru_dmitriy", "sab_alt": "ru_alexandr", "asl": "ru_ekaterina", "asl_alt": "ru_oksana"}
@@ -114,6 +115,7 @@ def main():
     from silero_stress import load_accentor
 
     accentor = load_accentor()
+    pronunciation = compile_rules(data(root, "voice-pronunciation.json"))
     out = root / "audio" / "voice"
     out.mkdir(parents=True, exist_ok=True)
     available = {actor: {} for actor in ACTORS}
@@ -126,6 +128,7 @@ def main():
         try:
             normalized = normalize_small_parts(text)
             marked = row.get("marked") or (normalized if re.fullmatch(r"[1-6]\.", text) else accentor(normalized))
+            marked = apply_rules(marked, pronunciation)
             if not any(v in marked.lower() for v in VOWELS):
                 raise ValueError("нет произносимых гласных")
             for role in (actor, actor + "_alt"):
